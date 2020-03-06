@@ -399,7 +399,8 @@ void cSamplePlayback::hideUselessControls()
 	display.setControlHide(granularCursor);
 	display.setControlHide(progressCursor);
 	display.setControlHide(wtPositionCursor);
-
+	display.setControlHide(wtPositionCursor);
+	display.setControlHide(spectrumControl);
 }
 
 //==============================================================================================================

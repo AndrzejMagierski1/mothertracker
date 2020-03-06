@@ -60,7 +60,7 @@ const char performanceFxesLabels[performanceFxesCount][22] =
 	"Panning LFO Speed",
 	"Filter LFO Speed",
 	"Gran/Wt LFO Speed",
-	"Step stutter",
+	"Step repeater",
 	"Pattern play mode",
 	"Pattern length",
 };

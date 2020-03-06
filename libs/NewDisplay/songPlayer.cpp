@@ -20,7 +20,7 @@ static uint32_t defaultColors[] =
 };
 
 
-static char tracksNames[8][3] = {"T1","T2","T3","T4","T5","T6","T7","T8"};
+static char tracksNames[8][8] = {"Track 1","Track 2","Track 3","Track 4","Track 5","Track 6","Track 7","Track 8"};
 static char* patternLabel = (char*)"Pattern";
 static char* rowLabel	= (char*)"Row";
 
@@ -237,10 +237,48 @@ uint8_t cSongPlayer::append(uint32_t address)
 
 uint8_t cSongPlayer::refresh1()
 {
-	API_CMD_TEXT(548, 50, font->handle, textStyle | OPT_CENTERY | OPT_CENTERX, rowLabel);
-	API_CMD_TEXT(645, 50, font->handle, textStyle | OPT_CENTERY | OPT_CENTERX, patternLabel);
 
-	return showList();
+	//tlo listy
+	if(style & controlStyleBackground)
+	{
+		API_COLOR(colors[3]);
+		API_LINE_WIDTH(16);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(posX, this->posY);
+		API_VERTEX2F(posX+width, this->posY+this->height-2);
+		API_END();
+
+		API_BLEND_FUNC(SRC_ALPHA , ZERO);
+
+		API_SAVE_CONTEXT();
+		API_SCISSOR_XY(posX, this->posY+this->height-10);
+		API_SCISSOR_SIZE(width+1, 10);
+		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
+		API_RESTORE_CONTEXT();
+
+		API_COLOR(0x000000);
+		API_LINE_WIDTH(1);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX-1, this->posY);
+		API_VERTEX2F(posX-1, this->posY+this->height);
+		API_VERTEX2F(posX+width+1, this->posY);
+		API_VERTEX2F(posX+width+1, this->posY+this->height);
+		API_END();
+
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	}
+
+
+
+	API_COLOR(colors[0]);
+	API_CMD_TEXT(541, posY+15, font->handle, textStyle | OPT_CENTERY | OPT_CENTERX, rowLabel);
+	API_CMD_TEXT(639, posY+15, font->handle, textStyle | OPT_CENTERY | OPT_CENTERX, patternLabel);
+
+
+
+	showList();
+
+	return 0;
 }
 
 uint8_t cSongPlayer::refresh2()
@@ -266,10 +304,10 @@ uint8_t cSongPlayer::showList()
 {
 	if(list == nullptr) return 0;
 
-	int16_t posY = 37+27;
-	int16_t posX = 508;
-	int16_t width = (800/4-16);
-	int16_t height = 394;
+	int16_t posY = this->posY+30;
+	int16_t posX = (this->posX+this->width)-196;
+	int16_t width = 196;
+	int16_t height = this->height-30;
 
 
 	int16_t  x_pos = posX, y_pos, h_row = 27; //font->height+8;
@@ -278,35 +316,7 @@ uint8_t cSongPlayer::showList()
 
 	if(list->length > list->linesCount) w_bar = width-13;
 
-	//tlo listy
-	if(style & controlStyleBackground)
-	{
-		API_COLOR(colors[3]);
-		API_LINE_WIDTH(16);
-		API_BEGIN(RECTS);
-		API_VERTEX2F(posX, posY);
-		API_VERTEX2F(posX+width, posY+height-2);
-		API_END();
 
-		API_BLEND_FUNC(SRC_ALPHA , ZERO);
-
-		API_SAVE_CONTEXT();
-		API_SCISSOR_XY(posX, posY+height-10);
-		API_SCISSOR_SIZE(width+1, 10);
-		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
-		API_RESTORE_CONTEXT();
-
-		API_COLOR(0x000000);
-		API_LINE_WIDTH(1);
-		API_BEGIN(LINES);
-		API_VERTEX2F(posX-1, posY);
-		API_VERTEX2F(posX-1, posY+height);
-		API_VERTEX2F(posX+width+1, posY);
-		API_VERTEX2F(posX+width+1, posY+height);
-		API_END();
-
-		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-	}
 
 	posY +=1;
 
@@ -612,7 +622,7 @@ uint8_t cSongPlayer::showList()
 void cSongPlayer::drawBlocks()
 {
 	API_COLOR(0xFFFFFF);
-	API_LINE_WIDTH(16);
+	API_LINE_WIDTH(8);
 	API_BEGIN(RECTS);
 
 	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
@@ -622,8 +632,8 @@ void cSongPlayer::drawBlocks()
 		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
 		{
 			uint16_t localX, localY;
-			localX = posX + track*(BLOCK_WIDTH + SPACING_X);
-			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y);
+			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
+			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
 
 			API_VERTEX2F(localX, localY);
 			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
@@ -636,9 +646,9 @@ void cSongPlayer::drawBlocks()
 	for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
 	{
 		uint16_t localX;
-		localX = posX + track*(BLOCK_WIDTH + SPACING_X);
+		localX = posX + track*(BLOCK_WIDTH + SPACING_X) +5;
 
-		API_CMD_TEXT((localX + BLOCK_WIDTH/2), 50, font->handle,
+		API_CMD_TEXT((localX + BLOCK_WIDTH/2)+6, posY+18, fonts[4].handle,
 				textStyle | OPT_CENTERY | OPT_CENTERX, &tracksNames[track][0]);
 	}
 }
@@ -647,7 +657,7 @@ void cSongPlayer::fillBlocks()
 {
 	API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	API_COLOR(0x000000);
-	API_LINE_WIDTH(16);
+	API_LINE_WIDTH(8);
 	API_BEGIN(RECTS);
 
 	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
@@ -662,8 +672,8 @@ void cSongPlayer::fillBlocks()
 		{
 			uint16_t localX, localY;
 
-			localX = posX + track*(BLOCK_WIDTH + SPACING_X);
-			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y);
+			localX = posX + track*(BLOCK_WIDTH + SPACING_X) +10;
+			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) +33;
 
 			if(!(data & (1 << track)))
 			{
@@ -687,7 +697,7 @@ void cSongPlayer::drawProgressLine()
 	{
 		API_BLEND_FUNC(SRC_ALPHA, ZERO);
 		API_COLOR(0xFF0000);
-		API_LINE_WIDTH(16);
+		API_LINE_WIDTH(8);
 		API_BEGIN(LINES);
 
 		int16_t patternPosition = controlData->progress.currentSongPosition - textListPos;
@@ -697,15 +707,16 @@ void cSongPlayer::drawProgressLine()
 			float positionInPattern = controlData->progress.positionInPattern * (BLOCK_HEIGHT / (float)controlData->progress.patternLength) + 0.5f; // 0.5 for rounding
 
 			uint16_t localX, localY;
-			localX = posX;
-			localY = posY + patternPosition*(BLOCK_HEIGHT + SPACING_Y);
+			localX = posX+10;
+			localY = posY + patternPosition*(BLOCK_HEIGHT + SPACING_Y)  +33;
 
 			API_VERTEX2F(localX - 5, localY + positionInPattern);
 			API_VERTEX2F(localX + 480, localY + positionInPattern);
 
 			API_END();
-			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 		}
+
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 	}
 }
 

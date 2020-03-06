@@ -70,7 +70,7 @@ void cConfigEditor::update()
 		CE->flashingState = 1;
 		CE->changeLabelText(7, "Update");
 		CE->showConfigList5(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
-		CE->selectSecondSubmenu();
+		CE->selectConfigList(3);
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus >=  fmError)
@@ -452,7 +452,7 @@ static  uint8_t functRight()
 	{
 		if(CE->configListShown)
 		{
-			CE->configListConfirm(CE->selectedConfigListPosition);
+			//CE->configListConfirm(CE->selectedConfigListPosition);
 		}
 	}
 	else if(CE->selectedPlace == 3)

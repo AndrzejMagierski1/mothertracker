@@ -426,8 +426,8 @@ static  uint8_t functDown()
 	case 6: SE->walkOnSongPlayer(playerDown);		break;
 	case 7: SE->walkOnSongPlayer(playerDown);		break;
 
-	case 8:	SE->changePatternsSelection(1); 	break;
-	case 9:	SE->changeGlobalTempo(-1); 			break;
+	case 8:	SE->changePatternsSelection(1); 		break;
+	case 9:	SE->changeGlobalTempo(-1); 				break;
 	//case 2:	SE->changeGlobalPatternLength(-1); 	break;
 	}
 

@@ -234,8 +234,18 @@ void cConfigEditor::selectSecondSubmenu()
 	activateLabelsBorder();
 }
 
-void cConfigEditor::selectConfigList()
+void cConfigEditor::selectConfigList(uint8_t width)
 {
+
+	if(width == 3)
+	{
+		frameData.places[2] = &framesPlacesConfig[3][0];
+	}
+	else
+	{
+		frameData.places[2] = &framesPlacesConfig[2][0];
+	}
+
 	selectedPlace = 2;
 	activateLabelsBorder();
 }

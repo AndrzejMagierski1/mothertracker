@@ -230,7 +230,7 @@ void cMasterParams::showMasterScreen()
 
 	display.setControlText(label[0], "Volume");
 	display.setControlText(label[1], "Rev. Size");
-	display.setControlText(label[2], "Rev. Dump");
+	display.setControlText(label[2], "Rev. Damp");
 	display.setControlText(label[3], "Bit Depth");
 	display.setControlText(label[4], "Limit. A");
 	display.setControlText(label[5], "Limit. R");

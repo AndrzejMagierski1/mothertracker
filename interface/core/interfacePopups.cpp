@@ -445,6 +445,8 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	case stepPopupFx:
 	{
 		//refreshAllList();
+
+		selectedActualItem = constrain(selectedActualItem, 0, FX_COUNT-1);
 		mtProject.values.lastUsedFx = selectedActualItem;
 		display.setControlValue(listControl, selectedActualItem);
 		display.refreshControl(listControl);

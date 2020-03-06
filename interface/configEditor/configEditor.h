@@ -86,7 +86,7 @@ public:
 	void activateLabelsBorder();
 	void selectSubmenu();
 	void selectSecondSubmenu();
-	void selectConfigList();
+	void selectConfigList(uint8_t width);
 
 	//
 	uint8_t flashingState = 0;
