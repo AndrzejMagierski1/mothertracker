@@ -1115,14 +1115,6 @@ void cSampleImporter::calculateCopyingProgress()
 //==============================================================================================
 void cSampleImporter::playSdFile()
 {
-	//if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-//	if(!isWavFile(explorerNames[selectedFile])) return;
-
-//	char file_path[255];
-
-//	strcpy(file_path, actualPath);
-//	if(dirLevel > 0) strcat(file_path, "/");
-//	strcat(file_path, explorerNames[selectedFile]);
 
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
@@ -1135,26 +1127,6 @@ void cSampleImporter::playSdFile()
 	newFileManager.previevSamplefromSD(selectedFile);
 
 	playMode = playModeSdFile;
-//
-//	SdFile wavHeader = SD.open(file_path);
-//
-//	if(!wavHeader)
-//	{
-//		wavHeader.close();
-//		//SD.begin(SdioConfig(DMA_SDIO));
-//		return;
-//	}
-//
-//	strWavFileHeader header;
-//	readHeader(&header,&wavHeader);
-//
-//	wavHeader.close();
-//	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
-//	else
-//	{
-//		if(header.bitsPerSample == 16) playSdWav.play(file_path);
-//		else if (header.bitsPerSample == 24) playSdWav24Bit.play(file_path);
-//	}
 
 
 }

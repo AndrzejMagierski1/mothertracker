@@ -167,14 +167,22 @@ void cSampleRecorder::update()
 	{
 		//saveProgress = recorder.getSaveProgress();
 		//showSaveHorizontalBar();
-		saveInProgressFlag = 0;
 		hideSaveHorizontalBar();
 		currentScreen = screenTypeConfig;
 		showDefaultScreen();
 		if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
 		else audioShield.headphoneSourceSelect(1);
 
+		FM->unblockAllInputs();
+
 		newFileManager.clearStatus();
+
+		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
+		{
+			SR->forceSwitchModule = 1;
+			uint8_t button = interfaceButtonSampleLoad;
+			SR->eventFunct(eventSwitchModule, SR, &button, &SR->firstFreeInstrumentSlotFound);
+		}
 	}
 
 
@@ -688,9 +696,10 @@ static  uint8_t functActionButton0(uint8_t s)
 		SR->selectionWindowSaveFlag = 0;
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
 		{
-			char filePath[70];
-			sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
-			newFileManager.saveRecordedSound(filePath, -1);
+			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), -1))
+			{
+				SR->FM->blockAllInputs();
+			}
 		}
 		else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
@@ -700,27 +709,28 @@ static  uint8_t functActionButton0(uint8_t s)
 				SR->notEnoughMemoryFlag = 1;
 				return 0;
 			}
-			uint8_t firstFree = -1;
+			SR->firstFreeInstrumentSlotFound = -1;
 			for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 			{
 				if(!mtProject.instrument[i].isActive)
 				{
-					firstFree = i;
+					SR->firstFreeInstrumentSlotFound = i;
 					break;
 				}
 			}
-			if(firstFree == -1)
+			if(SR->firstFreeInstrumentSlotFound == -1)
 			{
 				SR->notEnoughInstrumentsFlag = 1;
 				return 0;
 			}
 
-			char filePath[70];
-			sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
-			newFileManager.saveRecordedSound(filePath, firstFree);
+
+			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
+			{
+				SR->FM->blockAllInputs();
+			}
 		}
 
-		SR->saveInProgressFlag = 1;
 		SR->keyboardManager.deactivateKeyboard();
 		return 1;
 	}
@@ -1288,7 +1298,10 @@ static  uint8_t functActionConfirmSave()
 	else
 	{
 
-		newFileManager.saveRecordedSound(filePath, -1);
+		if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), -1))
+		{
+			SR->FM->blockAllInputs();
+		}
 		SR->keyboardManager.deactivateKeyboard();
 	}
 
@@ -1312,18 +1325,18 @@ static  uint8_t functActionConfirmSaveLoad()
 		SR->notEnoughMemoryFlag = 1;
 		return 0;
 	}
-	int8_t firstFree = -1;
+	SR->firstFreeInstrumentSlotFound = -1;
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 	{
 		if(!mtProject.instrument[i].isActive)
 		{
-			firstFree = i;
+			SR->firstFreeInstrumentSlotFound = i;
 			mtProject.values.lastUsedInstrument = i;
 			break;
 		}
 	}
-	if(firstFree == -1)
+	if(SR->firstFreeInstrumentSlotFound == -1)
 	{
 		SR->notEnoughInstrumentsFlag = 1;
 		return 0;
@@ -1341,16 +1354,16 @@ static  uint8_t functActionConfirmSaveLoad()
 		}
 		else
 		{
-			newFileManager.saveRecordedSound(filePath, -1);
+			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
+			{
+				SR->FM->blockAllInputs();
+			}
 			SR->keyboardManager.deactivateKeyboard();
-			SR->saveInProgressFlag = 1;
 		}
 
-		SR->forceSwitchModule = 1;
 
-		firstFree++;
-		uint8_t button = interfaceButtonSampleLoad;
-		SR->eventFunct(eventSwitchModule, SR, &button, &firstFree);
+		SR->firstFreeInstrumentSlotFound++;
+
 	}
 
 	return 0;
@@ -1706,7 +1719,6 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->recordInProgressFlag) return 1;
-	if(SR->saveInProgressFlag) return 1;
 	if(SR->notEnoughInstrumentsFlag) return 1;
 	if(SR->notEnoughMemoryFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;

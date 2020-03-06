@@ -96,6 +96,11 @@ void cFileManager::copySamples()
 		sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
 		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 	}
+	else if(currentOperation == fmSaveRecordedSound)
+	{
+		sprintf(currentCopySrcPath, "Recorded/%s.wav",  getRecordingFileName());
+		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+	}
 	else // import
 	{
 		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1

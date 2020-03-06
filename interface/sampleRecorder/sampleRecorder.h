@@ -270,7 +270,8 @@ uint8_t cropCounter = 0;
 		saveTypeLoad
 
 	};
-	uint8_t saveInProgressFlag = 0;
+
+	int8_t firstFreeInstrumentSlotFound;
 	uint8_t saveProgress;
 	uint8_t saveOrSaveloadFlag = 0;
 	uint8_t forceSwitchModule = 0;

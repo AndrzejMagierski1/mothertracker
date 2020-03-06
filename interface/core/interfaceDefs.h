@@ -213,6 +213,8 @@ const char fileManagerPopupText[][30] =
 		"Exporting Pattern",
 		"Exporting Pattern Stems",
 		"Exporting Selection",
+		"Saving Recording",
+		"Importing Recording",
 
 
 };

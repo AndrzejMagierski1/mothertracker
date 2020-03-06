@@ -19,6 +19,8 @@ bool cFileManager::previevSamplefromSD(uint8_t index)
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 
+	if(explorerList[index][0] == '/') return false;
+
 	char filePath[255];
 	strcpy(filePath, explorerCurrentPath);
 	strcat(filePath, "/");

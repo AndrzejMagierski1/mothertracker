@@ -285,7 +285,7 @@ private:
 	void loadInstrumentsFromWorkspace();
 	void saveInstrumentsToWorkspace();
 	void copyInstruments();
-	void createEmptyInstrumentInWorkspace(uint8_t slot, char* name);
+	void createEmptyInstrumentInWorkspace();
 	void deleteInstrumentsFromWorkspace();
 
 
@@ -391,6 +391,8 @@ private:
 	// recording
 	void saveRecording();
 	void saveRecordingEnd();
+	char* getRecordingFileName();
+	void saveRecordedSoundFinish();
 	uint8_t recordingImportSlot;
 	// preview sample
 

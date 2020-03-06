@@ -139,25 +139,33 @@ void cFileManager::saveInstrumentsToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     CREATE     ---------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::createEmptyInstrumentInWorkspace(uint8_t slot, char* name)
+void cFileManager::createEmptyInstrumentInWorkspace()
 {
-	if(mtProject.instrument[slot].isActive == 0)
+
+	if(mtProject.instrument[currentInstrument].isActive == 0)
 	{
 		// jesli nie aktywny to tworzy domyslna strukture
-		setDefaultActiveInstrument(&mtProject.instrument[slot]);
+		setDefaultActiveInstrument(&mtProject.instrument[currentInstrument]);
 	}
 
-	//nadaje nazwe i zapisuje z nowa nazwa zawsze
-	strcpy(mtProject.instrument[slot].sample.file_name, name);
+	if(currentOperation == fmImportSamplesToWorkspace)
+	{
+		//nadaje nazwe i zapisuje z nowa nazwa zawsze
+		strcpy(mtProject.instrument[currentInstrument].sample.file_name, explorerList[importCurrentFile]);
+	}
+	else //(currentOperation == fmSaveRecordedSound)
+	{
+		strcpy(mtProject.instrument[currentInstrument].sample.file_name, getRecordingFileName());
+	}
 
 
-	if(!writeInstrumentToFileStruct(&mtProject.instrument[slot], &fileManagerInstrumentBuffer))
+	if(!writeInstrumentToFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 	{
 		throwError(0);
 	}
 
 	char instrumentToSave[PATCH_SIZE];
-	sprintf(instrumentToSave, cWorkspaceInstrumentFileFormat, slot+1); // nazwy instrumentow od numeru 1
+	sprintf(instrumentToSave, cWorkspaceInstrumentFileFormat, currentInstrument+1); // nazwy instrumentow od numeru 1
 
 	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerInstrumentBuffer, instrumentToSave, sizeof(strInstrumentFile));
 

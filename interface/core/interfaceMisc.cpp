@@ -263,6 +263,8 @@ void cInterface::commonThingsUpdate()
 				case fmExportingSoundPattern		: text_index = 14;	break;
 				case fmExportingSoundPatternStems	: text_index = 15;	break;
 				case fmExportingSoundRenderSelection: text_index = 16;	break;
+				case fmSavingRecordedSound			: text_index = 17;	break;
+				case fmSavingImportingRecordedSound	: text_index = 18;	break;
 
 				default: text_index = 0; break;
 				}

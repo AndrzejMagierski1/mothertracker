@@ -161,7 +161,7 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 	{
 		case 0:		importSamplesToWorkspaceInit(); 						break;
 		case 1:		copySamples();											break;
-		case 2:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
+		case 2:		createEmptyInstrumentInWorkspace();						break;
 		case 3:		importSamplesToWorkspaceContinue(); 					break;
 		case 4:		moveSampleMemory();										break;
 		case 5:		loadInstrumentsFromWorkspace(); 						break; // instruments
@@ -210,12 +210,12 @@ void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 13
 	{
 		case 0: 	saveRecording(); 										break;
 		case 1:		copySamples();											break;
-		case 2:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
+		case 2:		createEmptyInstrumentInWorkspace();						break;
 		case 3:		importSamplesToWorkspaceContinue(); 					break;
 		case 4:		moveSampleMemory();										break;
 		case 5:		loadInstrumentsFromWorkspace(); 						break;
 		case 6:		loadSamplesFromWorkspace();								break;
-		case 7:		importSamplesToWorkspaceFinish();						break;
+		case 7:		saveRecordedSoundFinish();								break;
 		default:	stopOperationWithError(fmSaveRecordedError); 			break;
 	}
 }
