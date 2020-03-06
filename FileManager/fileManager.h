@@ -281,6 +281,7 @@ private:
 	// instrument ------------------------------------
 	void loadInstrumentsFromWorkspace();
 	void saveInstrumentsToWorkspace();
+	uint8_t saveInstrument(uint8_t idx);
 	void copyInstruments();
 	void createEmptyInstrumentInWorkspace(uint8_t slot, char* name);
 	void deleteInstrumentsFromWorkspace();
@@ -389,11 +390,18 @@ private:
 	/// IMPORT MOD
 
 	void importModFileInit();
-	void importModFileInstruments();
-	void importModFilePatterns();
+	void importModFile_GetInstrumentData();
+	void importMod_SaveInstrument();
+
+	void importModFile_SongInit();
+	void importModFile_Patterns();
 	void importModFileWaves();
 	void importModFileFinish();
 	void importModFileError();
+
+	uint8_t periodToNote(uint16_t period);
+	void printNote(uint8_t note);
+
 	bool importModFileAfterNewProject = 0;
 
 	char modToImportFilename[255];
@@ -403,6 +411,8 @@ private:
 	uint8_t modFileInstruments_actualIndex = 0;
 	uint8_t modFileChannelsCount = 4;
 
+	uint8_t modFilePatterns_count = 1;
+	uint8_t modFilePatterns_actualIndex = 0;
 
 
 	/*
@@ -413,6 +423,8 @@ private:
 
 
 	const uint8_t modSampleInfoSize = 30;
+	const uint8_t modSongInfoSize = 1 + 1 + 128 + 4;
+	const uint16_t modPatternSize = 1024;
 	static const uint8_t modSampleNameSize = 22;
 
 	struct strModFileData
@@ -459,6 +471,16 @@ private:
 		uint16_t repeatLengthInWords = 0;
 
 	} modSampleData;
+
+
+	struct strModSong
+	{
+		uint8_t length = 0;
+		uint8_t oldByte = 127;
+		uint8_t playlist[128]{0};
+		uint8_t theFourLetters[4]{0};
+
+	}modSong;
 
 	/// IMPORT MOD KONIEC
 //patern undo

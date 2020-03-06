@@ -131,6 +131,37 @@ void cFileManager::saveInstrumentsToWorkspace()
 	}
 }
 
+// na potrzeby innych modułów
+uint8_t cFileManager::saveInstrument(uint8_t idx)
+{
+	if (!writeInstrumentToFileStruct(&mtProject.instrument[idx],
+										&fileManagerInstrumentBuffer))
+	{
+		return 0;
+	}
+
+	char instrumentToSave[PATCH_SIZE];
+	sprintf(instrumentToSave,
+			cWorkspaceInstrumentFileFormat,
+			idx + 1); // nazwy instrumentow od numeru 1
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile(
+			(uint8_t*) &fileManagerInstrumentBuffer,
+			instrumentToSave,
+			sizeof(strInstrumentFile));
+
+	if (saveStatus == fileTransferEnd)
+	{
+		return 1;
+	}
+	else   // if(saveStatus >= fileTransferError)
+	{
+		return 0;
+	}
+
+	return 0;
+}
+
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     CREATE     ---------------------------------------------------------
