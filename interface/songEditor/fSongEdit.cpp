@@ -127,6 +127,22 @@ void cSongEditor::stop()
 	moduleRefresh = 0;
 }
 
+void cSongEditor::turnOffPerformanceMode()
+{
+	if(sequencer.isPerformanceMode())
+	{
+		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
+		sequencer.switchRamPatternsNow();
+		sequencer.exitPerformanceMode();
+	}
+
+	engine.performanceModeEndAll();
+
+}
+
+
+
+
 void cSongEditor::setDefaultScreenFunct()
 {
 	//funkcje
@@ -526,6 +542,7 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 	if(SE->isBusy) return 1;
 
+	if(button != interfaceButtonPerformance) SE->turnOffPerformanceMode();
 	SE->eventFunct(eventSwitchModule,SE,&button,0);
 
 	return 1;
@@ -1010,6 +1027,11 @@ static  uint8_t functSwitchModeSong(uint8_t state)
 	else if(state == buttonRelease)
 	{
 		if(SE->exitOnButtonRelease) SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
+		else
+		{
+			SE->selectedPlace = 8;
+			SE->activateLabelsBorder();
+		}
 	}
 
 	return 1;

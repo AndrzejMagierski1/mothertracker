@@ -96,6 +96,11 @@ void cFileManager::copySamples()
 		sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
 		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 	}
+	else if(currentOperation == fmSaveRecordedSound)
+	{
+		sprintf(currentCopySrcPath, "Recorded/%s.wav",  getRecordingFileName());
+		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+	}
 	else // import
 	{
 		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
@@ -106,17 +111,21 @@ void cFileManager::copySamples()
 
 	if(loadStatus == fileTransferEnd)
 	{
-		//continueSampleProcess();
 		moveToNextOperationStep();
 	}
 	else if(loadStatus == fileTransferFileNoExist)
 	{
-		//continueSampleProcess();
+		memset(mtProject.instrument[currentSample].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentSample].isActive = 0;
 		moveToNextOperationStep();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
-		sampleThrowError();
+		memset(mtProject.instrument[currentSample].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentSample].isActive = 0;
+		moveToNextOperationStep();
+		//uszkodzony plik wav - "od-aktywuj" instrument ale nie wyrzucaj bledu
+		//sampleThrowError();
 	}
 }
 

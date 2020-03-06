@@ -192,8 +192,16 @@ void cFileManager::listOnlyWavFromActualPath()
 			|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
 			|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
 			{
-				std::swap(explorerList[openCurrentPos], explorerList[explorerListLength-1]);
 
+				if(openCurrentPos < explorerListLength-1)
+				{
+					std::swap(explorerList[openCurrentPos], explorerList[explorerListLength-1]);
+				}
+				else
+				{
+					browseFinish();
+					listWavStage = 2;
+				}
 				explorerListLength--;
 			}
 			else
@@ -208,24 +216,27 @@ void cFileManager::listOnlyWavFromActualPath()
 		}
 		else
 		{
-			if(openCurrentPos > 0)	explorerListLength = openCurrentPos-1;
-			else explorerListLength = 0;
+			if(openCurrentPos > 1)	explorerListLength = openCurrentPos;
+			else explorerListLength = 1;
 			browseFinish();
-			listWavStage = 0;
+			listWavStage = 2;
 		}
 	}
 	else //  stage 2 - posortuj alfabetycznie
 	{
-		bool notSorted = 1;
-		while (notSorted)
+		if(openCalcStart < explorerListLength-1)
 		{
-			notSorted = 0;
-			for (uint8_t a = openCalcStart; a < explorerListLength - 1; a++)
+			bool notSorted = 1;
+			while (notSorted)
 			{
-				if (strcasecmp(explorerList[a], explorerList[a + 1]) > 0)
+				notSorted = 0;
+				for (uint8_t a = openCalcStart; a < explorerListLength - 1; a++)
 				{
-					std::swap(explorerList[a], explorerList[a+1]);
-					notSorted = 1;
+					if (strcasecmp(explorerList[a], explorerList[a + 1]) > 0)
+					{
+						std::swap(explorerList[a], explorerList[a+1]);
+						notSorted = 1;
+					}
 				}
 			}
 		}

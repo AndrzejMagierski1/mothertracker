@@ -13,20 +13,26 @@ extern int16_t exportBuffer1[SEND_BUF_SIZE];
 extern int16_t exportBuffer2[SEND_BUF_SIZE];
 
 
+enum enExportType
+{
+	exportSong = 0,
+	exportSongStems,
+	exportPattern,
+	exportPatternStems,
+	exportRenderSelection,
+
+
+	exportTypesCount
+};
+
+
 
 class mtExporter
 {
 
 public:
-	enum struct exportType
-	{
-		song,
-		songStems,
-		pattern,
-		patternStems,
-		renderSelection
-	};
-	void start(char * path, exportType t);
+
+	void start(char * path, uint8_t t);
 	void begin();
 	void update();
 	void cancel();
@@ -36,8 +42,8 @@ public:
 	friend void setOnLastExportStep();
 	friend void setOnLastExportStepInSong();
 private:
-	void setExportType(exportType t);
-	exportType type;
+	void setExportType(uint8_t t);
+	uint8_t type;
 	mtPatternStemsExporter patternStemsExporter;
 	mtPatternExporter patternExporter;
 	mtSongExporter	songExporter;

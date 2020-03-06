@@ -28,8 +28,8 @@
 #include "mtSleep.h"
 #include "debugLog.h"
 
-
-cInterface mtInterface;
+cFunctionMachine uiFM(mtInterfacePotsDef::interfacePotsCount, mtInterfaceButtonsDef::interfaceButtonsCount, mtInterfacePadsDef::interfacePadsCount);
+cInterface mtInterface(&uiFM);
 
 
 strMtConfig mtConfig;
@@ -87,12 +87,6 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 };
 
 
-uint8_t cFunctionMachine::potsCount = 		interfacePotsCount;
-uint8_t cFunctionMachine::buttonsCount = 	interfaceButtonsCount;
-uint8_t cFunctionMachine::padsCount = 		interfacePadsCount;
-cFunctionMachine::strPotObject cFunctionMachine::pots			[interfacePotsCount] 	= {0};
-cFunctionMachine::strButtonObject cFunctionMachine::buttons		[interfaceButtonsCount] = {0};
-cFunctionMachine::strPadObject cFunctionMachine::pads			[interfacePadsCount] 	= {0};
 
 
 //=======================================================================
@@ -117,6 +111,8 @@ void cInterface::begin()
 	popupConfig.lineColor[0] = 0xffffff;
 	popupConfig.lineStyle[0] = controlStyleCenterX;
 	mtPopups.config(4, &popupConfig);
+
+	FM->unblockAllInputs();
 }
 
 //=======================================================================
@@ -417,7 +413,7 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		case eventActivateTestingProcedure:
 		{
 			mtInterface.deactivateModule((hModule)param1);
-			mtTest.runTestingProcedure(&mtInterface.uiFM, interfaceEnvents);
+			mtTest.runTestingProcedure(mtInterface.FM, interfaceEnvents);
 			break;
 		}
 

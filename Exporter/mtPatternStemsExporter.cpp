@@ -2,7 +2,7 @@
 #include "mtAudioEngine.h"
 //#include "mtFileManager.h"
 #include "fileManager.h"
-extern mtExporter exporter;
+
 
 void mtPatternTrackExporter::start(char * path, uint8_t track_n)
 {
@@ -47,17 +47,12 @@ void  mtPatternTrackExporter::clearSoloTrack(uint8_t n)
 
 void mtPatternStemsExporter::start(char * path)
 {
-	if(!SD.exists("Export")) SD.mkdir(0,"Export");
-
 	char currentPath[PATCH_SIZE];
 
-	sprintf(folderPath,"Export/%s",path);
-
-
-	if(!SD.exists(folderPath)) SD.mkdir(0,folderPath);
+	strcpy(folderPath, path);
 
 	currentTrack = 0;
-	sprintf(currentPath,"%s/track%d",folderPath, currentTrack + 1);
+	sprintf(currentPath,"%s/track%d.wav",folderPath, currentTrack + 1);
 
 	status = 1;
 	trackExporter.start(currentPath, currentTrack); // tablica żyje podczas korzystania z tego wskaznika
@@ -77,19 +72,19 @@ void mtPatternStemsExporter::update()
 			else if(currentTrack == 8)
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/reverb",folderPath);
+				sprintf(currentPath,"%s/reverb.wav",folderPath);
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else if(currentTrack == 9)
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/mix",folderPath);
+				sprintf(currentPath,"%s/mix.wav",folderPath);
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/track%d",folderPath, currentTrack + 1);
+				sprintf(currentPath,"%s/track%d.wav",folderPath, currentTrack + 1);
 				trackExporter.start(currentPath, currentTrack);
 
 			}

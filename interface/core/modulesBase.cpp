@@ -33,7 +33,7 @@ void cFunctionMachine::clearAllButtons()
 {
 	if(buttonsCleared) return;
 
-	memset(buttons,0,sizeof(strButtonObject)*buttonsCount);
+	memset((uint8_t *)buttons,0,sizeof(strButtonObject)*buttonsCount);
 
 	buttonsCleared = 1;
 }
@@ -61,9 +61,7 @@ void cFunctionMachine::clearAllPots()
 {
 	if(potsCleared) return;
 
-	delete  (paramChange<uint8_t>*)pots[0].paramStruct;
-
-	memset(pots,0,sizeof(strPotObject)*potsCount);
+	memset((uint8_t *)pots,0,sizeof(strPotObject)*potsCount);
 
 	potsCleared = 1;
 }
@@ -72,12 +70,43 @@ void cFunctionMachine::clearAllPads()
 {
 	if(padsCleared) return;
 
-	memset(pads,0,sizeof(strPadObject)*padsCount);
+	memset((uint8_t *)pads,0,sizeof(strPadObject)*padsCount);
 
 	padsGlobalMode = 0;
 
 	padsCleared = 1;
 }
+
+//==================================================================================================================
+void cFunctionMachine::blockAllInputs()
+{
+	memset((uint8_t *)blockButtons,	1,	buttonsCount);
+	memset((uint8_t *)blockPots,	1,	potsCount);
+	memset((uint8_t *)blockPads,	1,	padsCount);
+	blockPowerButton = 1;
+}
+
+void cFunctionMachine::blockAllInputsExcept(uint8_t n)
+{
+	blockAllInputs();
+	if(n < buttonsCount) blockButtons[n] = 0;
+}
+
+void cFunctionMachine::blockAllInputsExcept(uint8_t n, uint8_t o)
+{
+	blockAllInputs();
+	if(n < buttonsCount) blockButtons[n] = 0;
+	if(o < buttonsCount) blockButtons[o] = 0;
+}
+
+void cFunctionMachine::unblockAllInputs()
+{
+	memset((uint8_t *)blockButtons,	0,	buttonsCount);
+	memset((uint8_t *)blockPots,	0,	potsCount);
+	memset((uint8_t *)blockPads,	0,	padsCount);
+	blockPowerButton = 0;
+}
+
 
 //==================================================================================================================
 void cFunctionMachine::setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control)
@@ -90,44 +119,6 @@ void cFunctionMachine::setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hCo
 	potsCleared = 0;
 }
 
-//==================================================================================================================
-void cFunctionMachine::setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control)
-{
-	delete  (paramChange<uint8_t>*)pots[objectID].paramStruct;
-
-	paramChange<uint8_t>* strparam = new paramChange<uint8_t>;
-	strparam->ptr = param;
-	strparam->min = min;
-	strparam->max = max;
-	strparam->step = step;
-
-	pots[objectID].paramStruct = strparam;
-
-	pots[objectID].control = control;
-
-	pots[objectID].mode = 2;
-
-	potsCleared = 0;
-}
-
-void cFunctionMachine::setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control)
-{
-	delete  (paramChange<uint16_t>*)pots[objectID].paramStruct;
-
-	paramChange<uint16_t>* strparam = new paramChange<uint16_t>;
-	strparam->ptr = param;
-	strparam->min = min;
-	strparam->max = max;
-	strparam->step = step;
-
-	pots[objectID].paramStruct = strparam;
-
-	pots[objectID].control = control;
-
-	pots[objectID].mode = 3;
-
-	potsCleared = 0;
-}
 //==================================================================================================================
 
 // przypisuje funkcje na okreslony stan przycisku bez argumentow
@@ -210,7 +201,7 @@ void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16
 void cFunctionMachine::setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t))
 {
 	padsGlobalMode = 1;
-	padsGlobalState = state;
+	//padsGlobalState = state;
 	padsGlobalFunct = funct;
 
 	padsCleared = 0;
@@ -222,6 +213,8 @@ void cFunctionMachine::setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t))
 //==================================================================================================================
 void cFunctionMachine::processButtonsInput(uint8_t button, uint8_t state)
 {
+	if(blockButtons[button]) return;
+
 	uint8_t result = 1;
 
 	switch(buttons[button].mode)
@@ -254,6 +247,7 @@ void cFunctionMachine::processButtonsInput(uint8_t button, uint8_t state)
 
 void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 {
+	if(blockPots[pot]) return;
 	if(!pots[pot].mode) return;
 
 	if(pots[pot].mode > 1)
@@ -300,6 +294,8 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 void cFunctionMachine::processPadsInput(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(blockPads[pad]) return;
+
 	uint8_t result = 0;
 
 	if(padsGlobalMode == 1)

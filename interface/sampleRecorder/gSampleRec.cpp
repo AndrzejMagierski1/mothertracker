@@ -820,7 +820,6 @@ void cSampleRecorder::drawGainBar()
 
 void cSampleRecorder::showSaveHorizontalBar()
 {
-	saveProgress = recorder.getSaveProgress();
 	display.setControlValue(saveHorizontalBarControl, saveProgress);
 	display.setControlText(saveHorizontalBarControl, "saveing...");
 	display.setControlShow(saveHorizontalBarControl);

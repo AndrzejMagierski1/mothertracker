@@ -33,7 +33,7 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 //static uint8_t functEnter();
-static uint8_t functDeleteBackspace(uint8_t state);
+static  uint8_t functDeleteBackspace(uint8_t state);
 
 static  uint8_t functSelectButton0();
 static  uint8_t functSelectButton1(uint8_t state);
@@ -54,8 +54,8 @@ static  uint8_t functActionButton5();
 static  uint8_t functActionButton6();
 static  uint8_t functActionButton7();
 
-static uint8_t functActionSource();
-static uint8_t functActionGain();
+static  uint8_t functActionSource();
+static  uint8_t functActionGain();
 static  uint8_t functActionMonitor();
 static  uint8_t functActionRecord();
 static  uint8_t functActionRadioFreq();
@@ -74,14 +74,14 @@ static  uint8_t functActionConfirmSave();
 static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
 static  uint8_t functActionZoom();
-static uint8_t functConfirmKey();
-static uint8_t functInsert();
+static  uint8_t functConfirmKey();
+static  uint8_t functInsert();
 
 static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-static uint8_t functStepNote(uint8_t value);
+static  uint8_t functStepNote(uint8_t value);
 
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
@@ -160,21 +160,32 @@ void cSampleRecorder::update()
 	}
 	radio.stateMachineSeek();
 
-	if(saveInProgressFlag)
-	{
-//		recorder.updateSave();
-		showSaveHorizontalBar();
-		if(recorder.getSaveState() == 0)
-		{
-			saveInProgressFlag = 0;
 
-			hideSaveHorizontalBar();
-			currentScreen = screenTypeConfig;
-			showDefaultScreen();
-			if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
-			else audioShield.headphoneSourceSelect(1);
+	uint8_t managerStatus = newFileManager.getStatus();
+
+	if(managerStatus == fmSaveRecordedSoundEnd)
+	{
+		//saveProgress = recorder.getSaveProgress();
+		//showSaveHorizontalBar();
+		hideSaveHorizontalBar();
+		currentScreen = screenTypeConfig;
+		showDefaultScreen();
+		if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+		else audioShield.headphoneSourceSelect(1);
+
+		FM->unblockAllInputs();
+
+		newFileManager.clearStatus();
+
+		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
+		{
+			SR->forceSwitchModule = 1;
+			uint8_t button = interfaceButtonSampleLoad;
+			SR->eventFunct(eventSwitchModule, SR, &button, &SR->firstFreeInstrumentSlotFound);
 		}
 	}
+
+
 	if(notEnoughInstrumentsFlag)
 	{
 		notEnoughInstrumentsFlag = 0;
@@ -413,225 +424,7 @@ void cSampleRecorder::processPoints()
 
 }
 
-/*
-void cSampleRecorder::processSpectrum1()
-{
 
-
-	if(recorder.getLength() == 0)
-	{
-		for(uint16_t i = 0; i < 600; i++)
-		{
-			spectrum.upperData[i] = 0;
-			spectrum.lowerData[i] = 0;
-		}
-
-		return;
-	}
-	if(recordInProgressFlag)
-	{
-		int16_t * sampleData = recorder.getStartAddress();
-		uint32_t resolution = recorder.getLength() / 600;
-
-		if(resolution < 1) resolution = 1;
-
-		uint16_t offset_pixel = 0;
-
-		zoomWidth = MAX_16BIT;
-		zoomStart = 0;
-		zoomEnd = MAX_16BIT;
-
-		int16_t up = 0;
-		int16_t low = 0;
-		uint32_t step = 0;
-
-		for(uint16_t i = offset_pixel; i < 600; i++)
-		{
-			low = up = 0;
-
-			for(uint16_t j = 0; j < resolution; j++)
-			{
-				int16_t sample = *(sampleData+step+j);
-
-
-				if(sample > up)  up = sample;
-				else if(sample < low) low = sample;
-
-			}
-			step+= resolution;
-
-			up = up/300;
-			low = low/300;
-
-			spectrum.upperData[i] =  up;
-			spectrum.lowerData[i] = low;
-
-		}
-
-		if(resolution <= 1) spectrum.spectrumType = 1;
-		else spectrum.spectrumType = 0;
-		return;
-	}
-
-
-	// uwaga tu wazna kolejnosc + do sprawdzenia
-//	if()
-//	{
-//		for(uint16_t i = 0; i < 600; i++)
-//		{
-//			spectrum.upperData[i] = 0;
-//			spectrum.lowerData[i] = 0;
-//		}
-//
-//		return;
-//	}
-
-	uint16_t offset_pixel;
-	int16_t * sampleData;
-
-
-
-	uint32_t resolution;
-
-
-	switch(lastChangedPoint)
-	{
-		case 0: zoomPosition = startPoint; break; //MAX_16BIT/2; break;
-
-		case 1:
-			zoomPosition = startPoint;
-		break;
-		case 2:
-			zoomPosition = endPoint;
-		break;
-
-		default: zoomPosition = startPoint; break; //MAX_16BIT/2; break;
-	}
-
-
-
-
-
-
-
-	if(zoomValue > 1.0)
-	{
-		zoomWidth = (MAX_16BIT/zoomValue);
-		zoomStart =  zoomPosition - zoomWidth/2;
-		zoomEnd = zoomPosition + zoomWidth/2;
-
-		if(zoomStart < 0)
-		{
-			zoomEnd = zoomWidth;
-			zoomStart = 0;
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-		else if(zoomEnd > MAX_16BIT)
-		{
-			zoomEnd = MAX_16BIT;
-			zoomStart = MAX_16BIT-zoomWidth;
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-		else
-		{
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-
-
-		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * recorder.getLength();
-
-		sampleData = recorder.getStartAddress() + offset;
-
-		resolution = (((float)zoomWidth/MAX_16BIT) * recorder.getLength() ) / 600;
-
-
-//		Serial.print(zoomValue);
-//		Serial.print("   ");
-//		Serial.print(zoomStart);
-//		Serial.print("   ");
-//		Serial.print(zoomEnd);
-//		Serial.print("   ");
-//
-//		Serial.println();
-
-	}
-	else
-	{
-
-		offset_pixel = 0;
-		zoomWidth = MAX_16BIT;
-		zoomStart = 0;
-		zoomEnd = MAX_16BIT;
-		sampleData = recorder.getStartAddress();;
-		resolution = recorder.getLength() / 600;
-	}
-
-
-	if(resolution < 1) resolution = 1;
-
-
-	int16_t up = 0;
-	int16_t low = 0;
-
-	uint32_t step = 0;
-
-
-
-	if(offset_pixel > 0)
-	{
-		for(int16_t i = offset_pixel-1; i >= 0; i--)
-		{
-			low = up = 0;
-
-			for(uint16_t j = 0; j < resolution; j++)
-			{
-				int16_t sample = *(sampleData-step+j);
-
-				if(sample > up)  up = sample;
-				else if(sample < low) low = sample;
-
-			}
-			step+= resolution;
-
-			up = up/300;
-			low = low/300;
-
-			spectrum.upperData[i] =  up;
-			spectrum.lowerData[i] = low;
-		}
-	}
-
-	up = 0;
-	low = 0;
-	step = 0;
-
-
-	for(uint16_t i = offset_pixel; i < 600; i++)
-	{
-		low = up = 0; // *(sampleData+step);
-
-		for(uint16_t j = 0; j < resolution; j++)
-		{
-			int16_t sample = *(sampleData+step+j);
-
-
-			if(sample > up)  up = sample;
-			else if(sample < low) low = sample;
-
-		}
-		step+= resolution;
-
-		up = up/300;
-		low = low/300;
-
-		spectrum.upperData[i] =  up;
-		spectrum.lowerData[i] = low;
-	}
-
-	if(resolution <= 1) spectrum.spectrumType = 1;
-	else spectrum.spectrumType = 0;
-
-}*/
 
 void cSampleRecorder::listSource()
 {
@@ -903,7 +696,10 @@ static  uint8_t functActionButton0(uint8_t s)
 		SR->selectionWindowSaveFlag = 0;
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
 		{
-			recorder.startSave(SR->keyboardManager.getName(),1);
+			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), -1))
+			{
+				SR->FM->blockAllInputs();
+			}
 		}
 		else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
@@ -913,25 +709,28 @@ static  uint8_t functActionButton0(uint8_t s)
 				SR->notEnoughMemoryFlag = 1;
 				return 0;
 			}
-			uint8_t firstFree = -1;
+			SR->firstFreeInstrumentSlotFound = -1;
 			for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 			{
 				if(!mtProject.instrument[i].isActive)
 				{
-					firstFree = i;
+					SR->firstFreeInstrumentSlotFound = i;
 					break;
 				}
 			}
-			if(firstFree == -1)
+			if(SR->firstFreeInstrumentSlotFound == -1)
 			{
 				SR->notEnoughInstrumentsFlag = 1;
 				return 0;
 			}
 
-			recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree, 1 );
+
+			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
+			{
+				SR->FM->blockAllInputs();
+			}
 		}
 
-		SR->saveInProgressFlag = 1;
 		SR->keyboardManager.deactivateKeyboard();
 		return 1;
 	}
@@ -1462,24 +1261,21 @@ static  uint8_t functActionSave()
 	SR->currentScreen = cSampleRecorder::screenTypeKeyboard;
 
 	char localPatch[70];
-	uint16_t cnt=1;
+	uint16_t cnt = 1;
+	char keyboardName[MAX_NAME_LENGTH];
 
 	do
 	{
-	   char keyboardName[MAX_NAME_LENGTH];
-	   sprintf(keyboardName, "recording%d",cnt);
-	   SR->keyboardManager.fillName(keyboardName);
-	   sprintf(localPatch,"Recorded/%s.wav",keyboardName);
-
-	   cnt++;
-	   if(cnt > 9999)
-	   {
-		   memset(keyboardName,0,MAX_NAME_LENGTH);
-		   SR->keyboardManager.fillName(keyboardName);
-		   break;
-	   }
+		sprintf(keyboardName, "recording%04d", cnt);
+		sprintf(localPatch, "Recorded/%s.wav", keyboardName);
+		cnt++;
+		if(cnt > 9999)
+		{
+			break;
+		}
 	} while(SD.exists(localPatch));
 
+	SR->keyboardManager.fillName(keyboardName);
 	SR->keyboardManager.activateKeyboard();
 
 	SR->showDefaultScreen();
@@ -1489,7 +1285,11 @@ static  uint8_t functActionSave()
 static  uint8_t functActionConfirmSave()
 {
 	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeNormal;
-	if(recorder.startSave(SR->keyboardManager.getName()) == 0)
+
+	char filePath[70];
+	sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+
+	if(SD.exists(filePath))
 	{
 		 SR->selectionWindowSaveFlag = 1;
 		 SR->keyboardManager.deactivateKeyboard();
@@ -1497,8 +1297,12 @@ static  uint8_t functActionConfirmSave()
 	}
 	else
 	{
-		 SR->saveInProgressFlag = 1;
-		 SR->keyboardManager.deactivateKeyboard();
+
+		if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), -1))
+		{
+			SR->FM->blockAllInputs();
+		}
+		SR->keyboardManager.deactivateKeyboard();
 	}
 
 	return 1;
@@ -1521,47 +1325,45 @@ static  uint8_t functActionConfirmSaveLoad()
 		SR->notEnoughMemoryFlag = 1;
 		return 0;
 	}
-	int8_t firstFree = -1;
-	char localName[37];
+	SR->firstFreeInstrumentSlotFound = -1;
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 	{
 		if(!mtProject.instrument[i].isActive)
 		{
-			firstFree = i;
+			SR->firstFreeInstrumentSlotFound = i;
 			mtProject.values.lastUsedInstrument = i;
 			break;
 		}
 	}
-	if(firstFree == -1)
+	if(SR->firstFreeInstrumentSlotFound == -1)
 	{
 		SR->notEnoughInstrumentsFlag = 1;
 		return 0;
 	}
 	else
 	{
-		 sprintf(localName,"%s.wav",SR->keyboardManager.getName());
+		char filePath[70];
+		sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+		if(SD.exists(filePath))
+		{
+			SR->selectionWindowSaveFlag = 1;
+			SR->keyboardManager.deactivateKeyboard();
+			SR->showSelectionWindowSave();
+			return 0 ;
+		}
+		else
+		{
+			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
+			{
+				SR->FM->blockAllInputs();
+			}
+			SR->keyboardManager.deactivateKeyboard();
+		}
 
-		 if(recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree) == 0)
-		 {
-			 SR->selectionWindowSaveFlag = 1;
-			 SR->keyboardManager.deactivateKeyboard();
-			 SR->showSelectionWindowSave();
-			 return 0 ;
-		 }
-		 else
-		 {
-			 SR->keyboardManager.deactivateKeyboard();
-			 SR->saveInProgressFlag = 1;
-		 }
 
+		SR->firstFreeInstrumentSlotFound++;
 
-		SR->forceSwitchModule = 1;
-
-		firstFree++;
-		uint8_t button = interfaceButtonSampleLoad;
-		SR->eventFunct(eventSwitchModule,SR,&button,&firstFree);
-//		functSwitchModule(interfaceButtonSampleLoad);
 	}
 
 	return 0;
@@ -1917,7 +1719,6 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->recordInProgressFlag) return 1;
-	if(SR->saveInProgressFlag) return 1;
 	if(SR->notEnoughInstrumentsFlag) return 1;
 	if(SR->notEnoughMemoryFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;

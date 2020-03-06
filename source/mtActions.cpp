@@ -56,6 +56,8 @@ void onButtonHold(uint8_t n)
 //-----------------------------------------------------------------
 void onPowerButtonChange(uint8_t value)
 {
+	if(mtInterface.FM->isPowerButtonBlocked()) return;
+
 	mtInterface.powerButtonChange(value);
 
 	mtInterface.handlePowerButtonAction(value);

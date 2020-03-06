@@ -8,25 +8,20 @@ extern char currentSongExportPath[PATCH_SIZE];
 
 void mtSongExporter::start(char * path)
 {
-	__disable_irq();
+	//__disable_irq();
 	songLength = 0;
 
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
+
 	songLength = 0;
+	while(mtProject.song.playlist[songLength] && songLength  < SONG_MAX) songLength++;
 
-	while(mtProject.song.playlist[songLength]) songLength++;
-
-	if(!SD.exists("Export")) SD.mkdir(0,"Export");
-
-	sprintf(currentSongExportPath,"Export/%s",newFileManager.getCurrentProjectName());
-	if(!SD.exists(currentSongExportPath)) SD.mkdir(0,currentSongExportPath);
-
-	sprintf(currentSongExportPath,"%s.wav",path);
+	strcpy(currentSongExportPath, path);
 
 	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
-	wavExport = SD.open(currentSongExportPath,FILE_WRITE);
+	wavExport = SD.open(currentSongExportPath, FILE_WRITE);
 
 	if(wavExport)
 	{
@@ -41,7 +36,7 @@ void mtSongExporter::start(char * path)
 
 
 
-	__enable_irq();
+	//__enable_irq();
 }
 
 uint8_t mtSongExporter::getProgress()

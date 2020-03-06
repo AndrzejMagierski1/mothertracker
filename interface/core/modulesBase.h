@@ -62,6 +62,17 @@ class  cFunctionMachine
 {
 
 public:
+	cFunctionMachine(uint8_t _potsCount, uint8_t _buttonsCount, uint8_t _padsCount):
+					potsCount(_potsCount),
+					buttonsCount(_buttonsCount),
+					padsCount(_padsCount),
+					blockPots(new uint8_t[_potsCount]),
+					blockButtons(new uint8_t[_buttonsCount]),
+					blockPads(new uint8_t[_padsCount]),
+					pots(new strPotObject[_potsCount]),
+					buttons(new strButtonObject[_buttonsCount]),
+					pads(new strPadObject[_padsCount]) {}
+	~cFunctionMachine(){}
 
 	void clearAll();
 	void disable() {state = 0;};
@@ -74,30 +85,14 @@ public:
 	void clearButton(uint8_t button);
 
 
+	void blockAllInputs();
+	void blockAllInputsExcept(uint8_t n);
+	void blockAllInputsExcept(uint8_t n, uint8_t o);
+	void unblockAllInputs();
+	uint8_t isPowerButtonBlocked() {  return blockPowerButton; }
 
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
 	void setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control);
-	void setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control);
-/*
-	template <typename T>
-	void setPotObj(uint8_t objectID, T* param, T min, T max, T step, hControl control)
-	{
-
-	}
-*/
-	template <typename T>
-	void setPotObjControlValue(uint8_t objectID, T* param, T min, T max, T step, hControl control)
-	{
-/*
-		<T>paramChange* struct =  new <T>paramChange;
-
-		pots[objectID].funct1 = <T>changeParam;
-		pots[objectID].control = control;
-
-		pots[objectID].mode = 1;
-*/
-	}
-
 
 
 	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(void));
@@ -170,13 +165,20 @@ private:
 
 	uint8_t state;
 
-	static uint8_t potsCount;
-	static uint8_t buttonsCount;
-	static uint8_t padsCount;
 
-	static strPotObject pots[];
-	static strButtonObject buttons[];
-	static strPadObject pads[];
+
+	const uint8_t potsCount;
+	const uint8_t buttonsCount;
+	const uint8_t padsCount;
+
+	uint8_t* blockPots;
+	uint8_t* blockButtons;
+	uint8_t* blockPads;
+	uint8_t blockPowerButton;
+
+	strPotObject*		pots;
+	strButtonObject* 	buttons;
+	strPadObject* 		pads;
 
 
 	uint8_t (*powrButtonFunct)(uint8_t) = nullptr;

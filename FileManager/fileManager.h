@@ -22,6 +22,13 @@ enum fileManagerStatus
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
+	fmExportingSoundSong,
+	fmExportingSoundSongStems,
+	fmExportingSoundPattern,
+	fmExportingSoundPatternStems,
+	fmExportingSoundRenderSelection,
+	fmSavingRecordedSound,
+	fmSavingImportingRecordedSound,
 
 
 
@@ -33,6 +40,8 @@ enum fileManagerStatus
 	fmImportSamplesEnd,
 	fmDeleteInstrumentsEnd,
 	fmLoadPatternEnd,
+	fmExportSoundEnd,
+	fmSaveRecordedSoundEnd,
 
 
 
@@ -46,6 +55,8 @@ enum fileManagerStatus
 	fmImportSamplesError,
 	fmDeleteInstrumentsError,
 	fmLoadPatternError,
+	fmExportSoundError,
+	fmSaveRecordedError,
 
 };
 
@@ -67,6 +78,8 @@ enum fileManagerOperation
 
 	fmLoadWorkspacePattern,		//11
 
+	fmExportSound,				//12
+	fmSaveRecordedSound,		//13
 
 };
 
@@ -88,7 +101,7 @@ public:
 	inline uint8_t getStatus() 	{ return status; }
 	uint8_t getProgress();
 
-	void clearStatus() 	{ status = fmIdle; }
+	void clearStatus() 	{ if(status >= fmLoadEnd) status = fmIdle; }
 
 	// flagi zmian
 	void clearChangeFlags();
@@ -127,6 +140,9 @@ public:
 
 	bool deleteProject(uint8_t index);
 
+	bool exportSound(uint8_t mode);
+	bool exportSoundCancel();
+	bool saveRecordedSound(char* fileName, int8_t importSlot);
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
@@ -210,6 +226,8 @@ private:
 	void updateImportSamplesToWorkspace();
 	void updateDeleteInstruments();
 	void updateLoadWorkspacePattern();
+	void updateExportSound();
+	void updateSaveRecordedSound();
 
 	void autoSaveProjectToWorkspace();
 
@@ -267,7 +285,7 @@ private:
 	void loadInstrumentsFromWorkspace();
 	void saveInstrumentsToWorkspace();
 	void copyInstruments();
-	void createEmptyInstrumentInWorkspace(uint8_t slot, char* name);
+	void createEmptyInstrumentInWorkspace();
 	void deleteInstrumentsFromWorkspace();
 
 
@@ -365,6 +383,17 @@ private:
 	uint32_t currentFolderMemoryFileUsage[list_length_max];
 
 
+	// export sound
+	void exportSoundEnd();
+	void exportSoundGetStatus();
+	uint8_t getExportProgress();
+
+	// recording
+	void saveRecording();
+	void saveRecordingEnd();
+	char* getRecordingFileName();
+	void saveRecordedSoundFinish();
+	uint8_t recordingImportSlot;
 	// preview sample
 
 

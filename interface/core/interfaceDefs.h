@@ -108,10 +108,6 @@ enum mtInterfaceButtonsDef
 enum mtInterfacePotsDef
 {
 	interfacePot0,
-	interfacePot1,
-	interfacePot2,
-	interfacePot3,
-	interfacePot4,
 
 	interfacePotsCount
 };
@@ -200,6 +196,7 @@ enum interfacePopups
 
 const char fileManagerPopupText[][30] =
 {
+		"",
 		"Loading files list",
 		"Loading projects list",
 		"Loading firmwares list",
@@ -211,6 +208,15 @@ const char fileManagerPopupText[][30] =
 		"Saving project",
 		"Saving project",
 		"Loading pattern",
+		"Exporting Song",
+		"Exporting Song Stems",
+		"Exporting Pattern",
+		"Exporting Pattern Stems",
+		"Exporting Selection",
+		"Saving Recording",
+		"Importing Recording",
+
+
 };
 //-------------------------------------------------------------
 

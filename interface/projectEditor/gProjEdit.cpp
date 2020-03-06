@@ -587,8 +587,8 @@ void cProjectEditor::showExportingHorizontalBar()
 {
 
 	display.setControlValue(loadHorizontalBarControl, exportProgress);
-	if(currentExportType == (int) exportType::pattern )		sprintf(currentInfo,"Exporting Pattern %d", mtProject.values.actualPattern);
-	else if (currentExportType == (int) exportType::patternStems )
+	if(currentExportType == (int) exportPattern )		sprintf(currentInfo,"Exporting Pattern %d", mtProject.values.actualPattern);
+	else if (currentExportType == (int) exportPatternStems )
 	{
 		uint8_t track_n = exporter.getStemsTrack();
 		if(track_n < 8) sprintf(currentInfo,"Exporting Pattern Stems: Track%d ", track_n + 1);
@@ -596,8 +596,8 @@ void cProjectEditor::showExportingHorizontalBar()
 		else if(track_n == 9) strcpy(currentInfo,"Exporting Pattern Stems: Mix ");
 
 	}
-	else if (currentExportType == (int) exportType::song ) 	sprintf(currentInfo,"Exporting Song");
-	else if (currentExportType == (int) exportType::songStems )
+	else if (currentExportType == (int) exportSong ) 	sprintf(currentInfo,"Exporting Song");
+	else if (currentExportType == (int) exportSongStems )
 	{
 		uint8_t track_n = exporter.getStemsTrack();
 		if(track_n < 8) sprintf(currentInfo,"Exporting Song Stems: Track%d ", track_n + 1);

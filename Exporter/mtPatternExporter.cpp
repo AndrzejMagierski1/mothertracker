@@ -17,7 +17,7 @@ void mtPatternExporter::setOnLastStep()
 
 void mtPatternExporter::finish()
 {
-	__disable_irq();
+	//__disable_irq();
 	if(status != exportStatus::exportFinished)
 	{
 		while ((exportL.available() >= 1) && (exportR.available() >= 1 ))
@@ -30,9 +30,9 @@ void mtPatternExporter::finish()
 		if(position != 0)
 		{
 			switchBuffer();
-			__disable_irq();
+			//__disable_irq();
 			byteRecorded += wavExport.write(sendBuf,2 * position);
-			__enable_irq();
+			//__enable_irq();
 
 			position=0;
 		}
@@ -59,25 +59,22 @@ void mtPatternExporter::finish()
 		wavExport.close();
 
 	}
-	__enable_irq()
+	//__enable_irq()
 }
 char currentSongExportPath[PATCH_SIZE];
 
 void mtPatternExporter::start(char * path)
 {
-	__disable_irq();
+	//__disable_irq();
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
-	if(!SD.exists("Export")) SD.mkdir(0,"Export");
 
-	sprintf(currentSongExportPath,"Export/%s",newFileManager.getCurrentProjectName());
-	if(!SD.exists(currentSongExportPath)) SD.mkdir(0,currentSongExportPath);
 
-	sprintf(currentSongExportPath,"%s.wav",path);
+	strcpy(currentSongExportPath, path);
 
 	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
-	wavExport = SD.open(currentSongExportPath,FILE_WRITE);
+	wavExport = SD.open(currentSongExportPath, FILE_WRITE);
 
 	if(wavExport)
 	{
@@ -93,7 +90,7 @@ void mtPatternExporter::start(char * path)
 
 
 
-	__enable_irq();
+	//__enable_irq();
 
 }
 
@@ -129,9 +126,9 @@ void mtPatternExporter::refresh()
 			if(position == SEND_BUF_SIZE)
 			{
 				switchBuffer();
-				__disable_irq();
+				//__disable_irq();
 				byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
-				__enable_irq();
+				//__enable_irq();
 
 				position=0;
 			}

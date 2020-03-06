@@ -27,6 +27,8 @@ enum action_priorities
 class cInterface
 {
 public:
+	cInterface(cFunctionMachine* _FM): FM(_FM) {}
+	~cInterface(){}
 
 	// interface.cpp -----------------------------
 	void begin();
@@ -78,6 +80,9 @@ public:
 	void padHold(uint8_t n);
 	void SDCardChange(uint8_t state);
 
+
+	cFunctionMachine* FM; // hmmm
+
 private:
 	friend cInterfacePopups;
 
@@ -93,7 +98,6 @@ private:
 	static const uint8_t modulesButtonsCount;
 	static const uint32_t modulesButtons[][3];
 
-	cFunctionMachine uiFM;
 
 
 	uint8_t operatingMode = 0;
