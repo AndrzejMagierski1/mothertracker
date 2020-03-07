@@ -56,7 +56,7 @@ enum mtInterfacePadsDef
 //5
 	interfacePadKey0,
 
-	interfacePadsCount
+	interfacePadsCount = 48,
 };
 
 enum mtInterfaceButtonsDef

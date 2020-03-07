@@ -438,8 +438,9 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	}
 	case stepPopupInstr:
 	{
-		refreshAllList();
 		mtProject.values.lastUsedInstrument = selectedActualItem;
+		display.setControlValue(listControl, selectedActualItem);
+		display.refreshControl(listControl);
 		break;
 	}
 	case stepPopupFx:
@@ -648,44 +649,44 @@ void cInterfacePopups::listInstruments()
 	}
 }
 
-void cInterfacePopups::refreshAllList()
-{
-	for(uint8_t i = 0; i<4; i++)
-	{
-		if(selectedActualItem >= i*12 && selectedActualItem < (i+1)*12)
-		{
-			popupList.start = selectedActualItem%12;
-		}
-		else
-		{
-			popupList.start = -1;
-		}
-
-		popupList.length = 12;
-		popupList.linesCount = 12;
-		popupList.data = ptrActualItemsList+(i*12);
-
-
-		display.setControlData(listControl, &popupList);
-		display.setControlShow(listControl);
-
-		refreshList(i);
-	}
-}
-
-
-void cInterfacePopups::refreshList(uint8_t n)
-{
-	int8_t position = -1;
-
-	if(selectedActualItem >= n*12 && selectedActualItem < (n+1)*12)
-	{
-		position = selectedActualItem%12;
-	}
-
-	display.setControlValue(listControl, position);
-	display.refreshControl(listControl);
-}
+//void cInterfacePopups::refreshAllList()
+//{
+//	for(uint8_t i = 0; i<4; i++)
+//	{
+//		if(selectedActualItem >= i*12 && selectedActualItem < (i+1)*12)
+//		{
+//			popupList.start = selectedActualItem%12;
+//		}
+//		else
+//		{
+//			popupList.start = -1;
+//		}
+//
+//		popupList.length = 12;
+//		popupList.linesCount = 12;
+//		popupList.data = ptrActualItemsList+(i*12);
+//
+//
+//		display.setControlData(listControl, &popupList);
+//		display.setControlShow(listControl);
+//
+//		refreshList(i);
+//	}
+//}
+//
+//
+//void cInterfacePopups::refreshList(uint8_t n)
+//{
+//	int8_t position = -1;
+//
+//	if(selectedActualItem >= n*12 && selectedActualItem < (n+1)*12)
+//	{
+//		position = selectedActualItem%12;
+//	}
+//
+//	display.setControlValue(listControl, position);
+//	display.refreshControl(listControl);
+//}
 
 
 void cInterfacePopups::selectPadOnPopup(int8_t pad)

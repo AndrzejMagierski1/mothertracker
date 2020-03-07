@@ -42,6 +42,7 @@ typedef struct
 typedef struct
 {
 	uint8_t isPlaying;
+	uint8_t trackPreview;
 	uint8_t currentSongPosition;
 	uint8_t patternLength;
 	uint8_t positionInPattern;

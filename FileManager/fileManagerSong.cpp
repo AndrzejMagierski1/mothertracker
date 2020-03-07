@@ -122,7 +122,7 @@ void cFileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t t
 void cFileManager::updatePatternBitmask(uint8_t patternNum)
 {
 
-	updatePatternBitmask(patternNum - 1,sequencer.getPatternToSaveToFile());
+	updatePatternBitmask(patternNum - 1, sequencer.getPatternToSaveToFile());
 
 }
 

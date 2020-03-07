@@ -3,7 +3,7 @@
 #include "songEditor/songEditor.h"
 
 #include "mtSequencer.h"
-
+#include "keyScanner.h"
 
 static uint16_t framesPlaces[3][4] =
 {
@@ -78,7 +78,7 @@ void cSongEditor::initDisplayControls()
 
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeButtonLabelsColors;
-	prop2.style = 	(controlStyleCenterX | controlStyleFont3);
+	prop2.style = 	(controlStyleCenterX | controlStyleFont1);
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -159,10 +159,11 @@ void cSongEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 
-	for(uint8_t i = 0; i<8; i++)
+	for(uint8_t i = 0; i<7; i++)
 	{
-		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont1);
 	}
+	display.setControlStyle2(label[7], controlStyleCenterX | controlStyleFont2);
 
 //	display.setControlValue(label[0], 1);
 //	display.setControlValue(label[1], 1);
@@ -177,6 +178,7 @@ void cSongEditor::showDefaultScreen()
 	display.setAddControlStyle(label[5], controlStyleShowBitmap);
 	display.setAddControlStyle(label[6], controlStyleShowBitmap);
 
+	byttonsState = 0;
 
 	display.setControlText(label[0], "Play");
 	display.setControlText2(label[0], "Pattern");
@@ -198,7 +200,7 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText(label[6], "");
 	display.setControlText2(label[6], "");
 
-	display.setControlText2(label[7], "Tempo");
+	display.setControlText(label[7], "Tempo");
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	showTempoValue();
@@ -235,11 +237,83 @@ void cSongEditor::showPatternsList()
 }
 
 
+void cSongEditor::refreshButtonsLabels()
+{
+
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	{
+		if(tactButtons.isButtonPressed(interfaceButtonShift) && selectedPlace < 8
+			&& songPlayerData.selection.trackSelectionLength == 1
+			&& songPlayerData.selection.patternSelectionLength == 1)
+		{
+			if(byttonsState != 2)
+			{
+				display.setControlText(label[0], "Preview");
+				display.setControlText2(label[0], "Track");
+
+				display.setControlText(label[1], "Play");
+				display.setControlText2(label[1], "Song");
+
+				display.refreshControl(label[0]);
+				display.refreshControl(label[1]);
+				byttonsState = 2;
+			}
+		}
+		else
+		{
+			if(byttonsState != 0)
+			{
+				display.setControlText(label[0], "Play");
+				display.setControlText2(label[0], "Pattern");
+
+				display.setControlText(label[1], "Play");
+				display.setControlText2(label[1], "Song");
+
+				display.refreshControl(label[0]);
+				display.refreshControl(label[1]);
+				byttonsState = 0;
+			}
+		}
+
+	}
+	else
+	{
+		if(byttonsState != 1)
+		{
+			display.setControlText(label[0], "Stop");
+			display.setControlText2(label[0], "");
+
+			display.setControlText(label[1], "Stop");
+			display.setControlText2(label[1], "");
+
+			display.refreshControl(label[0]);
+			display.refreshControl(label[1]);
+			byttonsState = 1;
+		}
+	}
+
+
+
+}
+
+
 //==============================================================================================================
 
 void cSongEditor::activateLabelsBorder()
 {
 	if(selectedPlace > frameData.placesCount-1) return;
+
+	if(selectedPlace > 7)
+	{
+		songPlayerData.selection.isActive = 0;
+		display.refreshControl(songPlayerControl);
+	}
+	else
+	{
+		display.setControlHide(frameControl);
+		display.refreshControl(frameControl);
+		return;
+	}
 
 	display.setControlValue(frameControl, selectedPlace);
 	display.setControlShow(frameControl);
@@ -251,7 +325,7 @@ void cSongEditor::activateLabelsBorder()
 void cSongEditor::showTempoValue()
 {
 	sprintf(globalTempoVal,"%.1f BPM", mtProject.values.globalTempo);
-	display.setControlText(label[7], globalTempoVal);
+	display.setControlText2(label[7], globalTempoVal);
 	display.refreshControl(label[7]);
 
 	display.setControlValue(barControl[1], (mtProject.values.globalTempo*100)/Sequencer::MAX_TEMPO);
