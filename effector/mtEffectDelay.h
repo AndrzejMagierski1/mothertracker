@@ -5,7 +5,7 @@
 struct strEffectDelayParams
 {
 	float feedback;
-	uint16_t time;
+	int time;
 };
 
 constexpr uint8_t MAX_DELAY_VOICE_NUMBER = 99;
@@ -14,7 +14,7 @@ class mtEffectDelay : public mtEffect
 {
 public:
 //***********VIRTUAL SET PARAMS
-	void setParams(void * ptr) override;
+	void setParamiter(void * ptr, uint8_t n);
 //***********
 //***********VIRTUAL PROCESSING
 	bool startProcess() override;

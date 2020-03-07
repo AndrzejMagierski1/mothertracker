@@ -10,7 +10,7 @@ constexpr uint32_t SAMPLE_EFFECTOR_LENGTH_MAX =  (15*128*1024);
 extern int16_t sdram_effectsBank[15*256*1024];
 
 
-class mtEffect //todo: dopisac procedure przekopiowujaca struktury przy zmianie obiektu na inny
+class mtEffect
 {
 public:
 	enum enProcessingState
@@ -82,7 +82,7 @@ public:
 	void changeSelectionRange(uint16_t a, uint16_t b);
 //***********
 //***********VIRTUAL SET PARAMS
-	virtual void setParams(void * ptr);
+	virtual void setParamiter(void * ptr, uint8_t n);
 //***********
 //***********VIRTUAL PROCESSING
 	virtual bool startProcess();

@@ -27,8 +27,14 @@ namespace delayParams
 	int iDownConstrain[2] = { 0 , 1};
 	float fDownConstrain[2]= {0.01, 0.0};
 
-	float changeStep[2] = { 5 , 0.01};
+	float changeStep[2] = { 0.01 , 5};
 	float displayMult[2] = {1, 1};
+
+	const char * const afterValueText[2] =
+	{
+		nullptr,
+		(const char * const)" ms"
+	};
 }
 
 namespace bitcrusherParams
@@ -49,6 +55,12 @@ namespace bitcrusherParams
 
 	float changeStep[2] = { 1 , 100};
 	float displayMult[2] = {1, 1};
+
+	const char * const afterValueText[2] =
+	{
+		nullptr,
+		(const char * const)" Hz"
+	};
 }
 
 //******************************

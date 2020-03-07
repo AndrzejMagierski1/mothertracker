@@ -3,9 +3,14 @@
 
 
 //***********VIRTUAL SET PARAMS
-void mtEffectBitcrusher::setParams(void * ptr)
+void mtEffectBitcrusher::setParamiter(void * ptr, uint8_t n)
 {
-	effectBitcrusherParams = *((strEffectBitcrusherParams*)ptr);
+	switch(n)
+	{
+		case 0: 		effectBitcrusherParams.bits = *((uint8_t*)ptr); 		break;
+		case 1: 		effectBitcrusherParams.rate = *((uint16_t*)ptr);		break;
+		default: break;
+	}
 }
 //***********
 //***********VIRTUAL PROCESSING

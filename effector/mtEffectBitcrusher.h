@@ -5,15 +5,15 @@
 
 struct strEffectBitcrusherParams
 {
-	uint16_t rate;
-	uint8_t bits;
+	int rate;
+	int bits;
 };
 
 class mtEffectBitcrusher : public mtEffect
 {
 public:
 //***********VIRTUAL SET PARAMS
-	void setParams(void * ptr) override;
+	void setParamiter(void * ptr, uint8_t n) override;
 //***********
 //***********VIRTUAL PROCESSING
 	bool startProcess() override;

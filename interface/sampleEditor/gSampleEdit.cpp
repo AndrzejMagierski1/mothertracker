@@ -437,3 +437,16 @@ void cSampleEditor::hideEffectList()
 	display.setControlHide(effectList);
 	display.refreshControl(effectList);
 }
+
+void cSampleEditor::showParamiterBar(uint8_t n)
+{
+	display.setControlValue(bar[n], paramsBarValue[n]);
+	display.setControlShow(bar[n]);
+	display.refreshControl(bar[n]);
+}
+void cSampleEditor::showParamiterLabel(uint8_t n)
+{
+	display.setControlText2(label[n], paramiterValueLabelPtr[n]);
+	display.setControlShow(label[n]);
+	display.refreshControl(label[n]);
+}

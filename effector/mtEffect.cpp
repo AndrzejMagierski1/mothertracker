@@ -282,7 +282,7 @@ uint8_t mtEffect::getProgress(strProcessing * ptr)
 	return (100 * ptr->currentProgressValue)/ ptr->maxProgressValue;
 }
 //***********VIRTUAL SET PARAMS
-void  mtEffect::setParams(void * ptr)
+void mtEffect::setParamiter(void * ptr, uint8_t n)
 {
 
 }

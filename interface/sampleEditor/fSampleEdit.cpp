@@ -47,9 +47,21 @@ static  uint8_t functSelectZoom();
 static  uint8_t functListUp();
 static 	uint8_t functListDown();
 static  uint8_t functUndo();
-static  uint8_t functApply();
-
-
+static  uint8_t functMainScreenApply();
+// Paramiter screen functions
+static  uint8_t functParamsScreenLeft();
+static  uint8_t functParamsScreenRight();
+static  uint8_t functParamsScreenUp();
+static  uint8_t functParamsScreenDown();
+static  uint8_t functParamsScreenEncoder(int16_t value);
+static  uint8_t functSelectParamiter1();
+static  uint8_t functSelectParamiter2();
+static  uint8_t functSelectParamiter3();
+static  uint8_t functSelectParamiter4();
+static  uint8_t functSelectParamiter5();
+static  uint8_t functSelectParamiter6();
+static  uint8_t functPreview();
+static  uint8_t functParamsScreenApply();
 //**************************************************************************
 
 void cSampleEditor::start(uint32_t options)
@@ -108,6 +120,9 @@ void cSampleEditor::update()
 	{
 		refreshPlayhead();
 	}
+
+	currentEffect->update();
+
 }
 
 void cSampleEditor::stop()
@@ -154,7 +169,7 @@ void cSampleEditor::setMainScreenFunctions()
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectEndPoint);
 	FM->setButtonObj(interfaceButton2, buttonPress, functSelectZoom);
 	FM->setButtonObj(interfaceButton3, buttonPress, functUndo);
-	FM->setButtonObj(interfaceButton5, buttonPress, functApply);
+	FM->setButtonObj(interfaceButton5, buttonPress, functMainScreenApply);
 	FM->setButtonObj(interfaceButton6, buttonPress, functListUp);
 	FM->setButtonObj(interfaceButton7, buttonPress, functListDown);
 
@@ -171,6 +186,43 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->clearAllPots();
 
 	if(!editorInstrument->isActive) return;
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functParamsScreenLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functParamsScreenRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functParamsScreenUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functParamsScreenDown);
+
+	//todo: to moze byc jedna funkcja
+	uint8_t(*functParams[6])(void) =
+	{
+			functSelectParamiter1,
+			functSelectParamiter2,
+			functSelectParamiter3,
+			functSelectParamiter4,
+			functSelectParamiter5,
+			functSelectParamiter6
+	};
+
+	uint8_t functCounter = 0;
+	for(uint8_t i = interfaceButton0 ; i <= interfaceButton5 ; i++)
+	{
+		 if(functCounter < effectDisplayParams[currentEffectIdx].paramsNumber)
+		 {
+			 FM->setButtonObj(i, buttonPress, functParams[i]);
+		 }
+		 else
+		 {
+			 break;
+		 }
+
+		 functCounter++;
+	}
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
+	FM->setButtonObj(interfaceButton7, buttonPress, functParamsScreenApply);
+
+	FM->setPotObj(interfacePot0, functParamsScreenEncoder, nullptr);
+
 }
 
 void cSampleEditor::switchScreen(enScreenType s)
@@ -179,14 +231,14 @@ void cSampleEditor::switchScreen(enScreenType s)
 	{
 		prepareDisplayDataMainScreen();
 		showMainScreen();
+		setMainScreenFunctions();
 	}
 	else if(s == effectParamsScreen)
 	{
 		prepareDisplayDataParamsScreen();
 		showEffectParamsScreen();
+		setParamsScreenFunctions();
 	}
-
-	//todo: dolozyc funkcje
 }
 
 void cSampleEditor::prepareDisplayDataMainScreen()
@@ -279,7 +331,7 @@ void cSampleEditor::reloadFrameData(enScreenType s)
 	}
 	else if(s == effectParamsScreen)
 	{
-		frameData.placesCount = 6;
+		frameData.placesCount = effectDisplayParams[currentEffectIdx].paramsNumber;
 
 		for ( uint8_t i = 0; i < frameData.placesCount; i++ )
 		{
@@ -371,11 +423,19 @@ void cSampleEditor::reloadParamiterValueText(uint8_t n)
 	{
 		int displayedValue = effectDisplayParams[currentEffectIdx].iParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
 		sprintf(paramiterValueLabelPtr[n], "%d", displayedValue);
+		if(effectDisplayParams[currentEffectIdx].afterValueText[n] != nullptr)
+		{
+			strcat(paramiterValueLabelPtr[n],effectDisplayParams[currentEffectIdx].afterValueText[n]);
+		}
 	}
 	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
 	{
 		float displayedValue = effectDisplayParams[currentEffectIdx].fParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
 		sprintf(paramiterValueLabelPtr[n], "%.3f", displayedValue);
+		if(effectDisplayParams[currentEffectIdx].afterValueText[n] != nullptr)
+		{
+			strcat(paramiterValueLabelPtr[n],effectDisplayParams[currentEffectIdx].afterValueText[n]);
+		}
 	}
 }
 
@@ -417,7 +477,6 @@ void cSampleEditor::refreshEndPoint()
 }
 void cSampleEditor::refreshZoom()
 {
-
 	reloadZoomText();
 	showZoomText();
 }
@@ -429,12 +488,16 @@ void cSampleEditor::refreshEffectList()
 
 void cSampleEditor::refreshSpectrum()
 {
+	if(screenType != mainScreen) return;
+
 	GP.processSpectrum( &spectrumParams, &zoom, &spectrumData);
 	showSpectrum();
 }
 
 void cSampleEditor::refreshPlayhead()
 {
+	if(screenType != mainScreen) return;
+
 	reloadPlayheadValue();
 	if(needShowPlayhead)
 	{
@@ -442,6 +505,15 @@ void cSampleEditor::refreshPlayhead()
 		display.setControlValue(playhead, playheadValue);
 		showPlayhead();
 	}
+}
+
+void cSampleEditor::refreshParamiter(uint8_t n)
+{
+	reloadParamiterBarValue(n);
+	reloadParamiterValueText(n);
+
+	showParamiterBar(n);
+	showParamiterLabel(n);
 }
 //*******************
 
@@ -526,7 +598,50 @@ void cSampleEditor::modSelectedEffect(int16_t val)
 	}
 }
 //*******************
+//ParamiterScreen
+void cSampleEditor::modParamiter(int16_t val, uint8_t n)
+{
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		float localParam = effectDisplayParams[currentEffectIdx].fParameter[n];
+		float localVal = (val * effectDisplayParams[currentEffectIdx].changeStep[n]);
 
+		if(localParam + localVal > effectDisplayParams[currentEffectIdx].fUpConstrain[n] )
+		{
+			effectDisplayParams[currentEffectIdx].fParameter[n] = effectDisplayParams[currentEffectIdx].fUpConstrain[n];
+		}
+		else if(localParam + localVal < effectDisplayParams[currentEffectIdx].fDownConstrain[n])
+		{
+			effectDisplayParams[currentEffectIdx].fParameter[n] = effectDisplayParams[currentEffectIdx].fDownConstrain[n];
+		}
+		else
+		{
+			effectDisplayParams[currentEffectIdx].fParameter[n] += localVal;
+		}
+		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[n], n);
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		int localParam = effectDisplayParams[currentEffectIdx].iParameter[n];
+		int localVal = (int)(val * effectDisplayParams[currentEffectIdx].changeStep[n]);
+
+		if(localParam + localVal > effectDisplayParams[currentEffectIdx].iUpConstrain[n] )
+		{
+			effectDisplayParams[currentEffectIdx].iParameter[n] = effectDisplayParams[currentEffectIdx].iUpConstrain[n];
+		}
+		else if(localParam + localVal < effectDisplayParams[currentEffectIdx].iDownConstrain[n])
+		{
+			effectDisplayParams[currentEffectIdx].iParameter[n] = effectDisplayParams[currentEffectIdx].iDownConstrain[n];
+		}
+		else
+		{
+			effectDisplayParams[currentEffectIdx].iParameter[n] += localVal;
+		}
+		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[n], n);
+	}
+
+	refreshParamiter(n);
+}
 //************************************************************************** ACTION FUNCTIONS
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -696,10 +811,90 @@ static 	uint8_t functListDown()
 }
 static  uint8_t functUndo()
 {
+	SE->currentEffect->startUndo();
 	return 1;
 }
-static  uint8_t functApply()
+static  uint8_t functMainScreenApply()
 {
+	SE->currentEffect->startApply();
 	return 1;
 }
-
+// Paramiter screen functions
+static  uint8_t functParamsScreenLeft()
+{
+	if(SE->selectedPlace[cSampleEditor::effectParamsScreen] > 0) SE->selectedPlace[cSampleEditor::effectParamsScreen]--;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functParamsScreenRight()
+{
+	if(SE->selectedPlace[cSampleEditor::effectParamsScreen] < (SE->frameData.placesCount - 1 )) SE->selectedPlace[cSampleEditor::effectParamsScreen]++;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functParamsScreenUp()
+{
+	SE->modParamiter(1, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+static  uint8_t functParamsScreenDown()
+{
+	SE->modParamiter(-1, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+static  uint8_t functParamsScreenEncoder(int16_t value)
+{
+	SE->modParamiter(value, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+static  uint8_t functSelectParamiter1()
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 0;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functSelectParamiter2()
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 1;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functSelectParamiter3()
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 2;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functSelectParamiter4()
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 3;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functSelectParamiter5()
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 4;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functSelectParamiter6()
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 5;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functPreview()
+{
+	//todo: jakie etapy do wykonania
+	SE->currentEffect->startProcessingSelection();
+	//todo: podmienic labelek w tym miejscu na Play
+	//todo: odpalic popup progressu
+	return 1;
+}
+static  uint8_t functParamsScreenApply()
+{
+	//todo: getter czy jest zaladowane i czy jest zprocessowane
+	//todo: odpalic popup progressu
+	SE->currentEffect->startApply();
+	return 1;
+}

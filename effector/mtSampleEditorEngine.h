@@ -25,6 +25,7 @@ namespace delayParams
 	extern float fDownConstrain[2];
 	extern float changeStep[2];
 	extern float displayMult[2];
+	extern const char * const afterValueText[2];
 //*********************
 }
 
@@ -39,6 +40,7 @@ namespace bitcrusherParams
 	extern float fDownConstrain[2];
 	extern float changeStep[2];
 	extern float displayMult[2];
+	extern const char * const afterValueText[2];
 //*********************
 }
 

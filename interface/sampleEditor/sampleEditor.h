@@ -72,6 +72,9 @@ public:
 	void showEffectList();
 	void hideEffectList();
 
+	void showParamiterBar(uint8_t n);
+	void showParamiterLabel(uint8_t n);
+
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -81,6 +84,7 @@ public:
 	void refreshEffectList();
 	void refreshSpectrum();
 	void refreshPlayhead();
+	void refreshParamiter(uint8_t n);
 //*******************
 //******************* PARAMETERS MODIFICATORS
 //MainScreen
@@ -88,6 +92,8 @@ public:
 	void modEndPoint(int16_t val);
 	void modZoom(int16_t val);
 	void modSelectedEffect(int16_t val);
+//ParamiterScreen
+	void modParamiter(int16_t val, uint8_t n);
 //*******************
 	cSampleEditor()
 	{
@@ -209,14 +215,16 @@ public:
 
 		float * changeStep;
 		float * displayMult;
+		const char * const * afterValueText;
 	} effectDisplayParams[editorEffectMax] =
 	{
 			{
-				{0,500,0,0,0,0},{0.001,0,0,0,0,0}, //start values
+				{0,500,0,0,0,0},{0.01,0,0,0,0,0}, //start values
 				2,delayParams::labelText,delayParams::paramsType,
 				delayParams::iUpConstrain,delayParams::fUpConstrain,
 				delayParams::iDownConstrain,delayParams::fDownConstrain,
-				delayParams::changeStep,delayParams::displayMult
+				delayParams::changeStep,delayParams::displayMult,
+				delayParams::afterValueText
 			},
 
 			{
@@ -224,7 +232,8 @@ public:
 				2,bitcrusherParams::labelText,bitcrusherParams::paramsType,
 				bitcrusherParams::iUpConstrain,bitcrusherParams::fUpConstrain,
 				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,
-				bitcrusherParams::changeStep,bitcrusherParams::displayMult
+				bitcrusherParams::changeStep,bitcrusherParams::displayMult,
+				bitcrusherParams::afterValueText
 			}
 	};
 

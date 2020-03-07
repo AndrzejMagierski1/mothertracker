@@ -2,9 +2,14 @@
 #include "mtStructs.h"
 
 //***********VIRTUAL SET PARAMS
-void mtEffectDelay::setParams(void * ptr)
+void mtEffectDelay::setParamiter(void * ptr, uint8_t n)
 {
-	effectDelayParams = *((strEffectDelayParams*)ptr);
+	switch(n)
+	{
+		case 0 : 	effectDelayParams.feedback = *((float*)ptr);		break;
+		case 1 : 	effectDelayParams.time = *((uint16_t*)ptr);			break;
+		default: break;
+	}
 }
 //***********
 //***********VIRTUAL PROCESSING
