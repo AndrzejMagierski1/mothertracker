@@ -16,7 +16,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cProcessingPop::cProcessingPop(strControlProperties* properties)
+cProcessingPop::cProcessingPop(strControlProperties* properties): cDisplayControl(controlIdProcessingPopup)
 {
 	colorsCount = 5;
 	colors = defaultColors;

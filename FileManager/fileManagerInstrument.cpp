@@ -151,11 +151,11 @@ void cFileManager::createEmptyInstrumentInWorkspace()
 	if(currentOperation == fmImportSamplesToWorkspace)
 	{
 		//nadaje nazwe i zapisuje z nowa nazwa zawsze
-		strcpy(mtProject.instrument[currentInstrument].sample.file_name, explorerList[importCurrentFile]);
+		strncpy(mtProject.instrument[currentInstrument].sample.file_name, explorerList[importCurrentFile], SAMPLE_NAME_SIZE);
 	}
 	else //(currentOperation == fmSaveRecordedSound)
 	{
-		strcpy(mtProject.instrument[currentInstrument].sample.file_name, getRecordingFileName());
+		strncpy(mtProject.instrument[currentInstrument].sample.file_name, getRecordingFileName(), SAMPLE_NAME_SIZE);
 	}
 
 

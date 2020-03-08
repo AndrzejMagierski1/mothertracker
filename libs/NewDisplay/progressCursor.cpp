@@ -21,7 +21,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cProgressCursor::cProgressCursor(strControlProperties* properties)
+cProgressCursor::cProgressCursor(strControlProperties* properties): cDisplayControl(controlIdProgressCursor)
 {
 	colorsCount = 2;
 	colors = defaultColors;

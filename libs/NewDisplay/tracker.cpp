@@ -95,7 +95,7 @@ const uint8_t paramToStateOffset[4] =	{  1,  2,  4,  8,	};
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cTracker::cTracker(strControlProperties* properties)
+cTracker::cTracker(strControlProperties* properties): cDisplayControl(controlIdTracker)
 {
 	//visibleCharOffset = 0;
 	//firstVisibleTrack = 0;
@@ -249,6 +249,9 @@ uint8_t cTracker::append(uint32_t address)
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1], ramPartSize[2]);
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2], ramPartSize[3]);
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3], ramPartSize[4]);
+
+	ramSize  = ramPartSize[0]+ramPartSize[1]+ramPartSize[2]+ramPartSize[3]+ramPartSize[4];
+
 
 /*
 	if(ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3] +ramPartSize[4] > 8000)

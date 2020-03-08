@@ -18,7 +18,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cWtProgress::cWtProgress(strControlProperties* properties)
+cWtProgress::cWtProgress(strControlProperties* properties): cDisplayControl(controlIdWtProgress)
 {
 	colorsCount = 2;
 	colors = defaultColors;

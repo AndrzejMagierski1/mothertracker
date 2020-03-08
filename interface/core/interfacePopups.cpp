@@ -83,7 +83,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop.h = 430;
 	//prop.colors = instrListColors;
 	prop.data = &popupList;
-	if(listControl == nullptr)  listControl = display.createControl<cList>(&prop);
+	if(popupListControl == nullptr)  popupListControl = display.createControl<cList>(&prop);
 
 
 	padNamesStruct.length = 5;
@@ -255,11 +255,12 @@ void cInterfacePopups::showInstrumentsPopup()
 	instrList.linesCount = 16;
 	instrList.length = 64;
 	instrList.data = interfaceGlobals.ptrIntrumentsNames;
+	instrList.lineLengthMax = 22;
 
-	display.setControlPosition(listControl, 600, 30);
-	display.setControlData(listControl, &instrList);
-	display.setControlShow(listControl);
-	display.refreshControl(listControl);
+	display.setControlPosition(popupListControl, 600, 30);
+	display.setControlData(popupListControl, &instrList);
+	display.setControlShow(popupListControl);
+	display.refreshControl(popupListControl);
 
 	//refreshAllList();
 
@@ -299,10 +300,10 @@ void cInterfacePopups::showFxesPopup()
 	instrList.length = FX_COUNT;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
-	display.setControlPosition(listControl, 600, 30);
-	display.setControlData(listControl, &instrList);
-	display.setControlShow(listControl);
-	display.refreshControl(listControl);
+	display.setControlPosition(popupListControl, 600, 30);
+	display.setControlData(popupListControl, &instrList);
+	display.setControlShow(popupListControl);
+	display.refreshControl(popupListControl);
 
 	//refreshAllList();
 
@@ -347,10 +348,10 @@ void cInterfacePopups::hideStepPopups()
 	{
 		stepPopupState = stepPopupNone;
 
-		display.setControlHide(listControl);
-		display.setControlHide(listControl);
-		display.setControlHide(listControl);
-		display.setControlHide(listControl);
+		display.setControlHide(popupListControl);
+		display.setControlHide(popupListControl);
+		display.setControlHide(popupListControl);
+		display.setControlHide(popupListControl);
 
 		display.setControlHide(keyboardControl);
 
@@ -439,8 +440,8 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	case stepPopupInstr:
 	{
 		mtProject.values.lastUsedInstrument = selectedActualItem;
-		display.setControlValue(listControl, selectedActualItem);
-		display.refreshControl(listControl);
+		display.setControlValue(popupListControl, selectedActualItem);
+		display.refreshControl(popupListControl);
 		break;
 	}
 	case stepPopupFx:
@@ -449,8 +450,8 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 
 		selectedActualItem = constrain(selectedActualItem, 0, FX_COUNT-1);
 		mtProject.values.lastUsedFx = selectedActualItem;
-		display.setControlValue(listControl, selectedActualItem);
-		display.refreshControl(listControl);
+		display.setControlValue(popupListControl, selectedActualItem);
+		display.refreshControl(popupListControl);
 
 		if(mtConfig.interface.fxPopupDescription)
 		{
@@ -501,8 +502,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		mtProject.values.lastUsedInstrument = selectedActualItem;
 		//showActualInstrument();
 
-		display.setControlValue(listControl, selectedActualItem);
-		display.refreshControl(listControl);
+		display.setControlValue(popupListControl, selectedActualItem);
+		display.refreshControl(popupListControl);
 
 		break;
 	}
@@ -523,8 +524,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 
 		mtProject.values.lastUsedFx = selectedActualItem;
 
-		display.setControlValue(listControl, selectedActualItem);
-		display.refreshControl(listControl);
+		display.setControlValue(popupListControl, selectedActualItem);
+		display.refreshControl(popupListControl);
 
 		if(mtConfig.interface.fxPopupDescription)
 		{

@@ -381,7 +381,7 @@ void cFileManager::saveProjectToWorkspaceFinish()
 	}
 
 
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave end");
 
 	if(status == fmSavingProjectToProjects)
@@ -607,7 +607,7 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 	}
 
 	//report("Autosave Started");
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave start");
 
 	status = fmSavingProjectToWorkspace;
@@ -894,7 +894,7 @@ static char errorText[100];
 void cFileManager::throwError(uint8_t source)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	sprintf(errorText,  "File manager error (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
 	debugLog.addLine(errorText);
 	debugLog.forceRefresh();
@@ -913,7 +913,7 @@ void cFileManager::throwError(uint8_t source)
 void cFileManager::report(const char* text, uint8_t value)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	if(value > 0) sprintf(errorText,  "File manager: %s (%d)", text, value);
 	else sprintf(errorText,  "File manager: %s", text);
 	debugLog.addLine(errorText);

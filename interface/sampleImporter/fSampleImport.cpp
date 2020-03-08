@@ -490,7 +490,7 @@ static  uint8_t functConfirmRename()
 
 		if(allow)
 		{
-			strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,localName,32);
+			strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,localName,SAMPLE_NAME_SIZE);
 
 			SI->showFileList();
 

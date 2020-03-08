@@ -17,7 +17,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cBgLabel::cBgLabel(strControlProperties* properties)
+cBgLabel::cBgLabel(strControlProperties* properties): cDisplayControl(controlIdBgLabel)
 {
 	colorsCount = 3;
 

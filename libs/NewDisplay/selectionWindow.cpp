@@ -22,7 +22,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cSelectionWindow::cSelectionWindow(strControlProperties* properties)
+cSelectionWindow::cSelectionWindow(strControlProperties* properties): cDisplayControl(controlIdSelectionWindow)
 {
 	colorsCount = 9;
 	colors = defaultColors;

@@ -18,7 +18,7 @@ void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cEdit::cEdit(strControlProperties* properties)
+cEdit::cEdit(strControlProperties* properties): cDisplayControl(controlIdEdit)
 {
 	colorsCount = 3;
 	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;

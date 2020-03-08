@@ -22,7 +22,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cSpectrum::cSpectrum(strControlProperties* properties)
+cSpectrum::cSpectrum(strControlProperties* properties): cDisplayControl(controlIdSpectrum)
 {
 	colorsCount = 3;
 	colors = defaultColors;
@@ -153,7 +153,7 @@ uint8_t cSpectrum::append(uint32_t address)
 	//API_CMD_APPEND(address+ ramPartSize[0], ramPartSize[1]);
 	//API_CMD_APPEND(address+ ramPartSize[0] + ramPartSize[1], ramPartSize[2]);
 
-
+	ramSize  = ramPartSize[0];
 
 	return 0;
 }

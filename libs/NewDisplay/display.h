@@ -19,7 +19,6 @@
 #include "barControl.h"
 #include "horizontalBarControl.h"
 #include "keyboardControl.h"
-#include "patternPopupControl.h"
 #include "selectionWindowControl.h"
 #include "progressCursorControl.h"
 #include "startScreenControl.h"
@@ -126,6 +125,11 @@ public:
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
+	// NOWOSC!!!
+	uint32_t getControlMemoryUsage(hControl handle);
+
+
+
 	// jpg/png
 	uint8_t readImgFromSd(char* path, uint32_t address, int16_t max_w, int16_t max_h);
 	void readImgFromMemory(uint8_t* data, uint32_t size);
@@ -166,6 +170,9 @@ private:
 	uint8_t refreshQueueBott; 	// pozycja do nastepnego odczytu
 
 	uint8_t memoryMap[controlsCount] = {0};
+
+
+	uint32_t memoryUsed = 0;
 
 	//kosmetyka
 	uint8_t fontsCount = displayFontCount;

@@ -127,7 +127,7 @@ static char errorNr[9];
 void reportSdError(const char* text, uint16_t value)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	strncpy(&errorText[11], text, 80);
 	if(value > 0)
 	{

@@ -17,7 +17,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cBar::cBar(strControlProperties* properties)
+cBar::cBar(strControlProperties* properties): cDisplayControl(controlIdBar)
 {
 	colorsCount = 5;
 	colors = defaultColors;

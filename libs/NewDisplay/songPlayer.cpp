@@ -27,7 +27,7 @@ static char* rowLabel	= (char*)"Slot";
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cSongPlayer::cSongPlayer(strControlProperties* properties)
+cSongPlayer::cSongPlayer(strControlProperties* properties): cDisplayControl(controlIdSongPlayer)
 {
 	colorsCount = 7;
 	colors = defaultColors;
@@ -231,6 +231,8 @@ uint8_t cSongPlayer::append(uint32_t address)
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1], ramPartSize[2]);
 	//API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2], ramPartSize[3]);
 	//API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3], ramPartSize[4]);
+
+	ramSize  = ramPartSize[0]+ramPartSize[1]+ramPartSize[2];
 
 	return 0;
 }

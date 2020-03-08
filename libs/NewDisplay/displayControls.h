@@ -32,7 +32,7 @@ public:
 	virtual void setDefaultColors(uint32_t* colors) = 0;
 	virtual void setData(void* data) = 0;
 
-	cDisplayControl()
+	cDisplayControl(control_id_t _id):id(_id)
 	{
 		refresh = 0;
 		ramMapPosition = 0;
@@ -70,6 +70,7 @@ protected:
 	uint8_t colorsCount;
 	uint32_t* colors;
 
+	control_id_t id;
 
 };
 

@@ -115,12 +115,7 @@ void cPatternEditor::update()
 
 	readPatternState();
 
-	if(lastPlayedPattern != mtProject.values.actualPattern)
-	{
-		lastPlayedPattern = mtProject.values.actualPattern;
-
-		refreshPatternParams();
-	}
+	showPattern();
 	showLength();
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;

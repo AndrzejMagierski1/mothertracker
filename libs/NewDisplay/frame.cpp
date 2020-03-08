@@ -15,7 +15,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cFrame::cFrame(strControlProperties* properties)
+cFrame::cFrame(strControlProperties* properties): cDisplayControl(controlIdFrame)
 {
 	colorsCount = 3;
 	colors = defaultColors;

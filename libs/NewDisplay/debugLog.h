@@ -70,6 +70,7 @@ private:
 	{
 		uint32_t time = 0;
 		char text[logLineLengthMax];
+		bool displayed;
 	} logLine[fifoSize];
 
 	strFont* logFont = (strFont*)&fonts[0];

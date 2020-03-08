@@ -19,7 +19,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cMultiLabel::cMultiLabel(strControlProperties* properties)
+cMultiLabel::cMultiLabel(strControlProperties* properties): cDisplayControl(controlIdMultiLabel)
 {
 	colorsCount = 3;
 
