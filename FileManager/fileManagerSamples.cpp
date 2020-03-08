@@ -4,6 +4,8 @@
 #include "SD.h"
 
 
+#include "debugLog.h"
+
 #include "fileTransfer.h"
 #include "fileManager.h"
 
@@ -189,6 +191,7 @@ void cFileManager::moveSampleMemory()
 		i++;
 	}
 
+
 	// wyznacz przesuniecie i blok do przesuniecia
 
 	int32_t memory_offset = 0;
@@ -231,7 +234,13 @@ void cFileManager::moveSampleMemory()
 
 void cFileManager::moveMemory(uint8_t* memoryStart, uint8_t* memoryEnd, int32_t memoryOffset)
 {
-	int32_t memory_size = memoryEnd-memoryStart;
+	char message[100];
+	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
+	debugLog.addLine(message);
+	debugLog.forceRefresh();
+
+
+	volatile int32_t memory_size = memoryEnd-memoryStart;
 	int32_t stepSize = READ_WRITE_BUFOR_SIZE;
 
 	if(memoryOffset > 0)
