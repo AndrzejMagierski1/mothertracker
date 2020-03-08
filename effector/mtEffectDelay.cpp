@@ -50,6 +50,7 @@ bool mtEffectDelay::startProcess()
 
 	lastVoiceIdx = maxVoiceNumber - 1;
 
+	state = true;
 	return true;
 
 }

@@ -36,6 +36,9 @@ mtEffect::loadResult mtEffect::startLoad(uint8_t instr_idx)
 	loading.processParams.maxProgressValue = mtProject.instrument[instr_idx].sample.length;
 	loading.processParams.state = 1;
 
+	confirmed.area.length = mtProject.instrument[instr_idx].sample.length;
+	confirmed.selection.length = mtProject.instrument[instr_idx].sample.length;
+
 	dataCopyier->start(mtProject.instrument[instr_idx].sample.address, confirmed.area.addr, mtProject.instrument[instr_idx].sample.length);
 
 
@@ -53,6 +56,7 @@ void mtEffect::updateLoad()
 	loading.processParams.state = dataCopyier->getState();
 	if(!loading.processParams.state)
 	{
+
 		operationType = enOperationType::operationTypeIdle;
 		processing.isLoadedData = true;
 		if(loading.isProcessOnEnd) startProcessingSelection();
@@ -66,6 +70,11 @@ bool mtEffect::getLoadState()
 uint8_t mtEffect::getLoadProgress()
 {
 	return getProgress(&loading.processParams);
+}
+
+bool mtEffect::getIsLoadedData()
+{
+	return processing.isLoadedData;
 }
 
 void mtEffect::clearIsLoadedData()
@@ -152,6 +161,8 @@ bool mtEffect::startProcessingSelection()
 
 	endProcessingState = true;
 
+	operationType = enOperationType::operationTypeProcessing;
+
 	return true;
 }
 void mtEffect::updateProcessingSelection()
@@ -188,7 +199,6 @@ void mtEffect::updateProcessingSelection()
 			processing.processParams.state = false;
 			apply.isProcessData = 1;
 			undo.isEnable = 0;
-			operationType = enOperationType::operationTypeIdle;
 			if(processing.isApplyOnEnd) startApply();
 			break;
 		}
@@ -209,7 +219,6 @@ bool mtEffect::getProcessSelectionState()
 
 bool mtEffect::startCommonProcess()
 {
-	operationType = enOperationType::operationTypeProcessing;
 	startProcess();
 
 	return true;
@@ -232,24 +241,29 @@ void mtEffect::updateCopying()
 
 	if(!dataCopyier->getState()) endProcessingState = true;
 }
+
+bool mtEffect::getIsProcessedData()
+{
+	return apply.isProcessData;
+}
 //***********PREVIEW GETTERS
 int16_t * const mtEffect::getAddresToPreview()
 {
-	return processed.selection.addr;
+	return processed.area.addr;
 }
 uint32_t mtEffect::getLengthToPreview()
 {
-	return processed.selection.length;
+	return processed.area.length;
 }
 //***********
 //***********PLAY GETTERS
 int16_t * mtEffect::getAddresToPlay()
 {
-	return confirmed.selection.addr;
+	return confirmed.area.addr;
 }
 uint32_t  mtEffect::getLengthToPlay()
 {
-	return confirmed.selection.length;
+	return confirmed.area.length;
 }
 //***********
 //***********SELECTION SET

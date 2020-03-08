@@ -54,12 +54,7 @@ static  uint8_t functParamsScreenRight();
 static  uint8_t functParamsScreenUp();
 static  uint8_t functParamsScreenDown();
 static  uint8_t functParamsScreenEncoder(int16_t value);
-static  uint8_t functSelectParamiter1();
-static  uint8_t functSelectParamiter2();
-static  uint8_t functSelectParamiter3();
-static  uint8_t functSelectParamiter4();
-static  uint8_t functSelectParamiter5();
-static  uint8_t functSelectParamiter6();
+static  uint8_t functSelectParamiter(uint8_t button);
 static  uint8_t functPreview();
 static  uint8_t functParamsScreenApply();
 //**************************************************************************
@@ -105,8 +100,19 @@ void cSampleEditor::start(uint32_t options)
 	prepareDisplayDataMainScreen();
 	showMainScreen();
 
+	currentEffect->clearIsLoadedData(); //todo: tylko na wejscie do modulu
 
-
+	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
+	{
+		if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'f')
+		{
+			currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[i], i);
+		}
+		else if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'd')
+		{
+			currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[i], i);
+		}
+	}
 }
 
 void cSampleEditor::update()
@@ -121,7 +127,29 @@ void cSampleEditor::update()
 		refreshPlayhead();
 	}
 
-	currentEffect->update();
+	if(!currentEffect->getIsLoadedData() && currentEffect->getLoadState())
+	{
+		currentEffect->update();
+		if(!currentEffect->getLoadState())
+		{
+			editorInstrument->sample.address = currentEffect->getAddresToPlay();
+			editorInstrument->sample.length = currentEffect->getLengthToPlay();
+		}
+	}
+	else if(!currentEffect->getIsProcessedData() && currentEffect->getProcessSelectionState() )
+	{
+		currentEffect->update();
+		if(!currentEffect->getProcessSelectionState())
+		{
+			editorInstrument->sample.address = currentEffect->getAddresToPlay();
+			editorInstrument->sample.length = currentEffect->getLengthToPlay();
+			spectrumParams.address = editorInstrument->sample.address;
+			spectrumParams.length = editorInstrument->sample.length;
+			needRefreshSpectrum = 1;
+		}
+	}
+
+
 
 }
 
@@ -192,30 +220,17 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functParamsScreenUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functParamsScreenDown);
 
-	//todo: to moze byc jedna funkcja
-	uint8_t(*functParams[6])(void) =
-	{
-			functSelectParamiter1,
-			functSelectParamiter2,
-			functSelectParamiter3,
-			functSelectParamiter4,
-			functSelectParamiter5,
-			functSelectParamiter6
-	};
 
-	uint8_t functCounter = 0;
 	for(uint8_t i = interfaceButton0 ; i <= interfaceButton5 ; i++)
 	{
-		 if(functCounter < effectDisplayParams[currentEffectIdx].paramsNumber)
+		 if(i < effectDisplayParams[currentEffectIdx].paramsNumber)
 		 {
-			 FM->setButtonObj(i, buttonPress, functParams[i]);
+			 FM->setButtonObj(i, buttonPress, functSelectParamiter);
 		 }
 		 else
 		 {
 			 break;
 		 }
-
-		 functCounter++;
 	}
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
@@ -847,39 +862,9 @@ static  uint8_t functParamsScreenEncoder(int16_t value)
 	SE->modParamiter(value, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
 	return 1;
 }
-static  uint8_t functSelectParamiter1()
+static  uint8_t functSelectParamiter(uint8_t button)
 {
-	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 0;
-	SE->showFrame();
-	return 1;
-}
-static  uint8_t functSelectParamiter2()
-{
-	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 1;
-	SE->showFrame();
-	return 1;
-}
-static  uint8_t functSelectParamiter3()
-{
-	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 2;
-	SE->showFrame();
-	return 1;
-}
-static  uint8_t functSelectParamiter4()
-{
-	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 3;
-	SE->showFrame();
-	return 1;
-}
-static  uint8_t functSelectParamiter5()
-{
-	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 4;
-	SE->showFrame();
-	return 1;
-}
-static  uint8_t functSelectParamiter6()
-{
-	SE->selectedPlace[cSampleEditor::effectParamsScreen] = 5;
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = button;
 	SE->showFrame();
 	return 1;
 }

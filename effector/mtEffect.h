@@ -44,6 +44,7 @@ public:
 	void updateLoad();
 	bool getLoadState();
 	uint8_t getLoadProgress();
+	bool getIsLoadedData();
 	void clearIsLoadedData();
 //***********
 //***********APPLY
@@ -70,6 +71,7 @@ public:
 	bool 	startCommonProcess();
 	void 	updateCommonProcess();
 	void 	updateCopying();
+	bool 	getIsProcessedData();
 //***********PREVIEW GETTERS
 	int16_t * const getAddresToPreview();
 	uint32_t getLengthToPreview();

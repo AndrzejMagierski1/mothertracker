@@ -30,6 +30,10 @@ bool mtEffectBitcrusher::startProcess()
 	else if (effectBitcrusherParams.bits == 0) effectBitcrusherParams.bits = 1;
 	crushBits = effectBitcrusherParams.bits;
 
+	processedSamples = 0;
+
+	state = true;
+
 	return true;
 
 }
@@ -115,6 +119,7 @@ int32_t mtEffectBitcrusher::updateProcess()
 						if(processedBlockLength + processedSamples > length)
 						{
 							state = 0;
+							i = 8192;
 							break;
 						}
 					}
