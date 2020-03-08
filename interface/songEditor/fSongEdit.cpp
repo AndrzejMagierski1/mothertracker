@@ -199,6 +199,9 @@ static  uint8_t functPlayPattern()
 				&& SE->songPlayerData.selection.patternSelectionLength == 1
 				&& SE->songPlayerData.selection.trackSelectionLength == 1)//xxx
 		{
+
+			SE->switchToNewPattern();
+
 			sequencer.setSelection(0,
 								SE->songPlayerData.selection.startTrack,
 								sequencer.getPatternLength()-1,
@@ -210,6 +213,7 @@ static  uint8_t functPlayPattern()
 			// wlacza tryb preview tracku \/
 			SE->songPlayerData.progress.trackPreview = SE->songPlayerData.selection.startTrack;
 
+			display.refreshControl(SE->songPlayerControl);
 			return 1;
 		}
 
@@ -223,9 +227,6 @@ static  uint8_t functPlayPattern()
 		SE->startSongPlayer();
 
 		display.refreshControl(SE->songPlayerControl);
-
-
-
 
 
 	}

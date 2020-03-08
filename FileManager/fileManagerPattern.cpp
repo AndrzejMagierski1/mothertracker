@@ -116,6 +116,7 @@ void cFileManager::savePatternToWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
+		clearPatternChanged(mtProject.values.actualPattern);
 		sequencer.saveToFileDone();
 		moveToNextOperationStep();
 	}
@@ -292,6 +293,12 @@ bool cFileManager::saveWorkspacePatternNow(uint8_t index)
 		sprintf(patternToSave, cWorkspacePatternFileFormat, index);
 		status = writePatternFile(patternToSave, sequencer.getPatternToSaveToFile());
 		sequencer.saveToFileDone();
+
+		if(updatePatternBitmask(mtProject.values.actualPattern))
+		{
+			// jesli struktura bitow sie zminila wymus aktualizcje projektu
+			changesFlags.project = 1;
+		}
 	}
 
 	return status;

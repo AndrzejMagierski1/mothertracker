@@ -1279,12 +1279,19 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->editMode == 0)
 	{
-		if(PTE->trackerPattern.actualTrack + value < 0) PTE->trackerPattern.actualTrack = 0;
-		else if(PTE->trackerPattern.actualTrack + value > 7) PTE->trackerPattern.actualTrack = 7;
-		else  PTE->trackerPattern.actualTrack += value;
+		if(!sequencer.isStop()) return 1;
+		// przesuwanie lewo-prawo
+		//if(PTE->trackerPattern.actualTrack + value < 0) PTE->trackerPattern.actualTrack = 0;
+		//else if(PTE->trackerPattern.actualTrack + value > 7) PTE->trackerPattern.actualTrack = 7;
+		//else  PTE->trackerPattern.actualTrack += value;
+
+		// przesuwanie gora-dol
+		if(PTE->trackerPattern.actualStep + value < 0) PTE->trackerPattern.actualStep = 0;
+		else if(PTE->trackerPattern.actualStep + value > PTE->trackerPattern.patternLength-1) PTE->trackerPattern.actualStep = PTE->trackerPattern.patternLength-1;
+		else  PTE->trackerPattern.actualStep += value;
 
 		PTE->focusOnActual();
-		display.refreshControl(PTE->patternControl);
+		PTE->refreshPattern();
 
 		return 1;
 	}
@@ -2521,7 +2528,7 @@ static  uint8_t functFillApply()
 
 		//--------------------------------------------------------
 		functFillCancel();
-		newFileManager.storePatternUndoRevision();
+		//newFileManager.storePatternUndoRevision(); // xxx chyba tu nie potrzebne wiec wykomentowane
 		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 	}
 

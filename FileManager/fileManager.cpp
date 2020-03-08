@@ -373,6 +373,13 @@ void cFileManager::saveProjectToWorkspaceFinish()
 
 	clearChangeFlags();
 
+	// na koniec jescze raz sprawdza bitmaski, moze cos sie zmienilo w trakcie save'a?
+	if(updatePatternBitmask(mtProject.values.actualPattern))
+	{
+		// jesli struktura bitow sie zminila wymus ponowna aktualizcje projektu
+		changesFlags.project = 1;
+	}
+
 
 	debugLog.setMaxLineCount(10);
 	debugLog.addLine("autosave end");
@@ -541,6 +548,7 @@ void cFileManager::loadPatternFromWorkspaceFinish()
 		return;
 	}
 
+	status = fmIdle;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
@@ -708,10 +716,11 @@ bool cFileManager::loadWorkspacePattern(uint8_t index)
 
 	currentPattern = index;
 
-	if(status != fmExportingSoundSong || status != fmExportingSoundSongStems)
+	if(status != fmExportingSoundSong && status != fmExportingSoundSongStems)
 	{
 		status = fmLoadingPatternFromWorkspace;
 	}
+
 	currentOperationStep = 0;
 	currentOperation = fmLoadWorkspacePattern;
 	return true;
@@ -795,7 +804,20 @@ void cFileManager::setInstrumentStructChanged(uint8_t instrument)
 }
 
 
+void cFileManager::clearProjectChangedFlag()
+{
+	changesFlags.project = 0;
+}
 
+void cFileManager::clearPatternChanged(uint8_t pattern)
+{
+	changesFlags.pattern[pattern] = 0;
+}
+
+void cFileManager::clearInstrumentChanged(uint8_t instrument)
+{
+	changesFlags.instrument[instrument] = 0;
+}
 
 
 
