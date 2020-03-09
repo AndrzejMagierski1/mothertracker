@@ -222,6 +222,7 @@ public:
 	bool checkIfAnyInstrActive();
 
 	uint8_t addNextFlag = 0;
+	uint8_t addNextOffset = 0;
 
 };
 

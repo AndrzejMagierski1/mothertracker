@@ -127,6 +127,7 @@ void cFileManager::saveInstrumentsToWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
+		clearInstrumentChanged(currentInstrument);
 		skipNextOperationStep();   // ominac sample bo nie zapisuje sie sampli
 	}
 	else// if(saveStatus >= fileTransferError)

@@ -104,6 +104,14 @@ void cFileManager::savePatternToWorkspace()
 		return;
 	}
 
+	// sprawdz bitmaski traków patternu, moze cos sie zmienilo w ciagu jednego przejścia petli od zapisu projektu? ;>
+	if(updatePatternBitmask(mtProject.values.actualPattern))
+	{
+		// jesli struktura bitow sie zminila wymus ponowna aktualizcje projektu = ponowny autosave po skonczeniu tego
+		changesFlags.project = 1;
+	}
+
+
 	if(!writePatternToFileStruct(sequencer.getPatternToSaveToFile(), (uint8_t*)&fileManagerPatternBuffer))
 	{
 		throwError(0);

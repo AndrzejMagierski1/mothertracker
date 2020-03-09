@@ -91,15 +91,16 @@ void cSampleImporter::update()
 	}
 	else if(managerStatus == fmImportSamplesEnd)
 	{
+		if(addNextFlag)
+		{
+			addNextFlag = 0;
+			selectedSlot = (selectedSlot+addNextOffset >= INSTRUMENTS_COUNT) ? INSTRUMENTS_COUNT-1 : selectedSlot + addNextOffset;
+		}
+
 		SI->listInstrumentSlots();
 		SI->showInstrumentsList();
 		SI->handleMemoryBar();
 		isBusy = 0;
-		if(addNextFlag)
-		{
-			addNextFlag = 0;
-			//todo przesuwanie belki ponizej dodanych instrumentow
-		}
 
 		newFileManager.clearStatus();
 	}
@@ -334,6 +335,7 @@ static  uint8_t functInstrumentAdd()
 	if(SI->explorerNames != nullptr && *SI->explorerNames[SI->selectedFile] != '/')
 	{
 		SI->sampleType = mtSampleTypeWaveFile;
+		SI->addNextFlag = 0;
 		SI->importSamples();
 	}
 
@@ -956,7 +958,11 @@ void cSampleImporter::importSamples()
 {
 	if(!fullMemoryFlag)
 	{
-		bool result = newFileManager.importSamplesToProject(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
+		uint8_t selStart = getSelectionStart(listFiles);
+		uint8_t selEnd = getSelectionEnd(listFiles);
+
+		bool result = newFileManager.importSamplesToProject(selStart, selEnd, selectedSlot);
+		addNextOffset = (selEnd - selStart) + 1;
 
 		if(result)
 		{

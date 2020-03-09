@@ -87,10 +87,10 @@ void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
 	switch(currentOperationStep)
 	{
 		case 0:		saveProjectToWorkspaceInit(); 			break;
-		case 1:		saveProjectFileToWorkspace(); 			break;
-		case 2:		savePatternToWorkspace(); 				break;
-		case 3:		saveInstrumentsToWorkspace(); 			break;
-		case 4:		saveSamplesToWorkspace(); 				break;
+		case 1:		savePatternToWorkspace(); 				break;
+		case 2:		saveInstrumentsToWorkspace(); 			break;
+		case 3:		saveSamplesToWorkspace(); 				break;
+		case 4:		saveProjectFileToWorkspace(); 			break; // projekt przesunięty na koniec
 		case 5:		saveProjectToWorkspaceFinish(); 		break;
 		default:	stopOperationWithError(fmSaveError); 	break;
 	}
@@ -362,23 +362,7 @@ void cFileManager::saveProjectToWorkspaceInit()
 
 void cFileManager::saveProjectToWorkspaceFinish()
 {
-	if(currentInstrument < INSTRUMENTS_COUNT-1)
-	{
-		currentInstrument++;
-		currentSample++;
-
-		currentOperationStep = 3; //xxx najwazniejsze !
-		return;
-	}
-
-	clearChangeFlags();
-
-	// na koniec jescze raz sprawdza bitmaski, moze cos sie zmienilo w trakcie save'a?
-	if(updatePatternBitmask(mtProject.values.actualPattern))
-	{
-		// jesli struktura bitow sie zminila wymus ponowna aktualizcje projektu
-		changesFlags.project = 1;
-	}
+	//clearChangeFlags(); // wykomentowane - czysci flagi na bierząco
 
 
 	debugLog.setMaxLineCount(9);

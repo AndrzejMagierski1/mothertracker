@@ -137,6 +137,16 @@ void cFileManager::copySamples()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveSamplesToWorkspace()
 {
+	// sampli sie nie zapisuje
+	// ale wykorzystane do zwiekszania licznika zapisywanego instrumentu
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 2; //xxx najwazniejsze !
+		return;
+	}
 
 	moveToNextOperationStep();
 }
