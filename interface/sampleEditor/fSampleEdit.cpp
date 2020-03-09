@@ -66,7 +66,7 @@ void cSampleEditor::start(uint32_t options)
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		//todo: popup
-		return;
+		//return;
 	}
 
 	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
@@ -100,7 +100,8 @@ void cSampleEditor::start(uint32_t options)
 	prepareDisplayDataMainScreen();
 	showMainScreen();
 
-	currentEffect->clearIsLoadedData(); //todo: tylko na wejscie do modulu
+	currentEffect->clearIsLoadedData();
+	currentEffect->clearIsProcessedData();
 
 	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
 	{
@@ -113,6 +114,8 @@ void cSampleEditor::start(uint32_t options)
 			currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[i], i);
 		}
 	}
+
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
 }
 
 void cSampleEditor::update()
@@ -132,8 +135,9 @@ void cSampleEditor::update()
 		currentEffect->update();
 		if(!currentEffect->getLoadState())
 		{
-			editorInstrument->sample.address = currentEffect->getAddresToPlay();
-			editorInstrument->sample.length = currentEffect->getLengthToPlay();
+			currentEffect->changeSelectionRange(selection.startPoint, selection.endPoint);
+			reloadSpectrumData();
+			isLoadedData = currentEffect->getIsLoadedData();
 		}
 	}
 	else if(!currentEffect->getIsProcessedData() && currentEffect->getProcessSelectionState() )
@@ -141,15 +145,28 @@ void cSampleEditor::update()
 		currentEffect->update();
 		if(!currentEffect->getProcessSelectionState())
 		{
-			editorInstrument->sample.address = currentEffect->getAddresToPlay();
-			editorInstrument->sample.length = currentEffect->getLengthToPlay();
-			spectrumParams.address = editorInstrument->sample.address;
-			spectrumParams.length = editorInstrument->sample.length;
+			reloadSpectrumData();
 			needRefreshSpectrum = 1;
+
+			isProcessedData = currentEffect->getIsProcessedData();
+
+			applyingInProgress = 0;
+			hidePopup();
+
+			SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+			SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+
+			refreshStartPoint();
+			refreshEndPoint();
+
+			refreshUndoState();
 		}
 	}
 
-
+	if(applyingInProgress)
+	{
+		refreshApplyingProgress();
+	}
 
 }
 
@@ -330,6 +347,42 @@ void cSampleEditor::reloadCurrentEffect()
 	}
 
 	lastEffect = currentEffect;
+
+}
+
+void cSampleEditor::reloadSpectrumData()
+{
+	editorInstrument->sample.address = currentEffect->getAddresToPlay();
+	editorInstrument->sample.length = currentEffect->getLengthToPlay();
+	spectrumParams.address = editorInstrument->sample.address;
+	spectrumParams.length = editorInstrument->sample.length;
+}
+
+//popups
+void cSampleEditor::reloadApplyingProgress()
+{
+	if(applyingSteps == 1)
+	{
+		if(!isLoadedData)
+		{
+			applyingProgress = currentEffect->getLoadProgress();
+		}
+		else if(!isProcessedData)
+		{
+			applyingProgress = currentEffect->getProcessSelectionProgress();
+		}
+	}
+	else if(applyingSteps == 2)
+	{
+		if(!isLoadedData)
+		{
+			applyingProgress = currentEffect->getLoadProgress()/2;
+		}
+		else if(!isProcessedData)
+		{
+			applyingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
+		}
+	}
 
 }
 
@@ -522,6 +575,17 @@ void cSampleEditor::refreshPlayhead()
 	}
 }
 
+void cSampleEditor::refreshUndoState()
+{
+	if((editorInstrument->isActive) && (screenType == mainScreen))
+	{
+		if(!currentEffect->undo.isEnable) display.setControlColors(label[3],interfaceGlobals.inactiveLabelsColors);
+		else display.setControlColors(label[3],interfaceGlobals.activeLabelsColors);
+
+		display.refreshControl(label[3]);
+	}
+}
+
 void cSampleEditor::refreshParamiter(uint8_t n)
 {
 	reloadParamiterBarValue(n);
@@ -529,6 +593,13 @@ void cSampleEditor::refreshParamiter(uint8_t n)
 
 	showParamiterBar(n);
 	showParamiterLabel(n);
+}
+
+//popups
+void cSampleEditor::refreshApplyingProgress()
+{
+	reloadApplyingProgress();
+	showProgressApplying();
 }
 //*******************
 
@@ -559,6 +630,8 @@ void cSampleEditor::modStartPoint(int16_t val)
 
 	zoom.zoomPosition = selection.startPoint;
 
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
 	refreshStartPoint();
 }
 void cSampleEditor::modEndPoint(int16_t val)
@@ -586,6 +659,8 @@ void cSampleEditor::modEndPoint(int16_t val)
 
 	zoom.zoomPosition = selection.endPoint;
 
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
 	refreshEndPoint();
 }
 
@@ -609,6 +684,20 @@ void cSampleEditor::modSelectedEffect(int16_t val)
 
 	if(currentEffectIdx != lastEffectIdx)
 	{
+		currentEffect = sampleEditorEffect[currentEffectIdx];
+
+		for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
+		{
+			if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'f')
+			{
+				currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[i], i);
+			}
+			else if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'd')
+			{
+				currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[i], i);
+			}
+		}
+		reloadCurrentEffect();
 		refreshEffectList();
 	}
 }
@@ -827,11 +916,48 @@ static 	uint8_t functListDown()
 static  uint8_t functUndo()
 {
 	SE->currentEffect->startUndo();
+	SE->refreshUndoState();
+
+	SE->reloadSpectrumData();
+
+	SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+	SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+
+	SE->refreshStartPoint();
+	SE->refreshEndPoint();
+	SE->needRefreshSpectrum = 1;
 	return 1;
 }
 static  uint8_t functMainScreenApply()
 {
+
+	SE->applyingSteps = 0;
+
+	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
+	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
+
+	if(!SE->isLoadedData) SE->applyingSteps++;
+	if(!SE->isProcessedData) SE->applyingSteps++;
+
+	if(SE->applyingSteps)
+	{
+		SE->showPopupApplying();
+		SE->applyingInProgress = 1;
+	}
+
 	SE->currentEffect->startApply();
+
+	if(!SE->applyingSteps)
+	{
+		SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+		SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+		SE->reloadSpectrumData();
+		SE->refreshStartPoint();
+		SE->refreshEndPoint();
+		SE->needRefreshSpectrum = 1;
+	}
+
+	SE->refreshUndoState();
 	return 1;
 }
 // Paramiter screen functions

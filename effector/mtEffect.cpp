@@ -15,6 +15,7 @@ void mtEffect::update()
 
 void mtEffect::switchEffect(mtEffect * lastEffect)
 {
+	lastEffect->apply.isProcessData = 0;
 	memcpy(&this->processing, &lastEffect->processing, sizeof(this->processing));
 	memcpy(&this->processed, &lastEffect->processed, sizeof(this->processed));
 	memcpy(&this->confirmed, &lastEffect->confirmed, sizeof(this->confirmed));
@@ -110,7 +111,6 @@ void mtEffect::startUndo()
 	confirmed = tmp;
 
 	undo.isEnable = 0;
-	apply.isProcessData = 1;
 }
 //***********
 //***********SAVE
@@ -145,9 +145,10 @@ bool mtEffect::startProcessingSelection()
 		return false;
 	}
 
+
 	if(processingState != enProcessingState::idle) return false;
 	uint32_t expectedSelectLen = getExpectedProcessLength(confirmed.selection.length);
-	int32_t dif = confirmed.selection.length - expectedSelectLen;
+	int32_t dif = expectedSelectLen - confirmed.selection.length ;
 
 	if(confirmed.area.length + dif > SAMPLE_EFFECTOR_LENGTH_MAX ) return false;
 
@@ -246,6 +247,11 @@ bool mtEffect::getIsProcessedData()
 {
 	return apply.isProcessData;
 }
+
+void mtEffect::clearIsProcessedData()
+{
+	apply.isProcessData = false;
+}
 //***********PREVIEW GETTERS
 int16_t * const mtEffect::getAddresToPreview()
 {
@@ -284,6 +290,15 @@ void mtEffect::changeSelectionRange(uint16_t a, uint16_t b)
 
 	confirmed.selection.addr = confirmed.area.addr + addressShift;
 	confirmed.selection.length = length - addressShift;
+}
+
+uint16_t mtEffect::getNewEndPoint()
+{
+	return (confirmed.selection.length * MAX_16BIT) / confirmed.area.length;
+}
+uint16_t mtEffect::getNewStartPoint()
+{
+	return ( (uint32_t)(confirmed.selection.addr - confirmed.area.addr) * MAX_16BIT) / confirmed.area.length;
 }
 //***********
 bool mtEffect::getState(strProcessing * ptr)

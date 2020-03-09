@@ -77,6 +77,7 @@ int32_t mtEffectDelay::updateProcess()
 
 			*currentDstAddr++ = (int16_t)currentSum;
 			processedBlockLength++;
+			processedSamples++;
 
 			if((processedSamples > lastIndexInVoice[lastActiveVoiceIdx])) lastActiveVoiceIdx ++;
 			if(sourceVoicePointer[firstActiveVoiceIdx] >= lastSrcAddr) firstActiveVoiceIdx ++;
@@ -90,10 +91,9 @@ int32_t mtEffectDelay::updateProcess()
 			state = false;
 			processed.selection.length = processedSamples; //redundancy
 			processed.area.length = confirmed.area.length + (processed.selection.length - confirmed.selection.length); //redundancy
+			break;
 		}
 	}
-
-	processedSamples += processedBlockLength;
 
 	return processedBlockLength;
 }

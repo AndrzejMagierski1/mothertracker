@@ -450,3 +450,24 @@ void cSampleEditor::showParamiterLabel(uint8_t n)
 	display.setControlShow(label[n]);
 	display.refreshControl(label[n]);
 }
+
+//Popups
+
+//Applying
+void  cSampleEditor::showPopupApplying()
+{
+	display.setControlText(popupProgressBar, "Applying...");
+	display.setControlShow(popupProgressBar);
+	display.refreshControl(popupProgressBar);
+}
+void  cSampleEditor::showProgressApplying()
+{
+	display.setControlValue(popupProgressBar,applyingProgress);
+	display.refreshControl(popupProgressBar);
+}
+
+void  cSampleEditor::hidePopup()
+{
+	display.setControlHide(popupProgressBar);
+	display.refreshControl(popupProgressBar);
+}

@@ -72,6 +72,7 @@ public:
 	void 	updateCommonProcess();
 	void 	updateCopying();
 	bool 	getIsProcessedData();
+	void 	clearIsProcessedData();
 //***********PREVIEW GETTERS
 	int16_t * const getAddresToPreview();
 	uint32_t getLengthToPreview();
@@ -82,6 +83,8 @@ public:
 //***********
 //***********SELECTION SET
 	void changeSelectionRange(uint16_t a, uint16_t b);
+	uint16_t getNewStartPoint();
+	uint16_t getNewEndPoint();
 //***********
 //***********VIRTUAL SET PARAMS
 	virtual void setParamiter(void * ptr, uint8_t n);

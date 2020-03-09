@@ -46,6 +46,9 @@ public:
 	void reloadZoomText();
 	void reloadPlayheadValue();
 	void reloadCurrentEffect();
+	void reloadSpectrumData();
+//popups
+	void reloadApplyingProgress();
 //params screen
 	void prepareDisplayDataParamsScreen();
 	void reloadParamiterValueText(uint8_t n);
@@ -74,7 +77,10 @@ public:
 
 	void showParamiterBar(uint8_t n);
 	void showParamiterLabel(uint8_t n);
-
+//Popups
+	void showPopupApplying();
+	void showProgressApplying();
+	void hidePopup();
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -84,7 +90,11 @@ public:
 	void refreshEffectList();
 	void refreshSpectrum();
 	void refreshPlayhead();
+	void refreshUndoState();
 	void refreshParamiter(uint8_t n);
+
+//popups
+	void refreshApplyingProgress();
 //*******************
 //******************* PARAMETERS MODIFICATORS
 //MainScreen
@@ -154,6 +164,12 @@ public:
 	};
 
 	uint8_t paramsBarValue[6];
+	uint8_t applyingProgress;
+	uint8_t applyingSteps;
+	bool isLoadedData;
+	bool isProcessedData;
+	bool applyingInProgress;
+
 
 //labelsTxt
 	char currentInstrumentName[SAMPLE_NAME_SIZE+6];
