@@ -49,7 +49,7 @@ static uint8_t functCopyPaste();
 
 static uint8_t functConfirmKey();
 
-uint8_t preview(uint8_t state);
+static uint8_t previeFile(uint8_t state);
 
 
 
@@ -85,21 +85,31 @@ void cSampleImporter::update()
 		previewColorControl();
 		cancelSelect(listFiles);
 		setSelect();
-		isBusy = 0;
+		FM->unblockAllInputs();
 
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus == fmImportSamplesEnd)
 	{
-		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
-		SI->handleMemoryBar();
-		isBusy = 0;
 		if(addNextFlag)
 		{
 			addNextFlag = 0;
-			//todo przesuwanie belki ponizej dodanych instrumentow
+			selectedSlot = (selectedSlot+addNextOffset >= INSTRUMENTS_COUNT) ? INSTRUMENTS_COUNT-1 : selectedSlot + addNextOffset;
 		}
+
+		SI->listInstrumentSlots();
+		SI->showInstrumentsList();
+		SI->handleMemoryBar();
+		FM->unblockAllInputs();
+
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus == fmCopyingInstrumentsEnd)
+	{
+		SI->listInstrumentSlots();
+		SI->showInstrumentsList();
+		SI->handleMemoryBar();
+		FM->unblockAllInputs();
 
 		newFileManager.clearStatus();
 	}
@@ -108,14 +118,14 @@ void cSampleImporter::update()
 		SI->listInstrumentSlots();
 		SI->showInstrumentsList();
 		SI->handleMemoryBar();
-		isBusy = 0;
+		FM->unblockAllInputs();
 
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus >=  fmError)
 	{
 		debugLog.addLine("Operation Error");
-		isBusy = 0;
+		FM->unblockAllInputs();
 
 		newFileManager.clearStatus();
 	}
@@ -150,7 +160,10 @@ void cSampleImporter::start(uint32_t options)
 	// przeladuj pierwszy raz xxx rzeba to popawic
 	if(locationExplorerCount == 0)
 	{
-		newFileManager.browseSdCard(nullptr);
+		if(newFileManager.browseSdCard(nullptr))
+		{
+			SI->FM->blockAllInputs();
+		}
 	}
 	else
 	{
@@ -231,7 +244,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
 	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentAddNext);
-	FM->setButtonObj(interfaceButton4, preview);
+	FM->setButtonObj(interfaceButton4, previeFile);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	//FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
@@ -250,8 +263,6 @@ void cSampleImporter::setDefaultScreenFunct()
 //==============================================================================================================
 static  uint8_t functChangeFolder(uint8_t button)
 {
-	if(SI->isBusy) return 1;
-
 	if(SI->selectedPlace == 0)
 	{
 		if(button == interfaceButton0)
@@ -288,8 +299,6 @@ static  uint8_t functChangeFolder(uint8_t button)
 
 static  uint8_t functChangeInstrument(uint8_t button)
 {
-	if(SI->isBusy) return 1;
-
 	if(SI->selectedPlace == 1)
 	{
 		if(button == interfaceButton6)
@@ -322,8 +331,6 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 static  uint8_t functInstrumentAdd()
 {
-	if(SI->isBusy) return 1;
-
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
@@ -334,6 +341,7 @@ static  uint8_t functInstrumentAdd()
 	if(SI->explorerNames != nullptr && *SI->explorerNames[SI->selectedFile] != '/')
 	{
 		SI->sampleType = mtSampleTypeWaveFile;
+		SI->addNextFlag = 0;
 		SI->importSamples();
 	}
 
@@ -343,8 +351,6 @@ static  uint8_t functInstrumentAdd()
 
 static uint8_t functDelete(uint8_t state)
 {
-	if(SI->isBusy) return 1;
-
 	if(SI->keyboardManager.getState())
 	{
 		functDeleteBackspace(state);
@@ -387,7 +393,10 @@ static  uint8_t functInstrumentDelete()
 
 	if(instrToDeleteCount > 0)
 	{
-		newFileManager.deleteInstruments(SI->getSelectionStart(listInstruments), SI->getSelectionEnd(listInstruments));
+		if(newFileManager.deleteInstruments(SI->getSelectionStart(listInstruments), SI->getSelectionEnd(listInstruments)))
+		{
+			SI->FM->blockAllInputs();
+		}
 	}
 
 	return 1;
@@ -400,7 +409,6 @@ static  uint8_t functInstrumentDelete()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(SI->keyboardManager.getState() == 1) return 1;
-	if(SI->isBusy) return 1;
 
 	switch(SI->selectedPlace)
 	{
@@ -415,8 +423,6 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functEnter()
 {
-	if(SI->isBusy) return 1;
-
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->BrowseOrAdd(); break;
@@ -429,8 +435,6 @@ static  uint8_t functEnter()
 
 static uint8_t functInstrumentAddNext()
 {
-	if(SI->isBusy) return 1;
-
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
@@ -451,7 +455,6 @@ static uint8_t functInstrumentAddNext()
 
 static  uint8_t functRename()
 {
-	if(SI->isBusy) return 1;
 	if(mtProject.instrument[SI->selectedSlot].isActive != 1) return 1;
 
 	SI->keyboardManager.fillName(mtProject.instrument[SI->selectedSlot].sample.file_name);
@@ -544,8 +547,6 @@ static  uint8_t functAutoNameRename()
 
 static uint8_t functCopyPaste()
 {
-	if(SI->isBusy) return 1;
-
 	if(SI->keyboardManager.getState()) return 1;
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
@@ -580,7 +581,6 @@ void cSampleImporter::pasteInstruments()
 {
 	if(!copyElementsCount || instrCopyStart == selectedSlot) return;
 
-
 	uint8_t willFit;
 	uint8_t selectOverMax = 0;
 
@@ -613,20 +613,14 @@ void cSampleImporter::pasteInstruments()
 		}
 	}
 
-
-
 	if(willFit)
 	{
-
 		//TODO COPY INSTRUMENTS
-
-
-
-		//isBusy = 1;
+		if(newFileManager.copyInstrumentsInWorkspace(instrCopyStart, copyElementsCount))
+		{
+			SI->FM->blockAllInputs();
+		}
 	}
-
-
-
 }
 
 static void cancelAnotherSelect()
@@ -709,8 +703,6 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
-	if(SI->isBusy) return 1;
-
 	SI->keyboardManager.makeMove('a');
 	if(SI->keyboardManager.getState()) return 1;
 	if(SI->selectedPlace > 0)
@@ -759,8 +751,6 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(SI->isBusy) return 1;
-
 	SI->keyboardManager.makeMove('d');
 	if(SI->keyboardManager.getState()) return 1;
 	if(SI->selectedPlace < 1)
@@ -783,8 +773,6 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	if(SI->isBusy) return 1;
-
 	SI->keyboardManager.makeMove('w');
 	if(SI->keyboardManager.getState()) return 1;
 	switch(SI->selectedPlace)
@@ -798,8 +786,6 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	if(SI->isBusy) return 1;
-
 	SI->keyboardManager.makeMove('s');
 	if(SI->keyboardManager.getState()) return 1;
 	switch(SI->selectedPlace)
@@ -813,8 +799,6 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(SI->isBusy) return 1;
-
 	if(sequencer.getSeqState() == 0)
 	{
 		sequencer.play();
@@ -832,8 +816,6 @@ static  uint8_t functPlayAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SI->isBusy) return 1;
-
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
 	return 1;
@@ -943,7 +925,10 @@ void cSampleImporter::BrowseOrAdd()
 	{
 		if(selectedPlace == 0)
 		{
-			newFileManager.browseSdCard(&selectedFile);
+			if(newFileManager.browseSdCard(&selectedFile))
+			{
+				SI->FM->blockAllInputs();
+			}
 		}
 	}
 	else
@@ -956,11 +941,15 @@ void cSampleImporter::importSamples()
 {
 	if(!fullMemoryFlag)
 	{
-		bool result = newFileManager.importSamplesToProject(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
+		uint8_t selStart = getSelectionStart(listFiles);
+		uint8_t selEnd = getSelectionEnd(listFiles);
+
+		bool result = newFileManager.importSamplesToProject(selStart, selEnd, selectedSlot);
+		addNextOffset = (selEnd - selStart) + 1;
 
 		if(result)
 		{
-			isBusy = 1;
+			SI->FM->blockAllInputs();
 		}
 
 	}
@@ -1126,7 +1115,10 @@ void cSampleImporter::playSdFile()
 
 	stopPlaying();
 
-	newFileManager.previevSamplefromSD(selectedFile);
+	if(newFileManager.previevSamplefromSD(selectedFile))
+	{
+		SI->FM->blockAllInputsExcept(interfaceButton4);
+	}
 
 	playMode = playModeSdFile;
 
@@ -1159,6 +1151,7 @@ void cSampleImporter::stopPlaying()
 	if(playMode == playModeSdFile)
 	{
 		newFileManager.stopPrevievSamplefromSD();
+		SI->FM->unblockAllInputs();
 	}
 	else if(playMode == playModeSampleBank)
 	{
@@ -1168,10 +1161,8 @@ void cSampleImporter::stopPlaying()
 	playMode = playModeStop;
 }
 
-uint8_t preview(uint8_t state)
+static uint8_t previeFile(uint8_t state)
 {
-	if(SI->isBusy) return 1;
-
 	if(state == 0)  SI->stopPlaying();
 	else if (state == 1)
 	{

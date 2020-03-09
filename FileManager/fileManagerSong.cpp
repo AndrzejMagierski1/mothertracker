@@ -129,11 +129,11 @@ bool cFileManager::updatePatternBitmask(uint8_t index, uint8_t* sourcePattern)
 {
 	/*Update pattern usage bitmask*/
 	uint8_t before = mtProject.values.allPatternsBitmask[index];
+	uint8_t length =  ((Sequencer::strPattern*)sourcePattern)->track[0].length; // dlugosc z 1 tracka
 
 	for(uint8_t trackNum = 0; trackNum < 8; trackNum++)
 	{
 		uint8_t isAnyActive = 0;
-		uint8_t length =  ((Sequencer::strPattern*)sourcePattern)->track[trackNum].length;
 
 		for(uint8_t step = 0; step < length; step++)
 		{

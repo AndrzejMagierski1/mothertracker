@@ -209,9 +209,6 @@ public:
 
 	void showRenameKeyboard();
 
-	uint8_t isBusy;
-
-
 
 	uint8_t folderIsChanged = 1;
 
@@ -222,6 +219,7 @@ public:
 	bool checkIfAnyInstrActive();
 
 	uint8_t addNextFlag = 0;
+	uint8_t addNextOffset = 0;
 
 };
 

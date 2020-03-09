@@ -15,6 +15,7 @@ enum fileManagerStatus
 	fmBrowsingProjects,
 	fmBrowsingFirmwares,
 	fmImportingSamplesToWorkspace,
+	fmCopyingInstrumentsInWorkspace,
 	fmDeleteingInstruments,
 	fmPreviewSampleFromSd,
 	fmLoadingProjectfromWorkspace,
@@ -38,6 +39,7 @@ enum fileManagerStatus
 	fmBrowseProjectsEnd,
 	fmBrowseFirmwaresEnd,
 	fmImportSamplesEnd,
+	fmCopyingInstrumentsEnd,
 	fmDeleteInstrumentsEnd,
 	fmLoadPatternEnd,
 	fmExportSoundEnd,
@@ -53,6 +55,7 @@ enum fileManagerStatus
 	fmBrowseProjectsError,
 	fmBrowseFirmwaresError,
 	fmImportSamplesError,
+	fmCopyingInstrumentsError,
 	fmDeleteInstrumentsError,
 	fmLoadPatternError,
 	fmExportSoundError,
@@ -73,13 +76,14 @@ enum fileManagerOperation
 	fmBrowseFirmwares, 			//7
 
 	fmImportSamplesToWorkspace,	//8
-	fmPreviewSamplesFromSD,		//9
-	fmDeleteInstruments,		//10
+	fmCopyInstrumentsInWorkspace,//9
+	fmPreviewSamplesFromSD,		//10
+	fmDeleteInstruments,		//11
 
-	fmLoadWorkspacePattern,		//11
+	fmLoadWorkspacePattern,		//12
 
-	fmExportSound,				//12
-	fmSaveRecordedSound,		//13
+	fmExportSound,				//13
+	fmSaveRecordedSound,		//14
 
 };
 
@@ -126,6 +130,7 @@ public:
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 	bool importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
+	bool copyInstrumentsInWorkspace(uint8_t copyInstrStart, uint8_t copyInstrCount);
 
 	bool browseSdCard(uint8_t* index);
 	bool browseProjects();
@@ -224,6 +229,7 @@ private:
 	void updateBrowseProjects();
 	void updateBrowseFirmwares();
 	void updateImportSamplesToWorkspace();
+	void updateCopyInstrumentsInWorkspace();
 	void updateDeleteInstruments();
 	void updateLoadWorkspacePattern();
 	void updateExportSound();
@@ -326,6 +332,8 @@ private:
 	void importSamplesToWorkspaceInit();
 	void importSamplesToWorkspaceContinue();
 	void importSamplesToWorkspaceFinish();
+
+	void copyInstrumentsInWorkspaceFinish();
 
 	void deleteInstrumentsFromWorkspaceFinish();
 

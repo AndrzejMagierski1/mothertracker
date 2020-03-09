@@ -45,6 +45,7 @@ void cFileManager::update()
 	case fmBrowseFirmwares: 			updateBrowseFirmwares(); 				break;
 
 	case fmImportSamplesToWorkspace:	updateImportSamplesToWorkspace(); 		break;
+	case fmCopyInstrumentsInWorkspace:	updateCopyInstrumentsInWorkspace(); 	break;
 	case fmPreviewSamplesFromSD:												break;
 	case fmDeleteInstruments:			updateDeleteInstruments(); 				break;
 
@@ -87,10 +88,10 @@ void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
 	switch(currentOperationStep)
 	{
 		case 0:		saveProjectToWorkspaceInit(); 			break;
-		case 1:		saveProjectFileToWorkspace(); 			break;
-		case 2:		savePatternToWorkspace(); 				break;
-		case 3:		saveInstrumentsToWorkspace(); 			break;
-		case 4:		saveSamplesToWorkspace(); 				break;
+		case 1:		savePatternToWorkspace(); 				break;
+		case 2:		saveInstrumentsToWorkspace(); 			break;
+		case 3:		saveSamplesToWorkspace(); 				break;
+		case 4:		saveProjectFileToWorkspace(); 			break; // projekt przesunięty na koniec
 		case 5:		saveProjectToWorkspaceFinish(); 		break;
 		default:	stopOperationWithError(fmSaveError); 	break;
 	}
@@ -171,7 +172,17 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 	}
 }
 
-void cFileManager::updateDeleteInstruments() //fmDeleteInstruments - 10
+
+void cFileManager::updateCopyInstrumentsInWorkspace()	//fmCopyInstrumentsInWorkspace - 9
+{
+	switch(currentOperationStep)
+	{
+		case 0:		copyInstrumentsInWorkspaceFinish();						break;
+		default:	stopOperationWithError(fmImportSamplesError); 			break;
+	}
+}
+
+void cFileManager::updateDeleteInstruments() //fmDeleteInstruments - 11
 {
 	switch(currentOperationStep)
 	{
@@ -183,7 +194,7 @@ void cFileManager::updateDeleteInstruments() //fmDeleteInstruments - 10
 	}
 }
 
-void cFileManager::updateLoadWorkspacePattern() //fmLoadWorkspacePattern - 11
+void cFileManager::updateLoadWorkspacePattern() //fmLoadWorkspacePattern - 12
 {
 	switch(currentOperationStep)
 	{
@@ -194,7 +205,7 @@ void cFileManager::updateLoadWorkspacePattern() //fmLoadWorkspacePattern - 11
 	}
 }
 
-void cFileManager::updateExportSound() //fmExportSound - 12
+void cFileManager::updateExportSound() //fmExportSound - 13
 {
 	switch(currentOperationStep)
 	{
@@ -204,7 +215,7 @@ void cFileManager::updateExportSound() //fmExportSound - 12
 	}
 }
 
-void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 13
+void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 14
 {
 	switch(currentOperationStep)
 	{
@@ -362,23 +373,7 @@ void cFileManager::saveProjectToWorkspaceInit()
 
 void cFileManager::saveProjectToWorkspaceFinish()
 {
-	if(currentInstrument < INSTRUMENTS_COUNT-1)
-	{
-		currentInstrument++;
-		currentSample++;
-
-		currentOperationStep = 3; //xxx najwazniejsze !
-		return;
-	}
-
-	clearChangeFlags();
-
-	// na koniec jescze raz sprawdza bitmaski, moze cos sie zmienilo w trakcie save'a?
-	if(updatePatternBitmask(mtProject.values.actualPattern))
-	{
-		// jesli struktura bitow sie zminila wymus ponowna aktualizcje projektu
-		changesFlags.project = 1;
-	}
+	//clearChangeFlags(); // wykomentowane - czysci flagi na bierząco
 
 
 	debugLog.setMaxLineCount(9);
@@ -514,6 +509,14 @@ void cFileManager::importSamplesToWorkspaceFinish()
 	}
 
 	status = fmImportSamplesEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+//---------------------------------------------------------------------------------------- copyInstrumentsInWorkspace
+void cFileManager::copyInstrumentsInWorkspaceFinish()
+{
+
+	status = fmCopyingInstrumentsEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
@@ -678,6 +681,22 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 }
 
 
+
+bool cFileManager::copyInstrumentsInWorkspace(uint8_t copyInstrStart, uint8_t copyInstrCount)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+
+
+
+
+
+	status = fmCopyingInstrumentsInWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmCopyInstrumentsInWorkspace;
+	return true;
+}
 
 
 
