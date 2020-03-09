@@ -344,6 +344,7 @@ private:
 
 	uint8_t importCurrentFile;
 	int8_t importStartSlot;
+	uint8_t* importStartSlotAdress;
 	int8_t importEndSlot;
 	int8_t firstSlotToMoveInMemory;
 

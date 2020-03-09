@@ -191,13 +191,13 @@ void cFileManager::moveSampleMemory()
 		i++;
 	}
 
-
 	// wyznacz przesuniecie i blok do przesuniecia
-
 	int32_t memory_offset = 0;
 	if(currentOperation == fmImportSamplesToWorkspace)
 	{
-		memory_offset = importSamplesSize;
+		// roznica wielkosci nowych sampli i wielkosci starych nadpisanych sampli
+		memory_offset = importSamplesSize
+						- ((uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address - importStartSlotAdress);
 	}
 	else if(currentOperation == fmDeleteInstruments)
 	{
@@ -212,6 +212,8 @@ void cFileManager::moveSampleMemory()
 		}
 	}
 
+	// jak nic sie nie przesuwa to kończ
+	if(memory_offset == 0) return;
 
 	uint8_t* begining_address = (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 	uint8_t* end_address = (uint8_t*)mtProject.instrument[last_instrument_to_move].sample.address
@@ -219,7 +221,6 @@ void cFileManager::moveSampleMemory()
 
 
 	moveMemory(begining_address, end_address, memory_offset);
-
 
 	// zmien adresy przesunietch instrumentów
 	for(uint8_t i = firstSlotToMoveInMemory; i<=last_instrument_to_move; i++)
@@ -234,10 +235,10 @@ void cFileManager::moveSampleMemory()
 
 void cFileManager::moveMemory(uint8_t* memoryStart, uint8_t* memoryEnd, int32_t memoryOffset)
 {
-	char message[100];
-	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
-	debugLog.addLine(message);
-	debugLog.forceRefresh();
+//	char message[100];
+//	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
+//	debugLog.addLine(message);
+//	debugLog.forceRefresh();
 
 
 	volatile int32_t memory_size = memoryEnd-memoryStart;

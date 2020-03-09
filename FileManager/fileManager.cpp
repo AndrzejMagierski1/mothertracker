@@ -457,7 +457,10 @@ void cFileManager::importSamplesToWorkspaceInit()
 {
 	importSamplesSize = 0;
 
-	// kasowanie zuzycia pamieci przez nadpisywane instrumenty
+	// zapamietanie zajmowanej pamieci przez nadpisywane instrumenty
+	// + kasowanie zuzycia pamieci przez te instrumenty
+	importStartSlotAdress = (uint8_t*)mtProject.instrument[importStartSlot].sample.address;
+
 	for(uint8_t instr = importStartSlot; instr <= importEndSlot; instr++)
 	{
 		if(mtProject.instrument[instr].isActive == 1)
@@ -465,7 +468,7 @@ void cFileManager::importSamplesToWorkspaceInit()
 			mtProject.used_memory -= mtProject.instrument[instr].sample.length*2;
 		}
 
-		// pewnie jakies dane potrzebna beda w dalszych krokach wiec lepiej nie zerowac
+		// wykomentowane bo pewnie jakies dane potrzebna beda w dalszych krokach wiec lepiej nie zerowac
 //		setDefaultActiveInstrument(&mtProject.instrument[instr]);
 //		mtProject.instrument[instr].sample.file_name[0] = 0;
 //		mtProject.instrument[instr].isActive = 0;

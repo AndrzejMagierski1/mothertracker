@@ -320,6 +320,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 	}
 
 	transferStep = 0;
+	convertedDataSize = 0;
 	transferFile.close();
 	transferFile2.close();
 	return fileTransferError;
