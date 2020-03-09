@@ -209,9 +209,6 @@ public:
 
 	void showRenameKeyboard();
 
-	uint8_t isBusy;
-
-
 
 	uint8_t folderIsChanged = 1;
 

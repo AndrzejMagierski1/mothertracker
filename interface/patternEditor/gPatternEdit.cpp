@@ -484,7 +484,7 @@ void cPatternEditor::showPattern(uint8_t forceShow)
 void cPatternEditor::showLength(uint8_t forceShow)
 {
 	if(fillState) return;
-	uint8_t localLength = sequencer.getPatternToUI()->track[0].length;
+	uint8_t localLength = sequencer.getPatternToUI()->track[0].length+1;
 
 	if(lastLength != localLength || forceShow)
 	{
