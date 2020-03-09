@@ -19,7 +19,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cTextBox::cTextBox(strControlProperties* properties)
+cTextBox::cTextBox(strControlProperties* properties): cDisplayControl(controlIdTextBox)
 {
 	colorsCount = 3;
 

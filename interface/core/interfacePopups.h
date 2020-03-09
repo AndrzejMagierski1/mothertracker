@@ -115,7 +115,7 @@ private:
 	void refreshStepPopupDescription();
 	void refreshFxDescription();
 
-	hControl listControl;
+	hControl popupListControl;
 	hControl keyboardControl;
 	hControl textBox;
 

@@ -401,8 +401,8 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText2(label[7], "");
 
 //	showTempo();
-	showPattern();
-	showLength();
+	showPattern(1);
+	showLength(1);
 	showStep();
 
 	frameData.places[0] = &framesPlaces[0][0];
@@ -468,28 +468,39 @@ void cPatternEditor::hideEditModeLabels()
 	display.synchronizeRefresh();
 }
 
-void cPatternEditor::showPattern()
+void cPatternEditor::showPattern(uint8_t forceShow)
 {
-	sprintf(pattern,"%d", mtProject.values.actualPattern);
-	display.setControlText2(label[0], pattern);
-	display.refreshControl(label[0]);
+	if(fillState) return;
+	if(lastPlayedPattern != mtProject.values.actualPattern || forceShow)
+	{
+		lastPlayedPattern = mtProject.values.actualPattern;
+
+		sprintf(cPattern,"%d", mtProject.values.actualPattern);
+		display.setControlText2(label[0], cPattern);
+		display.refreshControl(label[0]);
+	}
 }
 
-void cPatternEditor::showLength()
+void cPatternEditor::showLength(uint8_t forceShow)
 {
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+	if(fillState) return;
+	uint8_t localLength = sequencer.getPatternToUI()->track[0].length;
 
-	sprintf(length, "%d",  pattern->track[0].length+1);
+	if(lastLength != localLength || forceShow)
+	{
+		lastLength = localLength;
 
-	display.setControlText2(label[1], length);
-	display.refreshControl(label[1]);
+		sprintf(cLength, "%d",  localLength);
+		display.setControlText2(label[1], cLength);
+		display.refreshControl(label[1]);
+	}
 }
 
 void cPatternEditor::showStep()
 {
-	sprintf(step, "%d",  mtProject.values.patternEditStep);
+	sprintf(cStep, "%d",  mtProject.values.patternEditStep);
 
-	display.setControlText2(label[2], step);
+	display.setControlText2(label[2], cStep);
 	display.refreshControl(label[2]);
 }
 

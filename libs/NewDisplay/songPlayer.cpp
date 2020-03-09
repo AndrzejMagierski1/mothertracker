@@ -22,12 +22,12 @@ static uint32_t defaultColors[] =
 
 static char tracksNames[8][8] = {"Track 1","Track 2","Track 3","Track 4","Track 5","Track 6","Track 7","Track 8"};
 static char* patternLabel = (char*)"Pattern";
-static char* rowLabel	= (char*)"Row";
+static char* rowLabel	= (char*)"Slot";
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cSongPlayer::cSongPlayer(strControlProperties* properties)
+cSongPlayer::cSongPlayer(strControlProperties* properties): cDisplayControl(controlIdSongPlayer)
 {
 	colorsCount = 7;
 	colors = defaultColors;
@@ -231,6 +231,8 @@ uint8_t cSongPlayer::append(uint32_t address)
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1], ramPartSize[2]);
 	//API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2], ramPartSize[3]);
 	//API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3], ramPartSize[4]);
+
+	ramSize  = ramPartSize[0]+ramPartSize[1]+ramPartSize[2];
 
 	return 0;
 }
@@ -622,26 +624,26 @@ uint8_t cSongPlayer::showList()
 void cSongPlayer::drawBlocks()
 {
 	API_COLOR(0xFFFFFF);
-	API_LINE_WIDTH(8);
-	API_BEGIN(RECTS);
-
-	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
-
-	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
-	{
-		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
-		{
-			uint16_t localX, localY;
-			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
-			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
-
-			API_VERTEX2F(localX, localY);
-			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
-
-		}
-	}
-
-	API_END();
+//	API_LINE_WIDTH(8);
+//	API_BEGIN(RECTS);
+//
+//	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
+//
+//	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
+//	{
+//		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
+//		{
+//			uint16_t localX, localY;
+//			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
+//			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
+//
+//			API_VERTEX2F(localX, localY);
+//			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
+//
+//		}
+//	}
+//
+//	API_END();
 
 	for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
 	{
@@ -655,9 +657,9 @@ void cSongPlayer::drawBlocks()
 
 void cSongPlayer::fillBlocks()
 {
-	API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	API_COLOR(0x000000);
-	API_LINE_WIDTH(8);
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	API_COLOR(0x121212);
+	API_LINE_WIDTH(16);
 	API_BEGIN(RECTS);
 
 	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
@@ -672,13 +674,20 @@ void cSongPlayer::fillBlocks()
 		{
 			uint16_t localX, localY;
 
-			localX = posX + track*(BLOCK_WIDTH + SPACING_X) +10;
-			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) +33;
+			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
+			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
 
 			if(!(data & (1 << track)))
 			{
-				API_VERTEX2F((localX + 1), (localY + 1));
-				API_VERTEX2F((localX + BLOCK_WIDTH - 1), (localY + BLOCK_HEIGHT - 1));
+				API_COLOR(0x121212);
+				API_VERTEX2F((localX), (localY));
+				API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
+			}
+			else
+			{
+				API_COLOR(0xFFFFFF);
+				API_VERTEX2F((localX), (localY+1));
+				API_VERTEX2F((localX + BLOCK_WIDTH -1), (localY + BLOCK_HEIGHT -1));
 			}
 
 			calculateSelection(pattern, track, localX, localY, localX + BLOCK_WIDTH, localY + BLOCK_HEIGHT);
@@ -688,7 +697,7 @@ void cSongPlayer::fillBlocks()
 	drawSelection();
 
 	API_END();
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
 void cSongPlayer::drawProgressLine()
@@ -696,8 +705,8 @@ void cSongPlayer::drawProgressLine()
 	if(controlData->progress.isPlaying)
 	{
 		API_BLEND_FUNC(SRC_ALPHA, ZERO);
-		API_COLOR(0xFF0000);
-		API_LINE_WIDTH(8);
+		API_COLOR(one_true_red);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINES);
 
 		int16_t patternPosition = controlData->progress.currentSongPosition - textListPos;
@@ -706,12 +715,19 @@ void cSongPlayer::drawProgressLine()
 		{
 			float positionInPattern = controlData->progress.positionInPattern * (BLOCK_HEIGHT / (float)controlData->progress.patternLength) + 0.5f; // 0.5 for rounding
 
-			uint16_t localX, localY;
+			uint16_t localX, localY, localWidth;
 			localX = posX+10;
+			localWidth = 476;
+			if(controlData->progress.trackPreview < 8)
+			{
+				localX += controlData->progress.trackPreview*(BLOCK_WIDTH + SPACING_X);
+				localWidth = BLOCK_WIDTH;
+			}
+
 			localY = posY + patternPosition*(BLOCK_HEIGHT + SPACING_Y)  +33;
 
-			API_VERTEX2F(localX - 5, localY + positionInPattern);
-			API_VERTEX2F(localX + 480, localY + positionInPattern);
+			API_VERTEX2F(localX, localY + positionInPattern);
+			API_VERTEX2F(localX + localWidth, localY + positionInPattern);
 
 			API_END();
 		}
@@ -775,7 +791,8 @@ void cSongPlayer::drawSelection()
 {
 	if(xSelectionStart != UINT16_MAX && ySelectionStart != UINT16_MAX && xSelectionEnd != 0 && ySelectionEnd != 0)
 	{
-		API_COLOR(0xFF0000);
+		API_BLEND_FUNC(SRC_ALPHA, ZERO);
+		API_COLOR(one_true_red);
 		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 
@@ -785,7 +802,19 @@ void cSongPlayer::drawSelection()
 		API_VERTEX2F(xSelectionStart, ySelectionEnd);
 		API_VERTEX2F(xSelectionStart, ySelectionStart);
 
+//		API_BEGIN(LINES);
+//		API_VERTEX2F(select1_x, select1_y);
+//		API_VERTEX2F(select2_x, select1_y);
+//		API_VERTEX2F(select2_x, select2_y);
+//		API_VERTEX2F(select1_x, select2_y);
+//		API_VERTEX2F(select2_x, select1_y);
+//		API_VERTEX2F(select2_x, select2_y);
+//		API_VERTEX2F(select1_x, select2_y);
+//		API_VERTEX2F(select1_x, select1_y);
+//		API_END();
+
 		API_END();
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 	}
 }
 

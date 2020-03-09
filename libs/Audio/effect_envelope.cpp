@@ -436,7 +436,7 @@ void AudioEffectEnvelope::update(void)
 		{
 			mult_hires = 0;
 			count = 1;
-			debugLog.setMaxLineCount(10);
+			debugLog.setMaxLineCount(9);
 			debugLog.addLine("MH<0 ");
 			debugLog.addValue(state);
 			debugLog.addText(" ");
@@ -446,7 +446,7 @@ void AudioEffectEnvelope::update(void)
 		{
 			mult_hires = 0x40000000;
 			count = 1;
-			debugLog.setMaxLineCount(10);
+			debugLog.setMaxLineCount(9);
 			debugLog.addLine("MH>MAX ");
 			debugLog.addValue(state);
 			debugLog.addText(" ");

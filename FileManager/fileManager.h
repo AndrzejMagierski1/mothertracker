@@ -161,8 +161,8 @@ public:
 	void copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum);
 	void deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum);
 
-	void updatePatternBitmask(uint8_t patternNum);
-	void updatePatternBitmask(uint8_t index, uint8_t* sourcePattern);
+	bool updatePatternBitmask(uint8_t patternNum);
+	bool updatePatternBitmask(uint8_t index, uint8_t* sourcePattern);
 	void storePatternUndoRevision();
 	void storeSongUndoRevision(uint8_t index);
 	void undoSongPattern();
@@ -236,6 +236,10 @@ private:
 	void clearWorkspace();
 	bool createWorkspaceDirs();
 	bool createNewEmptyProjectInWorkspace();
+
+	void clearProjectChangedFlag();
+	void clearPatternChanged(uint8_t pattern);
+	void clearInstrumentChanged(uint8_t instrument);
 
 	//init/finisz ------------------------------------
 	void loadProjectFromWorkspaceInit();
@@ -340,6 +344,7 @@ private:
 
 	uint8_t importCurrentFile;
 	int8_t importStartSlot;
+	uint8_t* importStartSlotAdress;
 	int8_t importEndSlot;
 	int8_t firstSlotToMoveInMemory;
 

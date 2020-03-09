@@ -95,7 +95,7 @@ const uint8_t paramToStateOffset[4] =	{  1,  2,  4,  8,	};
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cTracker::cTracker(strControlProperties* properties)
+cTracker::cTracker(strControlProperties* properties): cDisplayControl(controlIdTracker)
 {
 	//visibleCharOffset = 0;
 	//firstVisibleTrack = 0;
@@ -249,6 +249,9 @@ uint8_t cTracker::append(uint32_t address)
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1], ramPartSize[2]);
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2], ramPartSize[3]);
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3], ramPartSize[4]);
+
+	ramSize  = ramPartSize[0]+ramPartSize[1]+ramPartSize[2]+ramPartSize[3]+ramPartSize[4];
+
 
 /*
 	if(ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3] +ramPartSize[4] > 8000)
@@ -845,12 +848,15 @@ void cTracker::tracksNumbers()
 
 	//pole/tlo
 	y = -1;
-	API_COLOR(0xffffff);
+	//API_COLOR(0xffffff);
 	API_LINE_WIDTH(24);
 	API_BEGIN(RECTS);
 
 	for(uint8_t i = 0; i < columnsCount; i++)
 	{
+		if(tracks->firstVisibleTrack+i == 0 || tracks->firstVisibleTrack+i == 4) API_COLOR(0xffffff);
+		else API_COLOR(0x333333);
+
 		x = rightOffset+(i*tracksSpace)+1;
 
 		API_VERTEX2F(x, y);

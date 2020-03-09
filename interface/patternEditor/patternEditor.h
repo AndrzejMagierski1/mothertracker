@@ -95,9 +95,8 @@ public:
 	void changeFillPlace(int8_t diff);
 	void refreshFillPlace();
 
-	void showTempo();
-	void showPattern();
-	void showLength();
+	void showPattern(uint8_t forceShow = 0);
+	void showLength(uint8_t forceShow = 0);
 	void showStep();
 
 	void refreshPatternParams();
@@ -130,6 +129,7 @@ public:
 	uint8_t isPleyheadOnScreen();
 
 	uint16_t lastPlayedPattern = 0;
+	uint16_t lastLength = 0;
 
 	uint8_t isCursorInSelection();
 
@@ -176,10 +176,10 @@ public:
 	int8_t selectedPlace = -1;
 
 	// parametry
-	char tempo[7];
-	char pattern[5];
-	char length[5];
-	char step[5];
+	char cTempo[7];
+	char cPattern[5];
+	char cLength[5];
+	char cStep[5];
 
 
 

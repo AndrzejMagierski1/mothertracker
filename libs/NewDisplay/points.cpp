@@ -16,7 +16,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cPoints::cPoints(strControlProperties* properties)
+cPoints::cPoints(strControlProperties* properties): cDisplayControl(controlIdPoints)
 {
 	colorsCount = 3;
 	colors = defaultColors;

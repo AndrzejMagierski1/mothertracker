@@ -16,6 +16,8 @@ cSongEditor songEditor;
 static cSongEditor* SE = &songEditor;
 
 
+static  uint8_t functPlayPattern();
+static  uint8_t functPlaySong();
 static  uint8_t functIncPattern();
 static  uint8_t functDecPattern();
 static  uint8_t functDeleteSlot();
@@ -49,6 +51,7 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 
 static uint8_t functCopy();
 static uint8_t functPaste();
+
 static uint8_t functUndo();
 
 static uint8_t functDelete();
@@ -59,12 +62,13 @@ void cSongEditor::update()
 {
 	if(songPlayerRefreshTimer > 100)
 	{
+		songPlayerRefreshTimer = 0;
+
 		if(songPlayerData.progress.isPlaying)
 		{
-			//refreshSongPlayerControl();
 			markCurrentPattern(0);
-			songPlayerRefreshTimer = 0;
 		}
+		refreshButtonsLabels();
 	}
 
 	refreshCopyPasting();
@@ -161,16 +165,18 @@ void cSongEditor::setDefaultScreenFunct()
 //	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
+	FM->setButtonObj(interfaceButton0, buttonPress, functPlayPattern);
+	FM->setButtonObj(interfaceButton1, buttonPress, functPlaySong);
+	FM->setButtonObj(interfaceButton2, buttonPress, functUndo);
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functAddSlot);
-	FM->setButtonObj(interfaceButton1, buttonPress, functDeleteSlot);
-	FM->setButtonObj(interfaceButton2, buttonPress, functCopy);
-	FM->setButtonObj(interfaceButton3, buttonPress, functPaste);
-	FM->setButtonObj(interfaceButton4, buttonPress, functUndo);
+	FM->setButtonObj(interfaceButton3, buttonPress, functAddSlot);
+	FM->setButtonObj(interfaceButton4, buttonPress, functDeleteSlot);
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functIncPattern);
 	FM->setButtonObj(interfaceButton5, buttonPress, functDecPattern);
+	FM->setButtonObj(interfaceButton6, buttonPress, functIncPattern);
+
 	FM->setButtonObj(interfaceButton7, buttonPress, functTempo);
+
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyPaste);
 	FM->setButtonObj(interfaceButtonDelete, buttonPress, functDelete);
 	//FM->setButtonObj(interfaceButton7, buttonPress, functPatternLength);
@@ -184,6 +190,73 @@ void cSongEditor::setDefaultScreenFunct()
 
 
 //==============================================================================================================
+
+static  uint8_t functPlayPattern()
+{
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	{
+		if(tactButtons.isButtonPressed(interfaceButtonShift) && SE->selectedPlace < 8
+				&& SE->songPlayerData.selection.patternSelectionLength == 1
+				&& SE->songPlayerData.selection.trackSelectionLength == 1)//xxx
+		{
+
+			SE->switchToNewPattern();
+
+			sequencer.setSelection(0,
+								SE->songPlayerData.selection.startTrack,
+								sequencer.getPatternLength()-1,
+								SE->songPlayerData.selection.startTrack);
+
+			sequencer.playSelection();
+
+			SE->startSongPlayer();
+			// wlacza tryb preview tracku \/
+			SE->songPlayerData.progress.trackPreview = SE->songPlayerData.selection.startTrack;
+
+			display.refreshControl(SE->songPlayerControl);
+			return 1;
+		}
+
+
+		SE->switchToNewPattern();
+
+		sequencer.playPattern();
+		SE->loopPosition = SE->selectedPattern;
+		SE->showIcon(iconLoop,SE->selectedPattern);
+
+		SE->startSongPlayer();
+
+		display.refreshControl(SE->songPlayerControl);
+
+
+	}
+	else if (sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		SE->loopPosition = -1;
+		sequencer.stop();
+		SE->hideIcon();
+	}
+	return 1;
+}
+
+static  uint8_t functPlaySong()
+{
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.playSong(SE->selectedPattern);
+		SE->showIcon(iconPlay,SE->selectedPattern);
+
+		SE->startSongPlayer();
+	}
+	else if (sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		SE->loopPosition = -1;
+		sequencer.stop();
+		SE->hideIcon();
+	}
+	return 1;
+}
+
 
 static  uint8_t functIncPattern()
 {
@@ -499,34 +572,16 @@ static uint8_t functPlayAction()
 {
 	if(SE->isBusy) return 1;
 
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+
+	if (tactButtons.isButtonPressed(interfaceButtonShift))
 	{
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
-		{
-			sequencer.playSong(SE->selectedPattern);
-			SE->showIcon(iconPlay,SE->selectedPattern);
-
-			SE->startSongPlayer();
-		}
-		else
-		{
-			SE->switchToNewPattern();
-
-			sequencer.playPattern();
-			SE->loopPosition = SE->selectedPattern;
-			SE->showIcon(iconLoop,SE->selectedPattern);
-
-			SE->startSongPlayer();
-
-			display.refreshControl(SE->songPlayerControl);
-		}
+		functPlaySong();
 	}
-	else if (sequencer.getSeqState() != 0)
+	else
 	{
-		SE->loopPosition = -1;
-		sequencer.stop();
-		SE->hideIcon();
+		functPlayPattern();
 	}
+
 
 	return 1;
 }
@@ -552,6 +607,7 @@ static uint8_t functSwitchModule(uint8_t button)
 void cSongEditor::startSongPlayer()
 {
 	songPlayerData.progress.isPlaying = 1;
+	SE->songPlayerData.progress.trackPreview = 255; // wylacza tryb preview tracku
 	songPlayerData.progress.currentSongPosition = selectedPattern;
 	songPlayerData.progress.patternLength = sequencer.getPatternLength();
 	songPlayerData.progress.positionInPattern = sequencer.getActualPos();
@@ -566,8 +622,25 @@ void cSongEditor::stopSongPlayer()
 	display.refreshControl(SE->songPlayerControl);
 }
 
+void cSongEditor::stopPlayingSelection()
+{
+	if(sequencer.ptrPlayer->selectionMode)
+	{
+		sequencer.stop();
+		songPlayerData.progress.isPlaying = 0;
+		display.refreshControl(SE->songPlayerControl);
+	}
+}
+
 void cSongEditor::refreshSongPlayer(uint8_t source)
 {
+	if(sequencer.isStop())
+	{
+		songPlayerData.progress.isPlaying = 0;
+		display.refreshControl(songPlayerControl);
+		return;
+	}
+
 	songPlayerData.progress.currentSongPosition = source;
 	songPlayerData.progress.patternLength = sequencer.getPatternLength();
 	songPlayerData.progress.positionInPattern = sequencer.getActualPos();
@@ -674,7 +747,7 @@ void cSongEditor::listPatterns()
 
 void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 {
-	if(sequencer.ptrPlayer->songMode == 1)
+	if(sequencer.ptrPlayer->songMode == true)
 	{
 		if((mtProject.song.playlistPos != localSongPosition) || forceRefresh)
 		{
@@ -687,6 +760,10 @@ void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 		}
 
 		refreshSongPlayer(mtProject.song.playlistPos);
+	}
+	else if(sequencer.ptrPlayer->selectionMode)
+	{
+		refreshSongPlayer(selectedPattern);
 	}
 	else
 	{
@@ -991,7 +1068,7 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 		break;
 	}
 
-	if(isShiftPressed)
+	if(isShiftPressed)//xxx
 	{
 		if(currSelDirection2 & selDirUp)
 		{
@@ -1007,6 +1084,7 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 		selectedPattern = songPlayerData.selection.startPattern;
 	}
 
+	stopPlayingSelection();
 	listPatterns();
 	display.setControlValue(songPlayerControl, selectedPattern);
 	refreshSongPlayerControl();

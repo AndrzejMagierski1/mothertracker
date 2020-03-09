@@ -18,7 +18,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cHorizontalBar::cHorizontalBar(strControlProperties* properties)
+cHorizontalBar::cHorizontalBar(strControlProperties* properties): cDisplayControl(controlIdHorizontalBar)
 {
 	colorsCount = 5;
 	colors = defaultColors;

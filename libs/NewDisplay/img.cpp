@@ -17,7 +17,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cImg::cImg(strControlProperties* properties)
+cImg::cImg(strControlProperties* properties): cDisplayControl(controlIdImg)
 {
 	colorsCount = 3;
 	colors = defaultColors;

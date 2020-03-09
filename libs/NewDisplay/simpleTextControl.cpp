@@ -12,7 +12,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cSimpleText::cSimpleText(strControlProperties* properties)
+cSimpleText::cSimpleText(strControlProperties* properties): cDisplayControl(controlIdSimpleText)
 {
 	colorsCount = 5;
 	colors = defaultColors;

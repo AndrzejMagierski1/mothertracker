@@ -319,12 +319,29 @@ void cDisplay::update()
 				if(p == nullptr) continue;
 				if(p->style & controlStyleShow)
 				{
-					uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
-					p->append(ramAddress);
+					if(p->ramSize + memoryUsed < 8192)
+					{
+						uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
+						p->append(ramAddress);
+						memoryUsed += p->ramSize;
+					}
+					else
+					{
+						debugLog.addLine("Graphic memory max reached by control: ");
+						debugLog.addValue((uint8_t)p->id);
+						debugLog.addText(" which uses: ");
+						debugLog.addValue(p->ramSize);
+						debugLog.addText(" bytes memory");
+					}
 				}
 			}
 
-
+			if(memoryUsed > 6500)
+			{
+				debugLog.addLine("Graphic memory used: ");
+				debugLog.addValue(memoryUsed);
+				debugLog.addText("/8192");
+			}
 			if(mtConfig.debug.debugLogState) debugLog.processLog();
 
 		    API_DISPLAY();
@@ -334,6 +351,9 @@ void cDisplay::update()
 			//API_LIB_AwaitCoProEmpty();
 
 
+
+
+			memoryUsed = 0;
 
 			updateStep = 0;
 
@@ -477,6 +497,17 @@ void cDisplay::setControlData(hControl handle, void* data)
 	if(handle == nullptr) return;
 	handle->setData(data);
 }
+
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+uint32_t cDisplay::getControlMemoryUsage(hControl handle)
+{
+	return handle->ramSize;
+}
+
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------

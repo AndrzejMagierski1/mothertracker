@@ -19,7 +19,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cTextPopup::cTextPopup(strControlProperties* properties)
+cTextPopup::cTextPopup(strControlProperties* properties): cDisplayControl(controlIdTextPopup)
 {
 	colorsCount = 3;
 

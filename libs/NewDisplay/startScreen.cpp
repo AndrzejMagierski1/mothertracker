@@ -16,7 +16,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cStartScreen::cStartScreen(strControlProperties* properties)
+cStartScreen::cStartScreen(strControlProperties* properties): cDisplayControl(controlIdStartScreen)
 {
 	colorsCount = 3;
 	colors = defaultColors;

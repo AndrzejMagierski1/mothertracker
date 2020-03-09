@@ -373,8 +373,15 @@ void cFileManager::saveProjectToWorkspaceFinish()
 
 	clearChangeFlags();
 
+	// na koniec jescze raz sprawdza bitmaski, moze cos sie zmienilo w trakcie save'a?
+	if(updatePatternBitmask(mtProject.values.actualPattern))
+	{
+		// jesli struktura bitow sie zminila wymus ponowna aktualizcje projektu
+		changesFlags.project = 1;
+	}
 
-	debugLog.setMaxLineCount(10);
+
+	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave end");
 
 	if(status == fmSavingProjectToProjects)
@@ -450,7 +457,10 @@ void cFileManager::importSamplesToWorkspaceInit()
 {
 	importSamplesSize = 0;
 
-	// kasowanie zuzycia pamieci przez nadpisywane instrumenty
+	// zapamietanie zajmowanej pamieci przez nadpisywane instrumenty
+	// + kasowanie zuzycia pamieci przez te instrumenty
+	importStartSlotAdress = (uint8_t*)mtProject.instrument[importStartSlot].sample.address;
+
 	for(uint8_t instr = importStartSlot; instr <= importEndSlot; instr++)
 	{
 		if(mtProject.instrument[instr].isActive == 1)
@@ -458,7 +468,7 @@ void cFileManager::importSamplesToWorkspaceInit()
 			mtProject.used_memory -= mtProject.instrument[instr].sample.length*2;
 		}
 
-		// pewnie jakies dane potrzebna beda w dalszych krokach wiec lepiej nie zerowac
+		// wykomentowane bo pewnie jakies dane potrzebna beda w dalszych krokach wiec lepiej nie zerowac
 //		setDefaultActiveInstrument(&mtProject.instrument[instr]);
 //		mtProject.instrument[instr].sample.file_name[0] = 0;
 //		mtProject.instrument[instr].isActive = 0;
@@ -541,6 +551,7 @@ void cFileManager::loadPatternFromWorkspaceFinish()
 		return;
 	}
 
+	status = fmIdle;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
@@ -599,7 +610,7 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 	}
 
 	//report("Autosave Started");
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave start");
 
 	status = fmSavingProjectToWorkspace;
@@ -708,10 +719,11 @@ bool cFileManager::loadWorkspacePattern(uint8_t index)
 
 	currentPattern = index;
 
-	if(status != fmExportingSoundSong || status != fmExportingSoundSongStems)
+	if(status != fmExportingSoundSong && status != fmExportingSoundSongStems)
 	{
 		status = fmLoadingPatternFromWorkspace;
 	}
+
 	currentOperationStep = 0;
 	currentOperation = fmLoadWorkspacePattern;
 	return true;
@@ -795,7 +807,20 @@ void cFileManager::setInstrumentStructChanged(uint8_t instrument)
 }
 
 
+void cFileManager::clearProjectChangedFlag()
+{
+	changesFlags.project = 0;
+}
 
+void cFileManager::clearPatternChanged(uint8_t pattern)
+{
+	changesFlags.pattern[pattern] = 0;
+}
+
+void cFileManager::clearInstrumentChanged(uint8_t instrument)
+{
+	changesFlags.instrument[instrument] = 0;
+}
 
 
 
@@ -872,7 +897,7 @@ static char errorText[100];
 void cFileManager::throwError(uint8_t source)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	sprintf(errorText,  "File manager error (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
 	debugLog.addLine(errorText);
 	debugLog.forceRefresh();
@@ -891,7 +916,7 @@ void cFileManager::throwError(uint8_t source)
 void cFileManager::report(const char* text, uint8_t value)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(10);
+	debugLog.setMaxLineCount(9);
 	if(value > 0) sprintf(errorText,  "File manager: %s (%d)", text, value);
 	else sprintf(errorText,  "File manager: %s", text);
 	debugLog.addLine(errorText);

@@ -16,7 +16,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cTemplate::cTemplate(strControlProperties* properties)
+cTemplate::cTemplate(strControlProperties* properties): cDisplayControl(controlIdTemplate)
 {
 	colorsCount = 3;
 	colors = defaultColors;

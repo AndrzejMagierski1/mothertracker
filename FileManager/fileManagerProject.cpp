@@ -79,6 +79,16 @@ void cFileManager::copyProjectFile()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveProjectFileToWorkspace()
 {
+	// sprawdza czy zaktualizowac patternBitmask
+	if(changesFlags.pattern[mtProject.values.actualPattern] == 1)
+	{
+		if(updatePatternBitmask(mtProject.values.actualPattern))
+		{
+			// jesli struktura bitow sie zminila wymus zawsze aktualizcje projektu
+			changesFlags.project = 1;
+		}
+	}
+
 	if(changesFlags.project == 0) //tylko jesli flaga zmian ustawiona
 	{
 		moveToNextOperationStep();
@@ -94,6 +104,7 @@ void cFileManager::saveProjectFileToWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
+		clearProjectChangedFlag();
 		moveToNextOperationStep();
 	}
 	else// if(saveStatus >= fileTransferError)

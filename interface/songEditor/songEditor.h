@@ -90,6 +90,14 @@ public:
 
 	void changeGlobalTempo(int16_t value);
 
+
+
+//--------------------------------------------------------------
+
+	void refreshButtonsLabels();
+
+	uint8_t byttonsState;
+
 //--------------------------------------------------------------
 // patterns
 	void listPatterns();
@@ -134,6 +142,7 @@ public:
 	void stopSongPlayer();
 	void refreshSongPlayer(uint8_t source);
 
+	void stopPlayingSelection();
 
 
 	void walkOnSongPlayer(player_direction_t dir);

@@ -119,16 +119,16 @@ void cFileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t t
 	srcFile.close();
 }
 
-void cFileManager::updatePatternBitmask(uint8_t patternNum)
+// zwraca true jesli struktura bitów sie zmienila
+bool cFileManager::updatePatternBitmask(uint8_t patternNum)
 {
-
-	updatePatternBitmask(patternNum - 1,sequencer.getPatternToSaveToFile());
-
+	return updatePatternBitmask(patternNum - 1, sequencer.getPatternToSaveToFile());
 }
 
-void cFileManager::updatePatternBitmask(uint8_t index, uint8_t* sourcePattern)
+bool cFileManager::updatePatternBitmask(uint8_t index, uint8_t* sourcePattern)
 {
 	/*Update pattern usage bitmask*/
+	uint8_t before = mtProject.values.allPatternsBitmask[index];
 
 	for(uint8_t trackNum = 0; trackNum < 8; trackNum++)
 	{
@@ -150,6 +150,16 @@ void cFileManager::updatePatternBitmask(uint8_t index, uint8_t* sourcePattern)
 			mtProject.values.allPatternsBitmask[index] &= ~(1 << trackNum);
 		}
 	}
+
+	if(before == mtProject.values.allPatternsBitmask[index])
+	{
+		debugLog.addLine("no changes in pattern bitmask");
+		return false;
+	}
+
+
+	debugLog.addLine("pattern bitmask changed");
+	return true;
 }
 
 

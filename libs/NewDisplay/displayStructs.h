@@ -85,6 +85,45 @@ enum controlsStyle
 
 };
 
+
+typedef enum enControlId
+{
+	controlIdBar,
+	controlIdBgLabel,
+	controlIdFrame,
+	controlIdEdit,
+	controlIdImg,
+	controlIdLabel,
+	controlIdHorizontalBar,
+	controlIdLineIndicator,
+	controlIdList,
+	controlIdKeyboard,
+	controlIdNotePopup,
+	controlIdMultiLabel,
+	controlIdParamValueList,
+	controlIdPoints,
+	controlIdProcessingPopup,
+	controlIdProgressCursor,
+	controlIdSelectionWindow,
+	controlIdSimpleText,
+	controlIdSlicePoints,
+	controlIdSongPlayer,
+	controlIdSpectrum,
+	controlIdStartScreen,
+	controlIdTemplate,
+	controlIdTextBox,
+	controlIdTextPopup,
+	controlIdTracker,
+	controlIdWtProgress,
+
+
+/*
+ *
+: cDisplayControl(controlId)
+
+*/
+} control_id_t;
+
 struct strControlProperties
 {
 	char* text = nullptr;

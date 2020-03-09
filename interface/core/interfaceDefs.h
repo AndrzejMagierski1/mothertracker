@@ -56,7 +56,7 @@ enum mtInterfacePadsDef
 //5
 	interfacePadKey0,
 
-	interfacePadsCount
+	interfacePadsCount = 48,
 };
 
 enum mtInterfaceButtonsDef
@@ -282,7 +282,7 @@ struct strInterfaceGlobals
 {
 	char *padNamesPointer[48];
 
-	char intrumentsNames[INSTRUMENTS_COUNT+16][SAMPLE_NAME_SIZE+4];
+	char intrumentsNames[INSTRUMENTS_COUNT+16][SAMPLE_NAME_SIZE+6];
 	char *ptrIntrumentsNames[INSTRUMENTS_COUNT+16];
 
 //-----------------------------------------------------

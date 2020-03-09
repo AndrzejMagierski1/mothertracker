@@ -14,7 +14,7 @@ static uint32_t defaultColors[] =
 };
 
 //--------------------------------------------------------------------------------
-cSlicePoints::cSlicePoints(strControlProperties* properties)
+cSlicePoints::cSlicePoints(strControlProperties* properties): cDisplayControl(controlIdSlicePoints)
 {
 	colorsCount = 3;
 	colors = defaultColors;

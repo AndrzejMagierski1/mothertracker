@@ -87,6 +87,7 @@ void cDebugLog::addLine(const char text[])
 	//uint16_t strLength = strlen(text);
 	strncpy(logLine[logTop].text, text, logLineLengthMax-1);
 
+	logLine[logTop].displayed = false;
 	logLine[logTop].time = millis();
 
 	logTop++;
@@ -112,6 +113,8 @@ void cDebugLog::addText(const char text[])
 	{
 		strncat(logLine[addIndex].text, text, addStrLength-1);
 	}
+
+	logLine[addIndex].displayed = false;
 
 	if(display.isIdle()) display.forceAppedStage();
 }
@@ -187,6 +190,7 @@ void cDebugLog::processLog()
 
 	for(uint8_t i = 0; i<logLinesCount; i++)
 	{
+		logLine[actualLine].displayed = true;
 		API_CMD_TEXT(5, 5+i*(logFont->height+5), logFont->handle, 0, logLine[actualLine].text);
 		actualLine++;
 		if(actualLine >= logLinesMax) actualLine = 0;
@@ -205,6 +209,13 @@ void cDebugLog::update()
 
 	uint32_t actualMillis = millis();
 
+	uint8_t last_line = logTop>0 ? logTop-1 : fifoSize-1;
+
+	if(!logLine[last_line].displayed)
+	{
+		if(display.isIdle()) display.forceAppedStage();
+	}
+
 	//for(uint8_t i = 0; i<logLinesCount; i++)
 	//{
 		if(logLine[logBott].time + logLineTimeMax < actualMillis)
@@ -213,9 +224,8 @@ void cDebugLog::update()
 
 			if(display.isIdle()) display.forceAppedStage();
 		}
-		if(logBott == logTop) return;
 	//}
-
+		//if(logBott == logTop) return;
 
 }
 

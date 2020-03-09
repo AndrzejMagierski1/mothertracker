@@ -18,7 +18,7 @@ void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cNotePopout::cNotePopout(strControlProperties* properties)
+cNotePopout::cNotePopout(strControlProperties* properties): cDisplayControl(controlIdNotePopup)
 {
 	colorsCount = 3;
 	colors = defaultColors;

@@ -13,7 +13,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 5);
 //=====================================================================================================================================
 
 // grupy glowne
-cMenuGroup menuGeneral	(menuBase, 0, "General", 	4);
+cMenuGroup menuGeneral	(menuBase, 0, "General", 	3);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuFirmware	(menuBase, 2, "Firmware", 	2);
 cMenuGroup menuHelp		(menuBase, 3, "Help", 		1);
@@ -29,7 +29,7 @@ const strItemTypeListText setupMtpState 	{ &mtConfig.general.mtpState,  	 2, ptr
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListText, &setupBrightness);
-cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
+//cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
 ///////////////////
 const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};

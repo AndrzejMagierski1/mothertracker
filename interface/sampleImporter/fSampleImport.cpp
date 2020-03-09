@@ -331,7 +331,7 @@ static  uint8_t functInstrumentAdd()
 
 	SI->stopPlaying();
 
-	if(*SI->explorerNames[SI->selectedFile] != '/')
+	if(SI->explorerNames != nullptr && *SI->explorerNames[SI->selectedFile] != '/')
 	{
 		SI->sampleType = mtSampleTypeWaveFile;
 		SI->importSamples();
@@ -439,7 +439,7 @@ static uint8_t functInstrumentAddNext()
 	SI->stopPlaying();
 
 
-	if(*SI->explorerNames[SI->selectedFile] != '/')
+	if(SI->explorerNames != nullptr  && *SI->explorerNames[SI->selectedFile] != '/')
 	{
 		SI->sampleType = mtSampleTypeWaveFile;
 		SI->addNextFlag = 1;
@@ -490,7 +490,7 @@ static  uint8_t functConfirmRename()
 
 		if(allow)
 		{
-			strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,localName,32);
+			strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,localName,SAMPLE_NAME_SIZE);
 
 			SI->showFileList();
 
@@ -683,7 +683,7 @@ static  uint8_t functShift(uint8_t state)
 
 		if(SI->selectedPlace == 0)
 		{
-			if(*SI->explorerNames[SI->selectedFile] != '/')// nie mozna zaczac zaznaczac od folderu
+			if(SI->explorerNames != nullptr && *SI->explorerNames[SI->selectedFile] != '/')// nie mozna zaczac zaznaczac od folderu
 			{
 				SI->selectionTab[SI->selectedPlace][SI->selectedFile] = 1;
 			}
@@ -937,6 +937,8 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 
 void cSampleImporter::BrowseOrAdd()
 {
+	if(SI->explorerNames == nullptr) return;
+
 	if(*explorerNames[selectedFile] == '/')
 	{
 		if(selectedPlace == 0)
@@ -970,7 +972,7 @@ void cSampleImporter::importSamples()
 void cSampleImporter::AddNextControl()
 {
 	uint8_t active = 0;
-	if(*explorerNames[selectedFile] != '/')
+	if(SI->explorerNames != nullptr  && *explorerNames[selectedFile] != '/')
 	{
 		active = 1;
 	}
@@ -1336,7 +1338,7 @@ int16_t cSampleImporter::getSelectionEnd(uint8_t whichSelect)
 
 bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
 {
-	if(!(*explorerNames[positionToCheck] == '/'))
+	if(explorerNames != nullptr && !(*explorerNames[positionToCheck] == '/'))
 	{
 		return true;
 	}

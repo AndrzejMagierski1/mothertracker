@@ -23,7 +23,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cParamValueList::cParamValueList(strControlProperties* properties)
+cParamValueList::cParamValueList(strControlProperties* properties): cDisplayControl(controlIdParamValueList)
 {
 	colorsCount = 7;
 	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;

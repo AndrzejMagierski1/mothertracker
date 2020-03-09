@@ -61,7 +61,7 @@ uint8_t cInterface::detectProjectLoadState()
 
 	if(mtpd.state == 0)
 	{
-		if(mtConfig.general.mtpState) mtpd.state = 1;
+//		if(mtConfig.general.mtpState) mtpd.state = 1; // TODO wylaczone mtp
 	}
 
 	return 1;
