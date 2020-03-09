@@ -5,6 +5,9 @@
 #include <stdint.h>
 
 
+//extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+
+
 const uint8_t FILEMANAGER_DEBUGLOG =  1;
 
 
@@ -399,7 +402,7 @@ private:
 	void importModFileFinish();
 	void importModFileError();
 
-	uint8_t periodToNote(uint16_t period);
+	int8_t periodToNote(uint16_t period);
 	void printNote(uint8_t note);
 
 	bool importModFileAfterNewProject = 0;
@@ -411,7 +414,7 @@ private:
 	uint8_t modFileInstruments_actualIndex = 0;
 	uint8_t modFileChannelsCount = 4;
 
-	uint8_t modFilePatterns_count = 1;
+	uint8_t modFilePatterns_max = 1;
 	uint8_t modFilePatterns_actualIndex = 0;
 
 
@@ -426,6 +429,10 @@ private:
 	const uint8_t modSongInfoSize = 1 + 1 + 128 + 4;
 	const uint16_t modPatternSize = 1024;
 	static const uint8_t modSampleNameSize = 22;
+
+	uint8_t modFile_sample_actualIndex = 0;
+//	int16_t *modFile_sample_ptr = sdram_sampleBank;
+
 
 	struct strModFileData
 	{

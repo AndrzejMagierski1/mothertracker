@@ -13,12 +13,22 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
+extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+
+extern Sequencer::strPattern fileManagerPatternBuffer;
+int16_t *modFile_sample_ptr = sdram_sampleBank;
+uint32_t byteSampleOffset = 0;
+
 void cFileManager::importModFileInit()
 {
+	// wart wspólne
+	byteSampleOffset = 0;
+	modFile_sample_ptr = sdram_sampleBank;
 
+	// wew
 	char byteBuffer[4];
 
-	sprintf(modFilePath, "%s/%s", cModsPath, modToImportFilename);
+	sprintf(modFilePath, "%.10s/%.200s", cModsPath, modToImportFilename);
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
 														modFilePath,
@@ -39,7 +49,10 @@ void cFileManager::importModFileInit()
 		}
 		else
 		{
-			throwError(2);
+			modFileInstrumentsCount = 15;
+			modFileChannelsCount = 4;
+			moveToNextOperationStep();
+//			throwError(2);
 		}
 
 	}
@@ -110,6 +123,7 @@ void cFileManager::importMod_SaveInstrument()
 {
 
 	strInstrument * instr = &mtProject.instrument[modFileInstruments_actualIndex];
+	setDefaultActiveInstrument(instr);
 
 	instr->isActive = 1;
 	instr->sample.type = mtSampleTypeWaveFile;
@@ -128,6 +142,7 @@ void cFileManager::importMod_SaveInstrument()
 
 	// todo: to oblicza z zaladowanegolu sampla
 	instr->sample.length = modSampleData.sampleLengthInWords;
+//	instr->sample.address = modSampleData.sampleLengthInWords;
 
 	instr->startPoint = 0;
 
@@ -152,6 +167,8 @@ void cFileManager::importMod_SaveInstrument()
 	}
 
 	instr->endPoint = MAX_16BIT;
+//	instr->volume = 100;
+//	instr->volume = 50;
 
 	if (saveInstrument(modFileInstruments_actualIndex))
 	{
@@ -172,7 +189,7 @@ void cFileManager::importModFile_SongInit()
 {
 
 	char byteBuffer[modSongInfoSize];
-	uint8_t buffOffset = 0;
+//	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
 														modFilePath,
@@ -182,24 +199,32 @@ void cFileManager::importModFile_SongInit()
 			fileWholeOnce
 			);
 
-	memcpy(&modSong, &byteBuffer, modSongInfoSize);
-
-	for (uint8_t a = 0; a < 128; a++)
+	if (loadStatus == fileTransferEnd)
 	{
-		if (modSong.playlist[a] > modFilePatterns_count)
-		{
-			modFilePatterns_count = modSong.playlist[a];
-		}
-	}
 
-	moveToNextOperationStep();
+		memcpy(&modSong, &byteBuffer, modSongInfoSize);
+
+		for (uint8_t a = 0; a < 128; a++)
+		{
+			if (modSong.playlist[a] > modFilePatterns_max)
+			{
+				modFilePatterns_max = modSong.playlist[a];
+			}
+		}
+
+		moveToNextOperationStep();
+	}
+	else if (loadStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
 }
 
 void cFileManager::importModFile_Patterns()
 {
 
 	char byteBuffer[modPatternSize];
-	uint8_t buffOffset = 0;
+//	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
 			modFilePath,
@@ -208,41 +233,147 @@ void cFileManager::importModFile_Patterns()
 			20 + modFileInstrumentsCount * modSampleInfoSize + modSongInfoSize + modPatternSize * modFilePatterns_actualIndex, // offset
 			fileWholeOnce
 			);
+	Sequencer::strPattern *patt = sequencer.getActualPattern();
 
-	for (uint16_t a = 0; a < 256; a++)
+	mtProject.values.actualPattern = modFilePatterns_actualIndex + 1;
+
+	for (uint8_t a = 0; a < 8; a++)
 	{
-		if (a % 4 == 0)
-		{
-			Serial.println();
-		}
-		// todo: kiedyś poprawić
-		uint32_t chData;
-		*((uint8_t*) &chData + 3) = byteBuffer[a * 4];
-		*((uint8_t*) &chData + 2) = byteBuffer[a * 4+1];
-		*((uint8_t*) &chData + 1) = byteBuffer[a * 4+2];
-		*((uint8_t*) &chData + 0) = byteBuffer[a * 4+3];
+		patt->track[a].length = 63;
+	}
 
+	for (uint16_t cell = 0, step = 0; cell < 256; cell++)
+	{
+
+		// todo: kiedyś odwrócić te bajty
+		uint32_t chData;
+		uint8_t chan = cell % 4;
+
+		*((uint8_t*) &chData + 3) = byteBuffer[cell * 4];
+		*((uint8_t*) &chData + 2) = byteBuffer[cell * 4 + 1];
+		*((uint8_t*) &chData + 1) = byteBuffer[cell * 4 + 2];
+		*((uint8_t*) &chData + 0) = byteBuffer[cell * 4 + 3];
 
 		uint8_t instrument = (chData >> 12) & 0x0f;
 
 		uint16_t period = (chData >> 16) & 0xfff;
-		uint8_t note = periodToNote(period);
+		int8_t note = periodToNote(period) - 5;
 
 		uint8_t fx3 = chData & 0x00f;
 		uint8_t fx2 = (chData & 0x0f0) >> 4;
 		uint8_t fx1 = (chData & 0xf00) >> 8;
 
+//		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t", instrument,
+//						note,
+//						fx1, fx2, fx3);
 
-
-		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d - ", instrument, note, fx1, fx2, fx3);
-//		0b 11111111 11111111 11111111 11111111
+		if (step <= Sequencer::MAXSTEP)
+		{
+			if (note >= 0)
+			{
+				patt->track[chan].step[step].note = note;
+				patt->track[chan].step[step].instrument = instrument - 1;
+			}
+		}
+		if (chan == 3)
+		{
+			step++;
+//			Serial.println();
+		}
 
 	}
 
-	moveToNextOperationStep();
+	if (!writePatternToFileStruct(sequencer.getPatternToSaveToFile(),
+									(uint8_t*) &fileManagerPatternBuffer))
+	{
+		throwError(0);
+	}
+
+	char patternToSave[PATCH_SIZE];
+	sprintf(patternToSave, cWorkspacePatternFileFormat,
+			mtProject.values.actualPattern);
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile(
+			(uint8_t*) &fileManagerPatternBuffer, patternToSave,
+			sizeof(Sequencer::strPattern));
+
+	if (saveStatus == fileTransferEnd)
+	{
+		sequencer.saveToFileDone();
+		if (modFilePatterns_actualIndex >= modFilePatterns_max)
+		{
+			moveToNextOperationStep();
+		}
+		else
+		{
+			modFilePatterns_actualIndex++;
+		}
+
+	}
+	else
+	{
+		// todo ogarnąć indexy err
+		throwError(2);
+	}
 }
 
-uint8_t cFileManager::periodToNote(uint16_t period)
+void cFileManager::importModFileWaves()
+{
+
+//	mtProject.used_memory
+
+	strInstrument * instr = &mtProject.instrument[modFile_sample_actualIndex];
+
+	//sdram_sampleBank
+//	char byteBuffer[modPatternSize];
+	//	uint8_t buffOffset = 0;
+
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+			modFilePath,
+			(uint8_t*) modFile_sample_ptr,
+			instr->sample.length * 2, // memo
+			20 + modFileInstrumentsCount * modSampleInfoSize + modSongInfoSize + modPatternSize * (modFilePatterns_max + 1) + byteSampleOffset, // offset
+			fileWholeOnce
+			);
+
+	instr->sample.address = modFile_sample_ptr;
+	if (loadStatus == fileTransferEnd)
+	{
+		mtProject.used_memory += instr->sample.length * 2;
+		if (modFile_sample_actualIndex >= modFileInstrumentsCount)
+		{
+			moveToNextOperationStep();
+		}
+		else
+		{
+			byteSampleOffset += instr->sample.length * 2;
+			modFile_sample_ptr += instr->sample.length;
+			modFile_sample_actualIndex++;
+		}
+	}
+	else
+	{
+
+	}
+
+	//	instr->sample.address = modSampleData.sampleLengthInWords;
+
+}
+void cFileManager::importModFileFinish()
+{
+	status = fmLoadEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+
+}
+
+void cFileManager::importModFileError()
+{
+	importModFileAfterNewProject = 0;
+
+}
+
+int8_t cFileManager::periodToNote(uint16_t period)
 {
 	switch (period)
 	{
@@ -368,9 +499,9 @@ uint8_t cFileManager::periodToNote(uint16_t period)
 		return 59;
 
 	default:
-		return 0;
+		return -1;
 	}
-	return 0;
+	return -1;
 }
 
 void cFileManager::printNote(uint8_t note)
@@ -416,22 +547,4 @@ void cFileManager::printNote(uint8_t note)
 	}
 
 	Serial.print(note / 12);
-}
-void cFileManager::importModFileWaves()
-{
-
-	moveToNextOperationStep();
-}
-void cFileManager::importModFileFinish()
-{
-	status = fmLoadEnd;
-	currentOperationStep = 0;
-	currentOperation = fmNoOperation;
-
-}
-
-void cFileManager::importModFileError()
-{
-	importModFileAfterNewProject = 0;
-
 }
