@@ -1141,7 +1141,12 @@ void cPatternEditor::activateLabelsBorder()
 //##############################################################################################
 //###############################                              #################################
 //##############################################################################################
-void cPatternEditor::activateSelection()
+void cPatternEditor::activateGreenSelection() //xxx zielona ramka mod
+{
+	patternTrackerColors[10] = one_true_green;
+}
+
+void cPatternEditor::activateRedSelection()
 {
 	patternTrackerColors[10] = patternTrackerSelectionColor;
 }

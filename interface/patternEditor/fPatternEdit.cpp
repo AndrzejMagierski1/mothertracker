@@ -249,7 +249,7 @@ void cPatternEditor::refreshPattern()
 
 	if(editMode == 0)
 	{
-		trackerPattern.selectState = 0;
+		trackerPattern.selectState = 1; // xxx zielona ramka mod
 
 		if(!sequencer.isStop())
 		{
@@ -911,7 +911,8 @@ void cPatternEditor::refreshEditState()
 	}
 	else
 	{
-		trackerPattern.selectState = 0;
+		trackerPattern.selectState = 1; //xxx zielona ramka mod
+		focusOnPattern();
 
 		hideEditModeLabels();
 
@@ -1434,7 +1435,10 @@ static  uint8_t functLeft()
 	}
 	else
 	{
-		if(PTE->patternViewMode == 0 && PTE->trackerPattern.firstVisibleTrack > 0 ) PTE->trackerPattern.firstVisibleTrack--;
+		//if(PTE->patternViewMode == 0 && PTE->trackerPattern.firstVisibleTrack > 0 ) PTE->trackerPattern.firstVisibleTrack--;
+
+		if(PTE->trackerPattern.actualTrack > 0) PTE->trackerPattern.actualTrack--;
+		PTE->focusOnActual();
 	}
 
 	PTE->showFxInfo();
@@ -1504,7 +1508,10 @@ static  uint8_t functRight()
 	}
 	else
 	{
-		if(PTE->patternViewMode == 0 && PTE->trackerPattern.firstVisibleTrack < 4 ) PTE->trackerPattern.firstVisibleTrack++;
+		//if(PTE->patternViewMode == 0 && PTE->trackerPattern.firstVisibleTrack < 4 ) PTE->trackerPattern.firstVisibleTrack++;
+
+		if(PTE->trackerPattern.actualTrack < 7) PTE->trackerPattern.actualTrack++;
+		PTE->focusOnActual();
 	}
 
 
@@ -1977,6 +1984,8 @@ static  uint8_t functPlayAction()
 		{
 			sequencer.rec();
 			PTE->editMode = 0;
+
+			PTE->refreshEditState();
 		}
 		else if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
@@ -2001,6 +2010,8 @@ static  uint8_t functPlayAction()
 
 		//newFileManager.autoSaveWorkspace(1);
 	}
+
+	PTE->focusOnPattern();
 
 	return 1;
 }
@@ -3003,7 +3014,12 @@ void cPatternEditor::focusOnPattern()
 
 	PTE->lightUpPadBoard();
 
-	activateSelection();
+	if(!PTE->editMode)
+	{
+		if(sequencer.isRec()) activateRedSelection();
+		else activateGreenSelection();
+	}
+	else activateRedSelection();
 
 	display.refreshControl(patternControl);
 }

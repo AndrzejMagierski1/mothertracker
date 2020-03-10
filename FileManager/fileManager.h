@@ -130,7 +130,7 @@ public:
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 	bool importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
-	bool copyInstrumentsInWorkspace(uint8_t copyInstrStart, uint8_t copyInstrCount);
+	bool copyInstrumentsInWorkspace(uint8_t copyInstrSrc, uint8_t copyInstrCount, uint8_t copyInstrDest);
 
 	bool browseSdCard(uint8_t* index);
 	bool browseProjects();
@@ -312,6 +312,10 @@ private:
 	void getEmptyInstrument(struct strInstrument* source);
 	uint32_t calcWorkspaceInstrumentsSize();
 
+	uint8_t copySrcSlot;
+	uint8_t copyDestSlot;
+	uint8_t copySlotsCount;
+
 	uint8_t currentInstrument = 0;
 	uint8_t lastActiveInstrument = 0; // do przydzielania pamieci
 	uint8_t deleteEndInstrument;
@@ -333,6 +337,8 @@ private:
 	void importSamplesToWorkspaceContinue();
 	void importSamplesToWorkspaceFinish();
 
+	void copyInstrumentsInWorkspaceInit();
+	void copyInstrumentsInWorkspaceContinue();
 	void copyInstrumentsInWorkspaceFinish();
 
 	void deleteInstrumentsFromWorkspaceFinish();
@@ -348,7 +354,8 @@ private:
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
 	uint8_t deleteEndSample;
 
-	uint32_t importSamplesSize = 0;
+	uint32_t newSamplesSize = 0;
+	uint32_t oldSamplesSize = 0;
 
 	uint8_t importCurrentFile;
 	int8_t importStartSlot;

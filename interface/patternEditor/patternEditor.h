@@ -118,7 +118,8 @@ public:
 	void refreshFillStep();
 	void hideFillPopup();
 
-	void activateSelection();
+	void activateGreenSelection();
+	void activateRedSelection();
 	void deactivateSelection();
 	void playheadRecMode();
 	void playheadNormalMode();

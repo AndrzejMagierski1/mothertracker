@@ -16,7 +16,7 @@
 #include "game/game.h"
 #include "masterParams/masterParams.h"
 
-//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtTest.h"
 #include "mtStructs.h"
 #include "mtConfig.h"
@@ -231,7 +231,15 @@ void cInterface::processPowerOffSequence()
 	{
 		refreshDisplayShutdown();
 
-		if(lowPower.getTimeLeft() == 0)
+		 if(shutdownSaveFlag == 0 && lowPower.getShutdownProgress() > 10 && lowPower.getShutdownProgress() < 70)
+		 {
+			if(newFileManager.saveProjectToWorkspace())
+			{
+				 shutdownSaveFlag = 1;
+			}
+		 }
+
+		if(lowPower.getTimeLeft() == 0 && newFileManager.getStatus() == fmIdle)
 		{
 			operatingMode = mtOperatingModeSleep;
 			lowPower.goLowPower();
@@ -266,6 +274,7 @@ void cInterface::handlePowerButtonAction(uint8_t state)
 	{
 		if(operatingMode != mtOperatingModePowerOffSequence) return;
 
+		shutdownSaveFlag = 0;
 		activateInterface();
 		lowPower.stopPowerOffSequence();
 		operatingMode = mtOperatingModeRun;

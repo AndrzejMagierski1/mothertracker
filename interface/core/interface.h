@@ -127,10 +127,7 @@ private:
 	//styl popupu interfejsu
 	strPopupStyleConfig popupConfig;
 
-	uint8_t openFromWorkspaceFlag = 0;
-
-	uint8_t isBooted = 0;
-	uint32_t globalActionPriority;
+	uint8_t shutdownSaveFlag = 0;
 
 	uint8_t fileManagerPopupEnabled = 0;
 	uint8_t fileManagerPopupState = 0;

@@ -103,10 +103,15 @@ void cFileManager::copySamples()
 		sprintf(currentCopySrcPath, "Recorded/%s.wav",  getRecordingFileName());
 		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 	}
+	else if(currentOperation == fmCopyInstrumentsInWorkspace) // copy
+	{
+		sprintf(currentCopySrcPath, cWorkspaceSamplesFilesFormat,  copySrcSlot+1);
+		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+	}
 	else // import
 	{
-		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
-		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1);
+		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]);
+		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1);// nazwa pliku od 1
 	}
 
 	uint8_t loadStatus = fileTransfer.copySample(currentCopySrcPath, currentCopyDestPath);
@@ -201,13 +206,38 @@ void cFileManager::moveSampleMemory()
 		i++;
 	}
 
+	// znajdz początkowy adres
+	if(currentSample == 0)
+	{
+		mtProject.instrument[0].sample.length = 0;
+	}
+	else
+	{
+		uint8_t activeBefore = currentInstrument-1;
+
+		while(mtProject.instrument[activeBefore].isActive == 0)
+		{
+			if(activeBefore == 0) break;
+			activeBefore--; // jesli sprawdzilo wszystkie to koczny
+		}
+
+		mtProject.instrument[currentSample].sample.address =
+				mtProject.instrument[activeBefore].sample.address + mtProject.instrument[activeBefore].sample.length;
+
+	}
+
+
 	// wyznacz przesuniecie i blok do przesuniecia
 	int32_t memory_offset = 0;
 	if(currentOperation == fmImportSamplesToWorkspace)
 	{
 		// roznica wielkosci nowych sampli i wielkosci starych nadpisanych sampli
-		memory_offset = importSamplesSize
-						- ((uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address - importStartSlotAdress);
+		memory_offset = newSamplesSize - oldSamplesSize;
+	}
+	else if(currentOperation == fmCopyInstrumentsInWorkspace)
+	{
+		// roznica wielkosci kopiowanych i wielksoci sampli w miejscu docelowym
+		memory_offset = newSamplesSize - oldSamplesSize;
 	}
 	else if(currentOperation == fmDeleteInstruments)
 	{
@@ -245,10 +275,10 @@ void cFileManager::moveSampleMemory()
 
 void cFileManager::moveMemory(uint8_t* memoryStart, uint8_t* memoryEnd, int32_t memoryOffset)
 {
-//	char message[100];
-//	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
-//	debugLog.addLine(message);
-//	debugLog.forceRefresh();
+	char message[100];
+	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
+	debugLog.addLine(message);
+	debugLog.forceRefresh();
 
 
 	volatile int32_t memory_size = memoryEnd-memoryStart;

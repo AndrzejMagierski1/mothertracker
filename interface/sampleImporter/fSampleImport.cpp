@@ -107,7 +107,10 @@ void cSampleImporter::update()
 	else if(managerStatus == fmCopyingInstrumentsEnd)
 	{
 		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
+		SI->refreshInstrumentsList();
+		renameColorControl();
+		previewColorControl();
+		selectionActive[listInstruments] = 0;
 		SI->handleMemoryBar();
 		FM->unblockAllInputs();
 
@@ -581,7 +584,7 @@ void cSampleImporter::pasteInstruments()
 {
 	if(!copyElementsCount || instrCopyStart == selectedSlot) return;
 
-	uint8_t willFit;
+	uint8_t willFit = 0;
 	uint8_t selectOverMax = 0;
 
 	uint8_t instrActiveInSel = SI->getActiveInstrInSelection();
@@ -615,8 +618,7 @@ void cSampleImporter::pasteInstruments()
 
 	if(willFit)
 	{
-		//TODO COPY INSTRUMENTS
-		if(newFileManager.copyInstrumentsInWorkspace(instrCopyStart, copyElementsCount))
+		if(newFileManager.copyInstrumentsInWorkspace(instrCopyStart, copyElementsCount, selectedSlot))
 		{
 			SI->FM->blockAllInputs();
 		}
@@ -1290,6 +1292,7 @@ void cSampleImporter::cancelSelect(uint8_t placeToCancel)
 	{
 		selectionTab[listInstruments][selectedSlot] = 1;
 	}
+
 
 	updateSelection();
 }

@@ -87,6 +87,7 @@ public:
 	uint8_t changeFileSelection(int16_t value);
 	uint8_t changeInstrumentSelection(int16_t value);
 
+	//void setInstrumentsListPos(uint8_t pos);
 
 	void AddEnterOrRename();
 
