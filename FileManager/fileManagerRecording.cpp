@@ -20,7 +20,7 @@ void cFileManager::saveRecording()
 	{
 		if(status == fmSavingImportingRecordedSound)
 		{
-			importSamplesSize = 0;
+			newSamplesSize = 0;
 
 			// kasowanie zuzycia pamieci przez nadpisywany instrument
 			if(mtProject.instrument[recordingImportSlot].isActive == 1)

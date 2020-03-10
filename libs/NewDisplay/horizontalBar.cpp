@@ -8,8 +8,8 @@
 
 static uint32_t defaultColors[] =
 {
-	0x0a0a0a, // ramka okna
-	0x0a0a0a, // tło okna
+	0x222222, // ramka okna
+	0x222222, // tło okna
 	0xFFFFFF, // ramka kontrolki
 	0xFFFFFF,  // tło kontrolki
 	0xFFFFFF  // tekst
@@ -110,20 +110,14 @@ uint8_t cHorizontalBar::update()
     uint16_t barWidth = (5*width)/7;
     uint16_t barX = posX+ (width/7);
 
-    uint16_t barHeight = (2*height)/7 ;
-    uint16_t barY = posY + ((3*height)/7);
+    uint16_t barHeight = 3 ;
+    uint16_t barY = posY + ((3*height)/5);
 
     uint16_t textX = posX + (width/2);
-    uint16_t textY = posY + ((2*height)/7);
+    uint16_t textY = posY + ((2*height)/6);
 
-
-
-
-
-	if((style & controlStyleValue_0_100) && value <= 100)
+	if((style & controlStyleBackground))
 	{
-	    uint16_t barFillY = (barWidth * value) / 100;
-
 		API_COLOR(colors[0]);
 
 		API_LINE_WIDTH(16);
@@ -142,27 +136,25 @@ uint8_t cHorizontalBar::update()
 		API_VERTEX2F(frameX, frameY+frameHeight);
 		API_VERTEX2F(frameX, frameY);
 		API_END();
+	}
+
+
+	if((style & controlStyleValue_0_100) && value <= 100)
+	{
+	    uint16_t barFillY = (barWidth * value) / 100;
+
+
+		API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
 		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(16);
+		API_LINE_WIDTH(8);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(barX+1, barY+1);
 		API_VERTEX2F(barX+barFillY-1, barY+barHeight-1);
 		API_END();
 
-		API_COLOR(colors[3]);
-
-		API_LINE_WIDTH(16);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(barX, barY);
-		API_VERTEX2F(barX+barWidth, barY);
-		API_VERTEX2F(barX+barWidth, barY+barHeight);
-		API_VERTEX2F(barX, barY+barHeight);
-		API_VERTEX2F(barX, barY);
-		API_END();
-
-		API_COLOR(colors[4]);
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
 		API_CMD_TEXT(textX, textY, textFont, OPT_CENTER, text);
 	}

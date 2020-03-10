@@ -201,6 +201,7 @@ const char fileManagerPopupText[][30] =
 		"Loading projects list",
 		"Loading firmwares list",
 		"Importing sample to Project",
+		"Copying sample",
 		"Deleting Instruments",
 		"Sample playback",
 		"Loading project",

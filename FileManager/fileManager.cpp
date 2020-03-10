@@ -177,7 +177,14 @@ void cFileManager::updateCopyInstrumentsInWorkspace()	//fmCopyInstrumentsInWorks
 {
 	switch(currentOperationStep)
 	{
-		case 0:		copyInstrumentsInWorkspaceFinish();						break;
+		case 0:		copyInstrumentsInWorkspaceInit(); 						break;
+		case 1:		copySamples();											break;
+		case 2:		createEmptyInstrumentInWorkspace();						break;
+		case 3:		copyInstrumentsInWorkspaceContinue(); 					break;
+		case 4:		moveSampleMemory();										break;
+		case 5:		loadInstrumentsFromWorkspace(); 						break; // instruments
+		case 6:		loadSamplesFromWorkspace();								break; // samples
+		case 7:		copyInstrumentsInWorkspaceFinish();						break;
 		default:	stopOperationWithError(fmImportSamplesError); 			break;
 	}
 }
@@ -230,7 +237,6 @@ void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 14
 		default:	stopOperationWithError(fmSaveRecordedError); 			break;
 	}
 }
-
 
 
 void cFileManager::autoSaveProjectToWorkspace()
@@ -450,16 +456,17 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 //----------------------------------------------------------------------------------------importSamplesToWorkspace
 void cFileManager::importSamplesToWorkspaceInit()
 {
-	importSamplesSize = 0;
+	// wielkosc nowych sampli importowanych bedzie naliczana przy kopiowaniu do worspace
+	newSamplesSize = 0;
+	oldSamplesSize = 0;
 
 	// zapamietanie zajmowanej pamieci przez nadpisywane instrumenty
 	// + kasowanie zuzycia pamieci przez te instrumenty
-	importStartSlotAdress = (uint8_t*)mtProject.instrument[importStartSlot].sample.address;
-
 	for(uint8_t instr = importStartSlot; instr <= importEndSlot; instr++)
 	{
 		if(mtProject.instrument[instr].isActive == 1)
 		{
+			oldSamplesSize += mtProject.instrument[instr].sample.length*2;
 			mtProject.used_memory -= mtProject.instrument[instr].sample.length*2;
 		}
 
@@ -476,7 +483,7 @@ void cFileManager::importSamplesToWorkspaceContinue()
 {
 	importCurrentFile++;
 
-	importSamplesSize +=  fileTransfer.getConvertedSampleSize();
+	newSamplesSize +=  fileTransfer.getConvertedSampleSize();
 	fileTransfer.resetConvertedSampleSize();
 
 	if(currentSample < importEndSlot  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
@@ -513,8 +520,52 @@ void cFileManager::importSamplesToWorkspaceFinish()
 	currentOperation = fmNoOperation;
 }
 //---------------------------------------------------------------------------------------- copyInstrumentsInWorkspace
+void cFileManager::copyInstrumentsInWorkspaceInit()
+{
+	// obliczenie jaka wielkosc maja kopiowane sample
+	newSamplesSize = mtProject.instrument[copySrcSlot].sample.length*2;
+	oldSamplesSize = 0;
+
+	// zwolnienie zajmowanej przez naspisywany instrument pamieci
+	// + obliczenie wielksoci starych nadpisywanych  sampli
+	if(mtProject.instrument[copyDestSlot].isActive == 1)
+	{
+		oldSamplesSize += mtProject.instrument[copyDestSlot].sample.length*2;
+		mtProject.used_memory -= mtProject.instrument[copyDestSlot].sample.length*2;
+	}
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::copyInstrumentsInWorkspaceContinue()
+{
+//	if(currentSample < importEndSlot  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
+//	{
+//		currentInstrument++;
+//		currentSample++;
+//
+//		currentOperationStep = 1; //xxx najwazniejsze !
+//		return;
+//	}
+//	else
+	{
+		currentInstrument = copyDestSlot;
+		currentSample = copyDestSlot;
+	}
+
+	moveToNextOperationStep();
+}
+
 void cFileManager::copyInstrumentsInWorkspaceFinish()
 {
+//	if(currentInstrument < importEndSlot && currentInstrument < INSTRUMENTS_COUNT-1)
+//	{
+//		currentInstrument++;
+//		currentSample++;
+//
+//		currentOperationStep = 5; //xxx najwazniejsze !
+//		return;
+//	}
 
 	status = fmCopyingInstrumentsEnd;
 	currentOperationStep = 0;
@@ -681,16 +732,22 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 }
 
 
-
-bool cFileManager::copyInstrumentsInWorkspace(uint8_t copyInstrStart, uint8_t copyInstrCount)
+// narazie kopiowanie dziala tylko na 1 instrument
+bool cFileManager::copyInstrumentsInWorkspace(uint8_t copyInstrSrc, uint8_t copyInstrCount, uint8_t copyInstrDest)
 {
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
+	if(!mtProject.instrument[copyInstrSrc].isActive) return false;
 
+	currentInstrument = copyInstrDest;
+	currentSample = copyInstrDest;
 
+	copySrcSlot = copyInstrSrc;
+	copyDestSlot = copyInstrDest;
+	copySlotsCount = copyInstrCount;
 
-
+	calcFirstSlotToMoveInMemory(copyInstrDest+1);
 
 	status = fmCopyingInstrumentsInWorkspace;
 	currentOperationStep = 0;

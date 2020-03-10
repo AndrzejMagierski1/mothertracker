@@ -25,7 +25,7 @@ __NOINIT(EXTERNAL_RAM)  strInstrumentFile fileManagerInstrumentBuffer  {0};
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::loadInstrumentsFromWorkspace()
 {
-	if(currentSample >= INSTRUMENTS_COUNT) { skipNextOperationStep(); return; }//zabiezpeiczenie
+	if(currentInstrument >= INSTRUMENTS_COUNT) { skipNextOperationStep(); return; }//zabiezpeiczenie
 
 	char instrumentToLoad[PATCH_SIZE];
 	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, currentInstrument+1); // numery plikow od 1
@@ -142,10 +142,10 @@ void cFileManager::saveInstrumentsToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::createEmptyInstrumentInWorkspace()
 {
-
 	if(mtProject.instrument[currentInstrument].isActive == 0)
 	{
 		// jesli nie aktywny to tworzy domyslna strukture
+		// jezeli jest aktywny to tylko zmienia nazwe sampla w instrumecie
 		setDefaultActiveInstrument(&mtProject.instrument[currentInstrument]);
 	}
 
@@ -154,11 +154,16 @@ void cFileManager::createEmptyInstrumentInWorkspace()
 		//nadaje nazwe i zapisuje z nowa nazwa zawsze
 		strncpy(mtProject.instrument[currentInstrument].sample.file_name, explorerList[importCurrentFile], SAMPLE_NAME_SIZE);
 	}
+	else if(currentOperation == fmCopyInstrumentsInWorkspace)
+	{
+		//kopiuje cala strukturę z instrumentu zrodlowego <= wyjatek od pozostalych przypadkow
+		memcpy(&mtProject.instrument[currentInstrument], &mtProject.instrument[copySrcSlot], sizeof(strInstrument));
+		//strncpy(mtProject.instrument[currentInstrument].sample.file_name, mtProject.instrument[copySrcSlot].sample.file_name, SAMPLE_NAME_SIZE);
+	}
 	else //(currentOperation == fmSaveRecordedSound)
 	{
 		strncpy(mtProject.instrument[currentInstrument].sample.file_name, getRecordingFileName(), SAMPLE_NAME_SIZE);
 	}
-
 
 	if(!writeInstrumentToFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 	{

@@ -319,6 +319,14 @@ void cSampleImporter::showInstrumentsList()
 	display.refreshControl(instrumentListControl);
 }
 
+//void cSampleImporter::setInstrumentsListPos(uint8_t pos)
+//{
+//	display.setControlValue(instrumentListControl, pos);
+//	display.setControlShow(instrumentListControl);
+//	display.refreshControl(instrumentListControl);
+//}
+
+
 void cSampleImporter::refreshInstrumentsList()
 {
 	display.setControlShow(instrumentListControl);
