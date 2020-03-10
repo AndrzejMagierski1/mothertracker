@@ -402,6 +402,7 @@ private:
 	void importModFileFinish();
 	void importModFileError();
 
+
 	int8_t periodToNote(uint16_t period);
 	void printNote(uint8_t note);
 
@@ -484,10 +485,10 @@ private:
 	{
 		uint8_t length = 0;
 		uint8_t oldByte = 127;
-		uint8_t playlist[128]{0};
-		uint8_t theFourLetters[4]{0};
+		uint8_t playlist[128] { 0 };
+		uint8_t theFourLetters[4] { 0 };
 
-	}modSong;
+	} modSong;
 
 	/// IMPORT MOD KONIEC
 //patern undo

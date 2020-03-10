@@ -6,7 +6,6 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 
-
 #include "mtMidi.h"
 #include "configEditor/configEditor.h"
 
@@ -306,7 +305,9 @@ void Sequencer::play_microStep(uint8_t row)
 	// jeśli ostatni step, zażądaj ładowania kolejnego patternu
 	if ((playerRow.uStep == 1) && player.isPlay && row == 0)
 	{
-		if (playerRow.actual_pos == patternRow.length && player.songMode)
+		if (((playerRow.actual_pos == patternRow.length) ||
+				(player.breakPattern && row == 0))
+				&& player.songMode)
 		{
 			loadNextPattern(newFileManager.getNextSongPattern());
 		}
@@ -454,6 +455,12 @@ void Sequencer::play_microStep(uint8_t row)
 
 				player.performance.tempo = float(_fx.value * 2);
 				player.performance.tempoSource = fxIndex;
+				break;
+			case fx.FX_TYPE_BREAK_PATTERN:
+				killFxOnSlot(fxIndex);
+				noMoFx = 1;
+
+				player.breakPattern = 1;
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
@@ -959,7 +966,8 @@ void Sequencer::playPattern(void)
 void Sequencer::playSong(void)
 {
 	newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
-	newFileManager.loadWorkspacePatternNow(newFileManager.resetToFirstSongPattern());
+	newFileManager.loadWorkspacePatternNow(
+			newFileManager.resetToFirstSongPattern());
 	switchRamPatternsNow();
 
 	player.songMode = 1;
@@ -1018,6 +1026,8 @@ void Sequencer::stop(void)
 	player.isREC = 0;
 	player.uStep = 0;
 	player.selectionMode = 0;
+
+	player.breakPattern = 0;
 
 	nanoStep = 1;
 	nanoStepMultiplier = 0;
@@ -1098,16 +1108,18 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	if (playMode == PLAYMODE_FORWARD)
 	{
 		player.track[x].actual_pos++;
-		if ((player.track[x].actual_pos > patternLength))
+		if ((player.track[x].actual_pos > patternLength) || (player.breakPattern))
 		{
+
 			reset_actual_pos(x);
 //			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 
 			if (player.track[x].performanceSourcePattern != -1)
 			{
 				enterPerformanceMode();
-				newFileManager.loadTrack(player.track[x].performanceSourcePattern,
-										x);
+				newFileManager.loadTrack(
+						player.track[x].performanceSourcePattern,
+						x);
 				cancelFxes(x);
 
 				player.track[x].performanceSourcePattern = -1;
@@ -1117,6 +1129,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			if (x == MAXTRACK)
 			{
 				bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
+				player.breakPattern = 0;
 
 				if (player.songMode)
 				{
@@ -1290,9 +1303,9 @@ float Sequencer::getActualTempo()
 	return temp_Tempo;
 }
 
-uint32_t  Sequencer::getSeqTimer()
+uint32_t Sequencer::getSeqTimer()
 {
-	return nanoStep+nanoStepMultiplier*6912;
+	return nanoStep + nanoStepMultiplier * 6912;
 }
 
 void Sequencer::init_player_timer(void) // MT::refreshTimer
@@ -1544,7 +1557,7 @@ void Sequencer::blinkSelectedStep()
 void Sequencer::loadNextPattern(uint8_t patternNumber)
 {
 	player.jump.nextPattern = patternNumber;
-	player.jump.jumpNOW = 0;
+//	player.jump.jumpNOW = 0;
 
 	newFileManager.loadWorkspacePattern(patternNumber);
 }

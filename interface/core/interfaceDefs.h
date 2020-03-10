@@ -348,6 +348,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_D,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_E,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_BREAK_PATTERN,
 
 	};
 
@@ -386,7 +387,8 @@ struct strInterfaceGlobals
 					"c - MIDI CC C",
 					"d - MIDI CC D",
 					"e - MIDI CC E",
-					"f - MIDI Program Change"
+					"f - MIDI Program Change",
+					"x - Break pattern"
 			};
 
 	const char *ptrAllFxNames[FX_COUNT+1] =
@@ -423,7 +425,7 @@ struct strInterfaceGlobals
 			&fxNames[28][0],
 			&fxNames[29][0],
 			&fxNames[30][0],
-//			&fxNames[31][0],
+			&fxNames[31][0],
 //			&fxNames[32][0],
 //			&fxNames[33][0],
 //			&fxNames[34][0],

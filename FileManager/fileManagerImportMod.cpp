@@ -19,6 +19,10 @@ extern Sequencer::strPattern fileManagerPatternBuffer;
 int16_t *modFile_sample_ptr = sdram_sampleBank;
 uint32_t byteSampleOffset = 0;
 
+void setFx(Sequencer::strPattern::strTrack::strStep *step,
+			uint8_t,
+			uint8_t, uint8_t);
+
 void cFileManager::importModFileInit()
 {
 	// wart wspólne
@@ -142,7 +146,11 @@ void cFileManager::importMod_SaveInstrument()
 
 	// todo: to oblicza z zaladowanegolu sampla
 	instr->sample.length = modSampleData.sampleLengthInWords;
-//	instr->sample.address = modSampleData.sampleLengthInWords;
+	instr->volume = map(modSampleData.volume,
+						0,
+						64,
+						0,
+						MAX_INSTRUMENT_VOLUME);
 
 	instr->startPoint = 0;
 
@@ -237,6 +245,13 @@ void cFileManager::importModFile_Patterns()
 
 	mtProject.values.actualPattern = modFilePatterns_actualIndex + 1;
 
+	// przepisuję playlistę
+	for (uint8_t a = 0; a < 128; a++)
+	{
+		mtProject.song.playlist[a] = modSong.playlist[a] + 1;
+	}
+
+	// mod narzuca length 64
 	for (uint8_t a = 0; a < 8; a++)
 	{
 		patt->track[a].length = 63;
@@ -263,9 +278,9 @@ void cFileManager::importModFile_Patterns()
 		uint8_t fx2 = (chData & 0x0f0) >> 4;
 		uint8_t fx1 = (chData & 0xf00) >> 8;
 
-//		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t", instrument,
-//						note,
-//						fx1, fx2, fx3);
+		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t\t", instrument,
+						note,
+						fx1, fx2, fx3);
 
 		if (step <= Sequencer::MAXSTEP)
 		{
@@ -273,12 +288,14 @@ void cFileManager::importModFile_Patterns()
 			{
 				patt->track[chan].step[step].note = note;
 				patt->track[chan].step[step].instrument = instrument - 1;
+
 			}
+			setFx(&patt->track[chan].step[step], fx1, fx2, fx3);
 		}
 		if (chan == 3)
 		{
 			step++;
-//			Serial.println();
+			Serial.println();
 		}
 
 	}
@@ -317,6 +334,81 @@ void cFileManager::importModFile_Patterns()
 	}
 }
 
+void setFx(Sequencer::strPattern::strTrack::strStep *step,
+			uint8_t fx1,
+			uint8_t fx2, uint8_t fx3)
+{
+	switch (fx1)
+	{
+	case 0:
+		break;
+	case 3:
+		/*
+		 Where [3][x][y] means "smoothly change the period of current sample
+		 by x*16+y after each tick in the division, never sliding beyond
+		 current period". Any note in this channel's division is not played,
+		 but changes the "remembered" note - it can be thought of as a
+		 parameter to this effect. Sliding to a note is similar to effects
+		 [1] and [2], but the slide will not go beyond the given period, and
+		 the direction is implied by that period. If x and y are both 0,
+		 then the old slide will continue.
+		 */
+		step->fx[0].type = sequencer.fx.FX_TYPE_GLIDE;
+		step->fx[0].value = constrain(
+				fx2 * 16 + fx3,
+				sequencer.getFxMin(sequencer.fx.FX_TYPE_GLIDE),
+				sequencer.getFxMax(sequencer.fx.FX_TYPE_GLIDE));
+
+		break;
+	case 9:
+		/*
+		 * [9]: Set sample offset
+		 Where [9][x][y] means "play the sample from offset x*4096 + y*256".
+		 The offset is measured in words. If no sample is given, yet one is
+		 still playing on this channel, it should be retriggered to the new
+		 offset using the current volume..*/
+
+		step->fx[0].type = sequencer.fx.FX_TYPE_MICROMOVE;
+		step->fx[0].value = constrain(
+				map(fx2 * 16 + fx3, 0, 256,
+					sequencer.getFxMin(sequencer.fx.FX_TYPE_MICROMOVE),
+					sequencer.getFxMax(sequencer.fx.FX_TYPE_MICROMOVE)),
+				sequencer.getFxMin(sequencer.fx.FX_TYPE_MICROMOVE),
+				sequencer.getFxMax(sequencer.fx.FX_TYPE_MICROMOVE));
+
+		break;
+	case 12:
+		/*
+		 [12]: Set volume
+		 Where [12][x][y] means "set current sample's volume to x*16+y".
+		 Legal volumes are 0..64.*/
+
+		step->fx[0].type = sequencer.fx.FX_TYPE_VELOCITY;
+		step->fx[0].value = constrain(
+				map(fx2 * 16 + fx3, 0, 64,
+					sequencer.getFxMin(sequencer.fx.FX_TYPE_VELOCITY),
+					sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY)),
+				sequencer.getFxMin(sequencer.fx.FX_TYPE_VELOCITY),
+				sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY));
+
+		break;
+	case 15:
+		/*
+		 * TEMPO
+		 *  20-256*/
+
+		step->fx[0].type = sequencer.fx.FX_TYPE_TEMPO;
+		step->fx[0].value = constrain(
+				fx2 * 16 + fx3,
+				sequencer.getFxMin(sequencer.fx.FX_TYPE_TEMPO),
+				sequencer.getFxMax(sequencer.fx.FX_TYPE_TEMPO));
+
+		break;
+
+	default:
+		break;
+	}
+}
 void cFileManager::importModFileWaves()
 {
 
