@@ -235,7 +235,7 @@ public:
 	} effectDisplayParams[editorEffectMax] =
 	{
 			{
-				{0,500,0,0,0,0},{0.01,0,0,0,0,0}, //start values
+				{0,50,0,0,0,0},{0.95,0,0,0,0,0}, //start values
 				2,delayParams::labelText,delayParams::paramsType,
 				delayParams::iUpConstrain,delayParams::fUpConstrain,
 				delayParams::iDownConstrain,delayParams::fDownConstrain,
@@ -244,7 +244,7 @@ public:
 			},
 
 			{
-				{16,44100,0,0,0,0},{0,0,0,0,0,0}, //start values
+				{4,44100,0,0,0,0},{0,0,0,0,0,0}, //start values
 				2,bitcrusherParams::labelText,bitcrusherParams::paramsType,
 				bitcrusherParams::iUpConstrain,bitcrusherParams::fUpConstrain,
 				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,

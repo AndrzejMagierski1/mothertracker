@@ -16,6 +16,28 @@ static uint32_t popupLabelColors[] =
 
 void cSampleEditor::initDisplayControls()
 {
+
+//popups
+	strControlProperties popupProgressProperties;
+
+	popupProgressProperties.x = 190;
+	popupProgressProperties.y = 170;
+	popupProgressProperties.style = controlStyleValue_0_100;
+	popupProgressProperties.h = 100;
+	popupProgressProperties.w = 420;
+	if(popupProgressBar == nullptr)  popupProgressBar = display.createControl<cHorizontalBar>(&popupProgressProperties);
+
+	strControlProperties popupLabelProperties;
+
+	popupLabelProperties.x = 400;
+	popupLabelProperties.colors = popupLabelColors;
+	popupLabelProperties.y = 300;
+	popupLabelProperties.h = 100;
+	popupLabelProperties.w = 800-(10);
+	popupLabelProperties.style = ( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
+	popupLabelProperties.text = nullptr;
+
+	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&popupLabelProperties);
 //frame
 	strControlProperties frameProperties;
 
@@ -100,27 +122,6 @@ void cSampleEditor::initDisplayControls()
 	titleLabelProperties.w = 795;
 	titleLabelProperties.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&titleLabelProperties);
-//popups
-	strControlProperties popupProgressProperties;
-
-	popupProgressProperties.x = 190;
-	popupProgressProperties.y = 170;
-	popupProgressProperties.style = controlStyleValue_0_100;
-	popupProgressProperties.h = 100;
-	popupProgressProperties.w = 420;
-	if(popupProgressBar == nullptr)  popupProgressBar = display.createControl<cHorizontalBar>(&popupProgressProperties);
-
-	strControlProperties popupLabelProperties;
-
-	popupLabelProperties.x = 400;
-	popupLabelProperties.colors = popupLabelColors;
-	popupLabelProperties.y = 300;
-	popupLabelProperties.h = 100;
-	popupLabelProperties.w = 800-(10);
-	popupLabelProperties.style = ( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
-	popupLabelProperties.text = nullptr;
-
-	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&popupLabelProperties);
 //background label
 
 	strControlProperties backgroundLabelProperties;

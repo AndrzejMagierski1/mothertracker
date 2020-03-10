@@ -60,6 +60,7 @@ void mtEffect::updateLoad()
 
 		operationType = enOperationType::operationTypeIdle;
 		processing.isLoadedData = true;
+		changeSelectionRange(loading.preloadPoints.a, loading.preloadPoints.b);
 		if(loading.isProcessOnEnd) startProcessingSelection();
 	}
 
@@ -81,6 +82,8 @@ bool mtEffect::getIsLoadedData()
 void mtEffect::clearIsLoadedData()
 {
 	processing.isLoadedData = false;
+	loading.preloadPoints.a = 0;
+	loading.preloadPoints.b = 65536;
 }
 //***********
 //***********APPLY
@@ -290,15 +293,25 @@ void mtEffect::changeSelectionRange(uint16_t a, uint16_t b)
 
 	confirmed.selection.addr = confirmed.area.addr + addressShift;
 	confirmed.selection.length = length - addressShift;
+
+	if(!processing.isLoadedData)
+	{
+		loading.preloadPoints.a = a;
+		loading.preloadPoints.b = b;
+	}
+
+	Serial.printf("Zmieniane: \nconfirmed.selection.addr = %x, confirmed.selection.length = %d\n",(uint32_t)confirmed.selection.addr,confirmed.selection.length);
 }
 
 uint16_t mtEffect::getNewEndPoint()
 {
-	return (confirmed.selection.length * MAX_16BIT) / confirmed.area.length;
+	uint16_t startPoint = getNewStartPoint();
+
+	return startPoint + (uint16_t)((confirmed.selection.length / (float) confirmed.area.length) * MAX_16BIT);
 }
 uint16_t mtEffect::getNewStartPoint()
 {
-	return ( (uint32_t)(confirmed.selection.addr - confirmed.area.addr) * MAX_16BIT) / confirmed.area.length;
+	return (uint16_t)(( (uint32_t)(confirmed.selection.addr - confirmed.area.addr) / (float) confirmed.area.length) * MAX_16BIT);
 }
 //***********
 bool mtEffect::getState(strProcessing * ptr)

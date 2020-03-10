@@ -139,6 +139,11 @@ private:
 
 	struct strLoadingParams
 	{
+		struct strPreloadPoints
+		{
+			uint16_t a;
+			uint16_t b;
+		} preloadPoints;
 		bool isProcessOnEnd = false;
 		strProcessing processParams;
 	} loading;

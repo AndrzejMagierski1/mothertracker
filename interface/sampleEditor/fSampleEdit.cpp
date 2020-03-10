@@ -96,6 +96,8 @@ void cSampleEditor::start(uint32_t options)
 	setCommonFunctions();
 
 
+	selection.startPoint = 0;
+	selection.endPoint = MAX_16BIT;
 
 	prepareDisplayDataMainScreen();
 	showMainScreen();
@@ -135,7 +137,6 @@ void cSampleEditor::update()
 		currentEffect->update();
 		if(!currentEffect->getLoadState())
 		{
-			currentEffect->changeSelectionRange(selection.startPoint, selection.endPoint);
 			reloadSpectrumData();
 			isLoadedData = currentEffect->getIsLoadedData();
 		}
@@ -251,7 +252,7 @@ void cSampleEditor::setParamsScreenFunctions()
 	}
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
-	FM->setButtonObj(interfaceButton7, buttonPress, functParamsScreenApply);
+	FM->setButtonObj(interfaceButton7, buttonPress, functMainScreenApply);
 
 	FM->setPotObj(interfacePot0, functParamsScreenEncoder, nullptr);
 
@@ -525,12 +526,14 @@ void cSampleEditor::reloadParamiterBarValue(uint8_t n)
 //******************* REFRESH - RELOAD + DISPLAY
 void cSampleEditor::refreshSpectrumPoints()
 {
+	if(screenType != mainScreen) return;
 	reloadPointsData();
 	showSpectrumPoints();
 }
 
 void cSampleEditor::refreshStartPoint()
 {
+	if(screenType != mainScreen) return;
 	refreshSpectrumPoints();
 
 	reloadStartPointText();
@@ -538,6 +541,7 @@ void cSampleEditor::refreshStartPoint()
 }
 void cSampleEditor::refreshEndPoint()
 {
+	if(screenType != mainScreen) return;
 	refreshSpectrumPoints();
 
 	reloadEndPointText();
