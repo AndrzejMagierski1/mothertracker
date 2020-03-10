@@ -47,7 +47,7 @@ static  uint8_t functSelectZoom();
 static  uint8_t functListUp();
 static 	uint8_t functListDown();
 static  uint8_t functUndo();
-static  uint8_t functMainScreenApply();
+static  uint8_t functApply();
 // Paramiter screen functions
 static  uint8_t functParamsScreenLeft();
 static  uint8_t functParamsScreenRight();
@@ -56,7 +56,8 @@ static  uint8_t functParamsScreenDown();
 static  uint8_t functParamsScreenEncoder(int16_t value);
 static  uint8_t functSelectParamiter(uint8_t button);
 static  uint8_t functPreview();
-static  uint8_t functParamsScreenApply();
+static  uint8_t functPlay();
+static  uint8_t functStop();
 //**************************************************************************
 
 void cSampleEditor::start(uint32_t options)
@@ -75,6 +76,7 @@ void cSampleEditor::start(uint32_t options)
 	}
 
 	screenType = mainScreen;
+	previewState = previewStatePreview;
 
 	editorInstrument->isActive = mtProject.instrument[mtProject.values.lastUsedInstrument].isActive;
 	editorInstrument->sample.address = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.address;
@@ -152,6 +154,12 @@ void cSampleEditor::update()
 			isProcessedData = currentEffect->getIsProcessedData();
 
 			applyingInProgress = 0;
+			if(processingInProgress)
+			{
+				processingInProgress = false;
+				setPlayFunction();
+			}
+
 			hidePopup();
 
 			SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
@@ -167,6 +175,27 @@ void cSampleEditor::update()
 	if(applyingInProgress)
 	{
 		refreshApplyingProgress();
+	}
+	else if(processingInProgress)
+	{
+		refreshProcessingProgress();
+	}
+	else if(playingInProgress)
+	{
+		refreshPlayingProgress();
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+			playingInProgress = 0;
+			mtPadBoard.clearVoice(0);
+			hidePopup();
+			restoreFunctions();
+			setPlayFunction();
+		}
+	}
+	else if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+	{
+		instrumentPlayer[0].clearInterfacePlayingEndFlag();
 	}
 
 }
@@ -215,7 +244,7 @@ void cSampleEditor::setMainScreenFunctions()
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectEndPoint);
 	FM->setButtonObj(interfaceButton2, buttonPress, functSelectZoom);
 	FM->setButtonObj(interfaceButton3, buttonPress, functUndo);
-	FM->setButtonObj(interfaceButton5, buttonPress, functMainScreenApply);
+	FM->setButtonObj(interfaceButton5, buttonPress, functApply);
 	FM->setButtonObj(interfaceButton6, buttonPress, functListUp);
 	FM->setButtonObj(interfaceButton7, buttonPress, functListDown);
 
@@ -250,9 +279,14 @@ void cSampleEditor::setParamsScreenFunctions()
 			 break;
 		 }
 	}
+	switch(previewState)
+	{
+	case previewStatePreview: 	FM->setButtonObj(interfaceButton6, buttonPress, functPreview); 	break;
+	case previewStatePlay:		FM->setButtonObj(interfaceButton6, buttonPress, functPlay); 	break;
+	case previewStateStop:		FM->setButtonObj(interfaceButton6, buttonPress, functStop); 	break;
+	}
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
-	FM->setButtonObj(interfaceButton7, buttonPress, functMainScreenApply);
+	FM->setButtonObj(interfaceButton7, buttonPress, functApply);
 
 	FM->setPotObj(interfacePot0, functParamsScreenEncoder, nullptr);
 
@@ -273,6 +307,21 @@ void cSampleEditor::switchScreen(enScreenType s)
 		setParamsScreenFunctions();
 	}
 }
+
+
+void cSampleEditor::clearAllFunctions()
+{
+	FM->clearAll();
+	FM->setPadsGlobal(nullptr);
+	FM->clearAllPads();
+}
+void cSampleEditor::restoreFunctions()
+{
+	setCommonFunctions();
+	if(screenType == mainScreen) setMainScreenFunctions();
+	else if(screenType == effectParamsScreen) setParamsScreenFunctions();
+}
+
 
 void cSampleEditor::prepareDisplayDataMainScreen()
 {
@@ -364,14 +413,7 @@ void cSampleEditor::reloadApplyingProgress()
 {
 	if(applyingSteps == 1)
 	{
-		if(!isLoadedData)
-		{
-			applyingProgress = currentEffect->getLoadProgress();
-		}
-		else if(!isProcessedData)
-		{
-			applyingProgress = currentEffect->getProcessSelectionProgress();
-		}
+		applyingProgress = currentEffect->getProcessSelectionProgress();
 	}
 	else if(applyingSteps == 2)
 	{
@@ -379,12 +421,35 @@ void cSampleEditor::reloadApplyingProgress()
 		{
 			applyingProgress = currentEffect->getLoadProgress()/2;
 		}
-		else if(!isProcessedData)
+		else
 		{
 			applyingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
 		}
 	}
+}
 
+void cSampleEditor::reloadProcessingProgress()
+{
+	if(processingSteps == 1)
+	{
+		processingProgress = currentEffect->getProcessSelectionProgress();
+	}
+	else if(processingSteps == 2)
+	{
+		if(!isLoadedData)
+		{
+			processingProgress = currentEffect->getLoadProgress()/2;
+		}
+		else
+		{
+			processingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
+		}
+	}
+}
+
+void cSampleEditor::reloadPlayingProgress()
+{
+	playingProgress = (instrumentPlayer[0].getWavePosition() * 100) / MAX_16BIT;
 }
 
 void cSampleEditor::reloadFrameData(enScreenType s)
@@ -605,6 +670,18 @@ void cSampleEditor::refreshApplyingProgress()
 	reloadApplyingProgress();
 	showProgressApplying();
 }
+
+void cSampleEditor::refreshProcessingProgress()
+{
+	reloadProcessingProgress();
+	showProgressProcessing();
+}
+
+void cSampleEditor::refreshPlayingProgress()
+{
+	reloadPlayingProgress();
+	showProgressPlaying();
+}
 //*******************
 
 //******************* PARAMETERS MODIFICATORS
@@ -703,6 +780,8 @@ void cSampleEditor::modSelectedEffect(int16_t val)
 		}
 		reloadCurrentEffect();
 		refreshEffectList();
+		setPreviewFunction();
+		currentEffect->clearIsProcessedData();
 	}
 }
 //*******************
@@ -748,8 +827,46 @@ void cSampleEditor::modParamiter(int16_t val, uint8_t n)
 		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[n], n);
 	}
 
+	setPreviewFunction();
+	currentEffect->clearIsProcessedData();
 	refreshParamiter(n);
 }
+
+
+void cSampleEditor::setPreviewFunction()
+{
+	if(previewState == previewStatePreview) return;
+
+	FM->clearButton(interfaceButton6);
+	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
+
+	previewState = previewStatePreview;
+
+	showPreviewLabel();
+}
+void cSampleEditor::setPlayFunction()
+{
+	if(previewState == previewStatePlay) return;
+
+	FM->clearButton(interfaceButton6);
+	FM->setButtonObj(interfaceButton6, buttonPress, functPlay);
+
+	previewState = previewStatePlay;
+
+	showPlayLabel();
+}
+void cSampleEditor::setStopFunction()
+{
+	if(previewState == previewStateStop) return;
+
+	FM->clearButton(interfaceButton6);
+	FM->setButtonObj(interfaceButton6, buttonPress, functStop);
+
+	previewState = previewStateStop;
+
+	showStopLabel();
+}
+
 //************************************************************************** ACTION FUNCTIONS
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -772,7 +889,11 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(state == 1)
 	{
-		if(mtPadBoard.getEmptyVoice() == 0) SE->needRefreshPlayhead = 1;
+		if(mtPadBoard.getEmptyVoice() == 0)
+		{
+			SE->needRefreshPlayhead = 1;
+			SE->playheadValue = 0;
+		}
 
 		uint32_t length;
 		uint32_t addressShift;
@@ -788,6 +909,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
 		{
 			SE->needRefreshPlayhead = 0;
+			SE->playheadValue = 0;
 			SE->hidePlayhead();
 		}
 
@@ -932,7 +1054,7 @@ static  uint8_t functUndo()
 	SE->needRefreshSpectrum = 1;
 	return 1;
 }
-static  uint8_t functMainScreenApply()
+static  uint8_t functApply()
 {
 
 	SE->applyingSteps = 0;
@@ -949,6 +1071,7 @@ static  uint8_t functMainScreenApply()
 		SE->applyingInProgress = 1;
 	}
 
+	SE->applyingProgress = 0;
 	SE->currentEffect->startApply();
 
 	if(!SE->applyingSteps)
@@ -961,6 +1084,8 @@ static  uint8_t functMainScreenApply()
 		SE->needRefreshSpectrum = 1;
 	}
 
+	SE->setPreviewFunction();
+	SE->currentEffect->clearIsProcessedData();
 	SE->refreshUndoState();
 	return 1;
 }
@@ -1000,16 +1125,45 @@ static  uint8_t functSelectParamiter(uint8_t button)
 }
 static  uint8_t functPreview()
 {
-	//todo: jakie etapy do wykonania
+	SE->processingSteps = 1;
+
+	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
+	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
+
+	if(!SE->isLoadedData) SE->processingSteps++;
+
+	if(SE->processingSteps)
+	{
+		SE->showPopupProcessing();
+		SE->processingInProgress = 1;
+	}
+
+	SE->processingProgress = 0;
+
 	SE->currentEffect->startProcessingSelection();
-	//todo: podmienic labelek w tym miejscu na Play
-	//todo: odpalic popup progressu
+
 	return 1;
 }
-static  uint8_t functParamsScreenApply()
+
+static  uint8_t functPlay()
 {
-	//todo: getter czy jest zaladowane i czy jest zprocessowane
-	//todo: odpalic popup progressu
-	SE->currentEffect->startApply();
+	mtPadBoard.cutAllInstrument();
+	mtPadBoard.startInstrument(12, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview());
+	SE->playingInProgress = 1;
+	SE->playingProgress = 0;
+	SE->showPopupPlaying();
+
+	SE->clearAllFunctions();
+	SE->setStopFunction();
+	return 1;
+}
+static  uint8_t functStop()
+{
+	mtPadBoard.stopInstrument(12);
+	SE->playingInProgress = 0;
+	SE->hidePopup();
+
+	SE->restoreFunctions();
+	SE->setPlayFunction();
 	return 1;
 }

@@ -97,6 +97,7 @@ int32_t mtEffectBitcrusher::updateProcess()
 						if(processedBlockLength + processedSamples > length)
 						{
 							state = 0;
+							i = 8192;
 							break;
 						}
 					}

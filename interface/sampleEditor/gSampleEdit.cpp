@@ -307,7 +307,14 @@ void cSampleEditor::showEffectParamsScreen()
 			display.setControlText2(label[i],"");
 		}
 	}
-	display.setControlText(label[6], "Preview");
+	switch(previewState)
+	{
+	case previewStatePreview: 		display.setControlText(label[6], "Preview"); 	break;
+	case previewStatePlay:			display.setControlText(label[6], "Play");	break;
+	case previewStateStop:			display.setControlText(label[6], "Stop");	break;
+	}
+
+
 	display.setControlText(label[7], "Apply");
 	display.setControlText2(label[6], "");
 	display.setControlText2(label[7], "");
@@ -458,6 +465,7 @@ void cSampleEditor::showParamiterLabel(uint8_t n)
 void  cSampleEditor::showPopupApplying()
 {
 	display.setControlText(popupProgressBar, "Applying...");
+	display.setControlValue(popupProgressBar,applyingProgress);
 	display.setControlShow(popupProgressBar);
 	display.refreshControl(popupProgressBar);
 }
@@ -466,9 +474,51 @@ void  cSampleEditor::showProgressApplying()
 	display.setControlValue(popupProgressBar,applyingProgress);
 	display.refreshControl(popupProgressBar);
 }
-
+//processing
+void cSampleEditor::showPopupProcessing()
+{
+	display.setControlText(popupProgressBar, "Processing...");
+	display.setControlValue(popupProgressBar, processingProgress);
+	display.setControlShow(popupProgressBar);
+	display.refreshControl(popupProgressBar);
+}
+void cSampleEditor::showProgressProcessing()
+{
+	display.setControlValue(popupProgressBar,processingProgress);
+	display.refreshControl(popupProgressBar);
+}
+//playing
+void cSampleEditor::showPopupPlaying()
+{
+	display.setControlText(popupProgressBar, "Playing...");
+	display.setControlValue(popupProgressBar,playingProgress);
+	display.setControlShow(popupProgressBar);
+	display.refreshControl(popupProgressBar);
+}
+void cSampleEditor::showProgressPlaying()
+{
+	display.setControlValue(popupProgressBar,playingProgress);
+	display.refreshControl(popupProgressBar);
+}
 void  cSampleEditor::hidePopup()
 {
 	display.setControlHide(popupProgressBar);
 	display.refreshControl(popupProgressBar);
+}
+
+//************* play/stop/preview
+void cSampleEditor::showPreviewLabel()
+{
+	display.setControlText(label[6], "Preview");
+	display.refreshControl(label[6]);
+}
+void cSampleEditor::showPlayLabel()
+{
+	display.setControlText(label[6], "Play");
+	display.refreshControl(label[6]);
+}
+void cSampleEditor::showStopLabel()
+{
+	display.setControlText(label[6], "Stop");
+	display.refreshControl(label[6]);
 }

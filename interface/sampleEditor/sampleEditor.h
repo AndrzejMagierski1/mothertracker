@@ -26,6 +26,13 @@ public:
 		effectPlaces
 	};
 
+	enum enPreviewState
+	{
+		previewStatePreview, // :)
+		previewStatePlay,
+		previewStateStop
+	} previewState;
+
 //*******************CORE MODULE FUNCTIONS
 	virtual void update() override;
 	virtual void start(uint32_t options) override;
@@ -34,6 +41,8 @@ public:
 	void setMainScreenFunctions();
 	void setParamsScreenFunctions();
 	void switchScreen(enScreenType s);
+	void clearAllFunctions();
+	void restoreFunctions();
 
 //******************* OPERATION FOR GRAPHIC
 	void prepareDisplayDataMainScreen();
@@ -49,10 +58,21 @@ public:
 	void reloadSpectrumData();
 //popups
 	void reloadApplyingProgress();
+	void reloadProcessingProgress();
+	void reloadPlayingProgress();
 //params screen
 	void prepareDisplayDataParamsScreen();
 	void reloadParamiterValueText(uint8_t n);
 	void reloadParamiterBarValue(uint8_t n);
+//*******************
+//*******************PREVIEW/PLAY/STOP
+	void setPreviewFunction();
+	void setPlayFunction();
+	void setStopFunction();
+
+	void showPreviewLabel();
+	void showPlayLabel();
+	void showStopLabel();
 //*******************
 //*******************CORE GRAPHIC FUNCTIONS
 	virtual void initDisplayControls() override;
@@ -78,9 +98,18 @@ public:
 	void showParamiterBar(uint8_t n);
 	void showParamiterLabel(uint8_t n);
 //Popups
+//applying
 	void showPopupApplying();
 	void showProgressApplying();
+//processing
+	void showPopupProcessing();
+	void showProgressProcessing();
+//playing
+	void showPopupPlaying();
+	void showProgressPlaying();
+
 	void hidePopup();
+
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -95,6 +124,8 @@ public:
 
 //popups
 	void refreshApplyingProgress();
+	void refreshProcessingProgress();
+	void refreshPlayingProgress();
 //*******************
 //******************* PARAMETERS MODIFICATORS
 //MainScreen
@@ -164,12 +195,20 @@ public:
 	};
 
 	uint8_t paramsBarValue[6];
+	//applying
 	uint8_t applyingProgress;
 	uint8_t applyingSteps;
+	bool applyingInProgress;
+	//processing
+	uint8_t processingProgress;
+	uint8_t processingSteps;
+	bool processingInProgress;
+	//playing
+	uint8_t playingProgress;
+	bool playingInProgress;
+
 	bool isLoadedData;
 	bool isProcessedData;
-	bool applyingInProgress;
-
 
 //labelsTxt
 	char currentInstrumentName[SAMPLE_NAME_SIZE+6];

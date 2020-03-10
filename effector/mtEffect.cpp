@@ -61,7 +61,11 @@ void mtEffect::updateLoad()
 		operationType = enOperationType::operationTypeIdle;
 		processing.isLoadedData = true;
 		changeSelectionRange(loading.preloadPoints.a, loading.preloadPoints.b);
-		if(loading.isProcessOnEnd) startProcessingSelection();
+		if(loading.isProcessOnEnd)
+		{
+			loading.isProcessOnEnd = false;
+			startProcessingSelection();
+		}
 	}
 
 }
@@ -203,7 +207,11 @@ void mtEffect::updateProcessingSelection()
 			processing.processParams.state = false;
 			apply.isProcessData = 1;
 			undo.isEnable = 0;
-			if(processing.isApplyOnEnd) startApply();
+			if(processing.isApplyOnEnd)
+			{
+				startApply();
+				processing.isApplyOnEnd = false;
+			}
 			break;
 		}
 
@@ -258,11 +266,11 @@ void mtEffect::clearIsProcessedData()
 //***********PREVIEW GETTERS
 int16_t * const mtEffect::getAddresToPreview()
 {
-	return processed.area.addr;
+	return processed.selection.addr;
 }
 uint32_t mtEffect::getLengthToPreview()
 {
-	return processed.area.length;
+	return processed.selection.length;
 }
 //***********
 //***********PLAY GETTERS
@@ -300,7 +308,6 @@ void mtEffect::changeSelectionRange(uint16_t a, uint16_t b)
 		loading.preloadPoints.b = b;
 	}
 
-	Serial.printf("Zmieniane: \nconfirmed.selection.addr = %x, confirmed.selection.length = %d\n",(uint32_t)confirmed.selection.addr,confirmed.selection.length);
 }
 
 uint16_t mtEffect::getNewEndPoint()
