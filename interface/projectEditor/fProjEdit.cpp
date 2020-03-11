@@ -110,9 +110,6 @@ void cProjectEditor::update()
 	}
 	else if(managerStatus == fmSaveEnd)
 	{
-		//mtProject.values.projectNotSavedFlag = 0;
-		setDefaultScreenFunct();
-		showDefaultScreen();
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 	}
@@ -577,10 +574,10 @@ static uint8_t functSaveAsConfirm()
 		return 1;
 	}
 
-
 	PE->saveAsProject();
 
 	PE->showDefaultScreen();
+	PE->setDefaultScreenFunct();
 
 	return 1;
 }
@@ -607,6 +604,7 @@ static uint8_t functSaveAsOverwriteYes()
 	PE->saveAsProject();
 
 	PE->showDefaultScreen();
+	PE->setDefaultScreenFunct();
 
 	return 1;
 }

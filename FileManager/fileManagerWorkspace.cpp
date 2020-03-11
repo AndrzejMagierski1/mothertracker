@@ -26,6 +26,7 @@ bool cFileManager::createNewProjectInWorkspace()
 
 	getDefaultProject(&mtProject);
 	//mtProject.patterns_count++;
+	mtProject.values.projectNotSavedFlag = 0;
 	mtProject.values.actualPattern = 1;
 
 	//saveActualPattern(cWorkspacePatternsPath, mtProject.values.actualPattern);

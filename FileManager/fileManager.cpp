@@ -336,7 +336,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 	sequencer.switchRamPatternsNow();
 
 	// swiezo wczytany projekt jest zawsze zgodny z zapisanym
-	mtProject.values.projectNotSavedFlag = 0;
+	//mtProject.values.projectNotSavedFlag = 0;
 
 
 	status = fmLoadEnd;
