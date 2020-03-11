@@ -51,7 +51,7 @@ void mtDelay::process()
 {
 	if(requireProcessing == 1)
 	{
-		if((sPointer[compareIdx] < compareAddr ) && (sampleCnt <= SAMPLE_EFFECTOR_LENGTH_MAX))
+		if((sPointer[compareIdx] < compareAddr ) && (sampleCnt <= 0)) // zamiast 0 SAMPLE_EFFECTOR_LENGTH_MAX))
 		{
 			int32_t currentSum = 0;
 
