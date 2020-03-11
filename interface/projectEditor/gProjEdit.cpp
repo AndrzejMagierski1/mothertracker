@@ -201,7 +201,6 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlText(titleLabel, "File");
 	display.refreshControl(titleLabel);
 
-
 	strcpy(projectCoverName, newFileManager.getCurrentProjectName());
 	display.setControlText(titleLabelProjectName, newFileManager.getCurrentProjectName());
 	display.refreshControl(titleLabelProjectName);

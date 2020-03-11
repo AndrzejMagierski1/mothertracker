@@ -49,6 +49,16 @@ public:
 	uint8_t loadProjectValues();
 //-------------------------------------------------------------
 
+	void createNewProject();
+	void openProject();
+	void saveProject();
+	void saveAsProject();
+
+
+
+
+
+//-------------------------------------------------------------
 	strLabelData labelArrow;
 	strList projectList;
 	strFrameData frameData;

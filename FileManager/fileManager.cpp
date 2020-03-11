@@ -324,6 +324,10 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 
 	sequencer.switchRamPatternsNow();
 
+	// swiezo wczytany projekt jest zawsze zgodny z zapisanym
+	mtProject.values.projectNotSavedFlag = 0;
+
+
 	status = fmLoadEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
@@ -381,11 +385,10 @@ void cFileManager::saveProjectToWorkspaceFinish()
 {
 	//clearChangeFlags(); // wykomentowane - czysci flagi na bierząco
 
-
 	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave end");
 
-	if(status == fmSavingProjectToProjects)
+	if(status == fmSavingProjectToProjects) // przejdz do kopiowania projektu
 	{
 		currentOperationStep = 0;
 		currentOperation = fmCopyWorkspaceToProjects;
@@ -448,6 +451,7 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 		return;
 	}
 
+	//mtProject.values.projectNotSavedFlag &= ~1; //
 
 	status = fmSaveEnd;
 	currentOperationStep = 0;
@@ -679,6 +683,7 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
+	//zmien nazwe otwartego projektu w pamieci i w workspace
 	if(projectNameToSave != nullptr)
 	{
 		strcpy(currentProjectName, projectNameToSave);
@@ -691,7 +696,7 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 	{
 		status = fmSavingProjectToProjects;
 		currentOperationStep = 0;
-		currentOperation = fmSaveWorkspaceProject;//fmSaveWorkspaceProject;
+		currentOperation = fmSaveWorkspaceProject;
 		return true;
 	}
 

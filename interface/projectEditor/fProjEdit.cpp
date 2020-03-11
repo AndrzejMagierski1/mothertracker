@@ -94,7 +94,6 @@ static uint8_t functStartGameModule()
 
 void cProjectEditor::update()
 {
-
 	uint8_t managerStatus = newFileManager.getStatus();
 
 	if(managerStatus == fmBrowseProjectsEnd)
@@ -109,7 +108,15 @@ void cProjectEditor::update()
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 	}
-	else if(managerStatus >= fmLoadEnd && managerStatus < fmError)
+	else if(managerStatus == fmSaveEnd)
+	{
+		//mtProject.values.projectNotSavedFlag = 0;
+		setDefaultScreenFunct();
+		showDefaultScreen();
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus >= fmLoadEnd && managerStatus < fmError) // 	lapie cala reszte Endow
 	{
 		setDefaultScreenFunct();
 		showDefaultScreen();
@@ -126,150 +133,6 @@ void cProjectEditor::update()
 	}
 
 
-
-//	refreshProcessingPopup();
-
-//	if(openInProgressFlag || createNewProjectFlag)
-//	{
-//		uint8_t loadStatus = fileManager.getLoadingStatus();
-//
-//		if(loadStatus)
-//		{
-//			fileManager.refreshProjectOpening();
-//		}
-//		else
-//		{
-//			loadProjectValues();
-//
-//			hideProcessingPopup();
-//
-//			showDefaultScreen();
-//			setDefaultScreenFunct();
-//			openInProgressFlag = 0;
-//			createNewProjectFlag = 0;
-//			isBusyFlag = 0;
-//		}
-//	}
-
-//	if(saveInProgressFlag)
-//	{
-//		uint8_t saveStatus = fileManager.getSavingStatus();
-//
-//		if(saveStatus)
-//		{
-//			fileManager.refreshSaveProject();
-//		}
-//		else
-//		{
-//			saveInProgressFlag = 0;
-//			showDefaultScreen();
-//			hideProcessingPopup();
-//
-//			isBusyFlag = 0;
-//
-//			if(newProjectOnSaveEndFlag)
-//			{
-//				newProjectOnSaveEndFlag = 0;
-//				functNewProject();
-//			}
-//			if(openOnSaveEndFlag)
-//			{
-//				openOnSaveEndFlag = 0;
-//				functOpenProjectConfirm();
-//			}
-//
-//			setDefaultScreenFunct();
-//		}
-//	}
-
-//	if(deleteInProgressFlag)
-//	{
-//		uint8_t deleteStatus = fileManager.getDeletingStatus();
-//
-//		if(deleteStatus)
-//		{
-//			fileManager.refreshDeleting();
-//		}
-//		else
-//		{
-//			deleteInProgressFlag = 0;
-//			showDefaultScreen();
-//			hideProcessingPopup();
-//
-//			isBusyFlag = 0;
-//
-//			setDefaultScreenFunct();
-//		}
-//	}
-
-//	if(exportInProgress)
-//	{
-//		currentExportState = exporter.getState();
-//		uint8_t localProgress = exporter.getProgress();
-//		if(localProgress >  exportProgress )
-//		{
-//			exportProgress = localProgress;
-//		}
-//		showExportingHorizontalBar();
-//		if((currentExportState == 0) && (lastExportState != currentExportState))
-//		{
-//			isBusyFlag = 0;
-//			exportInProgress = 0;
-//			showExportWindow();
-//		}
-//
-//		lastExportState = currentExportState;
-//	}
-//
-//	if(newProjectPopupDelay > 200)
-//	{
-//		if(newProjectPopupFlag)
-//		{
-//			newProjectPopupFlag = 0;
-//			fileManager.openProjectStart((char*)"New",projectTypeExample);
-//			createNewProjectFlag = 1;
-//		}
-//	}
-//
-//	if(savePopupFlag)
-//	{
-//		if(savePopupDelay > 200)
-//		{
-//			savePopupFlag = 0;
-//			fileManager.startSaveProject();
-//			saveInProgressFlag = 1;
-//		}
-//	}
-//
-//	if(openPopupFlag)
-//	{
-//		if(openPopupDelay > 200)
-//		{
-//			openPopupFlag = 0;
-//			fileManager.openProjectStart(PE->projectsList[PE->selectedProject], projectTypeUserMade);
-//			openInProgressFlag = 1;
-//		}
-//	}
-//
-//	if(newProjectPopupFlag)
-//	{
-//		if(newProjectPopupDelay > 200)
-//		{
-//			newProjectPopupFlag = 0;
-//			fileManager.openProjectStart((char*)"New",projectTypeExample);
-//			createNewProjectFlag = 1;
-//		}
-//	}
-//
-//	if(deletePopupFlag)
-//	{
-//		if(deletePopupDelay > 200)
-//		{
-//			deletePopupFlag = 0;
-//			fileManager.deleteProjectStart(PE->projectsList[PE->selectedProject]);
-//			deleteInProgressFlag = 1;
-//		}
-//	}
 
 	if(refreshCover)
 	{
@@ -294,12 +157,10 @@ void cProjectEditor::update()
 			}
 		}
 	}
-
 }
 
 void cProjectEditor::start(uint32_t options)
 {
-
 	selectedProject = 0;
 
 	moduleRefresh = 1;
@@ -524,6 +385,69 @@ static uint8_t functStopPatternNo()
 	return 1;
 }
 
+
+
+//==============================================================================================================
+//==============================================================================================================
+//==============================================================================================================
+
+void cProjectEditor::createNewProject()
+{
+	if(mtProject.values.projectNotSavedFlag)
+	{
+		PE->functShowSaveLastWindow();
+		return;
+	}
+
+	newFileManager.createNewProjectInWorkspace();
+
+	if(newFileManager.openProjectFromWorkspace())
+	{
+		PE->FM->blockAllInputs();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void cProjectEditor::openProject()
+{
+	if(newFileManager.isProjectChanged() || mtProject.values.projectNotSavedFlag)
+	{
+		PE->functShowSaveLastWindowBeforeOpen();
+		return;
+	}
+
+	if(newFileManager.openProjectFromProjects(PE->selectedProject))
+	{
+		PE->FM->blockAllInputs();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void cProjectEditor::saveProject()
+{
+	if(mtProject.values.projectNotSavedFlag & 2)
+	{
+		saveAsProject();
+		return;
+	}
+
+	if(newFileManager.saveProjectToProjects())
+	{
+		PE->FM->blockAllInputs();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void cProjectEditor::saveAsProject()
+{
+
+	if(newFileManager.saveProjectToProjects(PE->keyboardManager.getName()))
+	{
+		PE->FM->blockAllInputs();
+	}
+}
+
+
 //==============================================================================================================
 //==============================================================================================================
 //==============================================================================================================
@@ -538,61 +462,23 @@ static uint8_t functNewProject()
 		return 1;
 	}
 
-	if(mtProject.values.projectNotSavedFlag)
-	{
-		PE->functShowSaveLastWindow();
-		return 1;
-	}
-
-	PE->newProjectNotSavedFlag = 1;
-
-
-	newFileManager.createNewProjectInWorkspace();
-	newFileManager.openProjectFromWorkspace();
-
-	//PE->FM->blockAllInputs();
-
 	PE->showDefaultScreen();
+
+	PE->createNewProject();
+
 
 	return 1;
 }
 
 static uint8_t functOpenProject()
 {
-
-
 	newFileManager.browseProjects();
-
-
-
 	return 1;
 }
 
-
-
-
 static uint8_t functSaveProject()
 {
-	if(PE->newProjectNotSavedFlag)
-	{
-		functSaveAsProject();
-		return 1;
-	}
-
-
-	PE->FM->blockAllInputs();
-
-	//PE->isBusyFlag = 1;
-	//PE->savePopupFlag = 1;
-	//PE->savePopupDelay = 0;
-	//mtProject.values.projectNotSavedFlag = 0;
-
-	//if(newFileManager.getCurrentProjectName()[0]) PE->keyboardManager.fillName(newFileManager.getCurrentProjectName());
-	//else PE->keyboardManager.fillName((char *)"New Project");
-	//PE->showProcessingPopup("Saving project");
-
-
-	newFileManager.saveProjectToProjects();
+	PE->saveProject();
 
 	return 1;
 }
@@ -644,48 +530,30 @@ void cProjectEditor::functShowSaveLastWindow()
 	showSaveLastWindow();
 }
 
+//anuluj tworzenie nowego projektu
 static uint8_t functSaveChangesCancelNewProject()
 {
 	PE->setDefaultScreenFunct();
-
 	PE->showDefaultScreen();
 	return 1;
 }
+
+// nie zapisuj starego projektu i otworz nowy
 static uint8_t functSaveChangesDontSaveNewProject()
 {
-
-	PE->newProjectNotSavedFlag = 1;
-
-	newFileManager.createNewProjectInWorkspace();
-	newFileManager.openProjectFromWorkspace();
-
-
-	PE->FM->blockAllInputs();
-
+	PE->createNewProject();
 
 	PE->showDefaultScreen();
 
 	return 1;
 }
+
+// zapisz stary projekt przy otwieraniu nowego
 static uint8_t functSaveChangesSaveNewProject()
 {
-	if(PE->newProjectNotSavedFlag)
-	{
-		PE->showDefaultScreen();
-		PE->showSaveAsKeyboard();
-		functSaveAsProject();
-		PE->newProjectOnSaveEndFlag = 1; //zostanie skasowana w cancel saveAs jakbyco
-		return 1;
-	}
-
-//	mtProject.values.projectNotSavedFlag = 0;
-//	PE->newProjectOnSaveEndFlag = 1;
-//	PE->savePopupFlag = 1;
-//	PE->savePopupDelay = 0;
-//	PE->isBusyFlag = 1;
-
 	PE->showDefaultScreen();
-//	PE->showProcessingPopup("Saving project");
+
+	PE->saveProject();
 
 	return 1;
 }
@@ -695,9 +563,8 @@ static uint8_t functSaveChangesSaveNewProject()
 static uint8_t functSaveAsCancel()
 {
 	PE->setDefaultScreenFunct();
-
 	PE->showDefaultScreen();
-	PE->newProjectOnSaveEndFlag = 0; // powiazane z new project
+
 	return 1;
 }
 
@@ -711,14 +578,7 @@ static uint8_t functSaveAsConfirm()
 	}
 
 
-	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
-
-
-
-	PE->FM->blockAllInputs();
-
-
-	PE->newProjectNotSavedFlag = 0;
+	PE->saveAsProject();
 
 	PE->showDefaultScreen();
 
@@ -744,9 +604,7 @@ void cProjectEditor::functShowOverwriteWindow()
 
 static uint8_t functSaveAsOverwriteYes()
 {
-	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
-
-	PE->FM->blockAllInputs();
+	PE->saveAsProject();
 
 	PE->showDefaultScreen();
 
@@ -782,21 +640,14 @@ static uint8_t functOpenProjectConfirm()
 		return 1;
 	}
 
-	if(newFileManager.isProjectChanged())
-	{
-		PE->projectListActiveFlag = 0;
-		PE->functShowSaveLastWindowBeforeOpen();
-		return 1;
-	}
+	PE->openProject();
 
 	PE->projectListActiveFlag = 0;
 
-	newFileManager.openProjectFromProjects(PE->selectedProject);
-
-	PE->FM->blockAllInputs();
 	PE->showDefaultScreen();
 	return 1;
 }
+
 void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 {
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -866,26 +717,22 @@ static uint8_t functProjectListDown()
 
 static uint8_t functSaveChangesDontSaveOpen()
 {
-	mtProject.values.projectNotSavedFlag = 0;
 
-	PE->newProjectNotSavedFlag = 0;
 	PE->projectListActiveFlag = 0;
 
-	PE->openPopupDelay = 0;
-	PE->openPopupFlag = 1;
-
+	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 
 	return 1;
 }
+
 static uint8_t functSaveChangesSaveOpen()
 {
-	if(PE->newProjectNotSavedFlag)
+	if(mtProject.values.projectNotSavedFlag)
 	{
 		PE->showDefaultScreen();
 		PE->showSaveAsKeyboard();
 		functSaveAsProject();
-		PE->openOnSaveEndFlag = 1; //zostanie skasowana w cancel saveAs jakbyco
 		return 1;
 	}
 
