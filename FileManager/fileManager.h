@@ -30,7 +30,7 @@ enum fileManagerStatus
 	fmExportingSoundRenderSelection,
 	fmSavingRecordedSound,
 	fmSavingImportingRecordedSound,
-
+	fmImportingSampleFromSampleEditor,
 
 
 	fmLoadEnd,
@@ -44,6 +44,7 @@ enum fileManagerStatus
 	fmLoadPatternEnd,
 	fmExportSoundEnd,
 	fmSaveRecordedSoundEnd,
+	fmImportSampleFromSampleEditorEnd,
 
 
 
@@ -60,6 +61,7 @@ enum fileManagerStatus
 	fmLoadPatternError,
 	fmExportSoundError,
 	fmSaveRecordedError,
+	fmImportSampleFromSampleEditorError,
 
 };
 
@@ -84,6 +86,8 @@ enum fileManagerOperation
 
 	fmExportSound,				//13
 	fmSaveRecordedSound,		//14
+
+	fmImportSampleFromSampleEditor // 15
 
 };
 
@@ -148,6 +152,8 @@ public:
 	bool exportSound(uint8_t mode);
 	bool exportSoundCancel();
 	bool saveRecordedSound(char* fileName, int8_t importSlot);
+
+	bool importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t length, uint8_t instrumentSlot);
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
@@ -234,6 +240,7 @@ private:
 	void updateLoadWorkspacePattern();
 	void updateExportSound();
 	void updateSaveRecordedSound();
+	void updateImportSampleFromSampleEditor();
 
 	void autoSaveProjectToWorkspace();
 
@@ -416,7 +423,9 @@ private:
 	uint8_t recordingImportSlot;
 	// preview sample
 
-
+	// sample edior
+	void importSampleFromSampleEditorInit();
+	void importSampleFromSampleEditorFinish();
 
 
 

@@ -4,6 +4,8 @@
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
 #include "mtAudioEngine.h"
+#include "fileManager.h"
+#include "debugLog.h"
 
 cSampleEditor sampleEditor;
 
@@ -221,6 +223,25 @@ void cSampleEditor::update()
 	else if(instrumentPlayer[0].getInterfacePlayingEndFlag())
 	{
 		instrumentPlayer[0].clearInterfacePlayingEndFlag();
+	}
+
+
+
+
+
+	uint8_t fileManagerStatus = newFileManager.getStatus();
+
+	if(fileManagerStatus == fmImportSampleFromSampleEditorEnd)
+	{
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+		SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	}
+	else if(fileManagerStatus >=  fmError)
+	{
+		debugLog.addLine("Opretion Error");
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
 	}
 
 }
@@ -1238,7 +1259,12 @@ static  uint8_t functStopPatternNo()
 // Save Sample Funct
 static  uint8_t functSaveSampleYes()
 {
-	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	if(newFileManager.importSampleFromSampleEditor(SE->currentEffect->getAddresToPlay(),
+											  SE->currentEffect->getLengthToPlay(),
+											  mtProject.values.lastUsedInstrument))
+	{
+		SE->FM->blockAllInputs();
+	}
 	return 1;
 }
 static  uint8_t functSaveSampleNo()

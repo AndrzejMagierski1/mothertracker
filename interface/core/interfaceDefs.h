@@ -216,6 +216,7 @@ const char fileManagerPopupText[][30] =
 		"Exporting Selection",
 		"Saving Recording",
 		"Importing Recording",
+		"Saving Sample",
 
 
 };
