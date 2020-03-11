@@ -54,7 +54,7 @@ void cFileManager::update()
 	case fmExportSound: 				updateExportSound();					break;
 	case fmSaveRecordedSound: 			updateSaveRecordedSound();				break;
 
-
+	case fmImportSampleFromSampleEditor:updateImportSampleFromSampleEditor(); break;
 
 
 	default: break;
@@ -237,6 +237,17 @@ void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 14
 		default:	stopOperationWithError(fmSaveRecordedError); 			break;
 	}
 }
+
+void cFileManager::updateImportSampleFromSampleEditor() //  //fmImportSampleFromSampleEditor - 15
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	importSampleFromSampleEditorInit(); 							break;
+		case 1:		importSampleFromSampleEditorFinish();							break;
+		default:	stopOperationWithError(fmImportSampleFromSampleEditorError); 	break;
+	}
+}
+
 
 
 void cFileManager::autoSaveProjectToWorkspace()
@@ -615,6 +626,24 @@ void cFileManager::loadPatternFromWorkspaceFinish()
 }
 
 
+
+void cFileManager::importSampleFromSampleEditorInit()
+{
+
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::importSampleFromSampleEditorFinish()
+{
+
+
+	status = fmImportSampleFromSampleEditorEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+
 //====================================================================================
 //====================================================================================
 //====================================================================================
@@ -825,6 +854,22 @@ bool cFileManager::deleteProject(uint8_t index)
 
 	return true;
 }
+
+bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t length, uint8_t instrumentSlot)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+
+
+
+
+	status = fmImportingSampleFromSampleEditor;
+	currentOperationStep = 0;
+	currentOperation = fmImportSampleFromSampleEditor;
+	return true;
+}
+
 
 //-----------------------------------------------------------------------------------------------------
 //-------------------------------------   FLAGI ZMIAN   -----------------------------------------------
