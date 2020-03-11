@@ -243,7 +243,8 @@ void cFileManager::updateImportSampleFromSampleEditor() //  //fmImportSampleFrom
 	switch(currentOperationStep)
 	{
 		case 0: 	importSampleFromSampleEditorInit(); 							break;
-		case 1:		importSampleFromSampleEditorFinish();							break;
+		case 1:		moveSampleMemory();												break;
+		case 2:		importSampleFromSampleEditorFinish();							break;
 		default:	stopOperationWithError(fmImportSampleFromSampleEditorError); 	break;
 	}
 }
@@ -639,6 +640,15 @@ void cFileManager::importSampleFromSampleEditorInit()
 
 void cFileManager::importSampleFromSampleEditorFinish()
 {
+	mtProject.used_memory -= (mtProject.instrument[importStartSlot].sample.length*2 > mtProject.used_memory)
+							 ? mtProject.used_memory
+							 : mtProject.instrument[importStartSlot].sample.length*2;
+
+	mtProject.used_memory += importFromSampleEditorLength*2;
+
+
+	mtProject.instrument[importStartSlot].sample.length = importFromSampleEditorLength;
+	memcpy(mtProject.instrument[importStartSlot].sample.address, importFromSampleEditorAddress, importFromSampleEditorLength*2);
 
 
 	status = fmImportSampleFromSampleEditorEnd;
@@ -822,7 +832,6 @@ bool cFileManager::deleteInstruments(uint8_t instrumentSlotFrom, uint8_t instrum
 	calcFirstSlotToMoveInMemory(instrumentSlotTo+1);
 
 
-
 	status = fmDeleteingInstruments;
 	currentOperationStep = 0;
 	currentOperation = fmDeleteInstruments;
@@ -876,8 +885,15 @@ bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t 
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 
+	currentInstrument = instrumentSlot;
+	currentSample = instrumentSlot;
+	importStartSlot = instrumentSlot;
+	importEndSlot = instrumentSlot;
 
+	importFromSampleEditorAddress = (uint8_t*)memoryAddres;
+	importFromSampleEditorLength = length;
 
+	calcFirstSlotToMoveInMemory(importEndSlot+1);
 
 	status = fmImportingSampleFromSampleEditor;
 	currentOperationStep = 0;
