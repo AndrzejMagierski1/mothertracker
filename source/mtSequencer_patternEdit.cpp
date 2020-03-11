@@ -1263,6 +1263,9 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	case fx.FX_TYPE_MICROTUNING:
 		return 198;
 
+	case fx.FX_TYPE_BREAK_PATTERN:
+			return 1;
+
 	case fx.FX_TYPE_MICROMOVE:
 		return 100;
 	case fx.FX_TYPE_TEMPO:
@@ -1314,7 +1317,7 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 	case fx.FX_TYPE_PANNING:
 		return 0;
 	case fx.FX_TYPE_BREAK_PATTERN:
-		return 0;
+		return 1;
 
 	case fx.FX_TYPE_ROLL:
 		return fx.ROLL_PERIOD_MIN;

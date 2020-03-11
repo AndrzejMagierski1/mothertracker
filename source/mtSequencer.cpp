@@ -302,19 +302,10 @@ void Sequencer::play_microStep(uint8_t row)
 			sendMidiClock();
 	}
 
-	// jeśli ostatni step, zażądaj ładowania kolejnego patternu
-	if ((playerRow.uStep == 1) && player.isPlay && row == 0)
-	{
-		if (((playerRow.actual_pos == patternRow.length) ||
-				(player.breakPattern && row == 0))
-				&& player.songMode)
-		{
-			loadNextPattern(newFileManager.getNextSongPattern());
-		}
-	}
+
 
 	// ************************************
-	// 		sprawdzamy PRE EFEKTY
+	// 		 PRE EFEKTY i operacje na uStep == 1
 	// ************************************
 
 	boolean startStep = 0;
@@ -519,6 +510,18 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.offsetValue = 10;
 
 		}
+
+
+
+		// jeśli ostatni step, zażądaj ładowania kolejnego patternu
+		if (player.isPlay && row == 0)
+		{
+			if (((playerRow.actual_pos == patternRow.length) || player.breakPattern) && player.songMode)
+			{
+				loadNextPattern(newFileManager.getNextSongPattern());
+			}
+		}
+
 	}
 
 	// **************************
