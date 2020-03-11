@@ -335,7 +335,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 
 	sequencer.switchRamPatternsNow();
 
-	// swiezo wczytany projekt jest zawsze zgodny z zapisanym
+	// swiezo wczytany projekt jest zawsze zgodny z zapisanym - nieeee?!
 	//mtProject.values.projectNotSavedFlag = 0;
 
 
@@ -376,6 +376,8 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 
 	if(!openProjectFromWorkspace())
 	{
+		// wrazie by sie nie dalo otworzyc projektu
+		// to otworz nowy pusty
 		createNewProjectInWorkspace();
 		openProjectFromWorkspace();
 	}
@@ -462,7 +464,8 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 		return;
 	}
 
-	//mtProject.values.projectNotSavedFlag &= ~1; //
+	// po stworzeniu aktualnej wersji projektu w Project czysci flage zmian
+	mtProject.values.projectNotSavedFlag = 0;
 
 	status = fmSaveEnd;
 	currentOperationStep = 0;
@@ -682,9 +685,9 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 	return true;
 }
 
-bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
+bool cFileManager::saveProjectToWorkspace(bool forceSaveAll) //xxx jak narazie nigdzie nie uzywane force=true
 {
-	if(status != fmIdle) return false;
+	if(status != fmIdle && status != fmSavingProjectToProjects) return false;
 	if(currentOperation != fmNoOperation) return false;
 
 	if(forceSaveAll)
@@ -696,9 +699,20 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
 	}
 
-	//report("Autosave Started");
 	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave start");
+
+
+	if(status == fmSavingProjectToProjects)
+	{
+		// jezeli autozapis przed zapisaniem do Projects to finalnie wszsytko bedzie aktualne
+		mtProject.values.projectNotSavedFlag = 0;
+	}
+	else
+	{
+		// jezeli typowy autozapis to workspace napewo sie rozni od zawartosci Projects
+		mtProject.values.projectNotSavedFlag |= 1;
+	}
 
 	status = fmSavingProjectToWorkspace;
 	currentOperationStep = 0;
@@ -721,14 +735,15 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 	// wymus zapis projektu z nowa nazwa w workspace
 	changesFlags.project = 1;
 
-	if(saveProjectToWorkspace(false))//xxx true? // zapisuj workpace jesli potrzeba
+	status = fmSavingProjectToProjects;
+
+	if(saveProjectToWorkspace(false))  // zapisuj workpace tlyko jesli sa flagi zmian
 	{
 		status = fmSavingProjectToProjects;
 		currentOperationStep = 0;
 		currentOperation = fmSaveWorkspaceProject;
 		return true;
 	}
-
 
 	status = fmSavingProjectToProjects;
 	currentOperationStep = 0;

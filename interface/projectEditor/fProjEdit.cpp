@@ -390,7 +390,7 @@ static uint8_t functStopPatternNo()
 
 void cProjectEditor::createNewProject()
 {
-	if(mtProject.values.projectNotSavedFlag)
+	if(newFileManager.isProjectChanged()  || (mtProject.values.projectNotSavedFlag & 1))
 	{
 		PE->functShowSaveLastWindow();
 		return;
@@ -407,7 +407,7 @@ void cProjectEditor::createNewProject()
 //----------------------------------------------------------------------------------------
 void cProjectEditor::openProject()
 {
-	if(newFileManager.isProjectChanged() || mtProject.values.projectNotSavedFlag)
+	if(newFileManager.isProjectChanged() || (mtProject.values.projectNotSavedFlag & 1))
 	{
 		PE->functShowSaveLastWindowBeforeOpen();
 		return;
@@ -424,7 +424,7 @@ void cProjectEditor::saveProject()
 {
 	if(mtProject.values.projectNotSavedFlag & 2)
 	{
-		saveAsProject();
+		functSaveAsProject();
 		return;
 	}
 
@@ -532,15 +532,21 @@ static uint8_t functSaveChangesCancelNewProject()
 {
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
+
 	return 1;
 }
 
 // nie zapisuj starego projektu i otworz nowy
 static uint8_t functSaveChangesDontSaveNewProject()
 {
-	PE->createNewProject();
-
 	PE->showDefaultScreen();
+	PE->setDefaultScreenFunct();
+
+	// ignorowanie neizapisanego
+	mtProject.values.projectNotSavedFlag = 0;
+	newFileManager.clearChangeFlags();
+
+	PE->createNewProject();
 
 	return 1;
 }
@@ -549,6 +555,7 @@ static uint8_t functSaveChangesDontSaveNewProject()
 static uint8_t functSaveChangesSaveNewProject()
 {
 	PE->showDefaultScreen();
+	PE->setDefaultScreenFunct();
 
 	PE->saveProject();
 
@@ -638,11 +645,12 @@ static uint8_t functOpenProjectConfirm()
 		return 1;
 	}
 
+	PE->showDefaultScreen();
+
 	PE->openProject();
 
 	PE->projectListActiveFlag = 0;
 
-	PE->showDefaultScreen();
 	return 1;
 }
 
@@ -721,6 +729,12 @@ static uint8_t functSaveChangesDontSaveOpen()
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 
+	// ignorowanie neizapisanego
+	mtProject.values.projectNotSavedFlag = 0;
+	newFileManager.clearChangeFlags();
+
+	PE->openProject();
+
 	return 1;
 }
 
@@ -734,7 +748,7 @@ static uint8_t functSaveChangesSaveOpen()
 		return 1;
 	}
 
-	mtProject.values.projectNotSavedFlag = 0;
+	//mtProject.values.projectNotSavedFlag = 0;
 
 
 	PE->showDefaultScreen();
