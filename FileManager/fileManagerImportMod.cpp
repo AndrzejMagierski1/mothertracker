@@ -243,6 +243,8 @@ void cFileManager::importModFile_Patterns()
 			);
 	Sequencer::strPattern *patt = sequencer.getActualPattern();
 
+	sequencer.clearPattern(patt);
+
 	mtProject.values.actualPattern = modFilePatterns_actualIndex + 1;
 
 	// przepisuję playlistę
@@ -278,9 +280,11 @@ void cFileManager::importModFile_Patterns()
 		uint8_t fx2 = (chData & 0x0f0) >> 4;
 		uint8_t fx1 = (chData & 0xf00) >> 8;
 
-		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t\t", instrument,
+		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t\t",
+						instrument,
 						note,
-						fx1, fx2, fx3);
+						fx1,
+						fx2, fx3);
 
 		if (step <= Sequencer::MAXSTEP)
 		{
@@ -338,6 +342,8 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 			uint8_t fx1,
 			uint8_t fx2, uint8_t fx3)
 {
+	uint16_t modfxTempo;
+
 	switch (fx1)
 	{
 	case 0:
@@ -396,18 +402,23 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 		/*
 		 * TEMPO
 		 *  20-256*/
+		modfxTempo = constrain(
+								fx2 * 16 + fx3,
+								sequencer.getFxMin(sequencer.fx.FX_TYPE_TEMPO),
+								sequencer.getFxMax(sequencer.fx.FX_TYPE_TEMPO));
 
-		step->fx[0].type = sequencer.fx.FX_TYPE_TEMPO;
-		step->fx[0].value = constrain(
-				fx2 * 16 + fx3,
-				sequencer.getFxMin(sequencer.fx.FX_TYPE_TEMPO),
-				sequencer.getFxMax(sequencer.fx.FX_TYPE_TEMPO));
+		if (modfxTempo > 32)
+		{
+			step->fx[0].type = sequencer.fx.FX_TYPE_TEMPO;
+			step->fx[0].value = modfxTempo;
+		}
 
 		break;
 
 	default:
 		break;
 	}
+
 }
 void cFileManager::importModFileWaves()
 {
