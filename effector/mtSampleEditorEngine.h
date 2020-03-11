@@ -4,6 +4,7 @@
 
 enum enSampleEditorEffect
 {
+	editorEffectCut,
 	editorEffectDelay,
 	editorEffectBitcrusher,
 

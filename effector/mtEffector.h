@@ -6,11 +6,9 @@
 #include "mtStructs.h"
 #include "mtEffectorChorus.h"
 #include "mtEffectorFlanger.h"
-#include "mtEffectorDelay.h"
 #include "mtEffectorLimiter.h"
 #include "mtEffectorCompressor.h"
 #include "mtEffectorAmplifier.h"
-#include "mtEffectorBitcrusher.h"
 
 #define UNDO_QUEUE		10
 

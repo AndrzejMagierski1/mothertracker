@@ -2,9 +2,11 @@
 #include "mtEffect.h"
 #include "mtEffectDelay.h"
 #include "mtEffectBitcrusher.h"
+#include "mtEffectCut.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
+		&sampleEditorCut,
 		&sampleEditorDelay,
 		&sampleEditorBitcrusher
 };
