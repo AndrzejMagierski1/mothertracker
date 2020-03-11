@@ -3,387 +3,319 @@
 
 
 #include "core/modulesBase.h"
-#include "SD.h"
-
-#include "mtSequencer.h"
-
 #include "mtStructs.h"
-#include "mtEffector.h"
+#include "mtSampleEditorEngine.h"
 
-#define MAX_DATA_BARS	4
-#define BAR_MIN_POS		2
-
-typedef enum
-{
-	noSpectrum,
-	fullSpectrum,
-
-}screen_type_t;
-
-typedef enum
-{
-	eRequireProcessing,
-	eProcessed,
-	eNotAffecting,
-}effect_state_t;
-
-typedef enum
-{
-	tUNSIGNED8,
-	tUNSIGNED16,
-	tUNSIGNED32,
-	tSIGNED8,
-	tSIGNED16,
-	tSIGNED32,
-	tFLOAT,
-
-}source_datatype_t;
-
-typedef uint8_t (*paramEditFunct_t)(int16_t);
-
-typedef struct
-{
-	const char* 		name;
-	paramEditFunct_t	editFunct;
-	void*				dataSource;
-	source_datatype_t	dataFormat;
-	const char*			dataUnit;
-	uint8_t 			effectPercentage;
-
-}effect_bar_t;
-
-typedef struct
-{
-	uint8_t				paramNum;
-	screen_type_t 		screen;// screen type
-	uint8_t 			barNum;// number of active data bars
-	effect_bar_t		bar[MAX_DATA_BARS];
-	uint8_t 			undoActive;
-	effect_state_t 		effectStage;
-
-}effect_handle_t;
-
-typedef struct
-{
-	uint8_t percentages[4];
-	uint8_t mask;
-
-}selection_percentages;
-
-typedef struct
-{
-	uint8_t taskQueue;
-	uint8_t tasksInQueue;
-	uint8_t currentTask;
-	uint8_t taskQueueProgress;
-	uint8_t taskQueueActive;
-	uint8_t taskQueueNextFlag;
-
-}taskQueue_t;
-
-typedef enum
-{
-	effectCrop,
-	effectReverse,
-	effectFlanger,
-	effectChorus,
-	effectDelay,
-	effectCompressor,
-	effectBitcrusher,
-	effectAmplifier,
-	effectLimiter,
-
-}effect_t;
-
-typedef enum
-{
-	sampleLoadingActive = 0x01U,
-	processingActive = 0x02U,
-	applyingActive = 0x04U,
-	undoActive = 0x08U,
-	onExitReloadActive = 0x10U,
-	previewRunning = 0x20U,
-
-}flags_t;
-
-typedef enum
-{
-	tLoadSample = 0x01U,
-	tProcessEffect = 0x02U,
-	tApply = 0x04U,
-	tUndo = 0x08U,
-
-}tasks_t;
-
-
-const uint8_t effectsCount = 9;
-const char effectNamesLabels[effectsCount][15] =
-{
-		"Crop",
-		"Reverse",
-		"Flanger",
-		"Chorus",
-		"Delay",
-		"Compressor",
-		"Bitcrusher",
-		"Amplifier",
-		"Limiter",
-};
-
-
-#undef MAX_SELECT_NODES
-#define MAX_SELECT_NODES	4
-
-constexpr uint32_t PLAY_REFRESH_US = 5000;
 
 
 class cSampleEditor: public cModuleBase
 {
 
 public:
+	enum enScreenType
+	{
+		mainScreen,
+		effectParamsScreen
+	};
 
-	virtual void update();
-	virtual void start(uint32_t options);
+	enum enMainScreenPlaces
+	{
+		startPointPlace,
+		endPointPlace,
+		zoomPlace,
+		effectPlaces
+	};
+
+	enum enPreviewState
+	{
+		previewStatePreview, // :)
+		previewStatePlay,
+		previewStateStop
+	} previewState;
+
+//*******************CORE MODULE FUNCTIONS
+	virtual void update() override;
+	virtual void start(uint32_t options) override;
 	virtual void stop();
+	void setCommonFunctions();
+	void setMainScreenFunctions();
+	void setParamsScreenFunctions();
+	void switchScreen(enScreenType s);
+	void clearAllFunctions();
+	void restoreFunctions();
+	void setStopSeqFunctions();
+	void setSaveChangesFunctions();
 
-	virtual void initDisplayControls();
-	virtual void destroyDisplayControls();
+//******************* OPERATION FOR GRAPHIC
+	void prepareDisplayDataMainScreen();
 
+	void reloadInstrumentName();
+	void reloadFrameData(enScreenType s);
+	void reloadPointsData();
+	void reloadStartPointText();
+	void reloadEndPointText();
+	void reloadZoomText();
+	void reloadPlayheadValue();
+	void reloadCurrentEffect();
+	void reloadSpectrumData();
+//popups
+	void reloadApplyingProgress();
+	void reloadProcessingProgress();
+	void reloadPlayingProgress();
+//params screen
+	void prepareDisplayDataParamsScreen();
+	void reloadParamiterValueText(uint8_t n);
+	void reloadParamiterBarValue(uint8_t n);
+//*******************
+//*******************PREVIEW/PLAY/STOP
+	void setPreviewFunction();
+	void setPlayFunction();
+	void setStopFunction();
+
+	void showPreviewLabel();
+	void showPlayLabel();
+	void showStopLabel();
+//*******************
+//*******************CORE GRAPHIC FUNCTIONS
+	virtual void initDisplayControls() override;
+	virtual void destroyDisplayControls() override;
+	void showMainScreen();
+	void showEffectParamsScreen();
+//*******************
+//******************* GRAPHIC OPERATIONS
+	void showInstrumentName();
+	void showStartPointText();
+	void showEndPointText();
+	void showZoomText();
+	void showSpectrumPoints();
+	void hideSpectrumPoints();
+	void showFrame();
+	void showSpectrum();
+	void hideSpectrum();
+	void showPlayhead();
+	void hidePlayhead();
+	void showEffectList();
+	void hideEffectList();
+
+	void showParamiterBar(uint8_t n);
+	void showParamiterLabel(uint8_t n);
+//Popups
+//applying
+	void showPopupApplying();
+	void showProgressApplying();
+//processing
+	void showPopupProcessing();
+	void showProgressProcessing();
+//playing
+	void showPopupPlaying();
+	void showProgressPlaying();
+
+	void hideProgressPopup();
+
+//Stop Seq
+	void showPopupStopSequencer();
+	void showPopupSeqWindow();
+//Save changes
+	void showPopupSaveChanges();
+	void showPopupSaveChangesWindow();
+
+	void hideStaticPopup();
+//*******************
+//******************* REFRESH - RELOAD + DISPLAY
+	void refreshSpectrumPoints();
+	void refreshStartPoint();
+	void refreshEndPoint();
+	void refreshZoom();
+	void refreshEffectList();
+	void refreshSpectrum();
+	void refreshPlayhead();
+	void refreshUndoState();
+	void refreshParamiter(uint8_t n);
+
+//popups
+	void refreshApplyingProgress();
+	void refreshProcessingProgress();
+	void refreshPlayingProgress();
+//*******************
+//******************* PARAMETERS MODIFICATORS
+//MainScreen
+	void modStartPoint(int16_t val);
+	void modEndPoint(int16_t val);
+	void modZoom(int16_t val);
+	void modSelectedEffect(int16_t val);
+//ParamiterScreen
+	void modParamiter(int16_t val, uint8_t n);
+//*******************
 	cSampleEditor()
 	{
-//		inActiveInstrumentsCount = 0;
-//		inActiveInstrumentIndex = 0;
-		editorInstrument = nullptr;
-//		openedInstrFromActive = 0;
-//		openedInstrumentIndex = 0;
-
-		spectrumControl = nullptr;
-		pointsControl = nullptr;
-		label[8] = {nullptr};
-		popupWindowLabel = nullptr;
+		label[8] = { nullptr };
+		bar[8] = { nullptr };
+		effectList = nullptr;
+		spectrum = nullptr;
+		spectrumPoints = nullptr;
+		playhead = nullptr;
+		frame = nullptr;
+		titleBar = nullptr;
+		titleLabel = nullptr;
+		instrumentLabel = nullptr;
+		popupProgressBar = nullptr;
+		popupLabel = nullptr;
+		bgLabel = nullptr;
 	}
 	virtual ~cSampleEditor() {}
 
-	void showDefaultScreen();
-	void showSelectionStopPattern();
-	void showEffectsList();
-	void showTitleBar();
-
-	void setDefaultScreenFunct();
-	void setPatternStopFunct();
-	void cancelPopups();
-
-
-//	void processSpectrum();
-	void processPoints();
-	void changeEffectSelection(int16_t value);
-
-	void activateLabelsBorder();
-
-	uint8_t startLoadingSample();
-
-	strFrameData frameData;
-	strLabelData labelArrow;
-
+//*******************DISPLAY CONTROLS
 	hControl label[8];
-	hControl effectListControl;
-	hControl spectrumControl;
-	hControl effectSpectrumControl;
-	hControl pointsControl;
-	hControl frameControl;
-	hControl titleBar = nullptr;
-	hControl titleLabel = nullptr;
-	hControl instrumentLabel = nullptr;
-	hControl barControl[4];
-	hControl processHorizontalBarControl = nullptr;
-	hControl progressCursor = nullptr;
+	hControl bar[8];
+	hControl effectList;
+//Waveform
+	hControl spectrum;
+	hControl spectrumPoints;
+	hControl playhead;
+//frame
+	hControl frame;
+//title label
+	hControl titleBar;
+	hControl titleLabel;
+	hControl instrumentLabel;
+//popups
+	hControl popupProgressBar;
+	hControl popupLabel;
+//background label
 	hControl bgLabel;
-	hControl popupWindowLabel;
+//*********************
+//*******************DISPLAY CONTROLS DATA
+	strList effectListData;
+	strTrackerSpectrum spectrumData =
+	{
+			.width = 600,
+	};
+	strTrackerPoints spectrumPointsData =
+	{
+			.startPoint = 0,
+			.endPoint = 600
+	};
+	strFrameData frameData;
+	strLabelData labelArrow =
+	{
+		{
+		 { (800/8)*6+(800/16), 460, displayArrowU}, // bitmaps[0]
+		 { (800/8)*7+(800/16), 460, displayArrowD}  // bitmaps[1]
+		}
+	};
+
+	uint8_t paramsBarValue[6];
+	//applying
+	uint8_t applyingProgress;
+	uint8_t applyingSteps;
+	bool applyingInProgress;
+	//processing
+	uint8_t processingProgress;
+	uint8_t processingSteps;
+	bool processingInProgress;
+	//playing
+	uint8_t playingProgress;
+	bool playingInProgress;
+
+	bool isLoadedData;
+	bool isProcessedData;
+
+	bool confirmedDataIsChanged;
+
+	uint8_t moduleToChange;
+
+//labelsTxt
+	char currentInstrumentName[SAMPLE_NAME_SIZE+6];
+	char startPointText[11];
+	char endPointText[11];
+	char zoomText[7];
+
+//params screen
+	char paramiterValueLabel[6][11];
+
+	char * const paramiterValueLabelPtr[6] =
+	{
+			&paramiterValueLabel[0][0],
+			&paramiterValueLabel[1][0],
+			&paramiterValueLabel[2][0],
+			&paramiterValueLabel[3][0],
+			&paramiterValueLabel[4][0],
+			&paramiterValueLabel[5][0],
+	};
+//*********************
 
 
-	uint8_t selectedPlace = 6;
-
-
-//----------------------------------
-// spectrum + punkty
-	uint8_t refreshSpectrum = 0;
-	uint8_t refreshPoints = 0;
-
-
-	strInstrument * editorInstrument;
-
-	strZoomParams zoom;
-	strZoomParams effectZoom;
-
-	char dataBarText[4][8];
-
-	strTrackerSpectrum spectrum;
-	strTrackerSpectrum effectSpectrum;
-	strTrackerPoints points;
+//********************SPECTRUM PROCESSING
 	strSpectrumParams spectrumParams;
-	strSpectrumParams effectSpectrumParams;
+	strZoomParams zoom;
 
-//----------------------------------
-// aktualny instrument na belce tytułowej
-	void showActualInstrument();
-	//char actualInstrName[SAMPLE_NAME_SIZE+4];
-//----------------------------------
-// lista play mode
-	strList effectList;
-	void listEffects();
-	char *effectNames[effectsCount];
+	struct strSelection
+	{
+		uint16_t startPoint = 0;
+		uint16_t endPoint = MAX_16BIT;
+	} selection;
 
-//----------------------------------
-// odtwarzanie
-	uint8_t isPlayingSample = 0;
-	int8_t playNote = 24;
-	uint8_t glidePreviewDif = 0;
+	uint8_t needRefreshSpectrum;
+	uint8_t needRefreshPlayhead; // globalnie w update
+	uint8_t needShowPlayhead; // wewnetrznie w odswiezaniu
+	uint16_t playheadValue;
+	elapsedMicros refreshPlayheadTimer;
 
-//----------------------------------
+//*********************
+//********************MULTI-SCREEN DISPLAY HANDLING
+	enScreenType screenType = mainScreen;
+	uint8_t selectedEffect = editorEffectDelay;
+	uint8_t selectedPlace[2];
 
-	char instrumentPath[PATCH_SIZE];
-	uint8_t localInstrNum;
-	effect_handle_t effectControl[effectsCount];
-	uint8_t currSelEffect;
+	struct strEffectDisplayParams
+	{
+		int iParameter[6];
+		float fParameter[6];
 
-	void frameChange(uint8_t control);
+		uint8_t paramsNumber;
+		const char * const * labelsText;
+		const char * paramsType; //'f' = float 'd' = int
 
-	void showEffectScreen(effect_handle_t *screenCfg);
-	void showPreviewSpectrum();
-	void hidePreviewSpectrum();
-	void initEffectsScreenStructs();
-	void editParamFunction(uint8_t paramNum, int16_t value);
-	void editParamFunctionSelection(int16_t value);
+		int * iUpConstrain;
+		float * fUpConstrain;
 
-	void showValueLabels(uint8_t whichBar);
-	void updateEffectValues(effect_handle_t *effect, uint8_t barNum);
-	void printNewValue(const void *data, uint8_t whichBar, const char* unit, source_datatype_t sourceType);
-	void refreshBarsValue(uint8_t whichBar, uint8_t newValue);
-	void showHorizontalBar(uint8_t progress , const char* text);
-	void hideHorizontalBar();
-	void updateEffectProcessing();
-	void makeEffect();
-	void showCurrentSpectrum(uint32_t length, int16_t *source);
-	void refreshSampleLoading();
-	void refreshSampleApplying();
-	void resetSpectrumAndPoints();
-	void onExitReload();
+		int * iDownConstrain;
+		float * fDownConstrain;
 
-	void processOrPreview(uint8_t x);
-	void undoDisplayControl(uint8_t onOff);
+		float * changeStep;
+		float * displayMult;
+		const char * const * afterValueText;
+	} effectDisplayParams[editorEffectMax] =
+	{
+			{
+				{0,50,0,0,0,0},{0.95,0,0,0,0,0}, //start values
+				2,delayParams::labelText,delayParams::paramsType,
+				delayParams::iUpConstrain,delayParams::fUpConstrain,
+				delayParams::iDownConstrain,delayParams::fDownConstrain,
+				delayParams::changeStep,delayParams::displayMult,
+				delayParams::afterValueText
+			},
 
-	void showEffectSpectrum();
-	void hideEffectsSpectrum();
+			{
+				{4,44100,0,0,0,0},{0,0,0,0,0,0}, //start values
+				2,bitcrusherParams::labelText,bitcrusherParams::paramsType,
+				bitcrusherParams::iUpConstrain,bitcrusherParams::fUpConstrain,
+				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,
+				bitcrusherParams::changeStep,bitcrusherParams::displayMult,
+				bitcrusherParams::afterValueText
+			}
+	};
 
-	//Crop or Reverse
-	uint16_t startPoint;
-	uint16_t endPoint = MAX_16BIT;
-	float startTime;
-	float endTime;
-
-	// Chorus inputs
-	uint8_t  mChorusLength;
-	uint16_t sChorusLength;
-	uint8_t  smChorusStrength;
-
-	// Delay inputs
-	float delayFeedback;
-	uint16_t delayTime;
-
-	// Flanger inputs
-	uint8_t flangerDelay;
-	uint8_t flangerDepth;
-	uint8_t flangerOffset;
-
-	//Compressor inputs
-	uint16_t smCompressorRatio;
-
-	uint16_t mCompressorThrs;
-	float	 mCompressorAttack;
-	float 	 mCompressorRelease;
-
-	uint16_t sCompressorThrs;
-	uint16_t sCompressorAttack;
-	float 	 sCompressorRelease;
-
-	//Bitcrusher Inputs
-	uint8_t  smBitcrusherBits = BITCRUSHER_BITS_MAX;
-	uint8_t	 mBitcrusherRate = 255;
-	uint16_t sBitcrusherRate = BITCRUSHER_RATE_MAX;
-
-	//Amplifier inputs
-	float amplifierAmp = AMPLIFIER_AMP_DEFAULT;
-
-	//Limiter inputs
-	uint8_t	 mLimiterThreshold;
-	float 	 mLimiterAttack;
-	float	 mLimiterRelease;
-
-	uint16_t sLimiterThreshold;
-	uint16_t sLimiterAttack;
-	float 	 sLimiterRelease;
-
-	effect_t lastPreviewEffect;
-
-	uint8_t sampleLoadedState;
-	uint8_t lastSampleLoadedState;
-
-	uint16_t moduleFlags;
-
-	uint8_t onExitFlag;
-	uint8_t exitButton;
-	uint8_t effectAppliedFlag;
-
-	uint8_t undoCropFlag;
-	uint8_t undoReverseFlag;
-
-	uint8_t sampleIsValid;
-
-	uint8_t previewButtonState = 0;
-
-	uint8_t newSpectrumFlag = 0;
-
-	//----------------------------------
-	// multisel
-	select_node1_t selectNodes[MAX_SELECT_NODES];
-
-	void addNode(editFunct1_t funct , uint8_t nodeNum);
-	void removeNode(uint8_t nodeNum);
-	selection_percentages stepThroughNodes(int16_t value);
-	void clearAllNodes();
-	void cancelMultiFrame();
-
-	// linia postepu odgrywania
-	elapsedMicros playProgresValueTim = 0;
-	elapsedMicros refreshPlayProgressValue = 0;
-	float playPitch = 1.0 ;
-	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
-	uint16_t playProgressInSpectrum = 0; // 0 - 600
-	uint8_t refreshSpectrumProgress = 0;
-
-	void refreshPlayingProgress();
-	void calcPlayProgressValue();
-
-	void stopPreview(uint8_t pad);
-	void playPreview(uint8_t pad);
-
-	void applyEffect();
-	void undoEffect();
-
-	void resetAllEffectsState();
-
-	uint8_t applyRequested;
-	uint8_t undoRequested;
-
-	//Common progress bar
-	taskQueue_t taskQueue;
-	uint8_t checkPreConditions(taskQueue_t *queue);
-	void cancelTaskQueue(taskQueue_t *queue);
-	uint8_t handleTasks(taskQueue_t *queue, uint8_t force);
-	void finishTask(taskQueue_t *queue, tasks_t task);
-	void handleQueueProgress(taskQueue_t *queue, uint8_t taskProgress, const char *text);
-	void showQueueHorizontalBar(uint8_t progress , const char* text);
-
+//*********************
+//********************CURRENT INSTRUMENT HANDLING
+	strInstrument	sampleEditInstrument;
+	strInstrument * const editorInstrument = &sampleEditInstrument;
+//*********************
+//********************EFFECT LIST HANDLING
+	uint8_t currentEffectIdx;
+	mtEffect * currentEffect = nullptr;
+	mtEffect * lastEffect = nullptr;
+//*********************
 };
 
 

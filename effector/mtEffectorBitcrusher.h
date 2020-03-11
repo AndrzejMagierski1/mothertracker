@@ -26,10 +26,10 @@ class mtBitcrusher
 	int16_t * localAddress;
 	int16_t * destAddress;
 
+	uint32_t startLength;
 
 	uint8_t requireProcessing;
-	uint8_t loadProgress;
-	uint32_t startLength;
+	uint32_t loadProgress;
 
 };
 

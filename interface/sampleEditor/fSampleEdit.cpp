@@ -1,350 +1,237 @@
-
-
 #include "sampleEditor/sampleEditor.h"
-#include "mtPadBoard.h"
-#include "mtAudioEngine.h"
-#include "core/interfacePopups.h"
-
-#include "fileManager.h"
-
 #include "core/graphicProcessing.h"
-
+#include "mtSequencer.h"
+#include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
-
-
+#include "mtAudioEngine.h"
 
 cSampleEditor sampleEditor;
-static cSampleEditor* SE = &sampleEditor;
 
-extern strMtProject mtProject;
+static cSampleEditor *SE = &sampleEditor;
 
-
-//static  uint8_t functPlayAction();
-static  uint8_t functRecAction();
-
-static  uint8_t functStepNote(uint8_t value);
-static  uint8_t functInstrument(uint8_t state);
-
-static  uint8_t functLeft();
-static  uint8_t functRight();
-static  uint8_t functUp();
-static  uint8_t functDown();
-
-static uint8_t functSelectPlace(uint8_t button, uint8_t state);
+static uint16_t mainScreenFramePlaces[4][4] =
+{
+		{(800/8)*0+1, 424, 800/8-3, 55},
+		{(800/8)*1+1, 424, 800/8-3, 55},
+		{(800/8)*2+1, 424, 800/8-3, 55},
+		{(800/8)*6+1, 31, 800/4-3, 394},
+};
 
 
-static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+static uint16_t paramsScreenFramePlaces[6][4] =
+{
+		{(800/8)*0+1, 31, 800/8-3, 394},
+		{(800/8)*1+1, 31, 800/8-3, 394},
+		{(800/8)*2+1, 31, 800/8-3, 394},
+		{(800/8)*3+1, 31, 800/8-3, 394},
+		{(800/8)*4+1, 31, 800/8-3, 394},
+		{(800/8)*5+1, 31, 800/8-3, 394},
+};
 
-//static uint8_t functShift(uint8_t value);
 
-static uint8_t functStopPatternYes();
-static uint8_t functStopPatternNo();
 
-static  uint8_t functEncoder(int16_t value);
-
+//************************************************************************** ACTION FUNCTIONS DECLARATIONS
 static  uint8_t functSwitchModule(uint8_t button);
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
-static uint8_t functPreview(uint8_t state);
-static uint8_t functApply();
-static uint8_t functUndo();
+//Main screen functions
+static  uint8_t functMainScreenLeft();
+static  uint8_t functMainScreenRight();
+static  uint8_t functMainScreenUp();
+static  uint8_t functMainScreenDown();
+static  uint8_t functMainScreenEncoder(int16_t value);
 
-static uint8_t changeEffect(uint8_t button);
-
-
-
-// ------ EDIT FUNCTIONS PROTOTYPES -----
-static uint8_t modStartPoint(int16_t value);
-static uint8_t modEndPoint(int16_t value);
-static uint8_t changeZoom(int16_t value);
-
-static uint8_t editChorusLength(int16_t value);
-static uint8_t editChorusStrength(int16_t value);
-
-static uint8_t editDelayFeedback(int16_t value);
-static uint8_t editDelayTime(int16_t value);
-
-static uint8_t editFlangerOffset(int16_t value);
-static uint8_t editFlangerDepth(int16_t value);
-static uint8_t editFlangerDelay(int16_t value);
-
-static uint8_t editCompressorThreshold(int16_t value);
-static uint8_t editCompressorRatio(int16_t value);
-static uint8_t editCompressorAttack(int16_t value);
-static uint8_t editCompressorRelease(int16_t value);
-
-static uint8_t editBitcrusherBits(int16_t value);
-static uint8_t editBitcrusherRate(int16_t value);
-
-static uint8_t editAmplifierAmp(int16_t value);
-
-static uint8_t editLimiterThreshold(int16_t value);
-static uint8_t editLimiterAttack(int16_t value);
-static uint8_t editLimiterRelease(int16_t value);
-
-
-
-void cSampleEditor::update()
-{
-//	if(refreshSpectrum)
-//	{
-//		refreshSpectrum = 0;
-//
-//		if(sampleIsValid)
-//		{
-//			showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
-//		}
-//		else
-//		{
-//			GP.processSpectrum(editorInstrument, &zoom, &spectrum);
-//		}
-//
-//		display.refreshControl(spectrumControl);
-//	}
-//
-//	if(refreshPoints)
-//	{
-//		refreshPoints = 0;
-//
-//		processPoints();
-//		display.refreshControl(pointsControl);
-//	}
-//
-//	handleTasks(&taskQueue, 0);
-//
-//	refreshPlayingProgress();
-//	refreshSampleLoading();
-//	refreshSampleApplying();
-//
-//	updateEffectProcessing();
-//
-//	onExitReload();
-}
-
-void cSampleEditor::onExitReload()
-{
-	if(onExitFlag == 1)
-	{
-//todo		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
-//		showHorizontalBar(progress, "Reloading Instruments");
-//
-//		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
-//		{
-//			hideHorizontalBar();
-//			onExitFlag = 2;
-//			functSwitchModule(exitButton);
-//		}
-	}
-}
-
-void cSampleEditor::resetAllEffectsState()
-{
-	for(uint8_t i = 0; i < effectsCount; i++)
-	{
-		if(effectControl[i].effectStage != eNotAffecting)
-		{
-			effectControl[i].effectStage = eRequireProcessing;
-		}
-	}
-}
-
-void cSampleEditor::refreshSampleApplying()
-{
-	save_stages_t status;
-
-	status = effector.getSaveStatus();
-
-	if(status == saving)
-	{
-		uint8_t progress = effector.saveUpdate();
-
-		if((moduleFlags & applyingActive))
-		{
-			handleQueueProgress(&taskQueue, progress, "Applying effect");
-		}
-		else if((moduleFlags & undoActive))
-		{
-			handleQueueProgress(&taskQueue, progress, "Undoing");
-		}
-	}
-	else if(status == saveDone)
-	{
-		resetAllEffectsState();
-
-		if(moduleFlags & applyingActive)
-		{
-			finishTask(&taskQueue, tApply);
-		}
-		else if(moduleFlags & undoActive)
-		{
-			finishTask(&taskQueue, tUndo);
-		}
-
-		moduleFlags &= ~(applyingActive | undoActive);
-
-		if(currSelEffect == effectCrop)
-		{
-			resetSpectrumAndPoints();
-		}
-
-		refreshSpectrum = 1;
-		effector.setSaveStatus(waitingForSaveInit);
-
-		//fileManager.setInstrumentChangeFlag(localInstrNum);
-		newFileManager.setInstrumentStructChanged(localInstrNum);
-	}
-}
-
-
-void cSampleEditor::refreshPlayingProgress()
-{
-	if(refreshSpectrumProgress)
-	{
-		display.setControlValue(progressCursor,playProgressInSpectrum);
-		display.refreshControl(progressCursor);
-		refreshSpectrumProgress = 0;
-	}
-
-	if(isPlayingSample)
-	{
-		calcPlayProgressValue();
-
-		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
-		{
-			instrumentPlayer[0].clearInterfacePlayingEndFlag();
-
-			playProgressValue=0;
-			playProgressInSpectrum = 0;
-			isPlayingSample = 0;
-			refreshSpectrumProgress = 1;
-			mtPadBoard.clearVoice(0);
-
-			if((currSelEffect != effectCrop) && (currSelEffect != effectReverse))
-			{
-				hideEffectsSpectrum();
-			}
-
-			moduleFlags &= ~previewRunning;
-		}
-	}
-}
-
-void cSampleEditor::refreshSampleLoading()
-{
-	if(moduleFlags & sampleLoadingActive)
-	{
-//todo		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
-//
-//		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
-//		{
-//			fileManager.samplesLoader.waveLoader.update();
-//
-//			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
-//			handleQueueProgress(&taskQueue, progress, "Loading sample");
-//		}
-//
-//		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
-//		{
-//			// after first load change crop and reverse stage
-//			effectControl[effectCrop].effectStage = eNotAffecting;
-//			effectControl[effectReverse].effectStage = eNotAffecting;
-//			processOrPreview(effectControl[effectReverse].effectStage);
-//
-//			moduleFlags &= ~sampleLoadingActive;
-//			sampleIsValid = 1;
-//
-//			finishTask(&taskQueue, tLoadSample);
-//		}
-//
-//		lastSampleLoadedState = sampleLoadedState;
-	}
-}
-
-void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
-{
-	spectrumParams.length = length;
-	spectrumParams.address = source;
-	GP.processSpectrum(&spectrumParams, &zoom, &spectrum);
-}
-
-uint8_t cSampleEditor::startLoadingSample()
-{
-	uint8_t status = 0;
-
-	if((mtProject.instrument[localInstrNum].isActive) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
-	{
-		sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
-		effector.loadSample(instrumentPath);
-		moduleFlags |= sampleLoadingActive;
-		status = 1;
-	}
-
-	return status;
-}
+static  uint8_t functSelectStartPoint();
+static  uint8_t functSelectEndPoint();
+static  uint8_t functSelectZoom();
+static  uint8_t functListUp();
+static 	uint8_t functListDown();
+static  uint8_t functUndo();
+static  uint8_t functApply();
+// Paramiter screen functions
+static  uint8_t functParamsScreenLeft();
+static  uint8_t functParamsScreenRight();
+static  uint8_t functParamsScreenUp();
+static  uint8_t functParamsScreenDown();
+static  uint8_t functParamsScreenEncoder(int16_t value);
+static  uint8_t functSelectParamiter(uint8_t button);
+static  uint8_t functPreview();
+static  uint8_t functPlay();
+static  uint8_t functStop();
+// Stop Pattern Funct
+static  uint8_t functStopPatternYes();
+static  uint8_t functStopPatternNo();
+// Save Sample Funct
+static  uint8_t functSaveSampleYes();
+static  uint8_t functSaveSampleNo();
+//**************************************************************************
 
 void cSampleEditor::start(uint32_t options)
 {
+	moduleRefresh = 1;
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		showSelectionStopPattern();
-		setPatternStopFunct();
+		reloadInstrumentName();
+		showPopupSeqWindow();
+		setStopSeqFunctions();
 		return;
 	}
 
-/*
-	moduleRefresh = 1;
-	sampleIsValid = 0;
+	screenType = mainScreen;
+	previewState = previewStatePreview;
+	confirmedDataIsChanged = 0;
 
-	undoCropFlag = 0;
-	undoReverseFlag = 0;
-
-	undoRequested = 0;
-	applyRequested = 0;
-
-	moduleFlags = 0;
-	cancelTaskQueue(&taskQueue);
-
-	lastPreviewEffect = (effect_t)UINT32_MAX;// this will force new calculation on effect on each entry
-
-	zoom.zoomResolution = INT32_MAX;
-
-
-	//--------------------------------------------------------------------
 	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
 	{
-		mtProject.values.lastUsedInstrument = 0;
+		editorInstrument->isActive = 0;
+		editorInstrument->sample.address = nullptr;
+		editorInstrument->sample.length = 0;
 	}
-
-
-	if((mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
+	else
 	{
-		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+		editorInstrument->isActive = mtProject.instrument[mtProject.values.lastUsedInstrument].isActive;
+		editorInstrument->sample.address = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.address;
+		editorInstrument->sample.length = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
 
-		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
+		strcpy((char *)&editorInstrument->sample.file_name, (char *)&mtProject.instrument[mtProject.values.lastUsedInstrument].sample.file_name);
 	}
 
-	localInstrNum = mtProject.values.lastUsedInstrument;
 
-	effectAppliedFlag = 0;
 
-	initEffectsScreenStructs();
+	if(editorInstrument->isActive)
+	{
+		spectrumParams.address = editorInstrument->sample.address;
+		spectrumParams.length = editorInstrument->sample.length;
+	}
+	else
+	{
+		spectrumParams.address = nullptr;
+		spectrumParams.length = 0;
+	}
 
-	//--------------------------------------------------------------------
+	setMainScreenFunctions();
+	setCommonFunctions();
 
-	//points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
-	startPoint = 0;
-	endPoint = MAX_16BIT;
 
-	// init the startTime outside other API's;
-	float temp;
-	temp = SE->editorInstrument->sample.length / 44100.0;
-	endTime = (temp * SE->endPoint) / MAX_16BIT;
+	selection.startPoint = 0;
+	selection.endPoint = MAX_16BIT;
 
-	points.endPoint = endPoint;
-	points.startPoint = startPoint;
-*/
+	prepareDisplayDataMainScreen();
+	showMainScreen();
 
-	// ustawienie funkcji
+	currentEffect->clearIsLoadedData();
+	currentEffect->clearIsProcessedData();
+
+	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
+	{
+		if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'f')
+		{
+			currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[i], i);
+		}
+		else if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'd')
+		{
+			currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[i], i);
+		}
+	}
+
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+}
+
+void cSampleEditor::update()
+{
+	if(needRefreshSpectrum)
+	{
+		needRefreshSpectrum = 0;
+		refreshSpectrum();
+	}
+	if(needRefreshPlayhead)
+	{
+		refreshPlayhead();
+	}
+
+	if(!currentEffect->getIsLoadedData() && currentEffect->getLoadState())
+	{
+		currentEffect->update();
+		if(!currentEffect->getLoadState())
+		{
+			reloadSpectrumData();
+			isLoadedData = currentEffect->getIsLoadedData();
+		}
+	}
+	else if(!currentEffect->getIsProcessedData() && currentEffect->getProcessSelectionState() )
+	{
+		currentEffect->update();
+		if(!currentEffect->getProcessSelectionState())
+		{
+			reloadSpectrumData();
+			needRefreshSpectrum = 1;
+
+			isProcessedData = currentEffect->getIsProcessedData();
+
+			applyingInProgress = 0;
+
+			if(processingInProgress)
+			{
+				processingInProgress = false;
+				processingProgress = 0;
+				showProgressProcessing();
+				setPlayFunction();
+			}
+
+			applyingProgress = 0;
+			showProgressApplying();
+
+			hideProgressPopup();
+
+			SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+			SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+
+			refreshStartPoint();
+			refreshEndPoint();
+
+			refreshUndoState();
+
+			restoreFunctions();
+		}
+	}
+
+	if(applyingInProgress)
+	{
+		refreshApplyingProgress();
+	}
+	else if(processingInProgress)
+	{
+		refreshProcessingProgress();
+	}
+
+	if(playingInProgress)
+	{
+		refreshPlayingProgress();
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+			playingInProgress = 0;
+			mtPadBoard.clearVoice(0);
+			hideProgressPopup();
+			restoreFunctions();
+			setPlayFunction();
+		}
+	}
+	else if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+	{
+		instrumentPlayer[0].clearInterfacePlayingEndFlag();
+	}
+
+}
+
+void cSampleEditor::stop()
+{
+
+}
+
+void cSampleEditor::setCommonFunctions()
+{
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
@@ -357,1810 +244,1005 @@ void cSampleEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
-	listEffects();
-
-	showDefaultScreen();
-
-	setDefaultScreenFunct();
-
-	processPoints();
-
-	activateLabelsBorder();
-
-
-}
-
-
-void cSampleEditor::initEffectsScreenStructs()
-{
-
-	//!< Crop effect
-	//
-	effectControl[effectCrop].screen = fullSpectrum;
-
-	effectControl[effectCrop].paramNum = 3;
-	effectControl[effectCrop].barNum = 0;
-
-	effectControl[effectCrop].bar[1].name = "Start";
-	effectControl[effectCrop].bar[1].editFunct = modStartPoint;
-	effectControl[effectCrop].bar[1].dataSource = &startTime;
-	effectControl[effectCrop].bar[1].dataFormat = tFLOAT,
-	effectControl[effectCrop].bar[1].dataUnit = "s";
-
-	effectControl[effectCrop].bar[2].name = "End";
-	effectControl[effectCrop].bar[2].editFunct = modEndPoint;
-	effectControl[effectCrop].bar[2].dataSource = &endTime;
-	effectControl[effectCrop].bar[2].dataFormat = tFLOAT,
-	effectControl[effectCrop].bar[2].dataUnit = "s";
-
-	effectControl[effectCrop].bar[3].name = "Zoom";
-	effectControl[effectCrop].bar[3].editFunct = changeZoom;
-	effectControl[effectCrop].bar[3].dataSource = &zoom.zoomValue;
-	effectControl[effectCrop].bar[3].dataFormat = tFLOAT,
-	effectControl[effectCrop].undoActive = 1;
-	effectControl[effectCrop].effectStage = eRequireProcessing;
-
-	//!< Reverse effect
-	//
-	effectControl[effectReverse].screen = fullSpectrum;
-
-	effectControl[effectReverse].paramNum = 3;
-	effectControl[effectReverse].barNum = 0;
-
-	effectControl[effectReverse].bar[1].name = "Start";
-	effectControl[effectReverse].bar[1].editFunct = modStartPoint;
-	effectControl[effectReverse].bar[1].dataSource = &startTime;
-	effectControl[effectReverse].bar[1].dataFormat = tFLOAT,
-	effectControl[effectReverse].bar[1].dataUnit = "s";
-
-	effectControl[effectReverse].bar[2].name = "End";
-	effectControl[effectReverse].bar[2].editFunct = modEndPoint;
-	effectControl[effectReverse].bar[2].dataSource = &endTime;
-	effectControl[effectReverse].bar[2].dataFormat = tFLOAT,
-	effectControl[effectReverse].bar[2].dataUnit = "s";
-
-	effectControl[effectReverse].bar[3].name = "Zoom";
-	effectControl[effectReverse].bar[3].editFunct = changeZoom;
-	effectControl[effectReverse].bar[3].dataSource = &zoom.zoomValue;
-	effectControl[effectReverse].bar[3].dataFormat = tFLOAT,
-	effectControl[effectReverse].undoActive = 1;
-	effectControl[effectReverse].effectStage = eRequireProcessing;
-
-	//!< Flanger effect
-	//
-	effectControl[effectFlanger].screen = noSpectrum;
-
-	effectControl[effectFlanger].paramNum = 3;
-	effectControl[effectFlanger].barNum = 3;
-
-	effectControl[effectFlanger].bar[1].name = "Offset";
-	effectControl[effectFlanger].bar[1].editFunct = editFlangerOffset;
-	effectControl[effectFlanger].bar[1].dataSource = &flangerOffset;
-	effectControl[effectFlanger].bar[1].dataFormat = tUNSIGNED8,
-
-	effectControl[effectFlanger].bar[2].name = "Depth";
-	effectControl[effectFlanger].bar[2].editFunct = editFlangerDepth;
-	effectControl[effectFlanger].bar[2].dataSource = &flangerDepth;
-	effectControl[effectFlanger].bar[2].dataFormat = tUNSIGNED8,
-
-	effectControl[effectFlanger].bar[3].name = "Delay";
-	effectControl[effectFlanger].bar[3].editFunct = editFlangerDelay;
-	effectControl[effectFlanger].bar[3].dataSource = &flangerDelay;
-	effectControl[effectFlanger].bar[3].dataFormat = tUNSIGNED8;
-	effectControl[effectFlanger].bar[3].dataUnit = "Hz";
-	effectControl[effectFlanger].undoActive = 0;
-	effectControl[effectFlanger].effectStage = eRequireProcessing;
-
-	//!< Chorus effect
-	//
-	effectControl[effectChorus].screen =  noSpectrum;
-
-	effectControl[effectChorus].paramNum = 2;
-	effectControl[effectChorus].barNum = 2;
-
-	effectControl[effectChorus].bar[2].name = "Length";
-	effectControl[effectChorus].bar[2].editFunct = editChorusLength;
-	effectControl[effectChorus].bar[2].dataSource = &mChorusLength;
-	effectControl[effectChorus].bar[2].dataFormat = tUNSIGNED16;
-
-	effectControl[effectChorus].bar[3].name = "Strength";
-	effectControl[effectChorus].bar[3].editFunct = editChorusStrength;
-	effectControl[effectChorus].bar[3].dataSource = &smChorusStrength;
-	effectControl[effectChorus].bar[3].dataFormat = tUNSIGNED8;
-	effectControl[effectChorus].undoActive = 0;
-	effectControl[effectChorus].effectStage = eRequireProcessing;
-
-
-	//!< Delay effect
-	//
-	effectControl[effectDelay].screen =  noSpectrum;
-
-	effectControl[effectDelay].paramNum = 2;
-	effectControl[effectDelay].barNum = 2;
-
-	effectControl[effectDelay].bar[2].name = "Time";
-	effectControl[effectDelay].bar[2].editFunct = editDelayTime;
-	effectControl[effectDelay].bar[2].dataSource = &delayTime;
-	effectControl[effectDelay].bar[2].dataFormat = tUNSIGNED16;
-	effectControl[effectDelay].bar[2].dataUnit = "ms";
-
-	effectControl[effectDelay].bar[3].name = "Feedback";
-	effectControl[effectDelay].bar[3].editFunct = editDelayFeedback;
-	effectControl[effectDelay].bar[3].dataSource = &delayFeedback;
-	effectControl[effectDelay].bar[3].dataFormat = tFLOAT;
-	effectControl[effectDelay].undoActive = 0;
-	effectControl[effectDelay].effectStage = eRequireProcessing;
-
-	//!< Compressor effect
-	//
-	effectControl[effectCompressor].screen =  noSpectrum;
-
-	effectControl[effectCompressor].paramNum = 4;
-	effectControl[effectCompressor].barNum = 4;
-
-	effectControl[effectCompressor].bar[0].name = "Threshold";
-	effectControl[effectCompressor].bar[0].editFunct = editCompressorThreshold;
-	effectControl[effectCompressor].bar[0].dataSource = &mCompressorThrs;
-	effectControl[effectCompressor].bar[0].dataFormat = tUNSIGNED16;
-
-	effectControl[effectCompressor].bar[1].name = "Ratio";
-	effectControl[effectCompressor].bar[1].editFunct = editCompressorRatio;
-	effectControl[effectCompressor].bar[1].dataSource = &smCompressorRatio;
-	effectControl[effectCompressor].bar[1].dataFormat = tUNSIGNED16;
-
-	effectControl[effectCompressor].bar[2].name = "Attack";
-	effectControl[effectCompressor].bar[2].editFunct = editCompressorAttack;
-	effectControl[effectCompressor].bar[2].dataSource = &mCompressorAttack;
-	effectControl[effectCompressor].bar[2].dataFormat = tFLOAT;
-	effectControl[effectCompressor].bar[2].dataUnit = "s";
-
-	effectControl[effectCompressor].bar[3].name = "Release";
-	effectControl[effectCompressor].bar[3].editFunct = editCompressorRelease;;
-	effectControl[effectCompressor].bar[3].dataSource = &mCompressorRelease;
-	effectControl[effectCompressor].bar[3].dataFormat = tFLOAT;
-	effectControl[effectCompressor].bar[3].dataUnit = "s";
-	effectControl[effectCompressor].undoActive = 0;
-	effectControl[effectCompressor].effectStage = eRequireProcessing;
-
-	//!< Bitcrusher effect
-	//
-	effectControl[effectBitcrusher].screen =  noSpectrum;
-
-	effectControl[effectBitcrusher].paramNum = 2;
-	effectControl[effectBitcrusher].barNum = 2;
-
-	effectControl[effectBitcrusher].bar[2].name = "Bits";
-	effectControl[effectBitcrusher].bar[2].editFunct = editBitcrusherBits;
-	effectControl[effectBitcrusher].bar[2].dataSource = &smBitcrusherBits;
-	effectControl[effectBitcrusher].bar[2].dataFormat = tUNSIGNED8;
-	effectControl[effectBitcrusher].bar[2].effectPercentage = ((smBitcrusherBits / BITCRUSHER_BITS_MAX) * 100);
-
-	effectControl[effectBitcrusher].bar[3].name = "Rate";
-	effectControl[effectBitcrusher].bar[3].editFunct = editBitcrusherRate;
-	effectControl[effectBitcrusher].bar[3].dataSource = &mBitcrusherRate;
-	effectControl[effectBitcrusher].bar[3].dataFormat = tUNSIGNED8;
-	effectControl[effectBitcrusher].bar[3].effectPercentage = ((mBitcrusherRate / 255) * 100);
-	effectControl[effectBitcrusher].undoActive = 0;
-	effectControl[effectBitcrusher].effectStage = eRequireProcessing;
-
-	//!< Amplifier effect
-	//
-	effectControl[effectAmplifier].screen =  noSpectrum;
-
-	effectControl[effectAmplifier].paramNum = 1;
-	effectControl[effectAmplifier].barNum = 1;
-
-	effectControl[effectAmplifier].bar[3].name = "Amp";
-	effectControl[effectAmplifier].bar[3].editFunct = editAmplifierAmp;
-	effectControl[effectAmplifier].bar[3].dataSource = &amplifierAmp;
-	effectControl[effectAmplifier].bar[3].dataFormat = tFLOAT;
-	effectControl[effectAmplifier].bar[3].effectPercentage = ((amplifierAmp / AMPLIFIER_AMP_MAX) *100);
-
-	effectControl[effectAmplifier].undoActive = 0;
-
-	effectControl[effectAmplifier].effectStage = eRequireProcessing;
-
-
-	//!< Limiter effect
-	//
-	effectControl[effectLimiter].screen = noSpectrum;
-
-	effectControl[effectLimiter].paramNum = 3;
-	effectControl[effectLimiter].barNum = 3;
-
-	effectControl[effectLimiter].bar[1].name = "Threshold";
-	effectControl[effectLimiter].bar[1].editFunct = editLimiterThreshold;
-	effectControl[effectLimiter].bar[1].dataSource = &mLimiterThreshold;
-	effectControl[effectLimiter].bar[1].dataFormat = tUNSIGNED8,
-
-	effectControl[effectLimiter].bar[2].name = "Attack";
-	effectControl[effectLimiter].bar[2].editFunct = editLimiterAttack;
-	effectControl[effectLimiter].bar[2].dataSource = &mLimiterAttack;
-	effectControl[effectLimiter].bar[2].dataFormat = tFLOAT,
-	effectControl[effectLimiter].bar[2].dataUnit = "s";
-
-	effectControl[effectLimiter].bar[3].name = "Release";
-	effectControl[effectLimiter].bar[3].editFunct = editLimiterRelease;
-	effectControl[effectLimiter].bar[3].dataSource = &mLimiterRelease;
-	effectControl[effectLimiter].bar[3].dataFormat = tFLOAT,
-	effectControl[effectLimiter].bar[3].dataUnit = "s";
-
-	effectControl[effectLimiter].undoActive = 0;
-	effectControl[effectLimiter].effectStage = eRequireProcessing;
-
-}
-
-void cSampleEditor::stop()
-{
-	moduleRefresh = 0;
-}
-
-void cSampleEditor::setDefaultScreenFunct()
-{
-
-	//funkcje
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	FM->clearAllPots();
-
-	//FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
-
-//	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
-	//FM->setButtonObj(interfaceButtonShift, functShift);
-//	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
-
-	FM->setButtonObj(interfaceButtonInstr, functInstrument);
-
-	FM->setButtonObj(interfaceButton0, functPreview);
-	FM->setButtonObj(interfaceButton1, buttonPress, functApply);
-	FM->setButtonObj(interfaceButton2, functSelectPlace);
-
-	FM->setButtonObj(interfaceButton3, functSelectPlace);
-	FM->setButtonObj(interfaceButton4, functSelectPlace);
-	FM->setButtonObj(interfaceButton5, functSelectPlace);
-	FM->setButtonObj(interfaceButton6, buttonPress, changeEffect);
-	FM->setButtonObj(interfaceButton7, buttonPress, changeEffect);
-
-	FM->setButtonObj(interfaceButtonNote, functStepNote);
-
-
-
-	FM->setPotObj(interfacePot0, functEncoder, nullptr);
-
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
+	if(!editorInstrument->isActive) return;
 	FM->setPadsGlobal(functPads);
 
+	//todo: popup instrument
+	//todo: popup note
 }
-
-void cSampleEditor::setPatternStopFunct()
+void cSampleEditor::setMainScreenFunctions()
 {
+	FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+	FM->clearButton(interfaceButtonLeft);
+	FM->clearButton(interfaceButtonRight);
+	FM->clearButton(interfaceButtonUp);
+	FM->clearButton(interfaceButtonDown);
+	FM->clearAllPots();
+
+	if(!editorInstrument->isActive) return;
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functMainScreenLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functMainScreenRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functMainScreenUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functMainScreenDown);
+
+	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStartPoint);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSelectEndPoint);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSelectZoom);
+	FM->setButtonObj(interfaceButton3, buttonPress, functUndo);
+	FM->setButtonObj(interfaceButton5, buttonPress, functApply);
+	FM->setButtonObj(interfaceButton6, buttonPress, functListUp);
+	FM->setButtonObj(interfaceButton7, buttonPress, functListDown);
+
+	FM->setPotObj(interfacePot0, functMainScreenEncoder, nullptr);
+
+}
+void cSampleEditor::setParamsScreenFunctions()
+{
+	FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+	FM->clearButton(interfaceButtonLeft);
+	FM->clearButton(interfaceButtonRight);
+	FM->clearButton(interfaceButtonUp);
+	FM->clearButton(interfaceButtonDown);
+	FM->clearAllPots();
+
+	if(!editorInstrument->isActive) return;
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functParamsScreenLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functParamsScreenRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functParamsScreenUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functParamsScreenDown);
+
+
+	for(uint8_t i = interfaceButton0 ; i <= interfaceButton5 ; i++)
+	{
+		 if(i < effectDisplayParams[currentEffectIdx].paramsNumber)
+		 {
+			 FM->setButtonObj(i, buttonPress, functSelectParamiter);
+		 }
+		 else
+		 {
+			 break;
+		 }
+	}
+	switch(previewState)
+	{
+	case previewStatePreview: 	FM->setButtonObj(interfaceButton6, buttonPress, functPreview); 	break;
+	case previewStatePlay:		FM->setButtonObj(interfaceButton6, buttonPress, functPlay); 	break;
+	case previewStateStop:		FM->setButtonObj(interfaceButton6, buttonPress, functStop); 	break;
+	}
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functApply);
+
+	FM->setPotObj(interfacePot0, functParamsScreenEncoder, nullptr);
+
+}
+void cSampleEditor::setStopSeqFunctions()
+{
+	clearAllFunctions();
 	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
 	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
 }
-
-//==============================================================================================================
-
-
-void cSampleEditor::processPoints()
+void cSampleEditor::setSaveChangesFunctions()
 {
-	points.pointsType = 0;
-
-	if(startPoint >= zoom.zoomStart && startPoint <= zoom.zoomEnd)
-	{
-		points.startPoint = ((startPoint-zoom.zoomStart) * (spectrum.width - 1)) / zoom.zoomWidth;
-	}
-	else points.startPoint = -1;
-
-	if(endPoint >= zoom.zoomStart && endPoint <= zoom.zoomEnd)
-	{
-		points.endPoint = ((endPoint-zoom.zoomStart) * (spectrum.width - 1)) / zoom.zoomWidth;
-	}
-	else points.endPoint = -1;
+	clearAllFunctions();
+	FM->setButtonObj(interfaceButton6, buttonPress, functSaveSampleNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functSaveSampleYes);
 }
-
-void cSampleEditor::listEffects()
+void cSampleEditor::switchScreen(enScreenType s)
 {
-	for(uint8_t i = 0; i < effectsCount; i++)
+	if(s == mainScreen)
 	{
-		effectNames[i] = (char*)&effectNamesLabels[i][0];
+		prepareDisplayDataMainScreen();
+		showMainScreen();
+		setMainScreenFunctions();
+	}
+	else if(s == effectParamsScreen)
+	{
+		prepareDisplayDataParamsScreen();
+		showEffectParamsScreen();
+		setParamsScreenFunctions();
 	}
 }
 
-void cSampleEditor::cancelPopups()
+
+void cSampleEditor::clearAllFunctions()
 {
-	if(mtPopups.getStepPopupState() != stepPopupNone)
+	FM->clearAll();
+	FM->setPadsGlobal(nullptr);
+	FM->clearAllPads();
+}
+void cSampleEditor::restoreFunctions()
+{
+	setCommonFunctions();
+	if(screenType == mainScreen) setMainScreenFunctions();
+	else if(screenType == effectParamsScreen) setParamsScreenFunctions();
+}
+
+
+void cSampleEditor::prepareDisplayDataMainScreen()
+{
+	reloadCurrentEffect();
+	reloadInstrumentName();
+	reloadStartPointText();
+	reloadEndPointText();
+	reloadZoomText();
+	reloadPointsData();
+	reloadFrameData(screenType);
+
+	GP.processSpectrum( &spectrumParams, &zoom, &spectrumData);
+}
+void cSampleEditor::reloadInstrumentName()
+{
+	if(!editorInstrument->isActive)
 	{
-		mtPopups.hideStepPopups();
-
-		setDefaultScreenFunct();
-
-		showDefaultScreen();
+		if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) sprintf(currentInstrumentName,"%d. MIDI Channel %d",mtProject.values.lastUsedInstrument + 3, mtProject.values.lastUsedInstrument % INSTRUMENTS_MAX );
+		else sprintf(currentInstrumentName,"%d. Empty slot",mtProject.values.lastUsedInstrument + 1);
+	}
+	else
+	{
+		sprintf(currentInstrumentName,"%d. %s",mtProject.values.lastUsedInstrument + 1, editorInstrument->sample.file_name);
 	}
 }
-
-//==============================================================================================================
-
-void cSampleEditor::showEffectSpectrum()
+void cSampleEditor::reloadStartPointText()
 {
-	if(newSpectrumFlag== 0)
-	{
-		newSpectrumFlag = 1;
-		effectSpectrumParams.length = effector.getEffectLength();
-		effectSpectrumParams.address = effector.getEffectAddress();
-		GP.processSpectrum(&effectSpectrumParams, &effectZoom, &effectSpectrum);
-	}
+	float length = editorInstrument->sample.length/44100.0;
+	float localStartPoint = (length * selection.startPoint) / MAX_16BIT;
 
-	showPreviewSpectrum();
+	sprintf(startPointText, "%.3fs", localStartPoint);
 }
-
-void cSampleEditor::hideEffectsSpectrum()
+void cSampleEditor::reloadEndPointText()
 {
-	hidePreviewSpectrum();
+	float length = editorInstrument->sample.length/44100.0;
+	float localEndPoint = (length * selection.endPoint) / MAX_16BIT;
+
+	sprintf(endPointText, "%.3fs", localEndPoint);
 }
-
-void cSampleEditor::playPreview(uint8_t pad)
+void cSampleEditor::reloadZoomText()
 {
-	if(sampleIsValid)
-	{
-		if(mtPadBoard.getEmptyVoice() < 0) return;
+	sprintf(zoomText, "%.2f", zoom.zoomValue);
+}
+void cSampleEditor::reloadPlayheadValue()
+{
+	constexpr uint16_t PLAYHEAD_REFRESH_CONSTRAIN_US = 3000;
 
-		if(mtPadBoard.getEmptyVoice() == 0)
+	if( refreshPlayheadTimer > PLAYHEAD_REFRESH_CONSTRAIN_US)
+	{
+		refreshPlayheadTimer = 0;
+
+		uint16_t playheadValue_16BIT = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((selection.endPoint - selection.startPoint) / (float)MAX_16BIT)) + selection.startPoint);
+
+		if(zoom.zoomValue == 1.0) playheadValue = (600 *  playheadValue_16BIT)/MAX_16BIT;
+		else if(zoom.zoomValue > 1.0)
 		{
-			if((currSelEffect != effectCrop) && (currSelEffect != effectReverse))
-			{
-
-				if(mtPadBoard.getEmptyVoice() == 0)
-				{
-					SE->playPitch = (float)notes[mtPadBoard.convertPadToNote(12)];
-					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
-					SE->refreshPlayProgressValue = 0;
-					SE->isPlayingSample = 1;
-
-					instrumentPlayer[0].clearInterfacePlayingEndFlag();
-				}
-
-				showEffectSpectrum();
-			}
-
-			moduleFlags |= previewRunning;
-
-			playPitch = notes[mtPadBoard.convertPadToNote(pad)];
-
-			if((currSelEffect == effectCrop) || (currSelEffect == effectReverse))
-			{
-				playProgresValueTim = ((((effector.getLength()/44100.0 ) * startPoint) / MAX_16BIT) * 1000000) / playPitch;
-			}
+			if((int32_t)playheadValue_16BIT < zoom.zoomStart || (int32_t)playheadValue_16BIT > zoom.zoomEnd) playheadValue = 0;
 			else
 			{
-				playProgresValueTim = 0;
+				playheadValue = map(playheadValue_16BIT, zoom.zoomStart, zoom.zoomEnd, 0 , 600);
 			}
-
-			refreshPlayProgressValue = 0;
-			isPlayingSample = 1;
-
-			instrumentPlayer[0].clearInterfacePlayingEndFlag();
 		}
+		needShowPlayhead = 1;
+	}
+}
 
-		if((currSelEffect == effectCrop) || (currSelEffect == effectReverse))
+void cSampleEditor::reloadCurrentEffect()
+{
+	currentEffect = sampleEditorEffect[currentEffectIdx];
+
+	if((currentEffect != lastEffect) && (lastEffect != nullptr))
+	{
+		currentEffect->switchEffect(lastEffect);
+	}
+
+	lastEffect = currentEffect;
+
+}
+
+void cSampleEditor::reloadSpectrumData()
+{
+	editorInstrument->sample.address = currentEffect->getAddresToPlay();
+	editorInstrument->sample.length = currentEffect->getLengthToPlay();
+	spectrumParams.address = editorInstrument->sample.address;
+	spectrumParams.length = editorInstrument->sample.length;
+}
+
+//popups
+void cSampleEditor::reloadApplyingProgress()
+{
+	if(applyingSteps == 1)
+	{
+		applyingProgress = currentEffect->getProcessSelectionProgress();
+		Serial.printf("ProcessingProgress: %d\n",applyingProgress);
+	}
+	else if(applyingSteps == 2)
+	{
+		if(!isLoadedData)
 		{
-			effector.play(startPoint, endPoint , pad);
+			applyingProgress = currentEffect->getLoadProgress()/2;
+			Serial.printf("LoadingProgress: %d\n",applyingProgress);
 		}
 		else
 		{
-			effector.playPrev(pad);
-		}
-
-
-		if(effectControl[currSelEffect].effectStage != eNotAffecting)
-		{
-			lastPreviewEffect = (effect_t)currSelEffect;
+			applyingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
+			Serial.printf("ProcessingProgress: %d\n",applyingProgress);
 		}
 	}
 }
 
-void cSampleEditor::stopPreview(uint8_t pad)
+void cSampleEditor::reloadProcessingProgress()
 {
-	if(isPlayingSample)
+	if(processingSteps == 1)
+	{
+		processingProgress = currentEffect->getProcessSelectionProgress();
+	}
+	else if(processingSteps == 2)
+	{
+		if(!isLoadedData)
+		{
+			processingProgress = currentEffect->getLoadProgress()/2;
+		}
+		else
+		{
+			processingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
+		}
+	}
+}
+
+void cSampleEditor::reloadPlayingProgress()
+{
+	playingProgress = (instrumentPlayer[0].getWavePosition() * 100) / MAX_16BIT;
+}
+
+void cSampleEditor::reloadFrameData(enScreenType s)
+{
+	if(s == mainScreen)
+	{
+		frameData.placesCount = 4;
+
+		for ( uint8_t i = 0; i < frameData.placesCount; i++ )
+		{
+			frameData.places[i] = &mainScreenFramePlaces[i][0];
+		}
+	}
+	else if(s == effectParamsScreen)
+	{
+		frameData.placesCount = effectDisplayParams[currentEffectIdx].paramsNumber;
+
+		for ( uint8_t i = 0; i < frameData.placesCount; i++ )
+		{
+			frameData.places[i] = &paramsScreenFramePlaces[i][0];
+		}
+	}
+}
+void cSampleEditor::reloadPointsData()
+{
+	if(selectedPlace[cSampleEditor::mainScreen] == cSampleEditor::startPointPlace)
+	{
+		spectrumPointsData.selected = 1;
+		zoom.zoomPosition = selection.startPoint;
+
+		bool isZoomActive = (zoom.zoomValue > 1) ;
+		bool isPointDisplayed = (selection.startPoint < zoom.zoomStart || selection.startPoint > zoom.zoomEnd);
+
+
+		if(isZoomActive && isPointDisplayed)
+		{
+			needRefreshSpectrum = 1;
+		}
+	}
+	else if(selectedPlace[cSampleEditor::mainScreen] == cSampleEditor::endPointPlace)
+	{
+		spectrumPointsData.selected = 8;
+		zoom.zoomPosition = selection.endPoint;
+
+
+		bool isZoomActive = (zoom.zoomValue > 1) ;
+		bool isPointDisplayed = (selection.endPoint < zoom.zoomStart || selection.endPoint > zoom.zoomEnd);
+		if(isZoomActive && isPointDisplayed)
+		{
+			needRefreshSpectrum = 1;
+		}
+	}
+	else
+	{
+		spectrumPointsData.selected = 0;
+	}
+
+	if(needRefreshSpectrum)
+	{
+		zoom.zoomStart =  zoom.zoomPosition - zoom.zoomWidth/2;
+		zoom.zoomEnd = zoom.zoomPosition + zoom.zoomWidth/2;
+		if(zoom.zoomStart < 0)
+		{
+			zoom.zoomEnd = zoom.zoomWidth;
+			zoom.zoomStart = 0;
+		}
+		else if(zoom.zoomEnd > MAX_16BIT)
+		{
+			zoom.zoomEnd = MAX_16BIT;
+			zoom.zoomStart = MAX_16BIT-zoom.zoomWidth;
+		}
+	}
+
+
+	if(selection.startPoint >= zoom.zoomStart && selection.startPoint <= zoom.zoomEnd)
+	{
+		spectrumPointsData.startPoint = ((selection.startPoint-zoom.zoomStart) * (spectrumData.width - 1)) / zoom.zoomWidth;
+	}
+	else spectrumPointsData.startPoint = -1;
+
+	if(selection.endPoint >= zoom.zoomStart && selection.endPoint <= zoom.zoomEnd)
+	{
+		spectrumPointsData.endPoint = ((selection.endPoint-zoom.zoomStart) * (spectrumData.width - 1)) / zoom.zoomWidth;
+	}
+	else spectrumPointsData.endPoint = -1;
+
+}
+
+//params screen
+
+void cSampleEditor::prepareDisplayDataParamsScreen()
+{
+	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
+	{
+		reloadParamiterValueText(i);
+		reloadParamiterBarValue(i);
+		reloadFrameData(effectParamsScreen);
+	}
+}
+void cSampleEditor::reloadParamiterValueText(uint8_t n)
+{
+	if(n >= effectDisplayParams[currentEffectIdx].paramsNumber) return;
+
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		int displayedValue = effectDisplayParams[currentEffectIdx].iParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
+		sprintf(paramiterValueLabelPtr[n], "%d", displayedValue);
+		if(effectDisplayParams[currentEffectIdx].afterValueText[n] != nullptr)
+		{
+			strcat(paramiterValueLabelPtr[n],effectDisplayParams[currentEffectIdx].afterValueText[n]);
+		}
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		float displayedValue = effectDisplayParams[currentEffectIdx].fParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
+		sprintf(paramiterValueLabelPtr[n], "%.3f", displayedValue);
+		if(effectDisplayParams[currentEffectIdx].afterValueText[n] != nullptr)
+		{
+			strcat(paramiterValueLabelPtr[n],effectDisplayParams[currentEffectIdx].afterValueText[n]);
+		}
+	}
+}
+
+void cSampleEditor::reloadParamiterBarValue(uint8_t n)
+{
+	if(n >= effectDisplayParams[currentEffectIdx].paramsNumber) return;
+
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		paramsBarValue[n] = map(effectDisplayParams[currentEffectIdx].iParameter[n],effectDisplayParams[currentEffectIdx].iDownConstrain[n],effectDisplayParams[currentEffectIdx].iUpConstrain[n], 0, 100);
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		paramsBarValue[n] = (((effectDisplayParams[currentEffectIdx].fParameter[n] - effectDisplayParams[currentEffectIdx].fDownConstrain[n]) * 100)
+		/(effectDisplayParams[currentEffectIdx].fUpConstrain[n] - effectDisplayParams[currentEffectIdx].fDownConstrain[n]) );
+	}
+}
+
+//******************* REFRESH - RELOAD + DISPLAY
+void cSampleEditor::refreshSpectrumPoints()
+{
+	if(screenType != mainScreen) return;
+	reloadPointsData();
+	showSpectrumPoints();
+}
+
+void cSampleEditor::refreshStartPoint()
+{
+	if(screenType != mainScreen) return;
+	refreshSpectrumPoints();
+
+	reloadStartPointText();
+	showStartPointText();
+}
+void cSampleEditor::refreshEndPoint()
+{
+	if(screenType != mainScreen) return;
+	refreshSpectrumPoints();
+
+	reloadEndPointText();
+	showEndPointText();
+}
+void cSampleEditor::refreshZoom()
+{
+	reloadZoomText();
+	showZoomText();
+}
+void cSampleEditor::refreshEffectList()
+{
+	display.setControlValue(effectList, currentEffectIdx);
+	showEffectList();
+}
+
+void cSampleEditor::refreshSpectrum()
+{
+	if(screenType != mainScreen) return;
+
+	GP.processSpectrum( &spectrumParams, &zoom, &spectrumData);
+	showSpectrum();
+}
+
+void cSampleEditor::refreshPlayhead()
+{
+	if(screenType != mainScreen) return;
+
+	reloadPlayheadValue();
+	if(needShowPlayhead)
+	{
+		needShowPlayhead = 0;
+		display.setControlValue(playhead, playheadValue);
+		showPlayhead();
+	}
+}
+
+void cSampleEditor::refreshUndoState()
+{
+	if((editorInstrument->isActive) && (screenType == mainScreen))
+	{
+		if(!currentEffect->undo.isEnable) display.setControlColors(label[3],interfaceGlobals.inactiveLabelsColors);
+		else display.setControlColors(label[3],interfaceGlobals.activeLabelsColors);
+
+		display.refreshControl(label[3]);
+	}
+}
+
+void cSampleEditor::refreshParamiter(uint8_t n)
+{
+	reloadParamiterBarValue(n);
+	reloadParamiterValueText(n);
+
+	showParamiterBar(n);
+	showParamiterLabel(n);
+}
+
+//popups
+void cSampleEditor::refreshApplyingProgress()
+{
+	reloadApplyingProgress();
+	showProgressApplying();
+}
+
+void cSampleEditor::refreshProcessingProgress()
+{
+	reloadProcessingProgress();
+	showProgressProcessing();
+}
+
+void cSampleEditor::refreshPlayingProgress()
+{
+	reloadPlayingProgress();
+	showProgressPlaying();
+}
+//*******************
+
+//******************* PARAMETERS MODIFICATORS
+//MainScreen
+void cSampleEditor::modStartPoint(int16_t val)
+{
+	uint16_t move_step = zoom.zoomWidth / 480;
+	val *= move_step;
+
+	if(selection.startPoint + val > MAX_16BIT) selection.startPoint = MAX_16BIT;
+	else if(selection.startPoint + val < 0) selection.startPoint = 0;
+	else selection.startPoint += val;
+
+	if(selection.startPoint > selection.endPoint)
+	{
+		selection.startPoint = selection.endPoint - 1;
+	}
+
+	bool isZoomActive = (zoom.zoomValue > 1) ;
+	bool isNewPointChanged = zoom.lastChangedPoint != 1;
+	bool isPointDisplayed = (selection.startPoint < zoom.zoomStart || selection.startPoint > zoom.zoomEnd);
+
+	if(isZoomActive && (isNewPointChanged || isPointDisplayed))
+	{
+		needRefreshSpectrum = 1;
+	}
+
+	zoom.zoomPosition = selection.startPoint;
+
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
+	refreshStartPoint();
+}
+void cSampleEditor::modEndPoint(int16_t val)
+{
+	uint16_t move_step = zoom.zoomWidth / 480;
+	val *= move_step;
+
+	if(selection.endPoint + val > MAX_16BIT) selection.endPoint = MAX_16BIT;
+	else if(selection.endPoint + val < 0) selection.endPoint = 0;
+	else selection.endPoint += val;
+
+	if(selection.startPoint > selection.endPoint)
+	{
+		selection.endPoint = selection.startPoint + 1;
+	}
+
+	bool isZoomActive = (zoom.zoomValue > 1) ;
+	bool isNewPointChanged = zoom.lastChangedPoint != 2;
+	bool isPointDisplayed = (selection.endPoint < zoom.zoomStart || selection.endPoint > zoom.zoomEnd);
+
+	if(isZoomActive && (isNewPointChanged || isPointDisplayed))
+	{
+		needRefreshSpectrum = 1;
+	}
+
+	zoom.zoomPosition = selection.endPoint;
+
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
+	refreshEndPoint();
+}
+
+void cSampleEditor::modZoom(int16_t val)
+{
+	//todo: wziac pod uwage ze nie tylko bedzie to dlugosc z sampla
+	GP.spectrumChangeZoom(val, editorInstrument->sample.length, &zoom);
+
+	refreshZoom();
+	refreshSpectrumPoints();
+	needRefreshSpectrum = 1;
+}
+
+void cSampleEditor::modSelectedEffect(int16_t val)
+{
+	uint8_t lastEffectIdx = currentEffectIdx;
+
+	if(currentEffectIdx + val > (editorEffectMax - 1 )) currentEffectIdx = editorEffectMax - 1;
+	else if(currentEffectIdx + val < 0) currentEffectIdx = 0;
+	else currentEffectIdx += val;
+
+	if(currentEffectIdx != lastEffectIdx)
+	{
+		currentEffect = sampleEditorEffect[currentEffectIdx];
+
+		for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
+		{
+			if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'f')
+			{
+				currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[i], i);
+			}
+			else if(effectDisplayParams[currentEffectIdx].paramsType[i] == 'd')
+			{
+				currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[i], i);
+			}
+		}
+		reloadCurrentEffect();
+		refreshEffectList();
+		setPreviewFunction();
+		currentEffect->clearIsProcessedData();
+	}
+}
+//*******************
+//ParamiterScreen
+void cSampleEditor::modParamiter(int16_t val, uint8_t n)
+{
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		float localParam = effectDisplayParams[currentEffectIdx].fParameter[n];
+		float localVal = (val * effectDisplayParams[currentEffectIdx].changeStep[n]);
+
+		if(localParam + localVal > effectDisplayParams[currentEffectIdx].fUpConstrain[n] )
+		{
+			effectDisplayParams[currentEffectIdx].fParameter[n] = effectDisplayParams[currentEffectIdx].fUpConstrain[n];
+		}
+		else if(localParam + localVal < effectDisplayParams[currentEffectIdx].fDownConstrain[n])
+		{
+			effectDisplayParams[currentEffectIdx].fParameter[n] = effectDisplayParams[currentEffectIdx].fDownConstrain[n];
+		}
+		else
+		{
+			effectDisplayParams[currentEffectIdx].fParameter[n] += localVal;
+		}
+		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[n], n);
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		int localParam = effectDisplayParams[currentEffectIdx].iParameter[n];
+		int localVal = (int)(val * effectDisplayParams[currentEffectIdx].changeStep[n]);
+
+		if(localParam + localVal > effectDisplayParams[currentEffectIdx].iUpConstrain[n] )
+		{
+			effectDisplayParams[currentEffectIdx].iParameter[n] = effectDisplayParams[currentEffectIdx].iUpConstrain[n];
+		}
+		else if(localParam + localVal < effectDisplayParams[currentEffectIdx].iDownConstrain[n])
+		{
+			effectDisplayParams[currentEffectIdx].iParameter[n] = effectDisplayParams[currentEffectIdx].iDownConstrain[n];
+		}
+		else
+		{
+			effectDisplayParams[currentEffectIdx].iParameter[n] += localVal;
+		}
+		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[n], n);
+	}
+
+	setPreviewFunction();
+	currentEffect->clearIsProcessedData();
+	refreshParamiter(n);
+}
+
+
+void cSampleEditor::setPreviewFunction()
+{
+	if(previewState == previewStatePreview) return;
+
+	FM->clearButton(interfaceButton6);
+	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
+
+	previewState = previewStatePreview;
+
+	showPreviewLabel();
+}
+void cSampleEditor::setPlayFunction()
+{
+	if(previewState == previewStatePlay) return;
+
+	FM->clearButton(interfaceButton6);
+	FM->setButtonObj(interfaceButton6, buttonPress, functPlay);
+
+	previewState = previewStatePlay;
+
+	showPlayLabel();
+}
+void cSampleEditor::setStopFunction()
+{
+	if(previewState == previewStateStop) return;
+
+	FM->clearButton(interfaceButton6);
+	FM->setButtonObj(interfaceButton6, buttonPress, functStop);
+
+	previewState = previewStateStop;
+
+	showStopLabel();
+}
+
+//************************************************************************** ACTION FUNCTIONS
+static uint8_t functSwitchModule(uint8_t button)
+{
+
+	if(button == interfaceButtonSampleEdit)
+	{
+		if(SE->screenType == cSampleEditor::mainScreen) SE->screenType = cSampleEditor::effectParamsScreen;
+		else if(SE->screenType == cSampleEditor::effectParamsScreen) SE->screenType = cSampleEditor::mainScreen;
+
+		SE->switchScreen(SE->screenType);
+	}
+	else
+	{
+		if(SE->confirmedDataIsChanged)
+		{
+			SE->reloadInstrumentName();
+			SE->showPopupSaveChangesWindow();
+			SE->setSaveChangesFunctions();
+			SE->moduleToChange = button;
+		}
+		else SE->eventFunct(eventSwitchModule,SE,&button,0);
+	}
+	return 1;
+}
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(state == 1)
+	{
+		if(mtPadBoard.getEmptyVoice() == 0)
+		{
+			SE->needRefreshPlayhead = 1;
+			SE->playheadValue = 0;
+		}
+
+		uint32_t length;
+		uint32_t addressShift;
+		length =(uint32_t)((uint32_t)SE->selection.endPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
+
+		addressShift = (uint32_t)( (uint32_t)SE->selection.startPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
+
+		padsBacklight.setFrontLayer(1,20, pad);
+		mtPadBoard.startInstrument(pad,SE->editorInstrument->sample.address + addressShift,length - addressShift);
+	}
+	else if(state == 0)
 	{
 		if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
 		{
-			if((currSelEffect != effectCrop) && (currSelEffect != effectReverse))
-			{
-				hideEffectsSpectrum();
-			}
-
-			moduleFlags &= ~previewRunning;
-
-			playProgressValue=0;
-			playProgressInSpectrum = 0;
-			isPlayingSample = 0;
-			refreshSpectrumProgress = 1;
-		}
-	}
-
-	effector.stop(pad);
-}
-
-static uint8_t functPreview(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	if((state == 1) && (SE->taskQueue.taskQueueActive == 0))
-	{
-		SE->previewButtonState = state;
-
-		if(!SE->handleTasks(&SE->taskQueue, 1))
-		{
-			if(SE->effectControl[SE->currSelEffect].effectStage >= eProcessed)
-			{
-				SE->playPreview(12);
-			}
-		}
-	}
-	else if(state == 0)
-	{
-		SE->previewButtonState = state;
-		SE->stopPreview(12);
-	}
-
-	return 1;
-}
-
-void cSampleEditor::applyEffect()
-{
-	applyRequested =0;
-
-	sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
-
-	if(currSelEffect == effectCrop)
-	{
-		effector.trim(startPoint, endPoint);
-		undoCropFlag = 1;
-
-	}
-	else if(currSelEffect == effectReverse)
-	{
-		effector.reverse(startPoint, endPoint);
-		refreshSpectrum = 1;
-		undoReverseFlag = 1;
-	}
-	else
-	{
-		undoReverseFlag = 0;
-		undoCropFlag = 0;
-		effector.setEffects();
-	}
-
-	effector.save(instrumentPath);
-
-	if(effectControl[currSelEffect].effectStage != eNotAffecting)
-	{
-		effectControl[currSelEffect].effectStage = eRequireProcessing;
-		processOrPreview(effectControl[currSelEffect].effectStage);
-	}
-
-
-	moduleFlags |= applyingActive;
-	effectAppliedFlag = 1;
-}
-
-static uint8_t functApply()
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	SE->applyRequested = 1;
-	SE->handleTasks(&SE->taskQueue, 1);
-
-	return 1;
-}
-
-void cSampleEditor::undoEffect()
-{
-	undoRequested = 0;
-	if(currSelEffect == effectCrop)
-	{
-		effector.undoTrim();
-	}
-	else if(currSelEffect == effectReverse)
-	{
-		effector.undoReverse();
-	}
-
-	effector.save(SE->instrumentPath);
-
-	moduleFlags |= undoActive;
-}
-
-static uint8_t functUndo()
-{
-	if(SE->undoCropFlag || SE->undoReverseFlag)
-	{
-		SE->undoCropFlag = 0;
-		SE->undoReverseFlag = 0;
-
-		SE->undoRequested = 1;
-
-		SE->handleTasks(&SE->taskQueue, 1);
-	}
-
-	return 1;
-}
-
-static uint8_t changeEffect(uint8_t button)
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	SE->clearAllNodes();
-	SE->cancelMultiFrame();
-
-	if(SE->selectedPlace == 6)
-	{
-		if(button == interfaceButton7)
-		{
-			SE->changeEffectSelection(1);
-		}
-		else if(button == interfaceButton6)
-		{
-			SE->changeEffectSelection(-1);
-		}
-	}
-
-	SE->points.selected = 0;
-	SE->refreshPoints = 1;
-
-	SE->selectedPlace = 6;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static uint8_t functSelectPlace(uint8_t button , uint8_t state)
-{
-	if(state > buttonPress) return 1;
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	uint8_t parameterFlag = 1;
-
-	if(button == interfaceButton2 && state == buttonPress)// Undo
-	{
-		if(SE->effectControl[SE->currSelEffect].undoActive)
-		{
-			parameterFlag = 0;
-			functUndo();
-		}
-	}
-
-	if(parameterFlag)
-	{
-		uint8_t minSelectedPlace = 0;
-		if(SE->effectControl[SE->currSelEffect].paramNum == 4)
-		{
-			minSelectedPlace = 2;
-		}
-		else if(SE->effectControl[SE->currSelEffect].paramNum == 3)
-		{
-			minSelectedPlace = 3;
-		}
-		else if(SE->effectControl[SE->currSelEffect].paramNum == 2)
-		{
-			minSelectedPlace = 4;
-		}
-		else if(SE->effectControl[SE->currSelEffect].paramNum == 1)
-		{
-			minSelectedPlace = 5;
+			SE->needRefreshPlayhead = 0;
+			SE->playheadValue = 0;
+			SE->hidePlayhead();
 		}
 
-		if(state == buttonPress)
-		{
-			if(button >= minSelectedPlace)
-			{
-				SE->selectedPlace = button;
-
-				SE->addNode(SE->effectControl[SE->currSelEffect].bar[button - 2].editFunct, button - 2);
-
-				SE->frameData.multisel[button].frameNum = button;
-				SE->frameData.multisel[button].isActive = 1;
-				SE->frameData.multiSelActiveNum  += 1;
-			}
-
-			if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
-			{
-				if(SE->frameData.multiSelActiveNum == 1)
-				{
-					SE->points.selected = 0;
-				}
-
-				if(button == interfaceButton3)
-				{
-					SE->points.selected |= selectStart;
-				}
-				else if(button == interfaceButton4)
-				{
-					SE->points.selected |= selectEnd;
-				}
-				else if(button == interfaceButton5)
-				{
-					SE->points.selected = 0;
-					SE->clearAllNodes();
-					SE->cancelMultiFrame();
-				}
-			}
-		}
-		else if(state == buttonRelease)
-		{
-			if(button >= minSelectedPlace)
-			{
-				if(SE->frameData.multiSelActiveNum)
-				{
-					if(SE->frameData.multisel[button].isActive)
-					{
-						SE->removeNode(button - 2);
-						SE->frameData.multiSelActiveNum  -= 1;
-
-						SE->frameData.multisel[button].isActive = 0;
-
-						if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
-						{
-							uint8_t sel = 0;
-
-							if(button == interfaceButton3)
-							{
-								sel = selectStart;
-							}
-							else if(button == interfaceButton4)
-							{
-								sel = selectEnd;
-							}
-
-							SE->points.selected &= ~sel;
-
-							if(SE->frameData.multiSelActiveNum == 0)
-							{
-								SE->points.selected = sel;
-							}
-						}
-
-						if(SE->frameData.multiSelActiveNum == 0)
-						{
-							SE->selectedPlace = button;
-						}
-					}
-				}
-			}
-		}
-
-		if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
-		{
-			SE->refreshPoints = 1;
-		}
-
-		SE->activateLabelsBorder();
-	}
-
-	return 1;
-}
-
-static  uint8_t functEncoder(int16_t value)
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	if(SE->frameData.multiSelActiveNum != 0)
-	{
-		SE->editParamFunctionSelection(value);
-	}
-	else
-	{
-		switch(SE->selectedPlace)
-		{
-		case 0: break;
-		case 1: break;
-		case 2: SE->editParamFunction(0, value);	break;
-		case 3: SE->editParamFunction(1, value);	break;
-		case 4: SE->editParamFunction(2, value);    break;
-		case 5: SE->editParamFunction(3, value);	break;
-		case 6: SE->changeEffectSelection(value);	break;
-		}
-	}
-
-	return 1;
-}
-
-void cSampleEditor::editParamFunction(uint8_t paramNum, int16_t value)
-{
-	if(effectControl[currSelEffect].bar[paramNum].editFunct != NULL)
-	{
-		effectControl[currSelEffect].bar[paramNum].effectPercentage = effectControl[currSelEffect].bar[paramNum].editFunct(value);
-
-		if(effectControl[currSelEffect].effectStage != eNotAffecting)
-		{
-			effectControl[currSelEffect].effectStage = eRequireProcessing;
-		}
-
-		updateEffectValues(&effectControl[currSelEffect], paramNum);
-		processOrPreview(effectControl[currSelEffect].effectStage);
-	}
-}
-
-void cSampleEditor::editParamFunctionSelection(int16_t value)
-{
-	selection_percentages temp;
-
-	temp = stepThroughNodes(value);
-
-	for(uint8_t i = 0; i < MAX_DATA_BARS; i++)
-	{
-		if(temp.mask & (1 << i))
-		{
-			effectControl[currSelEffect].bar[i].effectPercentage = temp.percentages[i];
-
-			if(effectControl[currSelEffect].effectStage != eNotAffecting)
-			{
-				effectControl[currSelEffect].effectStage = eRequireProcessing;
-			}
-
-			updateEffectValues(&effectControl[currSelEffect], i);
-			processOrPreview(effectControl[currSelEffect].effectStage);
-		}
-	}
-}
-
-static  uint8_t functLeft()
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-	if(SE->frameData.multiSelActiveNum != 0) return 1;
-
-	if(SE->selectedPlace > ((SE->frameData.placesCount - 1) - SE->effectControl[SE->currSelEffect].paramNum))
-	{
-		SE->selectedPlace--;
-	}
-
-	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
-	{
-		if(SE->selectedPlace == 3)
-		{
-			SE->points.selected = selectStart;
-		}
-		else if(SE->selectedPlace == 4)
-		{
-			SE->points.selected = selectEnd;
-		}
-		else
-		{
-			SE->points.selected = 0;
-		}
-
-		SE->refreshPoints = 1;
-	}
-
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functRight()
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-	if(SE->frameData.multiSelActiveNum != 0) return 1;
-
-	if(SE->selectedPlace < (SE->frameData.placesCount-1)) SE->selectedPlace++;
-
-	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
-	{
-		if(SE->selectedPlace == 3)
-		{
-			SE->points.selected = selectStart;
-		}
-		else if(SE->selectedPlace == 4)
-		{
-			SE->points.selected = selectEnd;
-		}
-		else
-		{
-			SE->points.selected = 0;
-		}
-
-		SE->refreshPoints = 1;
-	}
-
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functUp()
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	if(SE->frameData.multiSelActiveNum != 0)
-	{
-		SE->editParamFunctionSelection(1);
-	}
-	else
-	{
-		switch(SE->selectedPlace)
-		{
-		case 0: break;
-		case 1: break;
-		case 2: SE->editParamFunction(0, 1);	break;
-		case 3: SE->editParamFunction(1, 1);	break;
-		case 4: SE->editParamFunction(2, 1);    break;
-		case 5: SE->editParamFunction(3, 1);	break;
-		case 6: SE->changeEffectSelection(-1);	break;
-		}
-	}
-
-	return 1;
-}
-
-static  uint8_t functDown()
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	if(SE->frameData.multiSelActiveNum != 0)
-	{
-		SE->editParamFunctionSelection(-1);
-	}
-	else
-	{
-		switch(SE->selectedPlace)
-		{
-		case 0: break;
-		case 1: break;
-		case 2: SE->editParamFunction(0, -1);	break;
-		case 3: SE->editParamFunction(1, -1);	break;
-		case 4: SE->editParamFunction(2, -1);    break;
-		case 5: SE->editParamFunction(3, -1);	break;
-		case 6: SE->changeEffectSelection(1);	break;
-		}
-	}
-
-	return 1;
-}
-
-/*static  uint8_t functPlayAction()
-{
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
-	{
-		sequencer.play();
-	}
-	else
-	{
-		sequencer.stop();
-	}
-
-	return 1;
-}*/
-
-static  uint8_t functRecAction()
-{
-
-
-	return 1;
-}
-
-static uint8_t functSwitchModule(uint8_t button)
-{
-	if(SE->onExitFlag == 1) return 1;
-
-	if(!(SE->moduleFlags & onExitReloadActive) && !(SE->moduleFlags & applyingActive) && !(SE->moduleFlags & undoActive))
-	{
-		SE->cancelTaskQueue(&SE->taskQueue);
-		if(SE->onExitFlag == 0)
-		{
-			if(SE->effectAppliedFlag)
-			{
-//todo				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
-//				{
-//					SE->exitButton = button;
-//					SE->moduleFlags |= onExitReloadActive;
-//					SE->onExitFlag = 1;
-//
-//					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
-//				}
-			}
-			else
-			{
-				SE->onExitFlag = 2; // allows to exit immediately
-			}
-		}
-	}
-
-	if(SE->onExitFlag == 2)
-	{
-		SE->effectAppliedFlag = 0;
-		SE->moduleFlags &= ~onExitReloadActive;
-		SE->onExitFlag = 0;
-		SE->eventFunct(eventSwitchModule,SE,&button,0);
-	}
-
-	return 1;
-}
-
-//======================================================================================================================
-void cSampleEditor::changeEffectSelection(int16_t value)
-{
-	if(currSelEffect + value < 0) currSelEffect = 0;
-	else if(currSelEffect + value > effectsCount - 1) currSelEffect = effectsCount-1;
-	else currSelEffect += value;
-
-	refreshPoints = 1;
-
-	display.setControlValue(effectListControl, currSelEffect);
-	display.refreshControl(effectListControl);
-
-	showEffectScreen(&effectControl[currSelEffect]);
-}
-
-/*static uint8_t functShift(uint8_t value)
-{
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		sequencer.stop();
-	}
-
-	if(value == 1)
-	{
-		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
-		sequencer.stop();
-
-		SE->isPlayingSample = 1;
-		if(SE->editorInstrument->glide > 0)
-		{
-			switch(	SE->glidePreviewDif)
-			{
-				case 0: SE->playNote = 24;	break;
-				case 1: SE->playNote = (SE->playNote == 24)? 25 : 24; 	break;
-				case 2: SE->playNote = (SE->playNote == 24)? 36 : 24; 	break;
-				case 3: SE->playNote = (SE->playNote == 24)? 47 : 24; 	break;
-			}
-		}
-
-		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SE->playNote, -1);
-	}
-	else if(value == 0)
-	{
-		if(SE->isPlayingSample) instrumentPlayer[0].noteOff();
-		SE->isPlayingSample = 0;
-	}
-
-	return 1;
-}*/
-
-
-static  uint8_t functInstrument(uint8_t state)
-{
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	if(state == buttonRelease)
-	{
-		SE->cancelPopups();
-
-		if(SE->localInstrNum != mtProject.values.lastUsedInstrument)
-		{
-			SE->localInstrNum = mtProject.values.lastUsedInstrument;
-			SE->start(0);
-		}
-	}
-	else if(state == buttonPress)
-	{
-		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
-		//SE->lightUpPadBoard();
-	}
-
-	return 1;
-}
-
-static uint8_t functStepNote(uint8_t value)
-{
-	if(!(SE->taskQueue.taskQueueActive)) return 1;
-
-	if(value == buttonRelease)
-	{
-		SE->cancelPopups();
-
-	}
-	else if(value == buttonPress)
-	{
-		mtPopups.showStepPopup(stepPopupNote, -1);
-
-		//SE->lightUpPadBoard();
-	}
-
-	return 1;
-}
-
-static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
-{
-	if(state > 1) return 1;
-	if(SE->taskQueue.taskQueueActive) return 1;
-
-	if(state == 1)
-	{
-		if(SE->effectControl[SE->currSelEffect].effectStage >= eProcessed)
-		{
-			padsBacklight.setFrontLayer(1,20, pad);
-			SE->playPreview(pad);
-		}
-	}
-	else if(state == 0)
-	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		SE->stopPreview(pad);
+		mtPadBoard.stopInstrument(pad);
+	}
+	return 1;
+}
+
+static  uint8_t functMainScreenLeft()
+{
+	if(SE->selectedPlace[cSampleEditor::mainScreen] > 0) SE->selectedPlace[cSampleEditor::mainScreen]--;
+
+	SE->refreshSpectrumPoints();
+
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functMainScreenRight()
+{
+	if(SE->selectedPlace[cSampleEditor::mainScreen] < (SE->frameData.placesCount - 1 )) SE->selectedPlace[cSampleEditor::mainScreen]++;
+
+	SE->refreshSpectrumPoints();
+
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functMainScreenUp()
+{
+	switch(SE->selectedPlace[cSampleEditor::mainScreen])
+	{
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(1);			break;
+		case cSampleEditor::endPointPlace : 	SE->modEndPoint(1);				break;
+		case cSampleEditor::zoomPlace : 		SE->modZoom(1);					break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(-1);   	break;
+		default: break;
+	}
+	return 1;
+}
+static  uint8_t functMainScreenDown()
+{
+	switch(SE->selectedPlace[cSampleEditor::mainScreen])
+	{
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(-1);			break;
+		case cSampleEditor::endPointPlace : 	SE->modEndPoint(-1);			break;
+		case cSampleEditor::zoomPlace : 		SE->modZoom(-1);				break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(1); 		break;
+		default: break;
+	}
+	return 1;
+}
+static  uint8_t functMainScreenEncoder(int16_t value)
+{
+	switch(SE->selectedPlace[cSampleEditor::mainScreen])
+	{
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(value);		break;
+		case cSampleEditor::endPointPlace : 	SE->modEndPoint(value);			break;
+		case cSampleEditor::zoomPlace : 		SE->modZoom(value);				break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(value);   break;
+		default: break;
 	}
 
 	return 1;
 }
 
-static uint8_t functStopPatternYes()
+static  uint8_t functSelectStartPoint()
+{
+	SE->selectedPlace[cSampleEditor::mainScreen] = cSampleEditor::startPointPlace;
+
+	SE->refreshSpectrumPoints();
+
+	SE->showFrame();
+
+	return 1;
+}
+static  uint8_t functSelectEndPoint()
+{
+	SE->selectedPlace[cSampleEditor::mainScreen] = cSampleEditor::endPointPlace;
+
+	SE->refreshSpectrumPoints();
+
+	SE->showSpectrumPoints();
+
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functSelectZoom()
+{
+	SE->selectedPlace[cSampleEditor::mainScreen] = cSampleEditor::zoomPlace;
+
+	SE->refreshSpectrumPoints();
+
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functListUp()
+{
+	if(SE->selectedPlace[cSampleEditor::mainScreen] != cSampleEditor::effectPlaces)
+	{
+		SE->selectedPlace[cSampleEditor::mainScreen] = cSampleEditor::effectPlaces;
+
+		SE->refreshSpectrumPoints();
+
+		SE->showFrame();
+	}
+	else
+	{
+		SE->modSelectedEffect(-1);
+	}
+
+	return 1;
+}
+static 	uint8_t functListDown()
+{
+	if(SE->selectedPlace[cSampleEditor::mainScreen] != cSampleEditor::effectPlaces)
+	{
+		SE->selectedPlace[cSampleEditor::mainScreen] = cSampleEditor::effectPlaces;
+
+		SE->refreshSpectrumPoints();
+
+		SE->showFrame();
+	}
+	else
+	{
+		SE->modSelectedEffect(1);
+	}
+
+	return 1;
+}
+static  uint8_t functUndo()
+{
+	SE->currentEffect->startUndo();
+	SE->refreshUndoState();
+
+	SE->reloadSpectrumData();
+
+	SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+	SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+
+	SE->refreshStartPoint();
+	SE->refreshEndPoint();
+	SE->needRefreshSpectrum = 1;
+	return 1;
+}
+static  uint8_t functApply()
+{
+
+	SE->applyingSteps = 0;
+	SE->confirmedDataIsChanged = 1;
+
+	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
+	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
+
+	if(!SE->isLoadedData) SE->applyingSteps++;
+	if(!SE->isProcessedData) SE->applyingSteps++;
+
+	if(SE->applyingSteps)
+	{
+		SE->showPopupApplying();
+		SE->applyingInProgress = 1;
+		SE->applyingProgress = 0;
+		SE->showProgressApplying();
+		SE->clearAllFunctions();
+	}
+
+	SE->applyingProgress = 0;
+	SE->currentEffect->startApply();
+
+	if(!SE->applyingSteps)
+	{
+		SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+		SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+		SE->reloadSpectrumData();
+		SE->refreshStartPoint();
+		SE->refreshEndPoint();
+		SE->needRefreshSpectrum = 1;
+	}
+
+	SE->setPreviewFunction();
+	SE->currentEffect->clearIsProcessedData();
+	SE->refreshUndoState();
+	return 1;
+}
+// Paramiter screen functions
+static  uint8_t functParamsScreenLeft()
+{
+	if(SE->selectedPlace[cSampleEditor::effectParamsScreen] > 0) SE->selectedPlace[cSampleEditor::effectParamsScreen]--;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functParamsScreenRight()
+{
+	if(SE->selectedPlace[cSampleEditor::effectParamsScreen] < (SE->frameData.placesCount - 1 )) SE->selectedPlace[cSampleEditor::effectParamsScreen]++;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functParamsScreenUp()
+{
+	SE->modParamiter(1, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+static  uint8_t functParamsScreenDown()
+{
+	SE->modParamiter(-1, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+static  uint8_t functParamsScreenEncoder(int16_t value)
+{
+	SE->modParamiter(value, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+static  uint8_t functSelectParamiter(uint8_t button)
+{
+	SE->selectedPlace[cSampleEditor::effectParamsScreen] = button;
+	SE->showFrame();
+	return 1;
+}
+static  uint8_t functPreview()
+{
+	SE->processingSteps = 1;
+
+	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
+	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
+
+	if(!SE->isLoadedData) SE->processingSteps++;
+
+	if(SE->processingSteps)
+	{
+		SE->showPopupProcessing();
+		SE->processingInProgress = 1;
+		SE->clearAllFunctions();
+	}
+
+	SE->processingProgress = 0;
+	SE->showProgressProcessing();
+	SE->currentEffect->startProcessingSelection();
+
+	return 1;
+}
+
+static  uint8_t functPlay()
+{
+	mtPadBoard.cutAllInstrument();
+	mtPadBoard.startInstrument(12, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview());
+	SE->playingInProgress = 1;
+	SE->playingProgress = 0;
+	SE->showPopupPlaying();
+
+	SE->clearAllFunctions();
+	SE->setStopFunction();
+	return 1;
+}
+static  uint8_t functStop()
+{
+	mtPadBoard.stopInstrument(12);
+	SE->playingInProgress = 0;
+	SE->hideProgressPopup();
+
+	SE->restoreFunctions();
+	SE->setPlayFunction();
+	return 1;
+}
+// Stop Pattern Funct
+static  uint8_t functStopPatternYes()
 {
 	sequencer.stop();
 	SE->start(0);
 	return 1;
 }
-static uint8_t functStopPatternNo()
+static  uint8_t functStopPatternNo()
 {
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
 }
-
-
-void cSampleEditor::updateEffectValues(effect_handle_t *effect, uint8_t barNum)
+// Save Sample Funct
+static  uint8_t functSaveSampleYes()
 {
-	printNewValue(effect->bar[barNum].dataSource, barNum, effect->bar[barNum].dataUnit, effect->bar[barNum].dataFormat);
-	showValueLabels(barNum);
-
-	refreshBarsValue(barNum,effect->bar[barNum].effectPercentage);
+	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	return 1;
 }
-
-void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, const char* unit, source_datatype_t sourceType)
+static  uint8_t functSaveSampleNo()
 {
-	char format[6] ="%d";
-
-	if(data != NULL)
-	{
-		switch(sourceType)
-		{
-		case tUNSIGNED8:
-			sprintf(&dataBarText[whichBar][0], format, *((uint8_t*)data));
-			break;
-		case tUNSIGNED16:
-			sprintf(&dataBarText[whichBar][0], format, *((uint16_t*)data));
-			break;
-		case tUNSIGNED32:
-			sprintf(&dataBarText[whichBar][0], format, *((uint32_t*)data));
-			break;
-		case tSIGNED8:
-			sprintf(&dataBarText[whichBar][0], format, *((int8_t*)data));
-			break;
-		case tSIGNED16:
-			sprintf(&dataBarText[whichBar][0], format, *((int16_t*)data));
-			break;
-		case tSIGNED32:
-			sprintf(&dataBarText[whichBar][0], format, *((int32_t*)data));
-			break;
-		case tFLOAT:
-			strncpy(format,"%.2f", 6);
-			sprintf(&dataBarText[whichBar][0], format, *((float_t*)data));
-			break;
-		}
-
-		if(*unit != '\0')
-		{
-			strcat(&dataBarText[whichBar][0],unit);
-		}
-	}
-	else
-	{
-		memset(&dataBarText[whichBar][0],0,6);
-	}
+	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	return 1;
 }
-
-void cSampleEditor::resetSpectrumAndPoints()
-{
-	startPoint = 0;
-	endPoint = MAX_16BIT;
-	points.endPoint = endPoint;
-	points.startPoint = startPoint;
-
-	GP.spectrumResetZoom(startPoint, effector.getLength()/2 ,&zoom);
-
-	updateEffectValues(&effectControl[currSelEffect], 1);
-	updateEffectValues(&effectControl[currSelEffect], 2);
-	updateEffectValues(&effectControl[currSelEffect], 3);
-
-	refreshSpectrum = 1;
-	refreshPoints = 1;
-}
-
-void cSampleEditor::makeEffect()
-{
-	if(moduleFlags != 0) return;
-	if(effectControl[currSelEffect].effectStage == eProcessed) return;
-
-
-	if(effectControl[currSelEffect].effectStage != eNotAffecting)// if last used effect is not affecting buffer we dont change it's state
-	{
-		if(lastPreviewEffect < effectsCount)
-		{
-			effectControl[lastPreviewEffect].effectStage = eRequireProcessing; // last effect is no longer valid
-		}
-	}
-
-	uint8_t processingActivated = 0;
-
-	if(effectControl[currSelEffect].effectStage == eRequireProcessing)
-	{
-		switch((effect_t)currSelEffect)
-		{
-		case effectCrop:
-			break;
-		case effectReverse:
-			break;
-		case effectFlanger:
-			processingActivated = effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, flangerOffset, flangerDepth, flangerDelay);
-			break;
-		case effectChorus:
-			processingActivated = effectorChorus.makeChorus(sChorusLength, smChorusStrength);
-			break;
-		case effectDelay:
-			processingActivated = effectorDelay.makeDelay(delayFeedback, delayTime);
-			break;
-		case effectCompressor:
-			processingActivated = effectorCompressor.makeCompressor(sCompressorThrs, smCompressorRatio,sCompressorAttack, sCompressorRelease);
-			break;
-		case effectBitcrusher:
-			processingActivated = effectorBitcrusher.makeBitcrusher(smBitcrusherBits, sBitcrusherRate);
-			break;
-		case effectAmplifier:
-			effectorAmplifier.makeAmplifier(amplifierAmp);// instant efffect, no background calculations
-			effectControl[currSelEffect].effectStage = eProcessed;
-			break;
-		case effectLimiter:
-			processingActivated = effectorLimiter.makeLimiter(sLimiterThreshold, sLimiterAttack, sLimiterRelease);
-			break;
-		default:
-			break;
-		}
-	}
-
-	if(processingActivated)
-	{
-		newSpectrumFlag = 0;
-		moduleFlags |= processingActive;
-		//SE->showProcessingBar(0);
-	}
-	else
-	{
-		newSpectrumFlag = 0;
-		processOrPreview(effectControl[currSelEffect].effectStage);
-		handleQueueProgress(&taskQueue, 100, "Processing");
-		finishTask(&taskQueue, tProcessEffect);
-	}
-}
-
-void cSampleEditor::updateEffectProcessing()
-{
-	if(moduleFlags & processingActive)
-	{
-		if(effectControl[currSelEffect].effectStage == eRequireProcessing)
-		{
-			uint8_t processingStatus = 0;
-			uint8_t progress = 0;
-
-			switch(currSelEffect)
-			{
-			case effectChorus:
-				processingStatus = effectorChorus.requireProcess();
-
-				if(processingStatus)
-				{
-					effectorChorus.process();
-					progress = effectorChorus.getProgress();
-				}
-				break;
-			case effectDelay:
-				processingStatus = effectorDelay.requireProcess();
-
-				if(processingStatus)
-				{
-					effectorDelay.process();
-					progress = effectorDelay.getProgress();
-				}
-				break;
-			case effectFlanger:
-				processingStatus = effectorFlanger.requireProcess();
-
-				if(processingStatus)
-				{
-					effectorFlanger.process();
-					progress = effectorFlanger.getProgress();
-				}
-				break;
-			case effectCompressor:
-				processingStatus = effectorCompressor.requireProcess();
-
-				if(processingStatus)
-				{
-					effectorCompressor.process();
-					progress = effectorCompressor.getProgress();
-				}
-				break;
-			case effectBitcrusher:
-				processingStatus = effectorBitcrusher.requireProcess();
-
-				if(processingStatus)
-				{
-					effectorBitcrusher.process();
-					progress = effectorBitcrusher.getProgress();
-				}
-				break;
-			case effectAmplifier:
-				break;
-			case effectLimiter:
-				processingStatus = effectorLimiter.requireProcess();
-
-				if(processingStatus)
-				{
-					effectorLimiter.process();
-					progress = effectorLimiter.getProgress();
-				}
-				break;
-			default:
-				break;
-			}
-
-			if(processingStatus)
-			{
-				handleQueueProgress(&taskQueue, progress,"Processing effect");
-			}
-			else
-			{
-				moduleFlags &= ~processingActive;
-				effectControl[currSelEffect].effectStage = eProcessed;
-
-				processOrPreview(effectControl[currSelEffect].effectStage);
-
-				finishTask(&taskQueue, tProcessEffect);
-			}
-		}
-	}
-}
-
-
-
-/*/////////// MultiSelect Functions ////////////////*/
-void cSampleEditor::addNode(editFunct1_t funct , uint8_t nodeNum)
-{
-	if(selectNodes[nodeNum].isActive == 0)
-	{
-		selectNodes[nodeNum].isActive = 1;
-		selectNodes[nodeNum].editFunct = funct;
-	}
-}
-
-void cSampleEditor::removeNode(uint8_t nodeNum)
-{
-	selectNodes[nodeNum].isActive = 0;
-	selectNodes[nodeNum].editFunct = NULL;
-}
-
-selection_percentages cSampleEditor::stepThroughNodes(int16_t value)
-{
-	selection_percentages temp;
-
-	memset(&temp,0,sizeof(temp));
-
-
-	//kolejnosc wykonywania funkcji w loop pointach ma znaczenie
-	//
-	if(value < 0)
-	{
-		for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
-		{
-			if(selectNodes[node].isActive)
-			{
-				if(selectNodes[node].editFunct != NULL)
-				{
-					temp.mask |= (1 << node);
-					temp.percentages[node] = selectNodes[node].editFunct(value);
-				}
-			}
-		}
-	}
-	else if(value > 0)
-	{
-		for(uint8_t node = MAX_SELECT_NODES; node > 0; node--)
-		{
-			if(selectNodes[node-1].isActive)
-			{
-				if(selectNodes[node-1].editFunct != NULL)
-				{
-					temp.mask |= (1 << (node-1));
-					temp.percentages[node-1] = selectNodes[node-1].editFunct(value);
-				}
-			}
-		}
-	}
-
-	return temp;
-}
-
-void cSampleEditor::clearAllNodes()
-{
-	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
-	{
-		selectNodes[node].isActive = 0;
-		selectNodes[node].editFunct = NULL;
-	}
-}
-
-void cSampleEditor::cancelMultiFrame()
-{
-	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
-	{
-		frameData.multisel[i].isActive = 0;
-	}
-
-	frameData.multiSelActiveNum = 0;
-}
-///////////////////////////////////////////////////////////////////////////
-
-void cSampleEditor::calcPlayProgressValue()
-{
-	if(refreshPlayProgressValue > PLAY_REFRESH_US)
-	{
-		refreshPlayProgressValue = 0;
-
-		strZoomParams localZoom;
-
-		uint16_t tempEndPoint;
-		uint16_t tempStartPoint;
-
-		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
-		{
-			localZoom = zoom;
-			tempEndPoint = endPoint;
-			tempStartPoint = startPoint;
-		}
-		else
-		{
-			localZoom = effectZoom;
-			tempEndPoint = MAX_16BIT;
-			tempStartPoint = 0;
-		}
-
-		playProgressValue = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((tempEndPoint - tempStartPoint) / (float)MAX_16BIT)) + tempStartPoint);
-
-		if(localZoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
-		else if(localZoom.zoomValue > 1.0)
-		{
-			if((int32_t)playProgressValue < localZoom.zoomStart || (int32_t)playProgressValue > localZoom.zoomEnd) playProgressInSpectrum = 0;
-			else
-			{
-				playProgressInSpectrum = map(playProgressValue, localZoom.zoomStart, localZoom.zoomEnd, 0 , 600);
-			}
-		}
-
-		refreshSpectrumProgress = 1;
-	}
-}
-
-uint8_t cSampleEditor::checkPreConditions(taskQueue_t *queue)
-{
-	queue->taskQueue = 0;
-	queue->tasksInQueue = 0;
-
-	if(!sampleIsValid)
-	{
-		queue->taskQueue |= tLoadSample;
-		queue->tasksInQueue++;
-	}
-
-	if(effectControl[currSelEffect].effectStage == eRequireProcessing)
-	{
-		if(currSelEffect > 1)// wszystkie oprocz crop i reverse kolejkuja processing
-		{
-			queue->taskQueue |= tProcessEffect;
-			queue->tasksInQueue++;
-		}
-	}
-
-	if(applyRequested)
-	{
-		queue->taskQueue |= tApply;
-		queue->tasksInQueue++;
-	}
-
-	if(undoRequested)
-	{
-		queue->taskQueue |= tUndo;
-		queue->tasksInQueue++;
-	}
-
-	return queue->tasksInQueue;
-}
-
-void cSampleEditor::cancelTaskQueue(taskQueue_t *queue)
-{
-	memset(queue, 0, sizeof(taskQueue_t));
-}
-
-uint8_t cSampleEditor::handleTasks(taskQueue_t *queue, uint8_t force)
-{
-	if((queue->taskQueueActive == 0) && force)
-	{
-		cancelTaskQueue(queue);
-		checkPreConditions(queue);
-
-		if(queue->tasksInQueue)
-		{
-			queue->taskQueueActive = 1;
-		}
-
-		queue->taskQueueNextFlag = 1;
-	}
-
-	if((queue->taskQueueActive == 1) && (queue->taskQueueNextFlag == 1))
-	{
-		queue->taskQueueNextFlag = 0;
-		queue->currentTask++;
-
-		if(queue->taskQueue & tLoadSample)
-		{
-			if(!startLoadingSample())
-			{
-				cancelTaskQueue(queue);
-			}
-		}
-		else if(queue->taskQueue & tProcessEffect)
-		{
-			makeEffect();
-		}
-		else if(queue->taskQueue & tApply)
-		{
-			applyEffect();
-		}
-		else if(queue->taskQueue & tUndo)
-		{
-			undoEffect();
-		}
-	}
-
-	return queue->taskQueueActive;
-}
-
-void cSampleEditor::finishTask(taskQueue_t *queue, tasks_t task)
-{
-	queue->taskQueue &= ~task;
-
-	if(queue->taskQueue)
-	{
-		queue->taskQueueNextFlag = 1;
-	}
-	else
-	{
-		hideHorizontalBar();
-		cancelTaskQueue(queue);
-
-		if(previewButtonState)
-		{
-			playPreview(12);
-		}
-	}
-}
-
-void cSampleEditor::handleQueueProgress(taskQueue_t *queue, uint8_t taskProgress, const char *text)
-{
-	uint8_t progressBase = (queue->currentTask - 1) * ( 100 / queue->tasksInQueue);
-	uint8_t tempProgress = progressBase + (taskProgress / queue->tasksInQueue);
-
-	queue->taskQueueProgress += (tempProgress - queue->taskQueueProgress);
-
-	showQueueHorizontalBar(queue->taskQueueProgress, text);
-}
-
-//------------------- EDIT FUNCTIONS --------------------
-//
-//
-static uint8_t changeZoom(int16_t value)
-{
-	if(SE->sampleIsValid)
-	{
-		GP.spectrumChangeZoom(value, effector.getLength()/2, &SE->zoom);
-	}
-	else
-	{
-		GP.spectrumChangeZoom(value, SE->editorInstrument->sample.length, &SE->zoom);
-	}
-
-	SE->refreshSpectrum = 1;
-	SE->refreshPoints = 1;
-
-	return 0;
-}
-
-static uint8_t modStartPoint(int16_t value)
-{
-	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = SE->zoom.zoomWidth / 480;
-	value = value * move_step;
-
-	if(SE->startPoint + value < SAMPLE_POINT_POS_MIN) SE->startPoint  = 0;
-	else if(SE->startPoint + value > SAMPLE_POINT_POS_MAX ) SE->startPoint  = SAMPLE_POINT_POS_MAX;
-	else SE->startPoint += value;
-
-	if(SE->startPoint >= SE->endPoint)
-	{
-		SE->startPoint = SE->endPoint - 2;
-	}
-
-	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(SE->zoom.zoomValue > 1 && (SE->zoom.lastChangedPoint != 1
-			|| (SE->startPoint < SE->zoom.zoomStart || SE->startPoint > SE->zoom.zoomEnd)))
-	{
-		SE->refreshSpectrum = 1;
-	}
-
-	SE->zoom.lastChangedPoint = 1;
-	SE->refreshPoints = 1;
-
-	float temp;
-	temp = SE->editorInstrument->sample.length / 44100.0;
-	SE->startTime = (temp * SE->startPoint) / MAX_16BIT;
-
-	return 0;
-}
-
-static uint8_t modEndPoint(int16_t value)
-{
-	uint16_t move_step = SE->zoom.zoomWidth / 480;
-	value = value * move_step;
-
-	if(SE->endPoint + value < SAMPLE_POINT_POS_MIN) SE->endPoint  = 0;
-	else if(SE->endPoint + value > SAMPLE_POINT_POS_MAX ) SE->endPoint  = SAMPLE_POINT_POS_MAX;
-	else SE->endPoint += value;
-
-	if(SE->endPoint <= SE->startPoint)
-	{
-		SE->endPoint = SE->startPoint + 2;
-	}
-
-	if(SE->zoom.zoomValue > 1 && (SE->zoom.lastChangedPoint != 2
-			|| (SE->endPoint < SE-> zoom.zoomStart || SE->endPoint > SE->zoom.zoomEnd)))
-	{
-		SE->refreshSpectrum = 1;
-	}
-
-	SE->zoom.lastChangedPoint = 2;
-	SE->refreshPoints = 1;
-
-	float temp;
-	temp = SE->editorInstrument->sample.length / 44100.0;
-	SE->endTime = (temp * SE->endPoint) / MAX_16BIT;
-
-	return 0;
-}
-
-static uint8_t editChorusLength(int16_t value)
-{
-	if(SE->mChorusLength + value < 0) SE->mChorusLength = 0;
-	else if(SE->mChorusLength + value > 32) SE->mChorusLength = 32;
-	else SE->mChorusLength += value;
-
-	SE->sChorusLength = SE->mChorusLength * AUDIO_BLOCK_SAMPLES;
-
-	return ((SE->mChorusLength * 100)/(32));
-}
-
-static uint8_t editChorusStrength(int16_t value)
-{
-	if(SE->smChorusStrength + value < 0) SE->smChorusStrength = 0;
-	else if(SE->smChorusStrength + value > CHORUS_STRENGTH_MAX) SE->smChorusStrength = CHORUS_STRENGTH_MAX;
-	else SE->smChorusStrength += value;
-
-	return ((SE->smChorusStrength * 100)/CHORUS_STRENGTH_MAX );
-}
-
-static uint8_t editDelayFeedback(int16_t value)
-{
-	float delayStep = DELAY_FEEDBACK_STEP;
-
-	if(SE->delayFeedback + (value * delayStep) < 0) SE->delayFeedback = 0;
-	else if(SE->delayFeedback + (value * delayStep) > DELAY_FEEDBACK_MAX) SE->delayFeedback = DELAY_FEEDBACK_MAX;
-	else SE->delayFeedback += (value * delayStep);
-
-	return (SE->delayFeedback * 100)/DELAY_FEEDBACK_MAX;
-}
-
-static uint8_t editDelayTime(int16_t value)
-{
-	uint8_t timeStep_ms = DELAY_TIME_STEP;
-
-	if(SE->delayTime + (value * timeStep_ms) < 0) SE->delayTime = 0;
-	else if(SE->delayTime + (value * timeStep_ms) > DELAY_TIME_MAX) SE->delayTime = DELAY_TIME_MAX;
-	else SE->delayTime += (value * timeStep_ms);
-
-	return (SE->delayTime * 100)/DELAY_TIME_MAX;
-}
-
-static uint8_t editFlangerOffset(int16_t value)
-{
-	if(SE->flangerOffset + value < 0) SE->flangerOffset = 0;
-	else if(SE->flangerOffset + value  > FLANGER_OFFSET_MAX) SE->flangerOffset = FLANGER_OFFSET_MAX;
-	else SE->flangerOffset += value;
-
-
-	return ((SE->flangerOffset * 100)/(FLANGER_OFFSET_MAX));
-}
-
-static uint8_t editFlangerDepth(int16_t value)
-{
-	if(SE->flangerDepth + value < 0) SE->flangerDepth = 0;
-	else if(SE->flangerDepth + value > FLANGER_DEPTH_MAX) SE->flangerDepth = FLANGER_DEPTH_MAX;
-	else SE->flangerDepth += value;
-
-
-	return ((SE->flangerDepth * 100)/FLANGER_DEPTH_MAX);
-}
-
-static uint8_t editFlangerDelay(int16_t value)
-{
-	if(SE->flangerDelay + value < 0) SE->flangerDelay = 0;
-	else if(SE->flangerDelay + value > FLANGER_DELAYRATE_MAX) SE->flangerDelay = FLANGER_DELAYRATE_MAX;
-	else SE->flangerDelay += value;
-
-
-	return ((SE->flangerDelay * 100)/FLANGER_DELAYRATE_MAX);
-}
-
-static uint8_t editCompressorThreshold(int16_t value)
-{
-	if(SE->mCompressorThrs + value < 0) SE->mCompressorThrs = 0;
-	else if(SE->mCompressorThrs + value > 255) SE->mCompressorThrs = 255;
-	else SE->mCompressorThrs += value;
-
-	float ratio = ceil(CMPSR_THRESHOLD_MAX / 255.0f);
-
-	uint32_t temp;
-
-	temp = SE->mCompressorThrs * ratio;
-	temp = constrain(temp, 0U, CMPSR_THRESHOLD_MAX);
-	SE->sCompressorThrs = temp;
-
-	return ((SE->mCompressorThrs * 100)/255);
-}
-
-static uint8_t editCompressorRatio(int16_t value)
-{
-	if(SE->smCompressorRatio + value < 0) SE->smCompressorRatio = 0;
-	else if(SE->smCompressorRatio + value > CMPSR_RATIO_MAX) SE->smCompressorRatio = CMPSR_RATIO_MAX;
-	else SE->smCompressorRatio += value;
-
-
-	return ((SE->smCompressorRatio * 100)/CMPSR_RATIO_MAX);
-}
-
-static uint8_t editCompressorAttack(int16_t value)
-{
-	float step = value * 0.01f;
-
-	if(SE->mCompressorAttack + step < 0) SE->mCompressorAttack = 0;
-	else if(SE->mCompressorAttack + step > CMPSR_ATTACK_MAX_MS) SE->mCompressorAttack = CMPSR_ATTACK_MAX_MS;
-	else SE->mCompressorAttack += step;
-
-	SE->sCompressorAttack = (SE->mCompressorAttack * 1000);
-
-	return ((SE->mCompressorAttack * 100) / CMPSR_ATTACK_MAX_MS);
-}
-
-static uint8_t editCompressorRelease(int16_t value)
-{
-	float step = value * 0.01f;
-
-	if(SE->mCompressorRelease + step < 0) SE->mCompressorRelease = 0;
-	else if(SE->mCompressorRelease + step > CMPSR_RELEASE_MAX_MS) SE->mCompressorRelease = CMPSR_RELEASE_MAX_MS;
-	else SE->mCompressorRelease += step;
-
-
-	SE->sCompressorRelease = (SE->mCompressorRelease * 1000);
-
-	return ((SE->mCompressorRelease * 100) / CMPSR_RELEASE_MAX_MS);
-}
-
-static uint8_t editBitcrusherBits(int16_t value)
-{
-	if(SE->smBitcrusherBits + value < 0) SE->smBitcrusherBits = 0;
-	else if((uint32_t)(SE->smBitcrusherBits + value) > BITCRUSHER_BITS_MAX) SE->smBitcrusherBits = BITCRUSHER_BITS_MAX;
-	else SE->smBitcrusherBits += value;
-
-
-	return ((SE->smBitcrusherBits * 100) / BITCRUSHER_BITS_MAX);
-}
-
-static uint8_t editBitcrusherRate(int16_t value)
-{
-	if(SE->mBitcrusherRate + value < 0) SE->mBitcrusherRate = 0;
-	else if(SE->mBitcrusherRate+ value > 255) SE->mBitcrusherRate = 255;
-	else SE->mBitcrusherRate += value;
-
-	float calcRatio = ceil(BITCRUSHER_RATE_MAX / 255.0f);
-
-	uint32_t temp;
-
-	temp = SE->mBitcrusherRate * calcRatio;
-	temp = constrain(temp, BITCRUSHER_RATE_MAX, BITCRUSHER_RATE_MAX);
-	SE->sBitcrusherRate = temp;
-
-	return ((SE->mBitcrusherRate * 100)/255);
-}
-
-static uint8_t editAmplifierAmp(int16_t value)
-{
-	float step = 0.1f;
-
-	if(SE->amplifierAmp + (value*step) < 0) SE->amplifierAmp = 0;
-	else if(SE->amplifierAmp + (value*step) > AMPLIFIER_AMP_MAX) SE->amplifierAmp = AMPLIFIER_AMP_MAX;
-	else SE->amplifierAmp += (value * step);
-
-
-	return ((SE->amplifierAmp * 100)/AMPLIFIER_AMP_MAX);
-}
-
-static uint8_t editLimiterThreshold(int16_t value)
-{
-	if(SE->mLimiterThreshold + value < 0) SE->mLimiterThreshold = 0;
-	else if(SE->mLimiterThreshold + value > 255) SE->mLimiterThreshold = 255;
-	else SE->mLimiterThreshold += value;
-
-	float ratio = ceil(LIMITER_THRESHOLD_MAX / 255.0f);
-
-	uint32_t temp;
-
-	temp = SE->mLimiterThreshold * ratio;
-	temp = constrain(temp, 0U, LIMITER_THRESHOLD_MAX);
-	SE->sLimiterThreshold = temp;
-
-	SE->sLimiterThreshold = temp;
-
-	return ((SE->mLimiterThreshold * 100) / 255);
-}
-
-static uint8_t editLimiterAttack(int16_t value)
-{
-	float step = value * 0.01f;
-
-	if(SE->mLimiterAttack + step < 0) SE->mLimiterAttack = 0;
-	else if(SE->mLimiterAttack + step > LIMITER_ATTACK_MAX) SE->mLimiterAttack = LIMITER_ATTACK_MAX;
-	else SE->mLimiterAttack += step;
-
-	SE->sLimiterAttack = (SE->mLimiterAttack * 1000);
-
-	return ((SE->mLimiterAttack * 100) / LIMITER_ATTACK_MAX);
-}
-
-static uint8_t editLimiterRelease(int16_t value)
-{
-	float step = value * 0.01f;
-
-	if(SE->mLimiterRelease + step < 0) SE->mLimiterRelease = 0;
-	else if(SE->mLimiterRelease + step > LIMITER_RELEASE_MAX) SE->mLimiterRelease = LIMITER_RELEASE_MAX;
-	else SE->mLimiterRelease += step;
-
-	SE->sLimiterRelease= (SE->mLimiterRelease * 1000);
-
-	return ((SE->mLimiterRelease * 100) / LIMITER_RELEASE_MAX);
-}
-
