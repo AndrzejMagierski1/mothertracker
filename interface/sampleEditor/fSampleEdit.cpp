@@ -917,6 +917,8 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	if(button == interfaceButtonSampleEdit)
 	{
+		if(SE->currentEffectIdx < 2) return 1;
+
 		if(SE->screenType == cSampleEditor::mainScreen) SE->screenType = cSampleEditor::effectParamsScreen;
 		else if(SE->screenType == cSampleEditor::effectParamsScreen) SE->screenType = cSampleEditor::mainScreen;
 

@@ -3,10 +3,12 @@
 #include "mtEffectDelay.h"
 #include "mtEffectBitcrusher.h"
 #include "mtEffectCut.h"
+#include "mtEffectReverse.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
 		&sampleEditorCut,
+		&sampleEditorReverse,
 		&sampleEditorDelay,
 		&sampleEditorBitcrusher
 };

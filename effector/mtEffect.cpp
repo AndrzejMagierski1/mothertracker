@@ -163,6 +163,11 @@ bool mtEffect::startProcessingSelection()
 	processed.selection.length = expectedSelectLen;
 	processed.area.length = confirmed.area.length + (processed.selection.length - confirmed.selection.length);
 
+	Serial.printf("processed sel : addr - %x, len %d\n confirmed sel: addr - %x, len %d\n",
+			processed.selection.addr,processed.selection.length,confirmed.selection.addr,confirmed.selection.length);
+
+	Serial.printf("processed area: addr - %x, len %d\n confirmed area: addr - %x, len %d\n",
+			processed.area.addr,processed.area.length,confirmed.area.addr,confirmed.area.length);
 	processing.processParams.currentProgressValue = 0;
 	processing.processParams.maxProgressValue = expectedSelectLen;
 	processing.processParams.state = true;
@@ -178,9 +183,9 @@ void mtEffect::updateProcessingSelection()
 	switch(processingState)
 	{
 		case enProcessingState::idle: break;
-		case enProcessingState::copyingBeforeProcessing:		if(processingWithoutCopying) {updateCopying();}		break;
+		case enProcessingState::copyingBeforeProcessing:		if(!processingWithoutCopying) {updateCopying();}		break;
 		case enProcessingState::processingSelection:			updateCommonProcess();								break;
-		case enProcessingState::copyingAfterProcessing:			if(processingWithoutCopying) {updateCopying();}		break;
+		case enProcessingState::copyingAfterProcessing:			if(!processingWithoutCopying) {updateCopying();}		break;
 		default: break;
 	}
 

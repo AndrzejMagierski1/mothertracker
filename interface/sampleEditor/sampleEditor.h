@@ -287,7 +287,8 @@ public:
 		const char * const * afterValueText;
 	} effectDisplayParams[editorEffectMax] =
 	{
-			{},
+			{},//cut - brak drugiego ekranu
+			{},//reverse - brak drugiego ekranu
 			{
 				{0,50,0,0,0,0},{0.95,0,0,0,0,0}, //start values
 				2,delayParams::labelText,delayParams::paramsType,
