@@ -500,12 +500,146 @@ void cSampleEditor::showProgressPlaying()
 	display.setControlValue(popupProgressBar,playingProgress);
 	display.refreshControl(popupProgressBar);
 }
-void  cSampleEditor::hidePopup()
+void  cSampleEditor::hideProgressPopup()
 {
 	display.setControlHide(popupProgressBar);
 	display.refreshControl(popupProgressBar);
 }
 
+//Stop Seq
+void cSampleEditor::showPopupStopSequencer()
+{
+	display.setControlText(popupLabel, "This action will stop the pattern. Do you want to continue?");
+	display.setControlShow(popupLabel);
+	display.refreshControl(popupLabel);
+}
+void cSampleEditor::hideStaticPopup()
+{
+	display.setControlHide(popupLabel);
+	display.refreshControl(popupLabel);
+}
+void cSampleEditor::showPopupSeqWindow()
+{
+//Bars
+	for (uint8_t i = 0; i < 8; i++ )
+	{
+		display.setControlHide(bar[i]);
+		display.refreshControl(bar[i]);
+	}
+//Labels
+	for ( uint8_t i = 0; i < 8; i++ )
+	{
+
+		display.setControlStyle(label[i],  controlStyleCenterX | controlStyleFont3);
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlPosition(label[i], (800/8)*i+(800/16), 424);
+		display.setControlSize(label[i], 800/8-6, 55);
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i],"");
+		display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		if(i == 6) display.setControlText(label[i], "No");
+		else if(i == 7) display.setControlText(label[i], "Yes");
+
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+//List
+	hideEffectList();
+//Waveform
+	hideSpectrum();
+	hideSpectrumPoints();
+	hidePlayhead();
+//frame
+
+	display.setControlHide(frame);
+	display.refreshControl(frame);
+//title label
+	display.setControlShow(titleBar);
+	display.refreshControl(titleBar);
+
+	display.setControlShow(titleLabel);
+	display.setControlText(titleLabel, "Sample Editor 1/2");
+	display.refreshControl(titleLabel);
+	showInstrumentName();
+//popups
+	display.setControlHide(popupLabel);
+	display.refreshControl(popupLabel);
+	display.setControlHide(popupProgressBar);
+	display.refreshControl(popupProgressBar);
+//background label
+
+	display.setControlValue(bgLabel,0b11111111);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
+	showPopupStopSequencer();
+
+	display.synchronizeRefresh();
+}
+void cSampleEditor::showPopupSaveChanges()
+{
+	display.setControlText(popupLabel, "The sample has been changed. Do you want to overwrite it? ");
+	display.setControlShow(popupLabel);
+	display.refreshControl(popupLabel);
+}
+void cSampleEditor::showPopupSaveChangesWindow()
+{
+//Bars
+	for (uint8_t i = 0; i < 8; i++ )
+	{
+		display.setControlHide(bar[i]);
+		display.refreshControl(bar[i]);
+	}
+//Labels
+	for ( uint8_t i = 0; i < 8; i++ )
+	{
+
+		display.setControlStyle(label[i],  controlStyleCenterX | controlStyleFont3);
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlPosition(label[i], (800/8)*i+(800/16), 424);
+		display.setControlSize(label[i], 800/8-6, 55);
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i],"");
+		display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		if(i == 6) display.setControlText(label[i], "No");
+		else if(i == 7) display.setControlText(label[i], "Yes");
+
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+//List
+	hideEffectList();
+//Waveform
+	hideSpectrum();
+	hideSpectrumPoints();
+	hidePlayhead();
+//frame
+
+	display.setControlHide(frame);
+	display.refreshControl(frame);
+//title label
+	display.setControlShow(titleBar);
+	display.refreshControl(titleBar);
+
+	display.setControlShow(titleLabel);
+	display.setControlText(titleLabel, "Sample Editor 1/2");
+	display.refreshControl(titleLabel);
+	showInstrumentName();
+//popups
+	display.setControlHide(popupLabel);
+	display.refreshControl(popupLabel);
+	display.setControlHide(popupProgressBar);
+	display.refreshControl(popupProgressBar);
+//background label
+
+	display.setControlValue(bgLabel,0b11111111);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
+	showPopupSaveChanges();
+
+	display.synchronizeRefresh();
+}
 //************* play/stop/preview
 void cSampleEditor::showPreviewLabel()
 {

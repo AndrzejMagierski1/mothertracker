@@ -58,6 +58,12 @@ static  uint8_t functSelectParamiter(uint8_t button);
 static  uint8_t functPreview();
 static  uint8_t functPlay();
 static  uint8_t functStop();
+// Stop Pattern Funct
+static  uint8_t functStopPatternYes();
+static  uint8_t functStopPatternNo();
+// Save Sample Funct
+static  uint8_t functSaveSampleYes();
+static  uint8_t functSaveSampleNo();
 //**************************************************************************
 
 void cSampleEditor::start(uint32_t options)
@@ -66,22 +72,32 @@ void cSampleEditor::start(uint32_t options)
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		//todo: popup
-		//return;
-	}
-
-	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
-	{
-		mtProject.values.lastUsedInstrument = 0; //todo: zamiast tego popup ze instrument = midi i ze nie mozna wejsc
+		reloadInstrumentName();
+		showPopupSeqWindow();
+		setStopSeqFunctions();
+		return;
 	}
 
 	screenType = mainScreen;
 	previewState = previewStatePreview;
+	confirmedDataIsChanged = 0;
 
-	editorInstrument->isActive = mtProject.instrument[mtProject.values.lastUsedInstrument].isActive;
-	editorInstrument->sample.address = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.address;
-	editorInstrument->sample.length = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
-	strcpy((char *)&editorInstrument->sample.file_name, (char *)&mtProject.instrument[mtProject.values.lastUsedInstrument].sample.file_name);
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+	{
+		editorInstrument->isActive = 0;
+		editorInstrument->sample.address = nullptr;
+		editorInstrument->sample.length = 0;
+	}
+	else
+	{
+		editorInstrument->isActive = mtProject.instrument[mtProject.values.lastUsedInstrument].isActive;
+		editorInstrument->sample.address = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.address;
+		editorInstrument->sample.length = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
+
+		strcpy((char *)&editorInstrument->sample.file_name, (char *)&mtProject.instrument[mtProject.values.lastUsedInstrument].sample.file_name);
+	}
+
+
 
 	if(editorInstrument->isActive)
 	{
@@ -154,13 +170,19 @@ void cSampleEditor::update()
 			isProcessedData = currentEffect->getIsProcessedData();
 
 			applyingInProgress = 0;
+
 			if(processingInProgress)
 			{
 				processingInProgress = false;
+				processingProgress = 0;
+				showProgressProcessing();
 				setPlayFunction();
 			}
 
-			hidePopup();
+			applyingProgress = 0;
+			showProgressApplying();
+
+			hideProgressPopup();
 
 			SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
 			SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
@@ -169,6 +191,8 @@ void cSampleEditor::update()
 			refreshEndPoint();
 
 			refreshUndoState();
+
+			restoreFunctions();
 		}
 	}
 
@@ -180,7 +204,8 @@ void cSampleEditor::update()
 	{
 		refreshProcessingProgress();
 	}
-	else if(playingInProgress)
+
+	if(playingInProgress)
 	{
 		refreshPlayingProgress();
 		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
@@ -188,7 +213,7 @@ void cSampleEditor::update()
 			instrumentPlayer[0].clearInterfacePlayingEndFlag();
 			playingInProgress = 0;
 			mtPadBoard.clearVoice(0);
-			hidePopup();
+			hideProgressPopup();
 			restoreFunctions();
 			setPlayFunction();
 		}
@@ -219,6 +244,8 @@ void cSampleEditor::setCommonFunctions()
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
+	if(!editorInstrument->isActive) return;
 	FM->setPadsGlobal(functPads);
 
 	//todo: popup instrument
@@ -234,6 +261,7 @@ void cSampleEditor::setMainScreenFunctions()
 	FM->clearAllPots();
 
 	if(!editorInstrument->isActive) return;
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functMainScreenLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functMainScreenRight);
@@ -261,6 +289,7 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->clearAllPots();
 
 	if(!editorInstrument->isActive) return;
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functParamsScreenLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functParamsScreenRight);
@@ -291,7 +320,18 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->setPotObj(interfacePot0, functParamsScreenEncoder, nullptr);
 
 }
-
+void cSampleEditor::setStopSeqFunctions()
+{
+	clearAllFunctions();
+	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
+}
+void cSampleEditor::setSaveChangesFunctions()
+{
+	clearAllFunctions();
+	FM->setButtonObj(interfaceButton6, buttonPress, functSaveSampleNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functSaveSampleYes);
+}
 void cSampleEditor::switchScreen(enScreenType s)
 {
 	if(s == mainScreen)
@@ -339,7 +379,8 @@ void cSampleEditor::reloadInstrumentName()
 {
 	if(!editorInstrument->isActive)
 	{
-		sprintf(currentInstrumentName,"%d. Empty slot",mtProject.values.lastUsedInstrument + 1);
+		if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) sprintf(currentInstrumentName,"%d. MIDI Channel %d",mtProject.values.lastUsedInstrument + 3, mtProject.values.lastUsedInstrument % INSTRUMENTS_MAX );
+		else sprintf(currentInstrumentName,"%d. Empty slot",mtProject.values.lastUsedInstrument + 1);
 	}
 	else
 	{
@@ -414,16 +455,19 @@ void cSampleEditor::reloadApplyingProgress()
 	if(applyingSteps == 1)
 	{
 		applyingProgress = currentEffect->getProcessSelectionProgress();
+		Serial.printf("ProcessingProgress: %d\n",applyingProgress);
 	}
 	else if(applyingSteps == 2)
 	{
 		if(!isLoadedData)
 		{
 			applyingProgress = currentEffect->getLoadProgress()/2;
+			Serial.printf("LoadingProgress: %d\n",applyingProgress);
 		}
 		else
 		{
 			applyingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
+			Serial.printf("ProcessingProgress: %d\n",applyingProgress);
 		}
 	}
 }
@@ -880,7 +924,14 @@ static uint8_t functSwitchModule(uint8_t button)
 	}
 	else
 	{
-		SE->eventFunct(eventSwitchModule,SE,&button,0);
+		if(SE->confirmedDataIsChanged)
+		{
+			SE->reloadInstrumentName();
+			SE->showPopupSaveChangesWindow();
+			SE->setSaveChangesFunctions();
+			SE->moduleToChange = button;
+		}
+		else SE->eventFunct(eventSwitchModule,SE,&button,0);
 	}
 	return 1;
 }
@@ -941,10 +992,10 @@ static  uint8_t functMainScreenUp()
 {
 	switch(SE->selectedPlace[cSampleEditor::mainScreen])
 	{
-		case cSampleEditor::startPointPlace : 	SE->modStartPoint(1);		break;
-		case cSampleEditor::endPointPlace : 	SE->modEndPoint(1);			break;
-		case cSampleEditor::zoomPlace : 		SE->modZoom(1);				break;
-		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(-1);   break;
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(1);			break;
+		case cSampleEditor::endPointPlace : 	SE->modEndPoint(1);				break;
+		case cSampleEditor::zoomPlace : 		SE->modZoom(1);					break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(-1);   	break;
 		default: break;
 	}
 	return 1;
@@ -953,10 +1004,10 @@ static  uint8_t functMainScreenDown()
 {
 	switch(SE->selectedPlace[cSampleEditor::mainScreen])
 	{
-		case cSampleEditor::startPointPlace : 	SE->modStartPoint(-1);		break;
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(-1);			break;
 		case cSampleEditor::endPointPlace : 	SE->modEndPoint(-1);			break;
 		case cSampleEditor::zoomPlace : 		SE->modZoom(-1);				break;
-		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(1);   break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(1); 		break;
 		default: break;
 	}
 	return 1;
@@ -1058,6 +1109,7 @@ static  uint8_t functApply()
 {
 
 	SE->applyingSteps = 0;
+	SE->confirmedDataIsChanged = 1;
 
 	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
 	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
@@ -1069,6 +1121,9 @@ static  uint8_t functApply()
 	{
 		SE->showPopupApplying();
 		SE->applyingInProgress = 1;
+		SE->applyingProgress = 0;
+		SE->showProgressApplying();
+		SE->clearAllFunctions();
 	}
 
 	SE->applyingProgress = 0;
@@ -1136,10 +1191,11 @@ static  uint8_t functPreview()
 	{
 		SE->showPopupProcessing();
 		SE->processingInProgress = 1;
+		SE->clearAllFunctions();
 	}
 
 	SE->processingProgress = 0;
-
+	SE->showProgressProcessing();
 	SE->currentEffect->startProcessingSelection();
 
 	return 1;
@@ -1161,9 +1217,32 @@ static  uint8_t functStop()
 {
 	mtPadBoard.stopInstrument(12);
 	SE->playingInProgress = 0;
-	SE->hidePopup();
+	SE->hideProgressPopup();
 
 	SE->restoreFunctions();
 	SE->setPlayFunction();
+	return 1;
+}
+// Stop Pattern Funct
+static  uint8_t functStopPatternYes()
+{
+	sequencer.stop();
+	SE->start(0);
+	return 1;
+}
+static  uint8_t functStopPatternNo()
+{
+	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
+	return 1;
+}
+// Save Sample Funct
+static  uint8_t functSaveSampleYes()
+{
+	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	return 1;
+}
+static  uint8_t functSaveSampleNo()
+{
+	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
 	return 1;
 }

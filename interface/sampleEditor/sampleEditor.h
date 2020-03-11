@@ -43,6 +43,8 @@ public:
 	void switchScreen(enScreenType s);
 	void clearAllFunctions();
 	void restoreFunctions();
+	void setStopSeqFunctions();
+	void setSaveChangesFunctions();
 
 //******************* OPERATION FOR GRAPHIC
 	void prepareDisplayDataMainScreen();
@@ -108,8 +110,16 @@ public:
 	void showPopupPlaying();
 	void showProgressPlaying();
 
-	void hidePopup();
+	void hideProgressPopup();
 
+//Stop Seq
+	void showPopupStopSequencer();
+	void showPopupSeqWindow();
+//Save changes
+	void showPopupSaveChanges();
+	void showPopupSaveChangesWindow();
+
+	void hideStaticPopup();
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -209,6 +219,10 @@ public:
 
 	bool isLoadedData;
 	bool isProcessedData;
+
+	bool confirmedDataIsChanged;
+
+	uint8_t moduleToChange;
 
 //labelsTxt
 	char currentInstrumentName[SAMPLE_NAME_SIZE+6];

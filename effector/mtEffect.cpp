@@ -328,7 +328,7 @@ bool mtEffect::getState(strProcessing * ptr)
 
 uint8_t mtEffect::getProgress(strProcessing * ptr)
 {
-	return (100 * ptr->currentProgressValue)/ ptr->maxProgressValue;
+	return 100 * (ptr->currentProgressValue/ (float) ptr->maxProgressValue);
 }
 //***********VIRTUAL SET PARAMS
 void mtEffect::setParamiter(void * ptr, uint8_t n)
