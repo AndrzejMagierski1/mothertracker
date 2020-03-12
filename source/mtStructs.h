@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					9;		// official update
-const uint8_t FV_VER_3 =					44;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					45;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
@@ -472,7 +472,7 @@ struct strMtValues
 	uint8_t monitor;
 	float radioFreq = 87.5;
 
-	uint8_t projectNotSavedFlag = 0;
+	uint8_t projectNotSavedFlag = 0; // 2 = nie ma folderu w Projects, 1 = nie aktualny wzgledem Projects
 
 // performance
 	uint16_t perfTracksPatterns[8]  = {1,1,1,1,1,1,1,1};

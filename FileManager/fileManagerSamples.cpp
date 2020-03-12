@@ -142,18 +142,24 @@ void cFileManager::copySamples()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveSamplesToWorkspace()
 {
-	// sampli sie nie zapisuje
-	// ale wykorzystane do zwiekszania licznika zapisywanego instrumentu
-	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	if(currentSample >= INSTRUMENTS_COUNT) { moveToNextOperationStep(); return; } //zabiezpeiczenie
+	//if(!sampleInProgress) startSampleLoad(); // wykonaj funkcje tylko 1 raz
+
+	sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+
+	uint8_t saveStatus = fileTransfer.saveSampleToFile(importFromSampleEditorAddress, currentCopyDestPath, importFromSampleEditorLength);
+
+	if(saveStatus == fileTransferEnd)
 	{
-		currentInstrument++;
-		currentSample++;
-
-		currentOperationStep = 2; //xxx najwazniejsze !
-		return;
+		mtProject.used_memory += currentSampleSamplesCount*2; // zwieksz uzycie pamieci
+		completeLoadedSampleStruct(true); // wypelnij strukture dodanego sampla dodatkowymi danymi
+		sampleInProgress = 0;
+		moveToNextOperationStep();
 	}
-
-	moveToNextOperationStep();
+	else if(saveStatus >= fileTransferError)
+	{
+		sampleThrowError();
+	}
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -250,6 +256,11 @@ void cFileManager::moveSampleMemory()
 		{
 			memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 		}
+	}
+	else if(currentOperation == fmImportSampleFromSampleEditor)
+	{
+		// roznica wielkosci importowanego sampla i wielksoci sampla w miejscu docelowym
+		memory_offset = newSamplesSize - oldSamplesSize;
 	}
 
 	// jak nic sie nie przesuwa to kończ

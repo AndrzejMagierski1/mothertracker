@@ -26,8 +26,7 @@ void cInterface::openStartupProject()
 {
 	if(!newFileManager.openProjectFromWorkspace())
 	{
-		newFileManager.createNewProjectInWorkspace();
-		newFileManager.openProjectFromWorkspace();
+		openNewProject();
 	}
 
 }
@@ -43,8 +42,7 @@ uint8_t cInterface::detectProjectLoadState()
 		{
 			newFileManager.clearStatus();
 
-			newFileManager.createNewProjectInWorkspace();
-			newFileManager.openProjectFromWorkspace();
+			openNewProject();
 		}
 
 		return 0;
@@ -67,6 +65,12 @@ uint8_t cInterface::detectProjectLoadState()
 	return 1;
 }
 
+
+void cInterface::openNewProject()
+{
+	newFileManager.createNewProjectInWorkspace();
+	newFileManager.openProjectFromWorkspace();
+}
 //=====================================================================================
 //============================== START SCREEN =========================================
 //=====================================================================================

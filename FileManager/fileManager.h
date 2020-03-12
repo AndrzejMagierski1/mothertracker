@@ -258,6 +258,7 @@ private:
 	void loadProjectFromWorkspaceInit();
 	void loadProjectFromWorkspaceFinish();
 	void saveProjectToWorkspaceInit();
+	void saveProjectToWorkspaceContinue();
 	void saveProjectToWorkspaceFinish();
 
 	void copyProjectsToWorkspaceInit();
@@ -366,7 +367,6 @@ private:
 
 	uint8_t importCurrentFile;
 	int8_t importStartSlot;
-	uint8_t* importStartSlotAdress;
 	int8_t importEndSlot;
 	int8_t firstSlotToMoveInMemory;
 
@@ -426,7 +426,8 @@ private:
 	// sample edior
 	void importSampleFromSampleEditorInit();
 	void importSampleFromSampleEditorFinish();
-
+	uint8_t* importFromSampleEditorAddress;
+	uint32_t importFromSampleEditorLength;
 
 
 
