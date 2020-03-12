@@ -45,6 +45,8 @@ public:
 	void restoreFunctions();
 	void setStopSeqFunctions();
 	void setSaveChangesFunctions();
+	void setTooLongSampleFunctions();
+	void setTooLongProcessedSampleFunctions();
 
 //******************* OPERATION FOR GRAPHIC
 	void prepareDisplayDataMainScreen();
@@ -118,7 +120,14 @@ public:
 //Save changes
 	void showPopupSaveChanges();
 	void showPopupSaveChangesWindow();
+//Too Long instrument
+	void showPopupTooLongSample();
+	void showPopupTooLongSampleWindow();
+//Too Long processed sample
+	void showPopupTooLongProcessedSample();
+	void showPopupTooLongProcessedSampleWindow();
 
+	void showStaticPopupCommonWindow();
 	void hideStaticPopup();
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
