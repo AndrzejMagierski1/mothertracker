@@ -302,8 +302,6 @@ void Sequencer::play_microStep(uint8_t row)
 			sendMidiClock();
 	}
 
-
-
 	// ************************************
 	// 		 PRE EFEKTY i operacje na uStep == 1
 	// ************************************
@@ -346,6 +344,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 //		uint8_t fxIndex = 0;
 		uint8_t noMoFx = 0;
+		uint8_t setBreakPattern = 0;
 //		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		for (int8_t fxIndex = 1; fxIndex >= 0; fxIndex--)
 		{
@@ -451,6 +450,7 @@ void Sequencer::play_microStep(uint8_t row)
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
 
+				setBreakPattern = 1;
 				player.breakPattern = 1;
 				break;
 
@@ -511,15 +511,17 @@ void Sequencer::play_microStep(uint8_t row)
 
 		}
 
-
-
 		// jeśli ostatni step, zażądaj ładowania kolejnego patternu
 		if (player.isPlay && row == 0)
 		{
-			if (((playerRow.actual_pos == patternRow.length) || player.breakPattern) && player.songMode)
+			if (((playerRow.actual_pos == patternRow.length)) && player.songMode)
 			{
 				loadNextPattern(newFileManager.getNextSongPattern());
 			}
+		}
+		if (setBreakPattern)
+		{
+			loadNextPattern(newFileManager.getNextSongPattern());
 		}
 
 	}
