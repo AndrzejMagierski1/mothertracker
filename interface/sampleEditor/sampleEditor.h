@@ -142,6 +142,7 @@ public:
 	void modStartPoint(int16_t val);
 	void modEndPoint(int16_t val);
 	void modZoom(int16_t val);
+	void resetZoom();
 	void modSelectedEffect(int16_t val);
 //ParamiterScreen
 	void modParamiter(int16_t val, uint8_t n);

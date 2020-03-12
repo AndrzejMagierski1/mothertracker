@@ -179,7 +179,11 @@ void cSampleEditor::update()
 				setPlayFunction();
 			}
 
-			applyingProgress = 0;
+			if(applyingProgress)
+			{
+				resetZoom();
+				applyingProgress = 0;
+			}
 			showProgressApplying();
 
 			hideProgressPopup();
@@ -791,8 +795,18 @@ void cSampleEditor::modEndPoint(int16_t val)
 
 void cSampleEditor::modZoom(int16_t val)
 {
-	//todo: wziac pod uwage ze nie tylko bedzie to dlugosc z sampla
 	GP.spectrumChangeZoom(val, editorInstrument->sample.length, &zoom);
+
+	refreshZoom();
+	refreshSpectrumPoints();
+	needRefreshSpectrum = 1;
+}
+
+void cSampleEditor::resetZoom()
+{
+	if(zoom.zoomValue == 1.0f) return;
+
+	GP.spectrumResetZoom(zoom.zoomPosition, editorInstrument->sample.length, &zoom);
 
 	refreshZoom();
 	refreshSpectrumPoints();
@@ -1139,6 +1153,8 @@ static  uint8_t functApply()
 		SE->refreshStartPoint();
 		SE->refreshEndPoint();
 		SE->needRefreshSpectrum = 1;
+
+		SE->resetZoom();
 	}
 
 	SE->setPreviewFunction();

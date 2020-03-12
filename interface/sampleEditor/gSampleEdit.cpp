@@ -395,6 +395,7 @@ void cSampleEditor::showEndPointText()
 }
 void cSampleEditor::showZoomText()
 {
+	if(screenType != mainScreen) return;
 	display.setControlText2(label[2],zoomText);
 	display.refreshControl(label[2]);
 }
