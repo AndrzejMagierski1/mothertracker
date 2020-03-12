@@ -26,20 +26,18 @@ bool cFileManager::createNewProjectInWorkspace()
 
 	getDefaultProject(&mtProject);
 	//mtProject.patterns_count++;
+	mtProject.values.projectNotSavedFlag = 2; // nie zapiany do folderu Projects
 	mtProject.values.actualPattern = 1;
 
 	//saveActualPattern(cWorkspacePatternsPath, mtProject.values.actualPattern);
 	sequencer.loadFromFileERROR();
 	changesFlags.pattern[mtProject.values.actualPattern] = 1;
+	changesFlags.project = 1;
 	savePatternToWorkspace();
 	sequencer.saveToFileDone(); //xxx ?
 
 	changesFlags.project = 1;
 	saveProjectFileToWorkspace();
-
-//	writeProjectFile(cProjectFileNameInWorkspace, &mtProject);
-
-	//todo jakas flaga ze nie zapisany?
 
 	return true;
 }

@@ -50,6 +50,7 @@ public:
 	// interfaceMisc.cpp -----------------------------
 	void openStartupProject();
 	uint8_t detectProjectLoadState();
+	void openNewProject();
 
 	void initStartScreen();
 	void refreshStartScreen();

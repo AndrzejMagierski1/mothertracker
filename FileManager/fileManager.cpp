@@ -90,7 +90,7 @@ void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
 		case 0:		saveProjectToWorkspaceInit(); 			break;
 		case 1:		savePatternToWorkspace(); 				break;
 		case 2:		saveInstrumentsToWorkspace(); 			break;
-		case 3:		saveSamplesToWorkspace(); 				break;
+		case 3:		saveProjectToWorkspaceContinue();		break;
 		case 4:		saveProjectFileToWorkspace(); 			break; // projekt przesunięty na koniec
 		case 5:		saveProjectToWorkspaceFinish(); 		break;
 		default:	stopOperationWithError(fmSaveError); 	break;
@@ -243,7 +243,9 @@ void cFileManager::updateImportSampleFromSampleEditor() //  //fmImportSampleFrom
 	switch(currentOperationStep)
 	{
 		case 0: 	importSampleFromSampleEditorInit(); 							break;
-		case 1:		importSampleFromSampleEditorFinish();							break;
+		case 1: 	saveSamplesToWorkspace(); 										break;
+		case 2:		moveSampleMemory();												break;
+		case 3:		importSampleFromSampleEditorFinish();							break;
 		default:	stopOperationWithError(fmImportSampleFromSampleEditorError); 	break;
 	}
 }
@@ -335,8 +337,8 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 
 	sequencer.switchRamPatternsNow();
 
-	// swiezo wczytany projekt jest zawsze zgodny z zapisanym
-	mtProject.values.projectNotSavedFlag = 0;
+	// swiezo wczytany projekt jest zawsze zgodny z zapisanym - nieeee?!
+	//mtProject.values.projectNotSavedFlag = 0;
 
 
 	status = fmLoadEnd;
@@ -376,6 +378,8 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 
 	if(!openProjectFromWorkspace())
 	{
+		// wrazie by sie nie dalo otworzyc projektu
+		// to otworz nowy pusty
 		createNewProjectInWorkspace();
 		openProjectFromWorkspace();
 	}
@@ -388,6 +392,20 @@ void cFileManager::saveProjectToWorkspaceInit()
 {
 	currentInstrument = 0;
 	setCurrentInstrumentToFirstActiveAfterCurrent();
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::saveProjectToWorkspaceContinue()
+{
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 2; //xxx najwazniejsze !
+		return;
+	}
 
 	moveToNextOperationStep();
 }
@@ -462,7 +480,8 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 		return;
 	}
 
-	//mtProject.values.projectNotSavedFlag &= ~1; //
+	// po stworzeniu aktualnej wersji projektu w Project czysci flage zmian
+	mtProject.values.projectNotSavedFlag = 0;
 
 	status = fmSaveEnd;
 	currentOperationStep = 0;
@@ -629,13 +648,23 @@ void cFileManager::loadPatternFromWorkspaceFinish()
 
 void cFileManager::importSampleFromSampleEditorInit()
 {
-
+	newSamplesSize = importFromSampleEditorLength;
+	oldSamplesSize = mtProject.instrument[importStartSlot].sample.length*2;
 
 	moveToNextOperationStep();
 }
 
 void cFileManager::importSampleFromSampleEditorFinish()
 {
+	mtProject.used_memory -= (mtProject.instrument[importStartSlot].sample.length*2 > mtProject.used_memory)
+							 ? mtProject.used_memory
+							 : mtProject.instrument[importStartSlot].sample.length*2;
+
+	mtProject.used_memory += importFromSampleEditorLength;
+
+
+	mtProject.instrument[importStartSlot].sample.length = importFromSampleEditorLength/2;
+	memcpy(mtProject.instrument[importStartSlot].sample.address, importFromSampleEditorAddress, importFromSampleEditorLength);
 
 
 	status = fmImportSampleFromSampleEditorEnd;
@@ -682,9 +711,9 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 	return true;
 }
 
-bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
+bool cFileManager::saveProjectToWorkspace(bool forceSaveAll) //xxx jak narazie nigdzie nie uzywane force=true
 {
-	if(status != fmIdle) return false;
+	if(status != fmIdle && status != fmSavingProjectToProjects) return false;
 	if(currentOperation != fmNoOperation) return false;
 
 	if(forceSaveAll)
@@ -696,9 +725,20 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
 	}
 
-	//report("Autosave Started");
 	debugLog.setMaxLineCount(9);
 	debugLog.addLine("autosave start");
+
+
+	if(status == fmSavingProjectToProjects)
+	{
+		// jezeli autozapis przed zapisaniem do Projects to finalnie wszsytko bedzie aktualne
+		mtProject.values.projectNotSavedFlag = 0;
+	}
+	else
+	{
+		// jezeli typowy autozapis to workspace napewo sie rozni od zawartosci Projects
+		mtProject.values.projectNotSavedFlag |= 1;
+	}
 
 	status = fmSavingProjectToWorkspace;
 	currentOperationStep = 0;
@@ -721,14 +761,15 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 	// wymus zapis projektu z nowa nazwa w workspace
 	changesFlags.project = 1;
 
-	if(saveProjectToWorkspace(false))//xxx true? // zapisuj workpace jesli potrzeba
+	status = fmSavingProjectToProjects;
+
+	if(saveProjectToWorkspace(false))  // zapisuj workpace tlyko jesli sa flagi zmian
 	{
 		status = fmSavingProjectToProjects;
 		currentOperationStep = 0;
 		currentOperation = fmSaveWorkspaceProject;
 		return true;
 	}
-
 
 	status = fmSavingProjectToProjects;
 	currentOperationStep = 0;
@@ -807,7 +848,6 @@ bool cFileManager::deleteInstruments(uint8_t instrumentSlotFrom, uint8_t instrum
 	calcFirstSlotToMoveInMemory(instrumentSlotTo+1);
 
 
-
 	status = fmDeleteingInstruments;
 	currentOperationStep = 0;
 	currentOperation = fmDeleteInstruments;
@@ -861,8 +901,15 @@ bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t 
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 
+	currentInstrument = instrumentSlot;
+	currentSample = instrumentSlot;
+	importStartSlot = instrumentSlot;
+	importEndSlot = instrumentSlot;
 
+	importFromSampleEditorAddress = (uint8_t*)memoryAddres;
+	importFromSampleEditorLength = length*2;
 
+	calcFirstSlotToMoveInMemory(importEndSlot+1);
 
 	status = fmImportingSampleFromSampleEditor;
 	currentOperationStep = 0;

@@ -347,6 +347,7 @@ uint8_t cFileTransfer::saveMemoryToFile(uint8_t* memory, const char* file, uint3
 
 	if(transferStep == 1)
 	{
+		if(memTotal-memComplited < memStep) memStep = memTotal-memComplited;
 		int32_t write_result = transferFile.write(memory+memComplited, memStep);
 
 		if(write_result >= 0)
@@ -365,6 +366,62 @@ uint8_t cFileTransfer::saveMemoryToFile(uint8_t* memory, const char* file, uint3
 
 	if(transferStep == 2)
 	{
+		transferStep = 0;
+		transferFile.close();
+		return fileTransferEnd;
+	}
+
+	transferStep = 0;
+	transferFile.close();
+	return fileTransferError;
+}
+
+
+
+uint8_t cFileTransfer::saveSampleToFile(uint8_t* memory, const char* file, uint32_t memSize)
+{
+	if(transferStep == 0)
+	{
+		if(SD.exists(file))
+		{
+			SD.remove(file);
+		}
+
+		if(transferFile.open(file, FILE_WRITE))
+		{
+			memTotal = memSize;
+			memStep = (memSize < READ_WRITE_BUFOR_SIZE) ? memSize : READ_WRITE_BUFOR_SIZE; // maksymalne paczki jak bufor mimo ze nie kozystanie z bufora
+			memComplited = 0;
+			transferStep = 1;
+		}
+	}
+
+	if(transferStep == 1)
+	{
+		if(memTotal-memComplited < memStep) memStep = memTotal-memComplited;
+		int32_t write_result = transferFile.write(memory+memComplited, memStep);
+
+		if(write_result >= 0)
+		{
+			convertedDataSize+=write_result; // suma zapisywana do naglowka
+			memComplited += write_result;
+			if(memComplited >=  memTotal) // koniec pliku
+			{
+				transferStep = 2;
+			}
+			else if (write_result == memStep)
+			{
+				return fileTransferInProgress;
+			}
+		}
+	}
+
+	if(transferStep == 2)
+	{
+		fillHeader();
+		transferFile.seek(0);
+		transferFile.write(&sampleHead, sizeof(sampleHead));
+
 		transferStep = 0;
 		transferFile.close();
 		return fileTransferEnd;

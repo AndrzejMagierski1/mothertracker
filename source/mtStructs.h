@@ -472,7 +472,7 @@ struct strMtValues
 	uint8_t monitor;
 	float radioFreq = 87.5;
 
-	uint8_t projectNotSavedFlag = 0;
+	uint8_t projectNotSavedFlag = 0; // 2 = nie ma folderu w Projects, 1 = nie aktualny wzgledem Projects
 
 // performance
 	uint16_t perfTracksPatterns[8]  = {1,1,1,1,1,1,1,1};

@@ -39,6 +39,7 @@ public:
 	uint8_t loadFileToMemory(const char* file, uint8_t* memory, uint32_t memSize, uint8_t mode);
 	uint8_t loadSampleToMemory(const char* file, int16_t* memory, uint32_t* outSampleCount);
 	uint8_t saveMemoryToFile(uint8_t* memory, const char* file, uint32_t memSize);
+	uint8_t saveSampleToFile(uint8_t* memory, const char* file, uint32_t memSize);
 
 	uint8_t copyFile(const char* src, const char* dest);
 	uint8_t copySample(const char* src, const char* dest);
