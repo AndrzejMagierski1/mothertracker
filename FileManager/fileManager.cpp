@@ -88,8 +88,9 @@ void cFileManager::updateImportModFile()
 	case 2:		importMod_SaveInstrument();						break;
 	case 3:		importModFile_SongInit();						break;
 	case 4:		importModFile_Patterns();						break;
-	case 5:		importModFileWaves();							break;
-	case 6:		importModFileFinish();							break;
+	case 5:		importModFileWaves_ImportWave();							break;
+	case 6:		importModFileWaves_WriteWave();							break;
+	case 7:		importModFileFinish();							break;
 	default:
 		importModFileError();
 		stopOperationWithError(fmImportModError);		break;

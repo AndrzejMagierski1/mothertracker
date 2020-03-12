@@ -398,7 +398,8 @@ private:
 
 	void importModFile_SongInit();
 	void importModFile_Patterns();
-	void importModFileWaves();
+	void importModFileWaves_ImportWave();
+	void importModFileWaves_WriteWave();
 	void importModFileFinish();
 	void importModFileError();
 
@@ -408,8 +409,8 @@ private:
 
 	bool importModFileAfterNewProject = 0;
 
-	char modToImportFilename[255];
-	char modFilePath[255];
+	char modToImportFilename[255];	// tylko nazwa
+	char modFilePath[255];			// cala sciezka
 
 	uint8_t modFileInstrumentsCount = 31;
 	uint8_t modFileInstruments_actualIndex = 0;
@@ -433,6 +434,13 @@ private:
 
 	uint8_t modFile_sample_actualIndex = 0;
 //	int16_t *modFile_sample_ptr = sdram_sampleBank;
+
+	uint8_t modSample_waveWriteFlag = 0;
+	int16_t *modSample_waveSrcPtr;
+
+	uint32_t modImport_saveLength = 0;
+
+//	SdFile modImport_wav;
 
 
 	struct strModFileData

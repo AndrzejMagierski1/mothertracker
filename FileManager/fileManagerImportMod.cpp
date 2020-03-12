@@ -27,6 +27,12 @@ void cFileManager::importModFileInit()
 {
 	// wart wspólne
 	byteSampleOffset = 0;
+	modFilePatterns_actualIndex = 0;
+	modFileInstruments_actualIndex = 0;
+	modFile_sample_actualIndex = 0;
+
+	modSample_waveWriteFlag = 0;
+
 	modFile_sample_ptr = sdram_sampleBank;
 
 	// wew
@@ -398,6 +404,16 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 				sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY));
 
 		break;
+	case 13:
+		/*
+		 * break
+		 */
+
+		step->fx[0].type = sequencer.fx.FX_TYPE_BREAK_PATTERN;
+		step->fx[0].value = sequencer.getFxDefault(
+				sequencer.fx.FX_TYPE_BREAK_PATTERN);
+
+		break;
 	case 15:
 		/*
 		 * TEMPO
@@ -420,7 +436,9 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 	}
 
 }
-void cFileManager::importModFileWaves()
+
+// pobieramy wave z mod
+void cFileManager::importModFileWaves_ImportWave()
 {
 
 //	mtProject.used_memory
@@ -445,13 +463,15 @@ void cFileManager::importModFileWaves()
 		mtProject.used_memory += instr->sample.length * 2;
 		if (modFile_sample_actualIndex >= modFileInstrumentsCount)
 		{
+			// 2 do przodu
+			moveToNextOperationStep();
 			moveToNextOperationStep();
 		}
 		else
 		{
-			byteSampleOffset += instr->sample.length * 2;
-			modFile_sample_ptr += instr->sample.length;
-			modFile_sample_actualIndex++;
+
+			moveToNextOperationStep();
+
 		}
 	}
 	else
@@ -460,6 +480,101 @@ void cFileManager::importModFileWaves()
 	}
 
 	//	instr->sample.address = modSampleData.sampleLengthInWords;
+
+}
+
+// zapisujemy do pliku
+void cFileManager::importModFileWaves_WriteWave()
+{
+
+	strInstrument * instr = &mtProject.instrument[modFile_sample_actualIndex];
+
+	if (!modSample_waveWriteFlag)
+	{
+		modSample_waveWriteFlag = 1;
+		modImport_saveLength = instr->sample.length * 2;
+		if (modImport_saveLength > 1)
+		{
+
+			char currentFilename[PATCH_SIZE];
+			sprintf(currentFilename, cWorkspaceSamplesFilesFormat,
+					modFile_sample_actualIndex + 1);
+
+			if (SD.exists(currentFilename)) SD.remove(currentFilename);
+			wavfile = SD.open(currentFilename, SD_FILE_WRITE);
+
+			// todo: to jest chyba bez sensu
+			wavfile.write(currentFilename, sizeof(strWavFileHeader));
+
+			modSample_waveSrcPtr = instr->sample.address;
+		}
+		else
+		{
+			modSample_waveWriteFlag = 0;
+		}
+
+	}
+
+	if (modImport_saveLength > 1)
+	{
+		if (modImport_saveLength > 2048)
+		{
+			wavfile.write(modSample_waveSrcPtr, 2048);
+
+			modSample_waveSrcPtr += 1024;
+			modImport_saveLength -= 2048;
+
+		}
+		else
+		{
+			modSample_waveWriteFlag = 0;
+
+			wavfile.write(modSample_waveSrcPtr, modImport_saveLength);
+			modImport_saveLength = 0;
+
+			// uzupełnienie headera
+			strWavFileHeader header;
+
+			header.chunkId = 0x46464952; 							// "RIFF"
+			header.chunkSize = instr->sample.length * 2 + 36;
+			header.format = 0x45564157;								// "WAVE"
+			header.subchunk1Id = 0x20746d66;						// "fmt "
+			header.subchunk1Size = 16;
+			header.AudioFormat = 1;
+			header.numChannels = 1;
+			header.sampleRate = 44100;
+			header.bitsPerSample = 16;
+			header.byteRate = header.sampleRate * header.numChannels * (header.bitsPerSample / 8);
+			header.blockAlign = header.numChannels * (header.bitsPerSample / 8);
+			header.subchunk2Id = 0x61746164;						// "data"
+			header.subchunk2Size = instr->sample.length * 2;
+
+			wavfile.seek(0);
+			wavfile.write(&header, sizeof(header));
+			wavfile.close();
+
+			// tu warunek na zmianę kroków
+			currentOperationStep--;
+
+			byteSampleOffset += instr->sample.length * 2;
+			modFile_sample_ptr += instr->sample.length;
+			modFile_sample_actualIndex++;
+		}
+	}
+	else
+	{
+		currentOperationStep--;
+
+		byteSampleOffset += instr->sample.length * 2;
+		modFile_sample_ptr += instr->sample.length;
+		modFile_sample_actualIndex++;
+	}
+
+	// dokonczyc
+
+	/*
+	 * koniec zapisu
+	 */
 
 }
 void cFileManager::importModFileFinish()
