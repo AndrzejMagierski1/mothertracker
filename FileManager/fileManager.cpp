@@ -90,7 +90,7 @@ void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
 		case 0:		saveProjectToWorkspaceInit(); 			break;
 		case 1:		savePatternToWorkspace(); 				break;
 		case 2:		saveInstrumentsToWorkspace(); 			break;
-		case 3:		saveSamplesToWorkspace(); 				break;
+		case 3:		saveProjectToWorkspaceContinue();		break;
 		case 4:		saveProjectFileToWorkspace(); 			break; // projekt przesunięty na koniec
 		case 5:		saveProjectToWorkspaceFinish(); 		break;
 		default:	stopOperationWithError(fmSaveError); 	break;
@@ -243,8 +243,9 @@ void cFileManager::updateImportSampleFromSampleEditor() //  //fmImportSampleFrom
 	switch(currentOperationStep)
 	{
 		case 0: 	importSampleFromSampleEditorInit(); 							break;
-		case 1:		moveSampleMemory();												break;
-		case 2:		importSampleFromSampleEditorFinish();							break;
+		case 1: 	saveSamplesToWorkspace(); 										break;
+		case 2:		moveSampleMemory();												break;
+		case 3:		importSampleFromSampleEditorFinish();							break;
 		default:	stopOperationWithError(fmImportSampleFromSampleEditorError); 	break;
 	}
 }
@@ -391,6 +392,20 @@ void cFileManager::saveProjectToWorkspaceInit()
 {
 	currentInstrument = 0;
 	setCurrentInstrumentToFirstActiveAfterCurrent();
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::saveProjectToWorkspaceContinue()
+{
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 2; //xxx najwazniejsze !
+		return;
+	}
 
 	moveToNextOperationStep();
 }
@@ -633,7 +648,8 @@ void cFileManager::loadPatternFromWorkspaceFinish()
 
 void cFileManager::importSampleFromSampleEditorInit()
 {
-
+	newSamplesSize = importFromSampleEditorLength;
+	oldSamplesSize = mtProject.instrument[importStartSlot].sample.length*2;
 
 	moveToNextOperationStep();
 }
@@ -644,11 +660,11 @@ void cFileManager::importSampleFromSampleEditorFinish()
 							 ? mtProject.used_memory
 							 : mtProject.instrument[importStartSlot].sample.length*2;
 
-	mtProject.used_memory += importFromSampleEditorLength*2;
+	mtProject.used_memory += importFromSampleEditorLength;
 
 
-	mtProject.instrument[importStartSlot].sample.length = importFromSampleEditorLength;
-	memcpy(mtProject.instrument[importStartSlot].sample.address, importFromSampleEditorAddress, importFromSampleEditorLength*2);
+	mtProject.instrument[importStartSlot].sample.length = importFromSampleEditorLength/2;
+	memcpy(mtProject.instrument[importStartSlot].sample.address, importFromSampleEditorAddress, importFromSampleEditorLength);
 
 
 	status = fmImportSampleFromSampleEditorEnd;
@@ -891,7 +907,7 @@ bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t 
 	importEndSlot = instrumentSlot;
 
 	importFromSampleEditorAddress = (uint8_t*)memoryAddres;
-	importFromSampleEditorLength = length;
+	importFromSampleEditorLength = length*2;
 
 	calcFirstSlotToMoveInMemory(importEndSlot+1);
 

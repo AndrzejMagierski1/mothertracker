@@ -32,6 +32,7 @@ bool cFileManager::createNewProjectInWorkspace()
 	//saveActualPattern(cWorkspacePatternsPath, mtProject.values.actualPattern);
 	sequencer.loadFromFileERROR();
 	changesFlags.pattern[mtProject.values.actualPattern] = 1;
+	changesFlags.project = 1;
 	savePatternToWorkspace();
 	sequencer.saveToFileDone(); //xxx ?
 

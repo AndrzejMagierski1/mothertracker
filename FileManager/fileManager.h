@@ -258,6 +258,7 @@ private:
 	void loadProjectFromWorkspaceInit();
 	void loadProjectFromWorkspaceFinish();
 	void saveProjectToWorkspaceInit();
+	void saveProjectToWorkspaceContinue();
 	void saveProjectToWorkspaceFinish();
 
 	void copyProjectsToWorkspaceInit();
