@@ -61,7 +61,6 @@ public:
 //***********
 //***********PROCESSING
 	uint8_t processingState;
-
 	bool 	endProcessingState = false;
 	bool	startProcessingSelection();
 	void 	updateProcessingSelection();
@@ -115,6 +114,7 @@ protected:
 		strProcessing processParams;
 	} processing;
 
+	bool 	processingWithoutCopying;
 
 	struct strMemoryAreaWithSelection
 	{
@@ -124,6 +124,7 @@ protected:
 			uint32_t length;
 		} area, selection;
 	};
+
 
 	strMemoryAreaWithSelection processed =
 	{ .area = { sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},

@@ -142,6 +142,7 @@ public:
 	void modStartPoint(int16_t val);
 	void modEndPoint(int16_t val);
 	void modZoom(int16_t val);
+	void resetZoom();
 	void modSelectedEffect(int16_t val);
 //ParamiterScreen
 	void modParamiter(int16_t val, uint8_t n);
@@ -287,6 +288,8 @@ public:
 		const char * const * afterValueText;
 	} effectDisplayParams[editorEffectMax] =
 	{
+			{},//cut - brak drugiego ekranu
+			{},//reverse - brak drugiego ekranu
 			{
 				{0,50,0,0,0,0},{0.95,0,0,0,0,0}, //start values
 				2,delayParams::labelText,delayParams::paramsType,
