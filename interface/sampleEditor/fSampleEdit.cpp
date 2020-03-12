@@ -66,11 +66,24 @@ static  uint8_t functStopPatternNo();
 // Save Sample Funct
 static  uint8_t functSaveSampleYes();
 static  uint8_t functSaveSampleNo();
+// Too long instrument
+static uint8_t functTooLongSampleOk();
+// Too long processed instrument
+static  uint8_t functTooLongProcessedSampleYes();
+static  uint8_t functTooLongProcessedSampleNo();
 //**************************************************************************
 
 void cSampleEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
+
+	if(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length > SAMPLE_EFFECTOR_LENGTH_MAX )
+	{
+		reloadInstrumentName();
+		showPopupTooLongSampleWindow();
+		setTooLongSampleFunctions();
+		return;
+	}
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
@@ -356,6 +369,18 @@ void cSampleEditor::setSaveChangesFunctions()
 	clearAllFunctions();
 	FM->setButtonObj(interfaceButton6, buttonPress, functSaveSampleNo);
 	FM->setButtonObj(interfaceButton7, buttonPress, functSaveSampleYes);
+}
+
+void cSampleEditor::setTooLongSampleFunctions()
+{
+	clearAllFunctions();
+	FM->setButtonObj(interfaceButton7, buttonPress, functTooLongSampleOk);
+}
+void cSampleEditor::setTooLongProcessedSampleFunctions()
+{
+	clearAllFunctions();
+	FM->setButtonObj(interfaceButton6, buttonPress, functTooLongProcessedSampleNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functTooLongProcessedSampleYes);
 }
 void cSampleEditor::switchScreen(enScreenType s)
 {
@@ -963,10 +988,22 @@ static uint8_t functSwitchModule(uint8_t button)
 	{
 		if(SE->confirmedDataIsChanged)
 		{
-			SE->reloadInstrumentName();
-			SE->showPopupSaveChangesWindow();
-			SE->setSaveChangesFunctions();
-			SE->moduleToChange = button;
+			uint32_t beforeProcessingLength = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
+			uint32_t afterProcessingLength = SE->currentEffect->getLengthToPlay();
+			int32_t dif = afterProcessingLength - beforeProcessingLength;
+
+			if(mtProject.used_memory + dif > mtProject.max_memory)
+			{
+				SE->showPopupTooLongProcessedSampleWindow();
+				SE->setTooLongProcessedSampleFunctions();
+				SE->moduleToChange = button;
+			}
+			else
+			{
+				SE->showPopupSaveChangesWindow();
+				SE->setSaveChangesFunctions();
+				SE->moduleToChange = button;
+			}
 		}
 		else SE->eventFunct(eventSwitchModule,SE,&button,0);
 	}
@@ -1288,5 +1325,24 @@ static  uint8_t functSaveSampleYes()
 static  uint8_t functSaveSampleNo()
 {
 	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	return 1;
+}
+// Too long instrument
+static uint8_t functTooLongSampleOk()
+{
+	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
+	return 1;
+}
+// Too long processed instrument
+static  uint8_t functTooLongProcessedSampleYes()
+{
+	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+	return 1;
+}
+static  uint8_t functTooLongProcessedSampleNo()
+{
+	SE->hideStaticPopup();
+	SE->switchScreen(SE->screenType);
+	SE->setCommonFunctions();
 	return 1;
 }
