@@ -629,6 +629,8 @@ void cSampleEditor::reloadPointsData()
 
 void cSampleEditor::prepareDisplayDataParamsScreen()
 {
+
+	selectedPlace[effectParamsScreen] = 0;
 	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
 	{
 		reloadParamiterValueText(i);
