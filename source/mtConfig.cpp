@@ -263,14 +263,19 @@ void checkConfig()
 
 
 	// general ----------------------------------------
-	if(mtConfig.general.brightness > 2)
+	if(mtConfig.general.dispBrightness > 2)
 	{
-		mtConfig.general.brightness = 2;
+		mtConfig.general.dispBrightness = 2;
+	}
+
+	if(mtConfig.general.padsBrightness > 2)
+	{
+		mtConfig.general.padsBrightness = 2;
 	}
 
 	if(mtConfig.general.patternDiv > 15)
 	{
-		mtConfig.general.patternDiv = 3; //4
+		mtConfig.general.patternDiv = 3; // =>> 4
 	}
 
 	if(mtConfig.general.radioRegion > 2)
@@ -346,7 +351,8 @@ void resetConfig()
 	mtConfig.midi.notesOutChannel = 0;
 
 	// general ----------------------------------------
-	mtConfig.general.brightness = 2;
+	mtConfig.general.dispBrightness = 2;
+	mtConfig.general.padsBrightness = 2;
 	mtConfig.general.patternDiv = 3; // czyli 4
 	mtConfig.general.radioRegion = 0;
 	mtConfig.general.mtpState = 0;

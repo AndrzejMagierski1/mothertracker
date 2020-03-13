@@ -180,10 +180,10 @@ private:
 
 	uint8_t updateDisplaySettings = 0;
 
-	uint8_t backlightBrightness;
-	uint8_t lastBacklightBrightness;
+	uint8_t backlightBrightness = 128;
+	uint8_t lastBacklightBrightness = 128;
 
-	uint8_t rotateValue;
+	uint8_t rotateValue = 1;
 	uint8_t lastRotateValue = 1;
 
 	//png/jpg

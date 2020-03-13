@@ -2,6 +2,8 @@
 #include "configEditor/configEditor.h"
 #include "configEditor/configMenu.h"
 
+#include "configEditor/configMenuActions.h"
+
 
 
 // baza baz
@@ -13,7 +15,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 5);
 //=====================================================================================================================================
 
 // grupy glowne
-cMenuGroup menuGeneral	(menuBase, 0, "General", 	3);
+cMenuGroup menuGeneral	(menuBase, 0, "General", 	4);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuFirmware	(menuBase, 2, "Firmware", 	2);
 cMenuGroup menuHelp		(menuBase, 3, "Help", 		1);
@@ -21,14 +23,16 @@ cMenuGroup menuCredits	(menuBase, 4, "Credits", 	1);
 
 
 // elementy/////////
-const strItemTypeValue8 setupPatternDiv 	{ &mtConfig.general.patternDiv,  0, 15, 1, 1	 };
-const strItemTypeListText setupRadioRegion	{ &mtConfig.general.radioRegion, 3, ptrRadioRegion };
-const strItemTypeListText setupBrightness 	{ &mtConfig.general.brightness,  3, ptrBrightness  };
-const strItemTypeListText setupMtpState 	{ &mtConfig.general.mtpState,  	 2, ptrMtpState  };
+const strItemTypeValue8 setupPatternDiv 		{ &mtConfig.general.patternDiv,  	0, 15, 1, 1	 };
+const strItemTypeListText setupRadioRegion		{ &mtConfig.general.radioRegion, 	3, ptrRadioRegion };
+const strItemTypeListTextWithAction setupDispBrightness 	{ &mtConfig.general.dispBrightness,  3, ptrBrightness, setDisplayBrightness };
+const strItemTypeListTextWithAction setupPadsBrightness 	{ &mtConfig.general.padsBrightness,  3, ptrBrightness, setPadsBrightness };
+const strItemTypeListText setupMtpState 		{ &mtConfig.general.mtpState,  	 	2, ptrMtpState  };
 
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
-cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListText, &setupBrightness);
+cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListTextWithAction, &setupDispBrightness);
+cMenuItem melPadsBright	(menuGeneral, 		3, "Pads Brightness", 		menuTypeItemListTextWithAction, &setupPadsBrightness);
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
 ///////////////////
@@ -348,6 +352,9 @@ void cConfigEditor::setLabelByMenuItemType(uint8_t label, menu_item_t type, uint
 	case menuTypeItemListText:
 		changeLabelText(label,"Change");
 		break;
+	case menuTypeItemListTextWithAction:
+		changeLabelText(label,"Change");
+		break;
 	case menuTypeItemLabel:
 		changeLabelText(label,"");
 		break;
@@ -457,6 +464,14 @@ void cConfigEditor::configListConfirm(uint8_t list_pos)
 				selectSubmenu();
 				break;
 			}
+			case menuTypeItemListTextWithAction:
+			{
+				strItemTypeListTextWithAction* temp_str = (strItemTypeListTextWithAction*)selected_child->getItemSetup();
+				if(list_pos < temp_str->count) *(temp_str->value) = list_pos;
+				temp_str->funct1();
+				selectSubmenu();
+				break;
+			}
 			default: break;
 		}
 
@@ -485,6 +500,9 @@ void cMenuGroup::execute()
 			configEditor.loadConfigValuesList((strItemTypeListValues*)selected_child->itemSetup);
 			break;
 		case menuTypeItemListText:
+			configEditor.loadConfigTextList((strItemTypeListText*)selected_child->itemSetup);
+			break;
+		case menuTypeItemListTextWithAction:
 			configEditor.loadConfigTextList((strItemTypeListText*)selected_child->itemSetup);
 			break;
 		case menuTypeItemLabel:
