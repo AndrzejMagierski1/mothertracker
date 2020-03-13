@@ -40,9 +40,13 @@ void cGraphicProcessing::spectrumChangeZoom(int16_t value, uint32_t sampleLength
 	uint16_t max_resolution = sampleLength / 600;
 	uint16_t min_resolution = sampleLength / MAX_16BIT + 1;
 
-	if(zoom->zoomResolution - value < min_resolution) zoom->zoomResolution  = min_resolution;
-	else if(zoom->zoomResolution - value > max_resolution ) zoom->zoomResolution = max_resolution;
-	else zoom->zoomResolution -= value;
+	uint16_t step = (max_resolution-min_resolution)/ 100;
+	if(step == 0) step = 1;
+
+
+	if(zoom->zoomResolution - (value*step) < min_resolution) zoom->zoomResolution  = min_resolution;
+	else if(zoom->zoomResolution - (value*step) > max_resolution ) zoom->zoomResolution = max_resolution;
+	else zoom->zoomResolution -= value*step;
 
 	if(zoom->zoomResolution == max_resolution) zoom->zoomValue = 1.0;
 	else zoom->zoomValue = sampleLength/((zoom->zoomResolution)*600.0);
@@ -80,11 +84,15 @@ void cGraphicProcessing::processSpectrum(strSpectrumParams* params, strZoomParam
 		int16_t low = 0;
 		uint32_t step = 0;
 
+		uint16_t max_resolution =  (resolution < 200) ? resolution : 200; 	// ogranicza liczbe przetwarzanych probek
+																			// oszukujac troche na wygladzie
+
+
 		for(uint16_t i = offset_pixel; i < 600; i++)
 		{
 			low = up = 0; //*(sampleData+step);
 
-			for(uint16_t j = 0; j < resolution; j++)
+			for(uint16_t j = 0; j < max_resolution; j++)
 			{
 				int16_t sample = *(sampleData+step+j);
 
@@ -271,13 +279,16 @@ void cGraphicProcessing::processSpectrum(int16_t* address, uint32_t length, strZ
 
 	if(resolution < 1) resolution = 1;
 
+	//if(resolution > 200) resolution = 200;
+
 
 	int16_t up = 0;
 	int16_t low = 0;
 
 	uint32_t step = 0;
 
-
+	uint16_t max_resolution =  (resolution < 200) ? resolution : 200; 	// ogranicza liczbe przetwarzanych probek
+																		// oszukujac troche na wygladzie
 
 	if(offset_pixel > 0)
 	{
@@ -285,7 +296,7 @@ void cGraphicProcessing::processSpectrum(int16_t* address, uint32_t length, strZ
 		{
 			low = up = 0; //*(sampleData+step);
 
-			for(uint16_t j = 0; j < resolution; j++)
+			for(uint16_t j = 0; j < max_resolution; j++)
 			{
 				int16_t sample = *(sampleData-step+j);
 
@@ -312,7 +323,7 @@ void cGraphicProcessing::processSpectrum(int16_t* address, uint32_t length, strZ
 	{
 		low = up = 0; //*(sampleData+step);
 
-		for(uint16_t j = 0; j < resolution; j++)
+		for(uint16_t j = 0; j < max_resolution; j++)
 		{
 			int16_t sample = *(sampleData+step+j);
 
