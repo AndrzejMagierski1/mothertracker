@@ -154,7 +154,7 @@ bool mtEffect::startProcessingSelection()
 
 
 	if(processingState != enProcessingState::idle) return false;
-	uint32_t expectedSelectLen = getExpectedProcessLength(confirmed.selection.length);
+	uint32_t expectedSelectLen = getExpectedProcessLength();
 	int32_t dif = expectedSelectLen - confirmed.selection.length ;
 
 	if(confirmed.area.length + dif > SAMPLE_EFFECTOR_LENGTH_MAX ) return false;
@@ -283,6 +283,15 @@ void mtEffect::clearIsProcessedData()
 {
 	apply.isProcessData = false;
 }
+
+uint32_t mtEffect::getAreaLengthAfterProcessing()
+{
+	uint32_t expectedSelectionLength = getExpectedProcessLength();
+	uint32_t expectedAreaLength = confirmed.area.length + (expectedSelectionLength - confirmed.selection.length);
+
+	return expectedAreaLength;
+
+}
 //***********PREVIEW GETTERS
 int16_t * const mtEffect::getAddresToPreview()
 {
@@ -369,7 +378,7 @@ bool mtEffect::getProcessState()
 {
 	return true;
 };
-uint32_t mtEffect::getExpectedProcessLength(uint32_t selectLen)
+uint32_t mtEffect::getExpectedProcessLength()
 {
 	return 0;
 };

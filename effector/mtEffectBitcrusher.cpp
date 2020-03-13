@@ -143,9 +143,9 @@ bool mtEffectBitcrusher::getProcessState()
 {
 	return state;
 }
-uint32_t mtEffectBitcrusher::getExpectedProcessLength(uint32_t selectLen)
+uint32_t mtEffectBitcrusher::getExpectedProcessLength()
 {
-	return  selectLen;
+	return  confirmed.selection.length;
 }
 
 mtEffectBitcrusher sampleEditorBitcrusher;

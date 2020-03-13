@@ -117,9 +117,6 @@ public:
 //Stop Seq
 	void showPopupStopSequencer();
 	void showPopupSeqWindow();
-//Save changes
-	void showPopupSaveChanges();
-	void showPopupSaveChangesWindow();
 //Too Long instrument
 	void showPopupTooLongSample();
 	void showPopupTooLongSampleWindow();

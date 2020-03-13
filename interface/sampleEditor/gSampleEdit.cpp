@@ -14,6 +14,7 @@ static uint32_t popupLabelColors[] =
 	0xFFFFFF, // tekst
 	0x0a0a0a, // tło
 	0xFF0000, // ramka
+	0xFFFFFF // tekst2
 };
 
 void cSampleEditor::initDisplayControls()
@@ -31,6 +32,7 @@ void cSampleEditor::initDisplayControls()
 
 	strControlProperties popupLabelProperties;
 
+	popupLabelProperties.value = 1;
 	popupLabelProperties.x = 400;
 	popupLabelProperties.colors = popupLabelColors;
 	popupLabelProperties.y = 300;
@@ -54,7 +56,7 @@ void cSampleEditor::initDisplayControls()
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		labelProperties.value = 1;
-		labelProperties.colors = interfaceGlobals.activeLabelsColors;
+		labelProperties.colors = interfaceGlobals.activeButtonLabelsColors;
 		labelProperties.style = ( controlStyleCenterX | controlStyleFont3 );
 		labelProperties.x = (800/8)*i+(800/16);
 		labelProperties.w = 800/8-6;
@@ -202,7 +204,16 @@ void cSampleEditor::showMainScreen()
 	display.setControlText(label[2], "Zoom");
 	display.setControlText(label[3], "Undo");
 	display.setControlText(label[4], "");
-	display.setControlText(label[5], "Apply");
+	if(currentEffectIdx < 2 )
+	{
+		display.setControlText(label[5], "Apply");
+		display.setControlText2(label[5], "");
+	}
+	else
+	{
+		display.setControlText(label[5], "Select");
+		display.setControlText2(label[5], "effect");
+	}
 
 	showStartPointText();
 	showEndPointText();
@@ -210,7 +221,11 @@ void cSampleEditor::showMainScreen()
 
 	for(uint8_t i = 0; i < 7; i++)
 	{
-		if(editorInstrument->isActive) display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		if(editorInstrument->isActive)
+		{
+			if(i != 5) display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+			else display.setControlColors(label[i],interfaceGlobals.activeButtonLabelsColors);
+		}
 		else display.setControlColors(label[i],interfaceGlobals.inactiveLabelsColors);
 	}
 
@@ -223,7 +238,8 @@ void cSampleEditor::showMainScreen()
 
 	for (uint8_t i = 0; i < 6; i++ )
 	{
-		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		if(i == 5) display.setControlStyle2(label[i], controlStyleCenterX| controlStyleFont3);
+		else display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlPosition(label[i], (800/8)*i+(800/16), 424);
 		display.setControlSize(label[i], 800/8-6, 55);
 		display.setControlShow(label[i]);
@@ -260,7 +276,9 @@ void cSampleEditor::showMainScreen()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Sample Editor 1/2");
+	if(currentEffectIdx < 2 ) display.setControlText(titleLabel, "Sample Editor");
+	else display.setControlText(titleLabel, "Sample Editor 1/2");
+
 	display.refreshControl(titleLabel);
 
 	showInstrumentName();
@@ -296,7 +314,7 @@ void cSampleEditor::showEffectParamsScreen()
 	}
 //Labels
 
-	for ( uint8_t i = 0; i < 6; i++ )
+	for ( uint8_t i = 0; i < 5; i++ )
 	{
 		if( i < effectDisplayParams[currentEffectIdx].paramsNumber)
 		{
@@ -309,16 +327,19 @@ void cSampleEditor::showEffectParamsScreen()
 			display.setControlText2(label[i],"");
 		}
 	}
+
+	display.setControlText(label[5], "Back");
+	display.setControlText2(label[5], "");
+
 	switch(previewState)
 	{
 	case previewStatePreview: 		display.setControlText(label[6], "Preview"); 	break;
 	case previewStatePlay:			display.setControlText(label[6], "Play");	break;
 	case previewStateStop:			display.setControlText(label[6], "Stop");	break;
 	}
-
+	display.setControlText2(label[6], "");
 
 	display.setControlText(label[7], "Apply");
-	display.setControlText2(label[6], "");
 	display.setControlText2(label[7], "");
 
 
@@ -569,6 +590,7 @@ void cSampleEditor::hideStaticPopup()
 void cSampleEditor::showPopupStopSequencer()
 {
 	display.setControlText(popupLabel, "This action will stop the pattern. Do you want to continue?");
+	display.setControlText2(popupLabel,"");
 	display.setControlShow(popupLabel);
 	display.refreshControl(popupLabel);
 
@@ -584,28 +606,11 @@ void cSampleEditor::showPopupSeqWindow()
 	showPopupStopSequencer();
 	display.synchronizeRefresh();
 }
-void cSampleEditor::showPopupSaveChanges()
-{
-	display.setControlText(popupLabel, "The sample has been changed. Do you want to overwrite it? ");
-	display.setControlShow(popupLabel);
-	display.refreshControl(popupLabel);
-
-	display.setControlText(label[6], "No");
-	display.setControlText(label[7], "Yes");
-	display.refreshControl(label[6]);
-	display.refreshControl(label[7]);
-}
-void cSampleEditor::showPopupSaveChangesWindow()
-{
-	showStaticPopupCommonWindow();
-	showPopupSaveChanges();
-	display.synchronizeRefresh();
-}
-
 //Too Long instrument
 void cSampleEditor::showPopupTooLongSample()
 {
-	display.setControlText(popupLabel, "Selected sample is too long. Please, choose another one.");
+	display.setControlText(popupLabel, "Selected sample is too long. Choose another one.");
+	display.setControlText2(popupLabel,"");
 	display.setControlShow(popupLabel);
 	display.refreshControl(popupLabel);
 
@@ -622,14 +627,12 @@ void cSampleEditor::showPopupTooLongSampleWindow()
 //Too Long processed sample
 void cSampleEditor::showPopupTooLongProcessedSample()
 {
-	display.setControlText(popupLabel, "Processed sample is too long. Do you want to continue without applying changes?");
+	display.setControlText(popupLabel, "After applying changes, the sample will be too long.");
+	display.setControlText2(popupLabel, "Change the effect parameters and try again.");
 	display.setControlShow(popupLabel);
 	display.refreshControl(popupLabel);
 
-	display.setControlText(label[6], "No");
-	display.setControlText(label[7], "Yes");
-	display.refreshControl(label[6]);
-	display.refreshControl(label[7]);
+	display.setControlText(label[7], "Ok");
 }
 void cSampleEditor::showPopupTooLongProcessedSampleWindow()
 {

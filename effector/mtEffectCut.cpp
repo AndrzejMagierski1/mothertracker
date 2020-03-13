@@ -56,7 +56,7 @@ bool mtEffectCut::getProcessState()
 {
 	return state;
 }
-uint32_t mtEffectCut::getExpectedProcessLength(uint32_t selectLen)
+uint32_t mtEffectCut::getExpectedProcessLength()
 {
-	return selectLen;
+	return confirmed.selection.length;
 }

@@ -13,7 +13,7 @@ public:
 	bool startProcess() override;
 	int32_t updateProcess() override;
 	bool getProcessState() override;
-	uint32_t getExpectedProcessLength(uint32_t selectLen) override;
+	uint32_t getExpectedProcessLength() override;
 //***********
 private:
 	uint32_t length;

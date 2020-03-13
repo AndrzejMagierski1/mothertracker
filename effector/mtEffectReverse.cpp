@@ -54,8 +54,8 @@ bool mtEffectReverse::getProcessState()
 {
 	return state;
 }
-uint32_t mtEffectReverse::getExpectedProcessLength(uint32_t selectLen)
+uint32_t mtEffectReverse::getExpectedProcessLength()
 {
-	return selectLen;
+	return confirmed.selection.length;
 }
 
