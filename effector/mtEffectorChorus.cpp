@@ -58,7 +58,7 @@ void mtChorus::process()
 
 uint8_t mtChorus::getProgress()
 {
-	return loadProgress;
+	return loadProgress + delay_length ;
 }
 
 uint8_t mtChorus::requireProcess()

@@ -8,8 +8,6 @@
 #include "mtEffectorFlanger.h"
 #include "mtEffectorLimiter.h"
 #include "mtEffectorCompressor.h"
-#include "mtEffectorAmplifier.h"
-
 #define UNDO_QUEUE		10
 
 

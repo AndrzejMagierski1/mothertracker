@@ -6,6 +6,7 @@ enum enSampleEditorEffect
 {
 	editorEffectCut,
 	editorEffectReverse,
+	editorEffectAmplifier,
 	editorEffectDelay,
 	editorEffectBitcrusher,
 
@@ -45,6 +46,17 @@ namespace bitcrusherParams
 	extern const char * const afterValueText[2];
 //*********************
 }
-
+namespace amplifierParams
+{
+extern const char * const labelText[1];
+extern const char paramsType[1];
+extern int iUpConstrain[1];
+extern float fUpConstrain[1];
+extern int iDownConstrain[1];
+extern float fDownConstrain[1];
+extern float changeStep[1];
+extern float displayMult[1];
+extern const char * const afterValueText[1];
+}
 
 #endif /* EFFECTOR_MTSAMPLEEDITORENGINE_H_ */

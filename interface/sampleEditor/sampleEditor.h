@@ -297,6 +297,14 @@ public:
 			{},//cut - brak drugiego ekranu
 			{},//reverse - brak drugiego ekranu
 			{
+				{0,0,0,0,0,0},{1.0,0,0,0,0,0}, //start values
+				1,amplifierParams::labelText,amplifierParams::paramsType,
+				amplifierParams::iUpConstrain,amplifierParams::fUpConstrain,
+				amplifierParams::iDownConstrain,amplifierParams::fDownConstrain,
+				amplifierParams::changeStep,amplifierParams::displayMult,
+				amplifierParams::afterValueText
+			},
+			{
 				{0,50,0,0,0,0},{0.95,0,0,0,0,0}, //start values
 				2,delayParams::labelText,delayParams::paramsType,
 				delayParams::iUpConstrain,delayParams::fUpConstrain,
@@ -304,7 +312,6 @@ public:
 				delayParams::changeStep,delayParams::displayMult,
 				delayParams::afterValueText
 			},
-
 			{
 				{4,44100,0,0,0,0},{0,0,0,0,0,0}, //start values
 				2,bitcrusherParams::labelText,bitcrusherParams::paramsType,

@@ -75,8 +75,8 @@ void mtLimiter::calculate(int16_t *sbuf, int16_t *dbuf)
 		if(f<g) coeff=attack;
 		else coeff= release;
 		g = (1-coeff) *g + coeff * f;
-		if(buffer[delay-1] == 0) *dbuf= *sbuf; //todo: czy to ma sens?
-		else *dbuf = g * buffer[delay-1];
+
+		*dbuf = g * buffer[delay-1];
 
 		for(uint8_t i = delay-1; i>=1 ; i--)
 		{
