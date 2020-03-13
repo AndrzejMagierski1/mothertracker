@@ -194,14 +194,13 @@ public:
 //*******************DISPLAY CONTROLS DATA
 	strList effectListData;
 	strTrackerSpectrum spectrumData =
-	{
-			.width = 600,
-	};
-	strTrackerPoints spectrumPointsData =
-	{
-			.startPoint = 0,
-			.endPoint = 600
-	};
+		{
+				0,{},{},0,600
+		};
+	 strTrackerPoints spectrumPointsData =
+		{
+				0,0,600,0,0,0
+		};
 	strFrameData frameData;
 	strLabelData labelArrow =
 	{
