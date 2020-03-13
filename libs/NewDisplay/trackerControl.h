@@ -12,7 +12,7 @@ struct strTrackerPattern
 		struct strRow
 		{
 			char note[5] = "";
-			char instr[4] = ""; // ostatni znak jako flaga midi
+			char instr[4] = ""; // 3 znak >0 jesli midi
 			char fx[2][5] = {"",""};
 		} row[15];
 

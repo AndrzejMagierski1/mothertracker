@@ -18,6 +18,7 @@ typedef enum enMenuItemType
 	menuItemTypeValueU8,
 	menuTypeItemListValues,
 	menuTypeItemListText,
+	menuTypeItemListTextWithAction,
 	menuTypeItemLabel,
 	menuTypeItemActionButton,
 
@@ -46,6 +47,14 @@ struct strItemTypeListText
 	uint8_t* value;
 	uint8_t count;
 	const char*const*  ptrText;
+};
+
+struct strItemTypeListTextWithAction
+{
+	uint8_t* value;
+	uint8_t count;
+	const char*const*  ptrText;
+	void (*funct1)(void) = nullptr;
 };
 
 struct strItemTypeLabel

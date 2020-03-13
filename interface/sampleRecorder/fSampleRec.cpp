@@ -687,7 +687,7 @@ static  uint8_t functActionButton0(uint8_t s)
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
-		functConfirmKey();
+		if(s == buttonPress) functConfirmKey();
 		return 1;
 	}
 

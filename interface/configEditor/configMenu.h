@@ -123,6 +123,8 @@ public:
 			return (char*)ptrEmptyName;	break;
 		case menuTypeItemListText:
 			return (char*)((strItemTypeListText*)itemSetup)->ptrText[*((strItemTypeListText*)itemSetup)->value];
+		case menuTypeItemListTextWithAction:
+			return (char*)((strItemTypeListText*)itemSetup)->ptrText[*((strItemTypeListText*)itemSetup)->value];
 		case menuTypeItemLabel:
 			return ((strItemTypeLabel*)itemSetup)->text;
 

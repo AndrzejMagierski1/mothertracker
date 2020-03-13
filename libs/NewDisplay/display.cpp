@@ -331,12 +331,12 @@ void cDisplay::update()
 						debugLog.addValue((uint8_t)p->id);
 						debugLog.addText(" which uses: ");
 						debugLog.addValue(p->ramSize);
-						debugLog.addText(" bytes memory");
+						debugLog.addText(" bytes of memory");
 					}
 				}
 			}
 
-			if(memoryUsed > 6500)
+			if(memoryUsed > 7000)
 			{
 				debugLog.addLine("Graphic memory used: ");
 				debugLog.addValue(memoryUsed);
