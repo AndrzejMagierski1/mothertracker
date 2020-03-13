@@ -367,25 +367,23 @@ void cPatternEditor::refreshPattern()
 			{
 				if(seq->track[i].step[patternPosition - 7 + j].instrument > INSTRUMENTS_MAX)  // midi instr
 				{
-					trackerPattern.track[i].row[j].instr[3] = 1;
-
 					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument - INSTRUMENTS_COUNT+1) / 10;
 					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument - INSTRUMENTS_COUNT+1) % 10;
 
-					trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
-					trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
-					trackerPattern.track[i].row[j].instr[2] = 0;
+					trackerPattern.track[i].row[j].instr[0] = 'M';
+					trackerPattern.track[i].row[j].instr[1] = inst0 + 48;
+					trackerPattern.track[i].row[j].instr[2] = inst1 + 48;
+					trackerPattern.track[i].row[j].instr[3] = 0;
 				}
 				else // normal instr
 				{
-					trackerPattern.track[i].row[j].instr[3] = 0;
-
 					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) / 10;
 					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) % 10;
 
 					trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
 					trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
 					trackerPattern.track[i].row[j].instr[2] = 0;
+					trackerPattern.track[i].row[j].instr[3] = 0;
 				}
 			}
 			else

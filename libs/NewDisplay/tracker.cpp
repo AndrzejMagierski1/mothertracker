@@ -955,22 +955,26 @@ void cTracker::instruments()
 
 	for(uint16_t i = 0; i < columnsCount; i++)
 	{
+		uint8_t track = tracks->firstVisibleTrack+i;
 		for(uint16_t j = 0; j < rowCount; j++)
 		{
 			int16_t param_x = offset_x+i*tracksSpace;
 			int16_t param_y = 14+j*28;
-			uint8_t midi_channel  =  tracks->track[tracks->firstVisibleTrack+i].row[j].instr[3];
-			char* text  = tracks->track[tracks->firstVisibleTrack+i].row[j].instr;
+			//uint8_t midi_channel  =  tracks->track[track].row[j].instr[3];
+			char* text  = tracks->track[track].row[j].instr;
 			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[14];
 			else if(j == 7 && i == mark) actualColor =  colors[14];
 			else
 			{
-				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
+				if(tracks->inactive[track]) actualColor = colors[12];
 				else if(*text == '-') actualColor = colors[7];
 				else actualColor = colors[3];
 			}
 
-			String2Bitmaps(param_x, param_y, (midi_channel)?&fonts[0]:&fonts[1], text, param_length[1]);
+			if(tracks->track[track].row[j].instr[2] > 0)
+				String2Bitmaps(param_x-4, param_y, &fonts[0], text, param_length[1]+1);
+			else
+				String2Bitmaps(param_x, param_y, &fonts[1], text, param_length[1]);
 
 			//if(change_color) API_COLOR(colors[3]);
 			//if(midi_channel > 0)	API_BITMAP_HANDLE(fonts[1].handle);
