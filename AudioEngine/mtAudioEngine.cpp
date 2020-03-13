@@ -781,7 +781,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	}
 
 	filterDisconnect();
-	ampPtr->gain(1.0);
+	ampPtr->gain(0.5);
 	engine.clearReverb();
 
 	mixerL.gain(nChannel,1.0);
