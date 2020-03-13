@@ -90,8 +90,10 @@ static uint8_t functDeleteBackspace(uint8_t state);
 static  uint8_t functEncoder(int16_t value);
 
 
-static uint8_t functDelete();
-static uint8_t functDeleteConfirm();
+static uint8_t functDeleteProject();
+static uint8_t functDeleteMod();
+static uint8_t functDeleteProject_Confirm();
+static uint8_t functDeleteMod_Confirm();
 
 
 static uint8_t functStartGameModule()
@@ -491,7 +493,7 @@ void cProjectEditor::processProjectList()
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
-	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDeleteProject);
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
@@ -516,7 +518,7 @@ void cProjectEditor::processModsList()
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functImportModConfirm);
-	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDeleteMod);
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
@@ -549,6 +551,7 @@ static uint8_t functStopPatternYes()
 		case cProjectEditor::stopActionOpen: 		functOpenProjectConfirm();		break;
 		case cProjectEditor::stopActionNewProject: 	functNewProject();				break;
 		case cProjectEditor::stopActionExport: 		functExport();					break;
+		case cProjectEditor::stopActionImportMod: 	functImportModConfirm();		break;
 		default: break;
 	}
 
@@ -935,6 +938,7 @@ static uint8_t functOpenProjectConfirm()
 	if(newFileManager.isProjectChanged())
 	{
 		PE->projectListActiveFlag = 0;
+		PE->modsListActiveFlag = 0;
 		PE->functShowSaveLastWindowBeforeOpen();
 		return 1;
 	}
@@ -973,7 +977,7 @@ static uint8_t functImportModConfirm()
 	if(newFileManager.isProjectChanged())
 	{
 		PE->projectListActiveFlag = 0;
-		PE->functShowSaveLastWindowBeforeOpen();
+		PE->functShowSaveLastWindowBeforeImportMod();
 		return 1;
 	}
 
@@ -1011,16 +1015,37 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 
 	showSaveLastWindow();
 }
+void cProjectEditor::functShowSaveLastWindowBeforeImportMod()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-static uint8_t functDelete()
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functImportModConfirm);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveOpen);
+
+	showSaveLastWindow();
+}
+
+static uint8_t functDeleteProject()
 {
 	if(PE->isBusyFlag) return 1;
 	if(strcmp(newFileManager.getCurrentProjectName(), PE->projectsList[PE->selectedProject]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
-	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteProject_Confirm);
 
-	PE->showDeleteLastWindow();
+	PE->showDeleteProjectLastWindow();
+
+	return 1;
+}
+static uint8_t functDeleteMod()
+{
+	if(PE->isBusyFlag) return 1;
+
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteMod_Confirm);
+
+	PE->showDeleteModLastWindow();
 
 	return 1;
 }
@@ -1029,6 +1054,7 @@ static uint8_t functSaveChangesCancelOpen()
 {
 	if(PE->isBusyFlag) return 1;
 	PE->projectListActiveFlag = 0;
+	PE->modsListActiveFlag= 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 
@@ -1093,7 +1119,7 @@ static uint8_t functSaveChangesSaveOpen()
 	return 1;
 }
 
-static uint8_t functDeleteConfirm()
+static uint8_t functDeleteProject_Confirm()
 {
 	if(PE->isBusyFlag) return 1;
 
@@ -1108,6 +1134,24 @@ static uint8_t functDeleteConfirm()
 //	PE->showProcessingPopup("Deleting project");
 	return 1;
 }
+static uint8_t functDeleteMod_Confirm()
+{
+	if(PE->isBusyFlag) return 1;
+
+//	PE->deletePopupFlag = 1;
+//	PE->deletePopupDelay = 0;
+//	PE->isBusyFlag = 1;
+
+	newFileManager.deleteMod(PE->selectedMod);
+
+	PE->showDefaultScreen();
+	PE->setDefaultScreenFunct();
+//	PE->showProcessingPopup("Deleting project");
+	return 1;
+}
+
+
+
 //===============================================================================================================
 //export
 char currentExportPath[PATCH_SIZE];

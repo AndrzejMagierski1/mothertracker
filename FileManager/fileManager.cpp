@@ -756,6 +756,21 @@ bool cFileManager::deleteProject(uint8_t index)
 
 	return true;
 }
+bool cFileManager::deleteMod(uint8_t index)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	if(index >= modsListLength) return false;
+//	if(strcmp(projectsList[index], currentProjectName) == 0) return false;
+
+	char project_dir[255];
+	sprintf(project_dir, cModsPathFormat, modsList[index]);
+
+	SD.remove(project_dir);
+
+	return true;
+}
 
 //-----------------------------------------------------------------------------------------------------
 //-------------------------------------   FLAGI ZMIAN   -----------------------------------------------

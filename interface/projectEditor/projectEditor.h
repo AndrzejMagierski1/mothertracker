@@ -105,10 +105,12 @@ public:
 //-------------------------------------------------------------
 	void functShowSaveLastWindow();
 	void functShowSaveLastWindowBeforeOpen();
+	void functShowSaveLastWindowBeforeImportMod();
 	void showSaveLastWindow();
 	void functShowOverwriteWindow();
 
-	void showDeleteLastWindow();
+	void showDeleteProjectLastWindow();
+	void showDeleteModLastWindow();
 
 
 /*	void showOpeningHorizontalBar();

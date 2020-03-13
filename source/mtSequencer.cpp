@@ -519,7 +519,7 @@ void Sequencer::play_microStep(uint8_t row)
 				loadNextPattern(newFileManager.getNextSongPattern());
 			}
 		}
-		if (setBreakPattern)
+		if (setBreakPattern && player.songMode)
 		{
 			loadNextPattern(newFileManager.getNextSongPattern());
 		}

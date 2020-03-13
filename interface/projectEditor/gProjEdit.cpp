@@ -546,7 +546,7 @@ void cProjectEditor::showSaveLastWindow()
 	display.synchronizeRefresh();
 }
 
-void cProjectEditor::showDeleteLastWindow()
+void cProjectEditor::showDeleteProjectLastWindow()
 {
 	display.setControlValue(label[0], 0);
 
@@ -556,6 +556,29 @@ void cProjectEditor::showDeleteLastWindow()
 	display.setControlText(label[7], "Delete");
 
 	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", projectsList[selectedProject]);
+
+	display.setControlText(popupWindowLabel, currentInfo);
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+void cProjectEditor::showDeleteModLastWindow()
+{
+	display.setControlValue(label[0], 0);
+
+	display.setControlText(label[2], "");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[7], "Delete");
+
+	sprintf(currentInfo,"Do you want to delete file: \"%s\"?", modsList[selectedMod]);
 
 	display.setControlText(popupWindowLabel, currentInfo);
 	display.setControlShow(popupWindowLabel);
