@@ -4,7 +4,7 @@
 
 
 
-void eepromUpdate();
+void eepromUpdate(bool force);
 
 
 void readConfigOnce();

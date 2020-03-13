@@ -89,7 +89,7 @@ void cConfigEditor::update()
 		prepareAndFlash();
 	}
 
-	eepromUpdate();
+	eepromUpdate(false);
 
 }
 
@@ -138,6 +138,8 @@ void cConfigEditor::start(uint32_t options)
 
 void cConfigEditor::stop()
 {
+	eepromUpdate(true);
+
 	exitOnButtonRelease = 0;
 	moduleRefresh = 0;
 }

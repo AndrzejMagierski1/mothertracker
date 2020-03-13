@@ -21,9 +21,9 @@ elapsedMillis save_delay;
 
 static uint8_t saveFlag = 0;
 
-void eepromUpdate()
+void eepromUpdate(bool force)
 {
-	if(saveFlag  && save_delay > 5000)
+	if(saveFlag  && ( save_delay > 5000 || force))
 	{
 		saveFlag = 0;
 		forceSaveConfig();
