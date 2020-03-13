@@ -194,13 +194,13 @@ public:
 //*******************DISPLAY CONTROLS DATA
 	strList effectListData;
 	strTrackerSpectrum spectrumData =
-		{
-				0,{},{},0,600
-		};
-	 strTrackerPoints spectrumPointsData =
-		{
-				0,0,600,0,0,0
-		};
+	{
+			0,{},{},0,600
+	};
+	strTrackerPoints spectrumPointsData =
+	{
+			0,0,600,0,0,0
+	};
 	strFrameData frameData;
 	strLabelData labelArrow =
 	{
@@ -318,6 +318,14 @@ public:
 				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,
 				bitcrusherParams::changeStep,bitcrusherParams::displayMult,
 				bitcrusherParams::afterValueText
+			},
+			{
+				{128,1,0,0,0,0},{0,0,0,0,0,0}, //start values
+				2,chorusParams::labelText,chorusParams::paramsType,
+				chorusParams::iUpConstrain,chorusParams::fUpConstrain,
+				chorusParams::iDownConstrain,chorusParams::fDownConstrain,
+				chorusParams::changeStep,chorusParams::displayMult,
+				chorusParams::afterValueText
 			}
 	};
 

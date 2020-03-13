@@ -44,10 +44,20 @@ int32_t mtEffectChorus::updateProcess()
 
 	uint32_t dif = length - processedSamples;
 	uint32_t processedBlockLength = dif > 8192 ? 8192 : dif;
-//	uint32_t processingCount = processedBlockLength /
-//
-//	for(int i = 0; i <
+	uint32_t processingNumber = processedBlockLength / 128;
 
+	for(int i = 0; i < processingNumber; i++)
+	{
+		calculate(srcAddr, dstAddr);
+		srcAddr+=128;
+		dstAddr+=128;
+	}
+
+	if(processedBlockLength < 8192)
+	{
+		processedBlockLength = processingNumber * 128;
+		state = 0;
+	}
 
 	processedSamples += processedBlockLength;
 
@@ -66,7 +76,7 @@ bool mtEffectChorus::getProcessState()
 }
 uint32_t mtEffectChorus::getExpectedProcessLength()
 {
-	return confirmed.selection.length;
+	return confirmed.selection.length - confirmed.selection.length%128;
 }
 
 void mtEffectChorus::calculate(int16_t * src, int16_t* dst) //process 128 samples
@@ -112,7 +122,7 @@ void mtEffectChorus::calculate(int16_t * src, int16_t* dst) //process 128 sample
 		  l_circ_idx = 0;
 	  }
 
-	  l_delayline[l_circ_idx] = *src;
+	  l_delayline[l_circ_idx] = *src++;
 	  sum = 0;
 	  c_idx = l_circ_idx;
 
