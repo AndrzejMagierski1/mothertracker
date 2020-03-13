@@ -195,12 +195,11 @@ public:
 	strList effectListData;
 	strTrackerSpectrum spectrumData =
 	{
-			.width = 600,
+			0,{},{},0,600
 	};
 	strTrackerPoints spectrumPointsData =
 	{
-			.startPoint = 0,
-			.endPoint = 600
+			0,0,600,0,0,0
 	};
 	strFrameData frameData;
 	strLabelData labelArrow =
@@ -319,6 +318,14 @@ public:
 				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,
 				bitcrusherParams::changeStep,bitcrusherParams::displayMult,
 				bitcrusherParams::afterValueText
+			},
+			{
+				{128,1,0,0,0,0},{0,0,0,0,0,0}, //start values
+				2,chorusParams::labelText,chorusParams::paramsType,
+				chorusParams::iUpConstrain,chorusParams::fUpConstrain,
+				chorusParams::iDownConstrain,chorusParams::fDownConstrain,
+				chorusParams::changeStep,chorusParams::displayMult,
+				chorusParams::afterValueText
 			}
 	};
 

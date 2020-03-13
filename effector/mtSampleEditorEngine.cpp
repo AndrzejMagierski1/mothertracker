@@ -5,6 +5,7 @@
 #include "mtEffectCut.h"
 #include "mtEffectReverse.h"
 #include "mtEffectAmplifier.h"
+#include "mtEffectChorus.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
@@ -12,7 +13,8 @@ mtEffect * sampleEditorEffect[editorEffectMax] =
 		&sampleEditorReverse,
 		&sampleEditorAmplifier,
 		&sampleEditorDelay,
-		&sampleEditorBitcrusher
+		&sampleEditorBitcrusher,
+		&sampleEditorChorus
 };
 
 //******************************DELAY
@@ -93,4 +95,29 @@ namespace amplifierParams
 	};
 }
 
+namespace chorusParams
+{
+	const char * const labelText[2] =
+	{
+		(const char * const)"Depth",
+		(const char * const)"Voices"
+	};
+
+	const char paramsType[2] = {'d','d'};
+
+	int iUpConstrain[2] = { 4096 , 8};
+	float fUpConstrain[2]= {0.0, 0.0};
+
+	int iDownConstrain[2] = { 128 , 1};
+	float fDownConstrain[2]= {0.0, 0.00};
+
+	float changeStep[2] = { 128 , 1};
+	float displayMult[2] = {1, 1};
+
+	const char * const afterValueText[2] =
+	{
+		nullptr,
+		nullptr
+	};
+}
 //******************************
