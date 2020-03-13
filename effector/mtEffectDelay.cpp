@@ -101,12 +101,12 @@ bool mtEffectDelay::getProcessState()
 {
 	return state;
 }
-uint32_t mtEffectDelay::getExpectedProcessLength(uint32_t selectLen)
+uint32_t mtEffectDelay::getExpectedProcessLength()
 {
 	constexpr float MILISECOND_TIME = 44.1f;
 	uint32_t timeInSamples = (uint32_t)( (float)effectDelayParams.time * MILISECOND_TIME );
 
-	return  selectLen + (lastVoiceIdx-1) * timeInSamples;
+	return  confirmed.selection.length + (lastVoiceIdx-1) * timeInSamples;
 }
 
 mtEffectDelay sampleEditorDelay;

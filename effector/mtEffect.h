@@ -72,6 +72,7 @@ public:
 	void 	updateCopying();
 	bool 	getIsProcessedData();
 	void 	clearIsProcessedData();
+	uint32_t getAreaLengthAfterProcessing();
 //***********PREVIEW GETTERS
 	int16_t * const getAddresToPreview();
 	uint32_t getLengthToPreview();
@@ -92,7 +93,7 @@ public:
 	virtual bool startProcess();
 	virtual int32_t updateProcess();
 	virtual bool getProcessState();
-	virtual uint32_t getExpectedProcessLength(uint32_t selectLen);
+	virtual uint32_t getExpectedProcessLength();
 //***********
 	struct strUndo
 	{

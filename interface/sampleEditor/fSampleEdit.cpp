@@ -57,20 +57,18 @@ static  uint8_t functParamsScreenUp();
 static  uint8_t functParamsScreenDown();
 static  uint8_t functParamsScreenEncoder(int16_t value);
 static  uint8_t functSelectParamiter(uint8_t button);
+static 	uint8_t functBack();
 static  uint8_t functPreview();
 static  uint8_t functPlay();
 static  uint8_t functStop();
+static 	uint8_t functSave();
 // Stop Pattern Funct
 static  uint8_t functStopPatternYes();
 static  uint8_t functStopPatternNo();
-// Save Sample Funct
-static  uint8_t functSaveSampleYes();
-static  uint8_t functSaveSampleNo();
 // Too long instrument
 static uint8_t functTooLongSampleOk();
 // Too long processed instrument
-static  uint8_t functTooLongProcessedSampleYes();
-static  uint8_t functTooLongProcessedSampleNo();
+static  uint8_t functTooLongProcessedSampleOk();
 //**************************************************************************
 
 void cSampleEditor::start(uint32_t options)
@@ -197,6 +195,8 @@ void cSampleEditor::update()
 			if(applyingProgress)
 			{
 				resetZoom();
+				SE->screenType = cSampleEditor::mainScreen;
+				SE->switchScreen(SE->screenType);
 				applyingProgress = 0;
 			}
 			showProgressApplying();
@@ -335,7 +335,7 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functParamsScreenDown);
 
 
-	for(uint8_t i = interfaceButton0 ; i <= interfaceButton5 ; i++)
+	for(uint8_t i = interfaceButton0 ; i <= interfaceButton4 ; i++)
 	{
 		 if(i < effectDisplayParams[currentEffectIdx].paramsNumber)
 		 {
@@ -346,6 +346,7 @@ void cSampleEditor::setParamsScreenFunctions()
 			 break;
 		 }
 	}
+	FM->setButtonObj(interfaceButton5, buttonPress, functBack);
 	switch(previewState)
 	{
 	case previewStatePreview: 	FM->setButtonObj(interfaceButton6, buttonPress, functPreview); 	break;
@@ -353,7 +354,7 @@ void cSampleEditor::setParamsScreenFunctions()
 	case previewStateStop:		FM->setButtonObj(interfaceButton6, buttonPress, functStop); 	break;
 	}
 
-	FM->setButtonObj(interfaceButton7, buttonPress, functApply);
+	FM->setButtonObj(interfaceButton7, buttonPress, functSave);
 
 	FM->setPotObj(interfacePot0, functParamsScreenEncoder, nullptr);
 
@@ -364,13 +365,6 @@ void cSampleEditor::setStopSeqFunctions()
 	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
 	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
 }
-void cSampleEditor::setSaveChangesFunctions()
-{
-	clearAllFunctions();
-	FM->setButtonObj(interfaceButton6, buttonPress, functSaveSampleNo);
-	FM->setButtonObj(interfaceButton7, buttonPress, functSaveSampleYes);
-}
-
 void cSampleEditor::setTooLongSampleFunctions()
 {
 	clearAllFunctions();
@@ -379,8 +373,7 @@ void cSampleEditor::setTooLongSampleFunctions()
 void cSampleEditor::setTooLongProcessedSampleFunctions()
 {
 	clearAllFunctions();
-	FM->setButtonObj(interfaceButton6, buttonPress, functTooLongProcessedSampleNo);
-	FM->setButtonObj(interfaceButton7, buttonPress, functTooLongProcessedSampleYes);
+	FM->setButtonObj(interfaceButton7, buttonPress, functTooLongProcessedSampleOk);
 }
 void cSampleEditor::switchScreen(enScreenType s)
 {
@@ -715,6 +708,24 @@ void cSampleEditor::refreshEffectList()
 {
 	display.setControlValue(effectList, currentEffectIdx);
 	showEffectList();
+
+	if(currentEffectIdx < 2 )
+	{
+		display.setControlText(label[5], "Apply");
+		display.setControlText2(label[5], "");
+	}
+	else
+	{
+		display.setControlText(label[5], "Select");
+		display.setControlText2(label[5], "effect");
+	}
+	display.refreshControl(label[5]);
+
+	if(currentEffectIdx < 2 ) display.setControlText(titleLabel, "Sample Editor");
+	else display.setControlText(titleLabel, "Sample Editor 1/2");
+
+	display.refreshControl(titleLabel);
+	display.synchronizeRefresh();
 }
 
 void cSampleEditor::refreshSpectrum()
@@ -977,33 +988,24 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	if(button == interfaceButtonSampleEdit)
 	{
-		if(SE->currentEffectIdx < 2) return 1;
 
-		if(SE->screenType == cSampleEditor::mainScreen) SE->screenType = cSampleEditor::effectParamsScreen;
-		else if(SE->screenType == cSampleEditor::effectParamsScreen) SE->screenType = cSampleEditor::mainScreen;
-
-		SE->switchScreen(SE->screenType);
 	}
 	else
 	{
 		if(SE->confirmedDataIsChanged)
 		{
-			uint32_t beforeProcessingLength = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
-			uint32_t afterProcessingLength = SE->currentEffect->getLengthToPlay();
-			int32_t dif = afterProcessingLength - beforeProcessingLength;
+			SE->moduleToChange = button;
 
-			if(mtProject.used_memory + dif > mtProject.max_memory)
+			if(newFileManager.importSampleFromSampleEditor(SE->currentEffect->getAddresToPlay(),
+													  SE->currentEffect->getLengthToPlay(),
+													  mtProject.values.lastUsedInstrument))
 			{
-				SE->showPopupTooLongProcessedSampleWindow();
-				SE->setTooLongProcessedSampleFunctions();
-				SE->moduleToChange = button;
+				SE->FM->blockAllInputs();
 			}
-			else
-			{
-				SE->showPopupSaveChangesWindow();
-				SE->setSaveChangesFunctions();
-				SE->moduleToChange = button;
-			}
+//			SE->showPopupSaveChangesWindow();
+//			SE->setSaveChangesFunctions();
+//			SE->moduleToChange = button;
+
 		}
 		else SE->eventFunct(eventSwitchModule,SE,&button,0);
 	}
@@ -1181,43 +1183,16 @@ static  uint8_t functUndo()
 }
 static  uint8_t functApply()
 {
-
-	SE->applyingSteps = 0;
-	SE->confirmedDataIsChanged = 1;
-
-	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
-	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
-
-	if(!SE->isLoadedData) SE->applyingSteps++;
-	if(!SE->isProcessedData) SE->applyingSteps++;
-
-	if(SE->applyingSteps)
+	if(SE->currentEffectIdx < 2)
 	{
-		SE->showPopupApplying();
-		SE->applyingInProgress = 1;
-		SE->applyingProgress = 0;
-		SE->showProgressApplying();
-		SE->clearAllFunctions();
+		functSave();
+		return 1;
 	}
 
-	SE->applyingProgress = 0;
-	SE->currentEffect->startApply();
+	SE->screenType = cSampleEditor::effectParamsScreen;
 
-	if(!SE->applyingSteps)
-	{
-		SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
-		SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
-		SE->reloadSpectrumData();
-		SE->refreshStartPoint();
-		SE->refreshEndPoint();
-		SE->needRefreshSpectrum = 1;
+	SE->switchScreen(SE->screenType);
 
-		SE->resetZoom();
-	}
-
-	SE->setPreviewFunction();
-	SE->currentEffect->clearIsProcessedData();
-	SE->refreshUndoState();
 	return 1;
 }
 // Paramiter screen functions
@@ -1256,6 +1231,25 @@ static  uint8_t functSelectParamiter(uint8_t button)
 }
 static  uint8_t functPreview()
 {
+	uint32_t processedLength = SE->currentEffect->getAreaLengthAfterProcessing();
+
+	if(processedLength > SAMPLE_EFFECTOR_LENGTH_MAX)
+	{
+		SE->showPopupTooLongProcessedSampleWindow();
+		SE->setTooLongProcessedSampleFunctions();
+		return 1;
+	}
+
+	int32_t memoryBankChange =  processedLength - mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
+
+	if(mtProject.used_memory + memoryBankChange > mtProject.max_memory)
+	{
+		SE->showPopupTooLongProcessedSampleWindow();
+		SE->setTooLongProcessedSampleFunctions();
+		return 1;
+	}
+
+
 	SE->processingSteps = 1;
 
 	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
@@ -1299,6 +1293,76 @@ static  uint8_t functStop()
 	SE->setPlayFunction();
 	return 1;
 }
+
+static 	uint8_t functBack()
+{
+	SE->screenType = cSampleEditor::mainScreen;
+	SE->switchScreen(SE->screenType);
+	return 1;
+}
+static 	uint8_t functSave()
+{
+	uint32_t processedLength = SE->currentEffect->getAreaLengthAfterProcessing();
+
+	if(processedLength > SAMPLE_EFFECTOR_LENGTH_MAX)
+	{
+		SE->showPopupTooLongProcessedSampleWindow();
+		SE->setTooLongProcessedSampleFunctions();
+		return 1;
+	}
+
+	int32_t memoryBankChange =  processedLength - mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
+
+	if(mtProject.used_memory + memoryBankChange > mtProject.max_memory)
+	{
+		SE->showPopupTooLongProcessedSampleWindow();
+		SE->setTooLongProcessedSampleFunctions();
+		return 1;
+	}
+
+	SE->applyingSteps = 0;
+	SE->confirmedDataIsChanged = 1;
+
+	SE->isLoadedData = SE->currentEffect->getIsLoadedData();
+	SE->isProcessedData = SE->currentEffect->getIsProcessedData();
+
+	if(!SE->isLoadedData) SE->applyingSteps++;
+	if(!SE->isProcessedData) SE->applyingSteps++;
+
+	if(SE->applyingSteps)
+	{
+		SE->showPopupApplying();
+		SE->applyingInProgress = 1;
+		SE->applyingProgress = 0;
+		SE->showProgressApplying();
+		SE->clearAllFunctions();
+	}
+
+	SE->applyingProgress = 0;
+	SE->currentEffect->startApply();
+
+	if(!SE->applyingSteps)
+	{
+		SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
+		SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+		SE->reloadSpectrumData();
+		SE->refreshStartPoint();
+		SE->refreshEndPoint();
+		SE->needRefreshSpectrum = 1;
+
+		SE->resetZoom();
+
+		SE->screenType = cSampleEditor::mainScreen;
+		SE->switchScreen(SE->screenType);
+	}
+
+	SE->setPreviewFunction();
+	SE->currentEffect->clearIsProcessedData();
+	SE->refreshUndoState();
+
+	return 1;
+}
+
 // Stop Pattern Funct
 static  uint8_t functStopPatternYes()
 {
@@ -1311,22 +1375,6 @@ static  uint8_t functStopPatternNo()
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
 }
-// Save Sample Funct
-static  uint8_t functSaveSampleYes()
-{
-	if(newFileManager.importSampleFromSampleEditor(SE->currentEffect->getAddresToPlay(),
-											  SE->currentEffect->getLengthToPlay(),
-											  mtProject.values.lastUsedInstrument))
-	{
-		SE->FM->blockAllInputs();
-	}
-	return 1;
-}
-static  uint8_t functSaveSampleNo()
-{
-	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
-	return 1;
-}
 // Too long instrument
 static uint8_t functTooLongSampleOk()
 {
@@ -1334,12 +1382,7 @@ static uint8_t functTooLongSampleOk()
 	return 1;
 }
 // Too long processed instrument
-static  uint8_t functTooLongProcessedSampleYes()
-{
-	SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
-	return 1;
-}
-static  uint8_t functTooLongProcessedSampleNo()
+static  uint8_t functTooLongProcessedSampleOk()
 {
 	SE->hideStaticPopup();
 	SE->switchScreen(SE->screenType);
