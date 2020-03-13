@@ -4,11 +4,13 @@
 #include "mtEffectBitcrusher.h"
 #include "mtEffectCut.h"
 #include "mtEffectReverse.h"
+#include "mtEffectAmplifier.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
 		&sampleEditorCut,
 		&sampleEditorReverse,
+		&sampleEditorAmplifier,
 		&sampleEditorDelay,
 		&sampleEditorBitcrusher
 };
@@ -64,6 +66,30 @@ namespace bitcrusherParams
 	{
 		nullptr,
 		(const char * const)" Hz"
+	};
+}
+
+namespace amplifierParams
+{
+	const char * const labelText[1] =
+	{
+		(const char * const)"Amplifier"
+	};
+
+	const char paramsType[1] = {'f'};
+
+	int iUpConstrain[1] = {0};
+	float fUpConstrain[1]= {5.0};
+
+	int iDownConstrain[1] = {0};
+	float fDownConstrain[1]= {0.01};
+
+	float changeStep[1] = { 0.01};
+	float displayMult[1] = {1};
+
+	const char * const afterValueText[1] =
+	{
+		nullptr,
 	};
 }
 

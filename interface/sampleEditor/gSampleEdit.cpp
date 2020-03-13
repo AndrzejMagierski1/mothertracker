@@ -3,8 +3,9 @@
 
 char * const effectNamesLabels[editorEffectMax] =
 {
-		(char*)"Cut",
+		(char*)"Crop",
 		(char*)"Reverse",
+		(char*)"Amplifier",
 		(char*)"Delay",
 		(char*)"Bitcrusher"
 };
