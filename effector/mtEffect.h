@@ -40,6 +40,7 @@ public:
 	void update();
 	void switchEffect(mtEffect * lastEffect);
 //***********LOAD
+	void setStartLength(uint32_t val);
 	loadResult startLoad(uint8_t instr_idx);
 	void updateLoad();
 	bool getLoadState();

@@ -6,8 +6,14 @@ void mtEffectDelay::setParamiter(void * ptr, uint8_t n)
 {
 	switch(n)
 	{
-		case 0 : 	effectDelayParams.feedback = *((float*)ptr);		break;
-		case 1 : 	effectDelayParams.time = *((uint16_t*)ptr);			break;
+		case 0 :
+
+			effectDelayParams.feedback = *((float*)ptr);
+			calcLastVoiceIdx();
+			break;
+		case 1 :
+			effectDelayParams.time = *((uint16_t*)ptr);
+			break;
 		default: break;
 	}
 }
@@ -37,18 +43,6 @@ bool mtEffectDelay::startProcess()
 		feedbackVoiceMult[i] = pow(effectDelayParams.feedback,i);
 		lastIndexInVoice[i] = i*timeInSamples;
 	}
-
-	uint8_t maxVoiceNumber = 0;
-	float feedbackGain = 1.0;
-
-	while(feedbackGain > 0.01f)
-	{
-		feedbackGain *= effectDelayParams.feedback;
-		maxVoiceNumber++;
-		if(maxVoiceNumber == MAX_DELAY_VOICE_NUMBER) break;
-	}
-
-	lastVoiceIdx = maxVoiceNumber - 1;
 
 	state = true;
 	return true;
@@ -108,6 +102,22 @@ uint32_t mtEffectDelay::getExpectedProcessLength()
 
 	return  confirmed.selection.length + (lastVoiceIdx-1) * timeInSamples;
 }
+
+void mtEffectDelay::calcLastVoiceIdx()
+{
+	uint8_t maxVoiceNumber = 0;
+	float feedbackGain = 1.0;
+
+	while(feedbackGain > 0.01f)
+	{
+		feedbackGain *= effectDelayParams.feedback;
+		maxVoiceNumber++;
+		if(maxVoiceNumber == MAX_DELAY_VOICE_NUMBER) break;
+	}
+
+	lastVoiceIdx = maxVoiceNumber - 1;
+}
+
 
 mtEffectDelay sampleEditorDelay;
 //***********

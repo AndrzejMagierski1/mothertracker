@@ -25,6 +25,12 @@ void mtEffect::switchEffect(mtEffect * lastEffect)
 	memcpy(&this->undo, &lastEffect->undo, sizeof(this->undo));
 }
 //***********LOAD
+
+void mtEffect::setStartLength(uint32_t val)
+{
+	confirmed.area.length = val;
+	confirmed.selection.length = val;
+}
 mtEffect::loadResult mtEffect::startLoad(uint8_t instr_idx)
 {
 	if(mtProject.instrument[instr_idx].sample.length > SAMPLE_EFFECTOR_LENGTH_MAX) return loadResult::instrTooLong;
@@ -163,11 +169,6 @@ bool mtEffect::startProcessingSelection()
 	processed.selection.length = expectedSelectLen;
 	processed.area.length = confirmed.area.length + (processed.selection.length - confirmed.selection.length);
 
-	Serial.printf("processed sel : addr - %x, len %d\n confirmed sel: addr - %x, len %d\n",
-			processed.selection.addr,processed.selection.length,confirmed.selection.addr,confirmed.selection.length);
-
-	Serial.printf("processed area: addr - %x, len %d\n confirmed area: addr - %x, len %d\n",
-			processed.area.addr,processed.area.length,confirmed.area.addr,confirmed.area.length);
 	processing.processParams.currentProgressValue = 0;
 	processing.processParams.maxProgressValue = expectedSelectLen;
 	processing.processParams.state = true;

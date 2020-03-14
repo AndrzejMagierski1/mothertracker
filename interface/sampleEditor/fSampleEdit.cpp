@@ -135,6 +135,7 @@ void cSampleEditor::start(uint32_t options)
 
 	currentEffect->clearIsLoadedData();
 	currentEffect->clearIsProcessedData();
+	currentEffect->setStartLength(editorInstrument->sample.length);
 
 	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
 	{
@@ -498,19 +499,16 @@ void cSampleEditor::reloadApplyingProgress()
 	if(applyingSteps == 1)
 	{
 		applyingProgress = currentEffect->getProcessSelectionProgress();
-		Serial.printf("ProcessingProgress: %d\n",applyingProgress);
 	}
 	else if(applyingSteps == 2)
 	{
 		if(!isLoadedData)
 		{
 			applyingProgress = currentEffect->getLoadProgress()/2;
-			Serial.printf("LoadingProgress: %d\n",applyingProgress);
 		}
 		else
 		{
 			applyingProgress = 50 + currentEffect->getProcessSelectionProgress()/2;
-			Serial.printf("ProcessingProgress: %d\n",applyingProgress);
 		}
 	}
 }

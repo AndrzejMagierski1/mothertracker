@@ -23,6 +23,7 @@ public:
 	uint32_t getExpectedProcessLength() override;
 //***********
 private:
+	void calcLastVoiceIdx();
 	strEffectDelayParams effectDelayParams;
 
 	int16_t * currentDstAddr;
