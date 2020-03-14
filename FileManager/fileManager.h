@@ -220,7 +220,9 @@ private:
 
 	// metody wewnetrzne ------------------------------------
 	void throwError(uint8_t source);
+	void showWarning(uint8_t source);
 	void report(const char* text, uint8_t value = 0);
+	void report(const char* text, const char* text2);
 	void moveToNextOperationStep();
 	void skipNextOperationStep();
 	void calcTotalMemoryToTransfer();

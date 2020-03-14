@@ -1089,6 +1089,27 @@ void cFileManager::throwError(uint8_t source)
 
 }
 
+
+void cFileManager::showWarning(uint8_t source)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(9);
+	sprintf(errorText,  "File manager warning (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
+	debugLog.addLine(errorText);
+	debugLog.forceRefresh();
+#endif
+}
+
+void cFileManager::report(const char* text, const char* text2)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(9);
+	sprintf(errorText,  "File manager: %s %s", text, text2);
+	debugLog.addLine(errorText);
+	debugLog.forceRefresh();
+#endif
+}
+
 void cFileManager::report(const char* text, uint8_t value)
 {
 #ifdef DEBUG
