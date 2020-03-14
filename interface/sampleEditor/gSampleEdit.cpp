@@ -8,7 +8,8 @@ char * const effectNamesLabels[editorEffectMax] =
 		(char*)"Amplifier",
 		(char*)"Delay",
 		(char*)"Bitcrusher",
-		(char*)"Chorus"
+		(char*)"Chorus",
+		(char*)"Flanger"
 };
 
 static uint32_t popupLabelColors[] =
@@ -205,7 +206,9 @@ void cSampleEditor::showMainScreen()
 	display.setControlText(label[1], "End");
 	display.setControlText(label[2], "Zoom");
 	display.setControlText(label[3], "Undo");
+	display.setControlText2(label[3],"");
 	display.setControlText(label[4], "");
+	display.setControlText2(label[4],"");
 	if(currentEffectIdx < 2 )
 	{
 		display.setControlText(label[5], "Apply");
@@ -335,8 +338,8 @@ void cSampleEditor::showEffectParamsScreen()
 
 	switch(previewState)
 	{
-	case previewStatePreview: 		display.setControlText(label[6], "Preview"); 	break;
-	case previewStatePlay:			display.setControlText(label[6], "Play");	break;
+	case previewStatePreview: 		display.setControlText(label[6], "Process"); 	break;
+	case previewStatePlay:			display.setControlText(label[6], "Preview");	break;
 	case previewStateStop:			display.setControlText(label[6], "Stop");	break;
 	}
 	display.setControlText2(label[6], "");
@@ -645,12 +648,12 @@ void cSampleEditor::showPopupTooLongProcessedSampleWindow()
 //************* play/stop/preview
 void cSampleEditor::showPreviewLabel()
 {
-	display.setControlText(label[6], "Preview");
+	display.setControlText(label[6], "Process");
 	display.refreshControl(label[6]);
 }
 void cSampleEditor::showPlayLabel()
 {
-	display.setControlText(label[6], "Play");
+	display.setControlText(label[6], "Preview");
 	display.refreshControl(label[6]);
 }
 void cSampleEditor::showStopLabel()

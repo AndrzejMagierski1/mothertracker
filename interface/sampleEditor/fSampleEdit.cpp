@@ -643,7 +643,10 @@ void cSampleEditor::reloadParamiterValueText(uint8_t n)
 	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
 	{
 		int displayedValue = effectDisplayParams[currentEffectIdx].iParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
-		sprintf(paramiterValueLabelPtr[n], "%d", displayedValue);
+
+		if(effectDisplayParams[currentEffectIdx].displayType[n] == 'd') sprintf(paramiterValueLabelPtr[n], "%d", displayedValue);
+		else if(effectDisplayParams[currentEffectIdx].displayType[n] == 'f') sprintf(paramiterValueLabelPtr[n], "%.3f", (float)displayedValue);
+
 		if(effectDisplayParams[currentEffectIdx].afterValueText[n] != nullptr)
 		{
 			strcat(paramiterValueLabelPtr[n],effectDisplayParams[currentEffectIdx].afterValueText[n]);
@@ -652,7 +655,10 @@ void cSampleEditor::reloadParamiterValueText(uint8_t n)
 	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
 	{
 		float displayedValue = effectDisplayParams[currentEffectIdx].fParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
-		sprintf(paramiterValueLabelPtr[n], "%.3f", displayedValue);
+
+		if(effectDisplayParams[currentEffectIdx].displayType[n] == 'd') sprintf(paramiterValueLabelPtr[n], "%d", (int)displayedValue);
+		else if(effectDisplayParams[currentEffectIdx].displayType[n] == 'f') sprintf(paramiterValueLabelPtr[n], "%.3f", displayedValue);
+
 		if(effectDisplayParams[currentEffectIdx].afterValueText[n] != nullptr)
 		{
 			strcat(paramiterValueLabelPtr[n],effectDisplayParams[currentEffectIdx].afterValueText[n]);
