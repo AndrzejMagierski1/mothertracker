@@ -11,7 +11,7 @@
 extern cDisplay display;
 typedef cDisplayControl* hControl;
 
-
+class SdFile;
 //#########################################################################
 //							DEFINICJE
 //#########################################################################
@@ -52,6 +52,12 @@ public:
 	void update();
 	uint8_t toggleState();
 	void processLog();
+
+	void addLineToSdBuffer(const char* text, uint8_t length);
+	void addTextToSdBuffer(const char* text, uint8_t length);
+	bool isSdBufferChanged();
+	void saveLogToFileNow(SdFile* file);
+	void clearSdBuffer();
 
 private:
 	//void processLog();

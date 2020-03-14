@@ -22,7 +22,7 @@
 #include "ff.h"			/* Declarations of FatFs API */
 #include "diskio.h"		/* Declarations of device I/O functions */
 
-
+#include "cserial.h"
 /*--------------------------------------------------------------------------
 
    Module Private Definitions
@@ -964,6 +964,14 @@ static int enq_lock (void)	/* Check if an entry is available for a new object */
 
 	for (i = 0; i < FF_FS_LOCK && Files[i].fs; i++) ;
 	return (i == FF_FS_LOCK) ? 0 : 1;
+}
+
+int get_lock_count (void)	/* Check if an entry is available for a new object */
+{
+	UINT i;
+
+	for (i = 0; i < FF_FS_LOCK && Files[i].fs; i++) ;
+	return i;
 }
 
 
@@ -3654,6 +3662,8 @@ FRESULT f_open (
 			fp->dir_ptr = dj.dir;
 #if FF_FS_LOCK != 0
 			fp->obj.lockid = inc_lock(&dj, (mode & ~FA_READ) ? 1 : 0);	/* Lock the file for this session */
+			//cserial_print("lock: ");
+			//cserial_println(path);
 			if (fp->obj.lockid == 0) res = FR_INT_ERR;
 #endif
 		}
@@ -4052,6 +4062,8 @@ FRESULT f_close (
 		if (res == FR_OK) {
 #if FF_FS_LOCK != 0
 			res = dec_lock(fp->obj.lockid);		/* Decrement file open counter */
+			//cserial_println("delock ");
+			//cserial_println(path);
 			if (res == FR_OK) fp->obj.fs = 0;	/* Invalidate file object */
 #else
 			fp->obj.fs = 0;	/* Invalidate file object */
@@ -4455,6 +4467,8 @@ FRESULT f_opendir (
 				if (res == FR_OK) {
 					if (dp->obj.sclust != 0) {
 						dp->obj.lockid = inc_lock(dp, 0);	/* Lock the sub directory */
+						//cserial_print("lock: ");
+						//cserial_println(path);
 						if (!dp->obj.lockid) res = FR_TOO_MANY_OPEN_FILES;
 					} else {
 						dp->obj.lockid = 0;	/* Root directory need not to be locked */
@@ -4490,6 +4504,8 @@ FRESULT f_closedir (
 	if (res == FR_OK) {
 #if FF_FS_LOCK != 0
 		if (dp->obj.lockid) res = dec_lock(dp->obj.lockid);	/* Decrement sub-directory open counter */
+		//cserial_println("delock ");
+		//cserial_println(path);
 		if (res == FR_OK) dp->obj.fs = 0;	/* Invalidate directory object */
 #else
 		dp->obj.fs = 0;	/* Invalidate directory object */

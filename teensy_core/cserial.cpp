@@ -31,7 +31,20 @@ void cserial_print_val(int n)
 }
 
 
+void cppserial_print(const char* text)
+{
+	Serial.print(text);
+}
+void cppserial_println(const char* text)
+{
+	Serial.println(text);
+}
+void cppserial_print_val(int n)
+{
+	Serial.print(n);
+}
 
+//-----------------------------------------------------------------------------------
 
 void clog_print(const char* text)
 {
@@ -44,6 +57,22 @@ void clog_println(const char* text)
 }
 
 void clog_print_val(int n)
+{
+	debugLog.addValue(n);
+}
+
+
+void cpplog_print(const char* text)
+{
+	debugLog.addText(text);
+}
+
+void cpplog_println(const char* text)
+{
+	debugLog.addLine(text);
+}
+
+void cpplog_print_val(int n)
 {
 	debugLog.addValue(n);
 }

@@ -13,6 +13,8 @@
 
 #include "debugLog.h"
 
+#include "cserial.h"
+
 void enableGPIO(bool enable);
 void initSDHC();
 
@@ -267,6 +269,7 @@ SdFile SdCard::open(const char* path, uint8_t oflag)
 }
 
 
+
 bool SdCard::mkdir(uint8_t hidden, const char *path, bool pFlag)
 {
 	FRESULT error = f_mkdir(path);
@@ -396,6 +399,89 @@ uint32_t  SdCard::freeClusterCount()
 	//fre_sect = fre_clust * fs->csize;
 	return fre_clust;
 }
+
+//==============================================================================================================================
+//==============================================================================================================================
+//==============================================================================================================================
+//==============================================================================================================================
+//==============================================================================================================================
+// SDDIR
+
+static char print_string[100];
+
+
+bool SdDir::open(const char* path, uint8_t oflag)
+{
+	close();
+
+	//---------------------------------------------
+	int opened_files_count = get_lock_count();
+	if(opened_files_count > 1)
+	{
+		sprintf(print_string, "%d dir open: %s", opened_files_count, path);
+		cpplog_println(print_string);
+		cppserial_println(print_string);
+	}
+	//---------------------------------------------
+
+
+	directory = new DIR;
+	FRESULT error =  f_opendir(directory, path);
+	if (error)
+	{
+		reportSdError("dir open - failed", error);
+		close();
+		return false;
+	}
+
+	dir_path = new char[strlen(path)+1];
+	strcpy(dir_path, path);
+
+	return true;
+}
+
+bool SdDir::close()
+{
+	FRESULT error = f_closedir(directory);
+
+	//---------------------------------------------
+	int opened_files_count = get_lock_count();
+	if(opened_files_count > 1)
+	{
+		sprintf(print_string, "%d dir close: %s", opened_files_count, dir_path);
+		cpplog_println(print_string);
+		cppserial_println(print_string);
+	}
+	//---------------------------------------------
+
+	if(directory != nullptr)
+	{
+		delete directory;
+		directory = nullptr;
+	}
+
+	if(dir_path != nullptr)
+	{
+		delete dir_path;
+		dir_path = nullptr;
+	}
+
+
+	if(error==FR_INVALID_OBJECT)
+	{
+		return false;
+	}
+	else if(error)
+	{
+		reportSdError("dir close - failed", error);
+		return false;
+	}
+
+	return true;
+}
+
+
+
 
 // filter: 0-all, 1-folders only, 2-supported wav only, 3-ptf // always ignore hidden files // max_used_memory must be higher than 255
 uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter)

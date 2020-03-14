@@ -257,6 +257,8 @@ void cFileManager::autoSaveProjectToWorkspace()
 	if(autoSaveTimer < 10000) return;
 	autoSaveTimer = 0;
 
+	saveDebugLogToSd();
+
 	saveProjectToWorkspace();
 
 }
@@ -423,6 +425,7 @@ void cFileManager::saveProjectToWorkspaceFinish()
 		currentOperation = fmCopyWorkspaceToProjects;
 		return;
 	}
+
 
 	status = fmIdle; //xxx zamiast fmSaveEnd
 	currentOperationStep = 0;
@@ -1084,6 +1087,27 @@ void cFileManager::throwError(uint8_t source)
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 
+}
+
+
+void cFileManager::showWarning(uint8_t source)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(9);
+	sprintf(errorText,  "File manager warning (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
+	debugLog.addLine(errorText);
+	debugLog.forceRefresh();
+#endif
+}
+
+void cFileManager::report(const char* text, const char* text2)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(9);
+	sprintf(errorText,  "File manager: %s %s", text, text2);
+	debugLog.addLine(errorText);
+	debugLog.forceRefresh();
+#endif
 }
 
 void cFileManager::report(const char* text, uint8_t value)

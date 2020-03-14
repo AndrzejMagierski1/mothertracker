@@ -212,25 +212,7 @@ void cFileManager::moveSampleMemory()
 		i++;
 	}
 
-	// znajdz początkowy adres
-	if(currentSample == 0)
-	{
-		mtProject.instrument[0].sample.length = 0;
-	}
-	else
-	{
-		uint8_t activeBefore = currentInstrument-1;
 
-		while(mtProject.instrument[activeBefore].isActive == 0)
-		{
-			if(activeBefore == 0) break;
-			activeBefore--; // jesli sprawdzilo wszystkie to koczny
-		}
-
-		mtProject.instrument[currentSample].sample.address =
-				mtProject.instrument[activeBefore].sample.address + mtProject.instrument[activeBefore].sample.length;
-
-	}
 
 
 	// wyznacz przesuniecie i blok do przesuniecia
@@ -247,14 +229,32 @@ void cFileManager::moveSampleMemory()
 	}
 	else if(currentOperation == fmDeleteInstruments)
 	{
-		if(currentInstrument > 0)
+		if(currentInstrument == 0)
 		{
-			memory_offset = (uint8_t*)mtProject.instrument[currentInstrument].sample.address
-							- (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 		}
 		else
 		{
-			memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			// znajdz początkowy adres
+			int8_t activeBefore = currentInstrument-1;
+
+			while(activeBefore >= 0 && mtProject.instrument[activeBefore].isActive == 0)
+			{
+				activeBefore--; // jesli sprawdzilo wszystkie to koczny
+			}
+
+			if(activeBefore < 0)
+			{
+				// brak aktywnego poprzedzajacego skasowany
+				memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			}
+			else
+			{
+				// znaleziony aktywny poprzedzajacy skasowany
+				memory_offset = ((uint8_t*)mtProject.instrument[activeBefore].sample.address
+						+ mtProject.instrument[activeBefore].sample.length*2)
+						- (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			}
 		}
 	}
 	else if(currentOperation == fmImportSampleFromSampleEditor)

@@ -8,7 +8,12 @@
 
 #include "mtStructs.h"
 
+#include "SD.h"
 
+#include <cr_section_macros.h>
+__NOINIT(EXTERNAL_RAM) char debugLogSdBuffer[10000] {0};
+uint16_t debugLogSdBufferUsage;
+uint16_t lastDebugLogSdBufferUsage;
 
 cDebugLog debugLog;
 
@@ -86,6 +91,7 @@ void cDebugLog::addLine(const char text[])
 
 	//uint16_t strLength = strlen(text);
 	strncpy(logLine[logTop].text, text, logLineLengthMax-1);
+	addLineToSdBuffer(text, strlen(text));
 
 	logLine[logTop].displayed = false;
 	logLine[logTop].time = millis();
@@ -112,6 +118,7 @@ void cDebugLog::addText(const char text[])
 	if(addStrLength > 0)
 	{
 		strncat(logLine[addIndex].text, text, addStrLength-1);
+		addTextToSdBuffer(text, addStrLength-1);
 	}
 
 	logLine[addIndex].displayed = false;
@@ -267,3 +274,53 @@ void cDebugLog::setMaxLineCount(uint8_t count)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
+
+void cDebugLog::addLineToSdBuffer(const char* text, uint8_t length)
+{
+	strcpy(&debugLogSdBuffer[debugLogSdBufferUsage], text);
+	debugLogSdBufferUsage += length;
+
+	debugLogSdBuffer[debugLogSdBufferUsage] = '\n';
+
+	debugLogSdBufferUsage += 1;
+	debugLogSdBuffer[debugLogSdBufferUsage] = 0;
+}
+
+void cDebugLog::addTextToSdBuffer(const char* text, uint8_t length)
+{
+	if(debugLogSdBufferUsage > 1)
+	{
+		strcpy(&debugLogSdBuffer[debugLogSdBufferUsage-2], text);
+		debugLogSdBufferUsage += length-1;
+
+		debugLogSdBuffer[debugLogSdBufferUsage] = '\n';
+
+		debugLogSdBufferUsage += 1;
+		debugLogSdBuffer[debugLogSdBufferUsage] = 0;
+		//debugLogSdBufferUsage += 1;
+	}
+}
+
+
+
+bool cDebugLog::isSdBufferChanged()
+{
+	if(lastDebugLogSdBufferUsage != debugLogSdBufferUsage)
+	{
+		//lastDebugLogSdBufferUsage = debugLogSdBufferUsage;
+		return true;
+	}
+	return false;
+}
+
+void cDebugLog::saveLogToFileNow(SdFile* file)
+{
+	file->write(debugLogSdBuffer,debugLogSdBufferUsage);
+	clearSdBuffer();
+}
+
+
+void cDebugLog::clearSdBuffer()
+{
+	debugLogSdBufferUsage = 0;
+}

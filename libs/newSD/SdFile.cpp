@@ -5,13 +5,25 @@
 
 #include <stdio.h>
 
-char print_string[100];
+#include "cserial.h"
 
+static char print_string[100];
 
+//size_t println(const char s[]);
 
 bool SdFile::open(const char* path, uint8_t oflag)
 {
 	close();
+
+	//---------------------------------------------
+	int opened_files_count = get_lock_count();
+	if(opened_files_count > 1)
+	{
+		sprintf(print_string, "%d file open: %s", opened_files_count, path);
+		cpplog_println(print_string);
+		cppserial_println(print_string);
+	}
+	//---------------------------------------------
 
 	file = new FIL;
 	path_for_report = path;
@@ -23,6 +35,40 @@ bool SdFile::open(const char* path, uint8_t oflag)
 		close();
 		return false;
 	}
+
+	return true;
+}
+
+bool SdFile::close()
+{
+	FRESULT error = f_close(file);
+
+	if(file != nullptr)
+	{
+		delete file;
+		file = nullptr;
+	}
+
+	if(error==FR_INVALID_OBJECT)
+	{
+		return false;
+	}
+	else if(error)
+	{
+		reportSdError("close - failed", error);
+		return false;
+	}
+
+	//---------------------------------------------
+	int opened_files_count = get_lock_count();
+	if(opened_files_count > 1)
+	{
+		sprintf(print_string, "%d file close: %s", opened_files_count, path_for_report);
+		cpplog_println(print_string);
+		cppserial_println(print_string);
+	}
+	//---------------------------------------------
+
 	return true;
 }
 

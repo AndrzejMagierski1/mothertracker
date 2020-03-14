@@ -47,6 +47,7 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 	}
 	else if(loadStatus == fileTransferFileNoExist) // brak pliku patternu
 	{
+		report(" load patern - file no exist ", patternToLoad);
 		sequencer.loadFromFileERROR();
 		moveToNextOperationStep();
 	}
@@ -270,11 +271,13 @@ bool cFileManager::loadWorkspacePatternNow(uint8_t index)
 
 	if(!SD.exists(patternToLoad))
 	{
+		report(" load patern now - file no exist ", patternToLoad);
 		status = false;
 	}
 	else
 	{
 		status = readPatternFile(patternToLoad, sequencer.getPatternToLoadFromFile());
+		if(!status) report(" load patern now - crc error ", patternToLoad);
 	}
 
 	if(status)
