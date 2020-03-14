@@ -155,7 +155,7 @@ namespace flangerParams
 	const char * const afterValueText[4] =
 	{
 		(const char * const)" ms",
-		nullptr,
+		(const char * const)" %",
 		nullptr,
 		(const char * const)" Hz"
 	};
