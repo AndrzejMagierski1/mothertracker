@@ -32,7 +32,7 @@ bool mtEffectChorus::startProcess()
 	l_delayline = chorusDelayBuffer;
 	l_circ_idx = 0;
 
-	memset(l_delayline,0,delay_length);
+	memset(l_delayline,0,2*delay_length);
 
 	processedSamples = 0;
 	state = true;
@@ -84,7 +84,6 @@ void mtEffectChorus::calculate(int16_t * src, int16_t* dst) //process 128 sample
   constexpr uint16_t PROCESSED_BLOCK_LENGTH = 128;
   int sum;
   int c_idx;
-  int16_t localBuf[PROCESSED_BLOCK_LENGTH];
 
   if(l_delayline == nullptr) return;
 
@@ -134,11 +133,6 @@ void mtEffectChorus::calculate(int16_t * src, int16_t* dst) //process 128 sample
 		  if(c_idx < 0) c_idx += delay_length;
 	  }
 
-	  *(localBuf + i) = sum/num_chorus;
-  }
-
-  for(int i=0; i<PROCESSED_BLOCK_LENGTH;i++)
-  {
-	  *dst++ = *(localBuf+i);
+	  *dst++ = sum/num_chorus;
   }
 }

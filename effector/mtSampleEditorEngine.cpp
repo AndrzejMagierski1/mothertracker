@@ -6,6 +6,7 @@
 #include "mtEffectReverse.h"
 #include "mtEffectAmplifier.h"
 #include "mtEffectChorus.h"
+#include "mtEffectFlanger.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
@@ -14,7 +15,8 @@ mtEffect * sampleEditorEffect[editorEffectMax] =
 		&sampleEditorAmplifier,
 		&sampleEditorDelay,
 		&sampleEditorBitcrusher,
-		&sampleEditorChorus
+		&sampleEditorChorus,
+		&sampleEditorFlanger
 };
 
 //******************************DELAY
@@ -36,13 +38,15 @@ namespace delayParams
 	float fDownConstrain[2]= {0.01, 0.0};
 
 	float changeStep[2] = { 0.01 , 5};
-	float displayMult[2] = {1, 1};
+	float displayMult[2] = {100, 1};
 
 	const char * const afterValueText[2] =
 	{
-		nullptr,
+		(const char * const)" %",
 		(const char * const)" ms"
 	};
+
+	const char displayType[2] = {'d','d'};
 }
 
 namespace bitcrusherParams
@@ -69,6 +73,8 @@ namespace bitcrusherParams
 		nullptr,
 		(const char * const)" Hz"
 	};
+
+	const char displayType[2] = {'d','d'};
 }
 
 namespace amplifierParams
@@ -93,13 +99,15 @@ namespace amplifierParams
 	{
 		nullptr,
 	};
+
+	const char displayType[1] = {'f'};
 }
 
 namespace chorusParams
 {
 	const char * const labelText[2] =
 	{
-		(const char * const)"Depth",
+		(const char * const)"Length",
 		(const char * const)"Voices"
 	};
 
@@ -112,12 +120,46 @@ namespace chorusParams
 	float fDownConstrain[2]= {0.0, 0.00};
 
 	float changeStep[2] = { 128 , 1};
-	float displayMult[2] = {1, 1};
+	float displayMult[2] = {1/44.1, 1};
 
 	const char * const afterValueText[2] =
 	{
-		nullptr,
+		" ms",
 		nullptr
 	};
+
+	const char displayType[2] = {'d','d'};
+}
+
+namespace flangerParams
+{
+	const char * const labelText[4] =
+	{
+		(const char * const)"Length",
+		(const char * const)"Offset",
+		(const char * const)"Depth",
+		(const char * const)"Rate"
+	};
+
+	const char paramsType[4] = {'d','d','d','f'};
+
+	int iUpConstrain[4] = { 4096, 100, 8,0};
+	float fUpConstrain[4]= {0.0,0.0,0.0,5.0};
+
+	int iDownConstrain[4] = {128, 1, 1, 0};
+	float fDownConstrain[4]= {0.0, 0.0, 0.0, 0.1};
+
+	float changeStep[4] = { 128, 1, 1, 0.1};
+	float displayMult[4] = {1/44.1, 1, 1, 1};
+
+	const char * const afterValueText[4] =
+	{
+		(const char * const)" ms",
+		nullptr,
+		nullptr,
+		(const char * const)" Hz"
+	};
+
+	const char displayType[4] = {'d','d','d','f'};
 }
 //******************************

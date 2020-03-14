@@ -291,6 +291,7 @@ public:
 		float * changeStep;
 		float * displayMult;
 		const char * const * afterValueText;
+		const char * displayType; //'f' = float 'd' = int
 	} effectDisplayParams[editorEffectMax] =
 	{
 			{},//cut - brak drugiego ekranu
@@ -301,7 +302,7 @@ public:
 				amplifierParams::iUpConstrain,amplifierParams::fUpConstrain,
 				amplifierParams::iDownConstrain,amplifierParams::fDownConstrain,
 				amplifierParams::changeStep,amplifierParams::displayMult,
-				amplifierParams::afterValueText
+				amplifierParams::afterValueText,amplifierParams::displayType
 			},
 			{
 				{0,50,0,0,0,0},{0.95,0,0,0,0,0}, //start values
@@ -309,7 +310,7 @@ public:
 				delayParams::iUpConstrain,delayParams::fUpConstrain,
 				delayParams::iDownConstrain,delayParams::fDownConstrain,
 				delayParams::changeStep,delayParams::displayMult,
-				delayParams::afterValueText
+				delayParams::afterValueText,delayParams::displayType
 			},
 			{
 				{4,44100,0,0,0,0},{0,0,0,0,0,0}, //start values
@@ -317,7 +318,7 @@ public:
 				bitcrusherParams::iUpConstrain,bitcrusherParams::fUpConstrain,
 				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,
 				bitcrusherParams::changeStep,bitcrusherParams::displayMult,
-				bitcrusherParams::afterValueText
+				bitcrusherParams::afterValueText,bitcrusherParams::displayType
 			},
 			{
 				{128,1,0,0,0,0},{0,0,0,0,0,0}, //start values
@@ -325,7 +326,15 @@ public:
 				chorusParams::iUpConstrain,chorusParams::fUpConstrain,
 				chorusParams::iDownConstrain,chorusParams::fDownConstrain,
 				chorusParams::changeStep,chorusParams::displayMult,
-				chorusParams::afterValueText
+				chorusParams::afterValueText,chorusParams::displayType
+			},
+			{
+				{128,50,1,0,0,0},{0,0,0,1.0,0,0}, //start values
+				4,flangerParams::labelText,flangerParams::paramsType,
+				flangerParams::iUpConstrain,flangerParams::fUpConstrain,
+				flangerParams::iDownConstrain,flangerParams::fDownConstrain,
+				flangerParams::changeStep,flangerParams::displayMult,
+				flangerParams::afterValueText,flangerParams::displayType
 			}
 	};
 
