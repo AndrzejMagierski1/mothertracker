@@ -7,6 +7,7 @@
 #include "mtEffectAmplifier.h"
 #include "mtEffectChorus.h"
 #include "mtEffectFlanger.h"
+#include "mtEffectLimiter.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
@@ -16,7 +17,8 @@ mtEffect * sampleEditorEffect[editorEffectMax] =
 		&sampleEditorDelay,
 		&sampleEditorBitcrusher,
 		&sampleEditorChorus,
-		&sampleEditorFlanger
+		&sampleEditorFlanger,
+		&sampleEditorLimiter
 };
 
 //******************************DELAY
@@ -161,5 +163,35 @@ namespace flangerParams
 	};
 
 	const char displayType[4] = {'d','d','d','f'};
+}
+
+namespace limiterParams
+{
+	const char * const labelText[3] =
+	{
+		(const char * const)"Treshold",
+		(const char * const)"Attack",
+		(const char * const)"Release"
+	};
+
+	const char paramsType[3] = {'d','f','f'};
+
+	int iUpConstrain[3] = { 32767, 0, 0};
+	float fUpConstrain[3]= {0.0,1000.0,10.0};
+
+	int iDownConstrain[3] = {0, 0, 0};
+	float fDownConstrain[3]= {0.0, 1.0, 0.02};
+
+	float changeStep[3] = { 32767/100.0, 1, 0.01};
+	float displayMult[3] = {100/32767.0, 1, 1};
+
+	const char * const afterValueText[3] =
+	{
+		(const char * const)" %",
+		(const char * const)" ms",
+		(const char * const)" ms"
+	};
+
+	const char displayType[3] = {'d','d','f'};
 }
 //******************************

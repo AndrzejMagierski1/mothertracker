@@ -4,7 +4,6 @@
 //#include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
-#include "mtEffectorFlanger.h"
 #include "mtEffectorLimiter.h"
 #include "mtEffectorCompressor.h"
 #define UNDO_QUEUE		10

@@ -335,6 +335,14 @@ public:
 				flangerParams::iDownConstrain,flangerParams::fDownConstrain,
 				flangerParams::changeStep,flangerParams::displayMult,
 				flangerParams::afterValueText,flangerParams::displayType
+			},
+			{
+				{(32767+1)/2,0,0,0,0,0},{0,100.0,1.0,0,0,0}, //start values
+				3,limiterParams::labelText,limiterParams::paramsType,
+				limiterParams::iUpConstrain,limiterParams::fUpConstrain,
+				limiterParams::iDownConstrain,limiterParams::fDownConstrain,
+				limiterParams::changeStep,limiterParams::displayMult,
+				limiterParams::afterValueText,limiterParams::displayType
 			}
 	};
 

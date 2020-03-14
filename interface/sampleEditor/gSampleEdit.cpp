@@ -9,7 +9,8 @@ char * const effectNamesLabels[editorEffectMax] =
 		(char*)"Delay",
 		(char*)"Bitcrusher",
 		(char*)"Chorus",
-		(char*)"Flanger"
+		(char*)"Flanger",
+		(char*)"Limiter"
 };
 
 static uint32_t popupLabelColors[] =

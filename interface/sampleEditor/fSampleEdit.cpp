@@ -901,7 +901,7 @@ void cSampleEditor::modSelectedEffect(int16_t val)
 		}
 		reloadCurrentEffect();
 		refreshEffectList();
-		setPreviewFunction();
+		previewState = previewStatePreview;
 		currentEffect->clearIsProcessedData();
 	}
 }
@@ -956,8 +956,6 @@ void cSampleEditor::modParamiter(int16_t val, uint8_t n)
 
 void cSampleEditor::setPreviewFunction()
 {
-	if(previewState == previewStatePreview) return;
-
 	FM->clearButton(interfaceButton6);
 	FM->setButtonObj(interfaceButton6, buttonPress, functPreview);
 
@@ -967,8 +965,6 @@ void cSampleEditor::setPreviewFunction()
 }
 void cSampleEditor::setPlayFunction()
 {
-	if(previewState == previewStatePlay) return;
-
 	FM->clearButton(interfaceButton6);
 	FM->setButtonObj(interfaceButton6, buttonPress, functPlay);
 
@@ -978,8 +974,6 @@ void cSampleEditor::setPlayFunction()
 }
 void cSampleEditor::setStopFunction()
 {
-	if(previewState == previewStateStop) return;
-
 	FM->clearButton(interfaceButton6);
 	FM->setButtonObj(interfaceButton6, buttonPress, functStop);
 
@@ -1362,7 +1356,7 @@ static 	uint8_t functSave()
 		SE->switchScreen(SE->screenType);
 	}
 
-	SE->setPreviewFunction();
+	SE->previewState = cSampleEditor::previewStatePreview;
 	SE->currentEffect->clearIsProcessedData();
 	SE->refreshUndoState();
 

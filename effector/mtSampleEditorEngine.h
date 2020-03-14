@@ -11,6 +11,7 @@ enum enSampleEditorEffect
 	editorEffectBitcrusher,
 	editorEffectChorus,
 	editorEffectFlanger,
+	editorEffectLimiter,
 
 //**********************//
 	editorEffectMax
@@ -93,6 +94,22 @@ namespace flangerParams
 	extern float displayMult[4];
 	extern const char * const afterValueText[4];
 	extern const char displayType[4];
+//*********************
+}
+
+namespace limiterParams
+{
+//******************CHORUS PARAMS
+	extern const char * const labelText[3];
+	extern const char paramsType[3];
+	extern int iUpConstrain[3];
+	extern float fUpConstrain[3];
+	extern int iDownConstrain[3];
+	extern float fDownConstrain[3];
+	extern float changeStep[3];
+	extern float displayMult[3];
+	extern const char * const afterValueText[3];
+	extern const char displayType[3];
 //*********************
 }
 
