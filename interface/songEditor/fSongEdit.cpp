@@ -199,6 +199,7 @@ static  uint8_t functPlayPattern()
 				&& SE->songPlayerData.selection.patternSelectionLength == 1
 				&& SE->songPlayerData.selection.trackSelectionLength == 1)//xxx
 		{
+			// tlylko zaznacozny track
 
 			SE->switchToNewPattern();
 
@@ -217,6 +218,7 @@ static  uint8_t functPlayPattern()
 			return 1;
 		}
 
+		// caly pattern
 
 		SE->switchToNewPattern();
 

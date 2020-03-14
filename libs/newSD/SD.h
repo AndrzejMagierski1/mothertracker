@@ -65,7 +65,7 @@ class SdFile
 public:
 
 	bool open(const char* path, uint8_t oflag = FA_READ);
-
+	bool close();
 
 	int32_t read(void* buf, uint32_t count);
 	int32_t write(const void* buf, uint32_t count);
@@ -94,27 +94,6 @@ public:
 		return true;
 	}
 
-	bool close()
-	{
-		FRESULT error = f_close(file);
-
-		if(file != nullptr)
-		{
-			delete file;
-			file = nullptr;
-		}
-
-		if(error==FR_INVALID_OBJECT)
-		{
-			return false;
-		}
-		else if(error)
-		{
-			reportSdError("close - failed", error);
-			return false;
-		}
-		return true;
-	}
 
 
 	void println()
@@ -221,53 +200,8 @@ private:
 class SdDir
 {
 public:
-
-	bool open(const char* path, uint8_t oflag = FA_READ)
-	{
-		close();
-
-		directory = new DIR;
-		FRESULT error =  f_opendir(directory, path);
-		if (error)
-		{
-			reportSdError("dir open - failed", error);
-			close();
-			return false;
-		}
-
-		dir_path = new char[strlen(path)+1];
-		strcpy(dir_path, path);
-		return true;
-	}
-
-	bool close()
-	{
-		FRESULT error = f_closedir(directory);
-
-		if(directory != nullptr)
-		{
-			delete directory;
-			directory = nullptr;
-		}
-
-		if(dir_path != nullptr)
-		{
-			delete dir_path;
-			dir_path = nullptr;
-		}
-
-
-		if(error==FR_INVALID_OBJECT)
-		{
-			return false;
-		}
-		else if(error)
-		{
-			reportSdError("dir close - failed", error);
-			return false;
-		}
-		return true;
-	}
+	bool open(const char* path, uint8_t oflag = FA_READ);
+	bool close();
 
 	operator bool()
 	{

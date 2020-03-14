@@ -257,6 +257,8 @@ void cFileManager::autoSaveProjectToWorkspace()
 	if(autoSaveTimer < 10000) return;
 	autoSaveTimer = 0;
 
+	saveDebugLogToSd();
+
 	saveProjectToWorkspace();
 
 }
@@ -423,6 +425,7 @@ void cFileManager::saveProjectToWorkspaceFinish()
 		currentOperation = fmCopyWorkspaceToProjects;
 		return;
 	}
+
 
 	status = fmIdle; //xxx zamiast fmSaveEnd
 	currentOperationStep = 0;

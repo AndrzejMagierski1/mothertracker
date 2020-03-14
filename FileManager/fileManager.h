@@ -439,6 +439,8 @@ private:
 	//song
 
 
+	// debug Log
+	void saveDebugLogToSd();
 
 };
 

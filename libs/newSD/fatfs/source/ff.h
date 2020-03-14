@@ -329,7 +329,7 @@ TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the fil
 #endif
 
 
-
+int get_lock_count(void);
 
 /*--------------------------------------------------------------*/
 /* Additional user defined functions                            */
