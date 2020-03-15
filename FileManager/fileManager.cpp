@@ -337,6 +337,9 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
 	sprintf(currentProjectPatch,"Projects/%s", currentProjectName);
 
+
+	report("project name: ", currentProjectName);
+
 	sequencer.switchRamPatternsNow();
 
 	// swiezo wczytany projekt jest zawsze zgodny z zapisanym - nieeee?!
@@ -393,7 +396,12 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 void cFileManager::saveProjectToWorkspaceInit()
 {
 	currentInstrument = 0;
-	setCurrentInstrumentToFirstActiveAfterCurrent();
+	//znajduje pierwszy instrument z flaga zmian i jednoczesnie aktywny
+	while(changesFlags.instrument[currentInstrument] == 0 || mtProject.instrument[currentInstrument].isActive == 0)
+	{
+		currentInstrument++; // jesli sprawdzilo wszystkie to koczny
+		if(currentInstrument >= INSTRUMENTS_COUNT) break;
+	}
 
 	moveToNextOperationStep();
 }
@@ -416,7 +424,7 @@ void cFileManager::saveProjectToWorkspaceFinish()
 {
 	//clearChangeFlags(); // wykomentowane - czysci flagi na bierząco
 
-	debugLog.setMaxLineCount(9);
+	debugLog.setMaxLineCount(2);
 	debugLog.addLine("autosave end");
 
 	if(status == fmSavingProjectToProjects) // przejdz do kopiowania projektu
@@ -728,7 +736,7 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll) //xxx jak narazie n
 		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
 	}
 
-	debugLog.setMaxLineCount(9);
+	debugLog.setMaxLineCount(2);
 	debugLog.addLine("autosave start");
 
 
@@ -928,11 +936,11 @@ bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t 
 void cFileManager::clearChangeFlags()
 {
 	changesFlags.project = 0;
-	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
+	for(uint16_t i = 0 ; i < PATTERN_INDEX_MAX+1; i++)
 	{
 		changesFlags.pattern[i] = 0;
 	}
-	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
+	for(uint8_t i = 0 ; i < INSTRUMENTS_COUNT; i++)
 	{
 		changesFlags.instrument[i] = 0;
 	}
@@ -941,11 +949,11 @@ void cFileManager::clearChangeFlags()
 bool cFileManager::isProjectChanged()
 {
 	if(changesFlags.project) return true;
-	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
+	for(uint16_t i = 0 ; i < PATTERN_INDEX_MAX+1; i++)
 	{
 		if(changesFlags.pattern[i]) return true;
 	}
-	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
+	for(uint8_t i = 0 ; i < INSTRUMENTS_COUNT; i++)
 	{
 		if(changesFlags.instrument[i]) return true;
 	}
@@ -956,7 +964,7 @@ bool cFileManager::isProjectChanged()
 void cFileManager::setAllChangeFlags()
 {
 	changesFlags.project = 1;
-	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
+	for(uint16_t i = 0 ; i< PATTERN_INDEX_MAX+1; i++)
 	{
 		changesFlags.pattern[i] = 1;
 	}
@@ -974,6 +982,10 @@ void cFileManager::setProjectStructChanged()
 
 void cFileManager::setPatternStructChanged(uint8_t pattern)
 {
+	debugLog.addLineToSdBuffer("changed pattern");
+	debugLog.addTextToSdBuffer(" no: ");
+	debugLog.addValueToSdBuffer(pattern);
+
 	changesFlags.pattern[pattern] = 1;
 }
 
@@ -1073,7 +1085,7 @@ static char errorText[100];
 void cFileManager::throwError(uint8_t source)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(9);
+	debugLog.setMaxLineCount(3);
 	sprintf(errorText,  "File manager error (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
 	debugLog.addLine(errorText);
 	debugLog.forceRefresh();
@@ -1093,7 +1105,7 @@ void cFileManager::throwError(uint8_t source)
 void cFileManager::showWarning(uint8_t source)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(9);
+	debugLog.setMaxLineCount(3);
 	sprintf(errorText,  "File manager warning (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
 	debugLog.addLine(errorText);
 	debugLog.forceRefresh();
@@ -1103,7 +1115,7 @@ void cFileManager::showWarning(uint8_t source)
 void cFileManager::report(const char* text, const char* text2)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(9);
+	debugLog.setMaxLineCount(1);
 	sprintf(errorText,  "File manager: %s %s", text, text2);
 	debugLog.addLine(errorText);
 	debugLog.forceRefresh();
@@ -1113,7 +1125,7 @@ void cFileManager::report(const char* text, const char* text2)
 void cFileManager::report(const char* text, uint8_t value)
 {
 #ifdef DEBUG
-	debugLog.setMaxLineCount(9);
+	debugLog.setMaxLineCount(1);
 	if(value > 0) sprintf(errorText,  "File manager: %s (%d)", text, value);
 	else sprintf(errorText,  "File manager: %s", text);
 	debugLog.addLine(errorText);

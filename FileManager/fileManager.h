@@ -211,7 +211,7 @@ private:
 	{
 		uint8_t project;
 		uint8_t instrument[INSTRUMENTS_COUNT];
-		uint8_t pattern[PATTERN_INDEX_MAX];
+		uint8_t pattern[PATTERN_INDEX_MAX+1];
 	} changesFlags;
 
 
@@ -313,7 +313,6 @@ private:
 	bool writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 
 	void calcFirstSlotToMoveInMemory(uint8_t calcStartSlot);
-	void setCurrentInstrumentToFirstActiveAfterCurrent();
 	void findLastActiveInstrumentBeforeCurrent();
 	bool continueInstrumentProcess();
 

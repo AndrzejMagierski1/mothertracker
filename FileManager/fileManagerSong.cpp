@@ -56,6 +56,8 @@ bool cFileManager::switchNextPatternInSong()
 
 void cFileManager::copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum)
 {
+	report("copy song tracks");
+
 	uint8_t status = 0;
 	SdFile srcFile;
 	SdFile destFile;
@@ -95,6 +97,8 @@ void cFileManager::copySongTracks(char *currentProjectPath, uint8_t src, uint8_t
 
 void cFileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum)
 {
+	report("delete tracks");
+
 	uint8_t status = 0;
 	SdFile srcFile;
 	char currentPath[PATCH_SIZE];
@@ -153,12 +157,12 @@ bool cFileManager::updatePatternBitmask(uint8_t index, uint8_t* sourcePattern)
 
 	if(before == mtProject.values.allPatternsBitmask[index])
 	{
-		debugLog.addLine("no changes in pattern bitmask");
+		//debugLog.addLine("no changes in pattern bitmask");
 		return false;
 	}
 
 
-	debugLog.addLine("pattern bitmask changed");
+	//debugLog.addLine("pattern bitmask changed");
 	return true;
 }
 

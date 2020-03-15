@@ -81,7 +81,7 @@ void cFileManager::storeSongUndoRevision(uint8_t index)
 {
 //	undoSongBuffer[undoSong.actualIndex] = *sequencer.getActualPattern(); //todo: pobrać z pliku o indexie
 
-
+	report("store song undo revision");
 
 
 	char patternToLoad[PATCH_SIZE] { 0 };
@@ -149,6 +149,8 @@ void cFileManager::undoSongPattern()
 
 	if (doUndo)
 	{
+
+		report("undo song pattern");
 
 		char filePath[PATCH_SIZE] { 0 };
 		uint8_t bufferedPatternNumber = undoSongBufferIndexes[undoSong.actualIndex];

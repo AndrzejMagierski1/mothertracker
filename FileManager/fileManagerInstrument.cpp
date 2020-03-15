@@ -301,16 +301,6 @@ void cFileManager::calcFirstSlotToMoveInMemory(uint8_t calcStartSlot)
 //}
 
 
-void cFileManager::setCurrentInstrumentToFirstActiveAfterCurrent()
-{
-	//znajduje pierwszy instrument z flaga zmian i jednoczesnie aktywny
-	while(changesFlags.instrument[currentInstrument] == 0 || mtProject.instrument[currentInstrument].isActive == 0)
-	{
-		currentInstrument++; // jesli sprawdzilo wszystkie to koczny
-		if(currentInstrument >= INSTRUMENTS_COUNT) break;
-	}
-}
-
 
 
 void cFileManager::instrumentThrowError()

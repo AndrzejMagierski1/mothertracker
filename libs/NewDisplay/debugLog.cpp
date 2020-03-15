@@ -72,7 +72,7 @@ void cDebugLog::forceRefresh()
 
 void cDebugLog::addLine(const char text[])
 {
-	if(!mtConfig.debug.debugLogState) return;
+	//if(!mtConfig.debug.debugLogState) return;
 
 	if(logBott == logTop)		logLinesCount = 0;
 	else if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
@@ -91,7 +91,7 @@ void cDebugLog::addLine(const char text[])
 
 	//uint16_t strLength = strlen(text);
 	strncpy(logLine[logTop].text, text, logLineLengthMax-1);
-	addLineToSdBuffer(text, strlen(text));
+	addLineToSdBuffer(text);
 
 	logLine[logTop].displayed = false;
 	logLine[logTop].time = millis();
@@ -99,12 +99,12 @@ void cDebugLog::addLine(const char text[])
 	logTop++;
 	if(logTop >= fifoSize) logTop = 0;
 
-	if(display.isIdle()) display.forceAppedStage();
+	if(mtConfig.debug.debugLogState && display.isIdle()) display.forceAppedStage();
 }
 
 void cDebugLog::addText(const char text[])
 {
-	if(!mtConfig.debug.debugLogState) return;
+	//if(!mtConfig.debug.debugLogState) return;
 
 	if(logBott == logTop) return;
 
@@ -118,17 +118,17 @@ void cDebugLog::addText(const char text[])
 	if(addStrLength > 0)
 	{
 		strncat(logLine[addIndex].text, text, addStrLength-1);
-		addTextToSdBuffer(text, addStrLength-1);
+		addTextToSdBuffer(text);
 	}
 
 	logLine[addIndex].displayed = false;
 
-	if(display.isIdle()) display.forceAppedStage();
+	if(mtConfig.debug.debugLogState && display.isIdle()) display.forceAppedStage();
 }
 
 void cDebugLog::addValue(int value)
 {
-	if(!mtConfig.debug.debugLogState) return;
+	//if(!mtConfig.debug.debugLogState) return;
 	if(logBott == logTop)return;
 
 
@@ -220,7 +220,7 @@ void cDebugLog::update()
 
 	if(!logLine[last_line].displayed)
 	{
-		if(display.isIdle()) display.forceAppedStage();
+		if(mtConfig.debug.debugLogState && display.isIdle()) display.forceAppedStage();
 	}
 
 	//for(uint8_t i = 0; i<logLinesCount; i++)
@@ -229,7 +229,7 @@ void cDebugLog::update()
 		{
 			removeBottLine();
 
-			if(display.isIdle()) display.forceAppedStage();
+			if(mtConfig.debug.debugLogState && display.isIdle()) display.forceAppedStage();
 		}
 	//}
 		//if(logBott == logTop) return;
@@ -275,10 +275,10 @@ void cDebugLog::setMaxLineCount(uint8_t count)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-void cDebugLog::addLineToSdBuffer(const char* text, uint8_t length)
+void cDebugLog::addLineToSdBuffer(const char* text)
 {
 	strcpy(&debugLogSdBuffer[debugLogSdBufferUsage], text);
-	debugLogSdBufferUsage += length;
+	debugLogSdBufferUsage += strlen(text);
 
 	debugLogSdBuffer[debugLogSdBufferUsage] = '\n';
 
@@ -286,12 +286,12 @@ void cDebugLog::addLineToSdBuffer(const char* text, uint8_t length)
 	debugLogSdBuffer[debugLogSdBufferUsage] = 0;
 }
 
-void cDebugLog::addTextToSdBuffer(const char* text, uint8_t length)
+void cDebugLog::addTextToSdBuffer(const char* text)
 {
 	if(debugLogSdBufferUsage > 1)
 	{
-		strcpy(&debugLogSdBuffer[debugLogSdBufferUsage-2], text);
-		debugLogSdBufferUsage += length-1;
+		strcpy(&debugLogSdBuffer[debugLogSdBufferUsage-1], text);
+		debugLogSdBufferUsage += strlen(text);
 
 		debugLogSdBuffer[debugLogSdBufferUsage] = '\n';
 
@@ -301,6 +301,22 @@ void cDebugLog::addTextToSdBuffer(const char* text, uint8_t length)
 	}
 }
 
+void cDebugLog::addValueToSdBuffer(int value)
+{
+	if(debugLogSdBufferUsage > 1)
+	{
+		char buf[12];
+		sprintf(buf,"%d",value);
+
+		strcpy(&debugLogSdBuffer[debugLogSdBufferUsage-1], buf);
+		debugLogSdBufferUsage += strlen(buf);
+
+		debugLogSdBuffer[debugLogSdBufferUsage] = '\n';
+
+		debugLogSdBufferUsage += 1;
+		debugLogSdBuffer[debugLogSdBufferUsage] = 0;
+	}
+}
 
 
 bool cDebugLog::isSdBufferChanged()
