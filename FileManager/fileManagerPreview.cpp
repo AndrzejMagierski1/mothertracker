@@ -41,8 +41,6 @@ bool cFileManager::previevSamplefromSD(uint8_t index)
 
 	wavfile.close();
 
-	debugLog.setMaxLineCount(5);
-
 	if(header.AudioFormat == 3)
 	{
 		playSdWavFloat.play(filePath);

@@ -800,7 +800,8 @@ void cPatternEditor::changeActualPatternEditStep(int16_t value)
 
 	showStep();
 
-	newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+	newFileManager.setProjectStructChanged();
+	//newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::setActualPatternEditStep(int16_t value)
@@ -2043,8 +2044,6 @@ static uint8_t functInsertHome(uint8_t state)
 	{
 		if (PTE->editMode == 1)
 		{
-			newFileManager.storePatternUndoRevision();
-
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
 			{
@@ -2069,11 +2068,14 @@ static uint8_t functInsertHome(uint8_t state)
 			// INSERT
 			else
 			{
+				newFileManager.storePatternUndoRevision();
+
 				sendSelection();
 				sequencer.insert(&sequencer.selection);
+
+				newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 			}
 
-			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 		}
 
 		PTE->refreshPattern();
@@ -2133,6 +2135,7 @@ static uint8_t functCopyPaste(uint8_t state)
 				sequencer.pasteFromBuffer(getSelectedElement());
 				PTE->moveCursorByStep(sequencer.getCopySelectionHeight()-1);
 
+				newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 			}
 			else
 			{
@@ -2140,8 +2143,6 @@ static uint8_t functCopyPaste(uint8_t state)
 				sequencer.copyToBuffer();
 				PTE->shiftAction = 1;
 			}
-
-			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 		}
 
 		PTE->refreshPattern();
@@ -2825,16 +2826,17 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			break;
 		case 1:
 			PTE->setActualPatternLength(map(pad, 0, 47, 3, 191));
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 			PTE->showLength();
 			break;
 		case 2:
 			PTE->setActualPatternEditStep(pad);
+			newFileManager.setProjectStructChanged();
 			PTE->showStep();
 			break;
 		}
 
 		PTE->lightUpPadBoard();
-		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 
 		return 1;
 	}

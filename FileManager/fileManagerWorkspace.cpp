@@ -22,6 +22,9 @@ bool cFileManager::createNewProjectInWorkspace()
 	clearWorkspace();
 	createWorkspaceDirs();
 
+	report(" crating new project ");
+
+
 	strcpy(currentProjectName, cNewProjectName);
 
 	getDefaultProject(&mtProject);
@@ -30,7 +33,7 @@ bool cFileManager::createNewProjectInWorkspace()
 	mtProject.values.actualPattern = 1;
 
 	//saveActualPattern(cWorkspacePatternsPath, mtProject.values.actualPattern);
-	sequencer.loadFromFileERROR();
+	sequencer.loadFromFileERROR(); // czyszczenie sekwencji przed pierwszym zapisem
 	changesFlags.pattern[mtProject.values.actualPattern] = 1;
 	changesFlags.project = 1;
 	savePatternToWorkspace();

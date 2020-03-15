@@ -105,6 +105,7 @@ void cProjectEditor::update()
 	else if(managerStatus == fmExportSoundEnd)
 	{
 		PE->showExportWindow();
+		PE->setExportWindowFuncts();
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 	}

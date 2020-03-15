@@ -53,8 +53,9 @@ public:
 	uint8_t toggleState();
 	void processLog();
 
-	void addLineToSdBuffer(const char* text, uint8_t length);
-	void addTextToSdBuffer(const char* text, uint8_t length);
+	void addLineToSdBuffer(const char* text);
+	void addTextToSdBuffer(const char* text);
+	void addValueToSdBuffer(int value);
 	bool isSdBufferChanged();
 	void saveLogToFileNow(SdFile* file);
 	void clearSdBuffer();
