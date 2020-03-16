@@ -64,7 +64,8 @@ static  uint8_t functAutoNameRename();
 
 static uint8_t functDeleteBackspace(uint8_t state);
 
-
+static uint8_t functStopPatternYes();
+static uint8_t functStopPatternNo();
 
 static void cancelAnotherSelect();
 
@@ -336,7 +337,10 @@ static  uint8_t functInstrumentAdd()
 {
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.stop();
+		SI->showStopPatternPopup();
+		SI->setStopPatternFunction();
+		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAdd;
+		return 1;
 	}
 
 	SI->stopPlaying();
@@ -376,7 +380,10 @@ static  uint8_t functInstrumentDelete()
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.stop();
+		SI->showStopPatternPopup();
+		SI->setStopPatternFunction();
+		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrDelete;
+		return 1;
 	}
 	SI->stopPlaying();
 
@@ -440,7 +447,10 @@ static uint8_t functInstrumentAddNext()
 {
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.stop();
+		SI->showStopPatternPopup();
+		SI->setStopPatternFunction();
+		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAddNext;
+		return 1;
 	}
 
 	SI->stopPlaying();
@@ -554,7 +564,10 @@ static uint8_t functCopyPaste()
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.stop();
+		SI->showStopPatternPopup();
+		SI->setStopPatternFunction();
+		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrCopy;
+		return 1;
 	}
 	SI->stopPlaying();
 
@@ -1112,14 +1125,17 @@ void cSampleImporter::playSdFile()
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.stop();
+		showStopPatternPopup();
+		setStopPatternFunction();
+		stopPatternAction = enStopPatternAction::previewSD;
+		return;
 	}
 
 	stopPlaying();
 
 	if(newFileManager.previevSamplefromSD(selectedFile))
 	{
-		SI->FM->blockAllInputsExcept(interfaceButton4);
+		FM->blockAllInputsExcept(interfaceButton4);
 	}
 
 	playMode = playModeSdFile;
@@ -1135,7 +1151,10 @@ void cSampleImporter::playSampleFromBank()
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.stop();
+		showStopPatternPopup();
+		setStopPatternFunction();
+		stopPatternAction = enStopPatternAction::previewBank;
+		return;
 	}
 
 	stopPlaying();
@@ -1406,6 +1425,27 @@ void cSampleImporter::resetInstrSel()
 	copyElementsCount=0;
 }
 
+void cSampleImporter::setStopPatternFunction()
+{
+	FM->clearButton(interfaceButton6);
+	FM->clearButton(interfaceButton7);
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
+	FM->blockAllInputsExcept(interfaceButton6, interfaceButton7);
+
+}
+void cSampleImporter::clearStopPatternFunction()
+{
+	FM->clearButton(interfaceButton6);
+	FM->clearButton(interfaceButton7);
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
+	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
+
+	FM->unblockAllInputs();
+}
+
 static uint8_t functConfirmKey()
 {
 	SI->keyboardManager.confirmKey();
@@ -1425,6 +1465,31 @@ static uint8_t functDeleteBackspace(uint8_t state)
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	SI->keyboardManager.onPadChange(pad, state);
+	return 1;
+}
+
+static uint8_t functStopPatternYes()
+{
+	sequencer.stop();
+	SI->hideStopPatternPopup();
+	SI->clearStopPatternFunction();
+	switch(SI->stopPatternAction)
+	{
+		case cSampleImporter::enStopPatternAction::previewBank: 	break;
+		case cSampleImporter::enStopPatternAction::previewSD: 		break;
+		case cSampleImporter::enStopPatternAction::instrAdd: 		functInstrumentAdd();		break;
+		case cSampleImporter::enStopPatternAction::instrAddNext: 	functInstrumentAddNext();	break;
+		case cSampleImporter::enStopPatternAction::instrCopy: 		functCopyPaste();			break;
+		case cSampleImporter::enStopPatternAction::instrDelete: 	functInstrumentDelete();	break;
+		default: break;
+	}
+	return 1;
+}
+static uint8_t functStopPatternNo()
+{
+
+	SI->hideStopPatternPopup();
+	SI->clearStopPatternFunction();
 	return 1;
 }
 
