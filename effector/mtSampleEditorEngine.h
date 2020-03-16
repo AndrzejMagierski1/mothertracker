@@ -12,6 +12,7 @@ enum enSampleEditorEffect
 	editorEffectChorus,
 	editorEffectFlanger,
 	editorEffectLimiter,
+	editorEffectCompresor,
 
 //**********************//
 	editorEffectMax
@@ -110,6 +111,22 @@ namespace limiterParams
 	extern float displayMult[3];
 	extern const char * const afterValueText[3];
 	extern const char displayType[3];
+//*********************
+}
+
+namespace compressorParams
+{
+//******************CHORUS PARAMS
+	extern const char * const labelText[4];
+	extern const char paramsType[4];
+	extern int iUpConstrain[4];
+	extern float fUpConstrain[4];
+	extern int iDownConstrain[4];
+	extern float fDownConstrain[4];
+	extern float changeStep[4];
+	extern float displayMult[4];
+	extern const char * const afterValueText[4];
+	extern const char displayType[4];
 //*********************
 }
 

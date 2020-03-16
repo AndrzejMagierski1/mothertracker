@@ -8,6 +8,7 @@
 #include "mtEffectChorus.h"
 #include "mtEffectFlanger.h"
 #include "mtEffectLimiter.h"
+#include "mtEffectCompresor.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
@@ -18,7 +19,8 @@ mtEffect * sampleEditorEffect[editorEffectMax] =
 		&sampleEditorBitcrusher,
 		&sampleEditorChorus,
 		&sampleEditorFlanger,
-		&sampleEditorLimiter
+		&sampleEditorLimiter,
+		&sampleEditorCompresor
 };
 
 //******************************DELAY
@@ -193,5 +195,37 @@ namespace limiterParams
 	};
 
 	const char displayType[3] = {'d','d','f'};
+}
+
+namespace compressorParams
+{
+	const char * const labelText[4] =
+	{
+		(const char * const)"Treshold",
+		(const char * const)"Ratio",
+		(const char * const)"Attack",
+		(const char * const)"Release",
+	};
+
+	const char paramsType[4] = {'d','d','d','d'};
+
+	int iUpConstrain[4] = { 32767, 10, 2600, 5000};
+	float fUpConstrain[4]= {0.0,0.0,0.0, 0.0};
+
+	int iDownConstrain[4] = {0, 1, 1, 1};
+	float fDownConstrain[4]= {0.0, 0.0, 0.0, 0.0};
+
+	float changeStep[4] = { 32767/100.0, 1, 25, 50};
+	float displayMult[4] = {100/32767.0, 1, 1, 1};
+
+	const char * const afterValueText[4] =
+	{
+		(const char * const)" %",
+		nullptr,
+		(const char * const)" ms",
+		(const char * const)" ms"
+	};
+
+	const char displayType[4] = {'d','d','d','d'};
 }
 //******************************
