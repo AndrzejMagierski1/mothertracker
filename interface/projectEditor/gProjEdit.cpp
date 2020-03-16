@@ -227,7 +227,7 @@ void cProjectEditor::showDefaultScreen()
 
 	display.setControlText(label[0], "New");
 	display.setControlText(label[1], "Open");
-	display.setControlText(label[2], "");
+	display.setControlText(label[2], "Import mod");
 	display.setControlText(label[3], "");
 	display.setControlText(label[4], "Save");
 	display.setControlText(label[5], "Save As");
@@ -287,6 +287,47 @@ void cProjectEditor::showProjectsList()
 	projectList.length = projectsListLength;
 	projectList.linesCount = 13;
 	projectList.data = projectsList;
+
+	display.setControlData(fileListControl,  &projectList);
+	display.setControlShow(fileListControl);
+	display.refreshControl(fileListControl);
+
+	display.setAddControlStyle(label[0], controlStyleShowBitmap);
+
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+	}
+
+// bottom labels
+
+	display.setControlPosition(label[0], (800/4)*0+(800/8), -1);
+	display.setControlSize(label[0], 800/4-6, -1);
+	display.setControlText(label[0], "Projects");
+	display.setControlText(label[2], "Delete");
+	display.setControlText(label[7], "Open");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[5], "");
+
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	display.setControlValue(bgLabel, 252);
+	display.refreshControl(bgLabel);
+
+	display.synchronizeRefresh();
+}
+void cProjectEditor::showModsList()
+{
+// lista
+
+	projectList.start = selectedMod;
+	projectList.length = modsListLength;
+	projectList.linesCount = 13;
+	projectList.data = modsList;
 
 	display.setControlData(fileListControl,  &projectList);
 	display.setControlShow(fileListControl);
@@ -504,7 +545,7 @@ void cProjectEditor::showSaveLastWindow()
 	display.synchronizeRefresh();
 }
 
-void cProjectEditor::showDeleteLastWindow()
+void cProjectEditor::showDeleteProjectLastWindow()
 {
 	display.setControlValue(label[0], 0);
 
@@ -514,6 +555,29 @@ void cProjectEditor::showDeleteLastWindow()
 	display.setControlText(label[7], "Delete");
 
 	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", projectsList[selectedProject]);
+
+	display.setControlText(popupWindowLabel, currentInfo);
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+void cProjectEditor::showDeleteModLastWindow()
+{
+	display.setControlValue(label[0], 0);
+
+	display.setControlText(label[2], "");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[7], "Delete");
+
+	sprintf(currentInfo,"Do you want to delete file: \"%s\"?", modsList[selectedMod]);
 
 	display.setControlText(popupWindowLabel, currentInfo);
 	display.setControlShow(popupWindowLabel);

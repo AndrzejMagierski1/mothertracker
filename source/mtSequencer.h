@@ -87,7 +87,7 @@ public:
 			FX_TYPE_SEND_CC_C,
 			FX_TYPE_SEND_CC_D,
 			FX_TYPE_SEND_CC_E,
-			FX_TYPE_R21,
+			FX_TYPE_BREAK_PATTERN, // dziala jak koniec patternu
 			FX_TYPE_R22,
 			FX_TYPE_TEMPO,
 			FX_TYPE_RANDOM_VALUE,
@@ -385,6 +385,8 @@ public:
 		uint16_t globalPos = 0;
 		uint8_t actualBank = 0;
 
+		bool breakPattern = 0;
+
 		struct strPerformance
 		{
 			int8_t patternLength = -1;
@@ -403,7 +405,7 @@ public:
 
 		struct strJump
 		{
-			uint8_t jumpNOW = 0;
+//			uint8_t jumpNOW = 0;
 			uint8_t nextPattern = 0;
 
 		} jump;
@@ -444,6 +446,8 @@ public:
 			uint16_t offsetValue = 0;
 
 			boolean cancelStep = 0;
+
+
 
 			boolean rollIsOn = 0;
 			uint8_t rollPeriod = 0; // 1/1, 1/2, 1/4 ...
