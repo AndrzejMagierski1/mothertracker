@@ -2,6 +2,7 @@
 
 #include "sampleImporter/sampleImporter.h"
 #include "mtLED.h"
+#include "core/interfacePopups.h"
 
 static uint16_t framesPlaces[2][4] =
 {
@@ -197,6 +198,8 @@ void cSampleImporter::destroyDisplayControls()
 
 	display.destroyControl(editName);
 	editName = nullptr;
+
+	mtPopups.hideInfoPopup();
 }
 
 void cSampleImporter::showDefaultScreen()
@@ -402,6 +405,45 @@ void cSampleImporter::hideHorizontalBar()
 {
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cSampleImporter::showStopPatternPopup()
+{
+	mtPopups.showInfoPopup("This action will stop the pattern.", "Do you want to continue?");
+
+	for(uint8_t i = 0 ; i < 8; i ++)
+	{
+		display.setControlStyle(label[i], (controlStyleCenterX | controlStyleFont3));
+		display.setControlStyle2(label[i], (controlStyleCenterX | controlStyleFont2));
+		display.setControlPosition(label[i],  (800/8)*i+(800/16),  424);
+		display.setControlSize(label[i],  800/8-6,  55);
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+	}
+	display.setControlText(label[6], "No");
+	display.setControlShow(label[6]);
+	display.setControlText(label[7], "Yes");
+	display.setControlShow(label[7]);
+
+	for(uint8_t i = 0 ; i < 8; i ++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+
+	display.setControlValue(bgLabel, 255);
+	display.refreshControl(bgLabel);
+
+	display.synchronizeRefresh();
+}
+void cSampleImporter::hideStopPatternPopup()
+{
+	mtPopups.hideInfoPopup();
+
+	showDefaultScreen();
+	showMemoryUsage();
+
+	display.synchronizeRefresh();
 }
 
 //==============================================================================================================

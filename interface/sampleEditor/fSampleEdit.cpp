@@ -1425,17 +1425,20 @@ static 	uint8_t functSave()
 static  uint8_t functStopPatternYes()
 {
 	sequencer.stop();
+	SE->hideStaticPopup();
 	SE->start(0);
 	return 1;
 }
 static  uint8_t functStopPatternNo()
 {
+	SE->hideStaticPopup();
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
 }
 // Too long instrument
 static uint8_t functTooLongSampleOk()
 {
+	SE->hideStaticPopup();
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
 }

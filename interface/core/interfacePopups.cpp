@@ -990,6 +990,7 @@ void cInterfacePopups::showProgressPopup(const char* text)
 	display.setControlPosition(textLabel1, 400, 190);
 	display.setControlSize(textLabel1,  300, 70);
 	display.setControlText(textLabel1, text);
+	display.setControlText2(textLabel1,"");
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
 	display.setControlColors(textLabel1, progressPopupColors);
 	display.setControlValue(textLabel1, 1);

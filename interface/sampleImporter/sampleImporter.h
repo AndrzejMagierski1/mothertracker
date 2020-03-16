@@ -45,6 +45,21 @@ public:
 	void hideHorizontalBar();
 	void activateLabelsBorder();
 
+	void showStopPatternPopup();
+	void hideStopPatternPopup();
+	void setStopPatternFunction();
+	void clearStopPatternFunction();
+
+	enum  struct enStopPatternAction
+	{
+		previewSD,
+		previewBank,
+		instrCopy,
+		instrAdd,
+		instrAddNext,
+		instrDelete
+	} stopPatternAction;
+
 	strList explorerList;
 	strList instrumentList;
 
