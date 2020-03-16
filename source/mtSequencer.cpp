@@ -1581,6 +1581,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 	{
 		if (isEditMode())
 		{
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+
 			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
 			if (!isMultiSelection())
 			{
@@ -1600,6 +1602,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 		}
 		else if (isRec())
 		{
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+
 			for (uint8_t tr = getActualTrack(); tr < 8; tr++)
 			{
 				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
@@ -1668,6 +1672,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 		}
 		else if (isRec())
 		{
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+
 			for (uint8_t tr = 0; tr < 8; tr++)
 			{
 				if (player.track[tr].noteOpen
