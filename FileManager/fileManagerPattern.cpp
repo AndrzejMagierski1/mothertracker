@@ -215,12 +215,12 @@ bool cFileManager::writePatternFile(const char* filePath, uint8_t* sourcePattern
 }
 
 
-bool cFileManager::saveActualPattern(const char* path, uint8_t index)
-{
-	char patternToSave[PATCH_SIZE];
-	sprintf(patternToSave, "%s/pattern_%02d.mtp", path, index);
-	return writePatternFile(patternToSave, sequencer.getPatternToSaveToFile());
-}
+//bool cFileManager::saveActualPattern(const char* path, uint8_t index)
+//{
+//	char patternToSave[PATCH_SIZE];
+//	sprintf(patternToSave, "%s/pattern_%02d.mtp", path, index);
+//	return writePatternFile(patternToSave, sequencer.getPatternToSaveToFile());
+//}
 
 
 

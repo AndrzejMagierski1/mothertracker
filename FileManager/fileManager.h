@@ -5,6 +5,9 @@
 #include <stdint.h>
 
 
+//extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+
+
 const uint8_t FILEMANAGER_DEBUGLOG =  1;
 
 
@@ -13,6 +16,7 @@ enum fileManagerStatus
 	fmIdle = 0,
 	fmBrowsingSamples,
 	fmBrowsingProjects,
+	fmBrowsingMods,
 	fmBrowsingFirmwares,
 	fmImportingSamplesToWorkspace,
 	fmCopyingInstrumentsInWorkspace,
@@ -20,6 +24,7 @@ enum fileManagerStatus
 	fmPreviewSampleFromSd,
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
+	fmImportingMod,
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
@@ -37,6 +42,7 @@ enum fileManagerStatus
 	fmSaveEnd,
 	fmBrowseSamplesEnd,
 	fmBrowseProjectsEnd,
+	fmBrowseModsEnd,
 	fmBrowseFirmwaresEnd,
 	fmImportSamplesEnd,
 	fmCopyingInstrumentsEnd,
@@ -50,10 +56,12 @@ enum fileManagerStatus
 
 	fmError,
 	fmLoadError,
+	fmImportModError,
 	fmSaveError,
 	fmCopyError,
 	fmBrowseSamplesError,
 	fmBrowseProjectsError,
+	fmBrowseModsError,
 	fmBrowseFirmwaresError,
 	fmImportSamplesError,
 	fmCopyingInstrumentsError,
@@ -75,7 +83,8 @@ enum fileManagerOperation
 
 	fmBrowseSamples, 			//5
 	fmBrowseProjects, 			//6
-	fmBrowseFirmwares, 			//7
+	fmBrowseMods, 				//7
+	fmBrowseFirmwares, 			//8
 
 	fmImportSamplesToWorkspace,	//8
 	fmCopyInstrumentsInWorkspace,//9
@@ -87,7 +96,11 @@ enum fileManagerOperation
 	fmExportSound,				//13
 	fmSaveRecordedSound,		//14
 
-	fmImportSampleFromSampleEditor // 15
+	fmImportSampleFromSampleEditor, // 15
+
+
+	fmImportModFile,			//13
+
 
 };
 
@@ -120,6 +133,7 @@ public:
 	bool projectExist(char* name);
 	uint8_t getBrowsedFilesList(char*** list, uint32_t** memoryList);
 	uint8_t getProjectsList(char*** list);
+	uint8_t getModsList(char*** list);
 	uint8_t getFirmwaresList(char*** list);
 
 	//setery
@@ -131,6 +145,7 @@ public:
 	// metody glowne
 	bool openProjectFromWorkspace();
 	bool openProjectFromProjects(uint8_t index);
+	bool importModAfterLoadNewProject(uint8_t index);
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 	bool importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
@@ -138,6 +153,7 @@ public:
 
 	bool browseSdCard(uint8_t* index);
 	bool browseProjects();
+	bool browseMods();
 	bool browseFirmwares();
 
 	bool previevSamplefromSD(uint8_t index);
@@ -148,6 +164,7 @@ public:
 	bool loadWorkspacePattern(uint8_t index);
 
 	bool deleteProject(uint8_t index);
+	bool deleteMod(uint8_t index);
 
 	bool exportSound(uint8_t mode);
 	bool exportSoundCancel();
@@ -228,11 +245,13 @@ private:
 
 	// glowne update / workspace ------------------------------------
 	void updateLoadProjectFromWorkspace();
+	void updateImportModFile();
 	void updateSaveProjectToWorkspace();
 	void updateCopyProjectsToWorkspace();
 	void updateCopyWorkspaceToProjects();
 	void updateBrowseSamples();
 	void updateBrowseProjects();
+	void updateBrowseMods();
 	void updateBrowseFirmwares();
 	void updateImportSamplesToWorkspace();
 	void updateCopyInstrumentsInWorkspace();
@@ -302,6 +321,7 @@ private:
 	// instrument ------------------------------------
 	void loadInstrumentsFromWorkspace();
 	void saveInstrumentsToWorkspace();
+	uint8_t saveInstrument(uint8_t idx);
 	void copyInstruments();
 	void createEmptyInstrumentInWorkspace();
 	void deleteInstrumentsFromWorkspace();
@@ -384,6 +404,10 @@ private:
 	uint8_t firmwaresListLength = 0;
 	char* firmwaresList[list_length_max];
 
+	void browseModsLocation();
+	uint8_t modsListLength = 0;
+	char* modsList[list_length_max];
+
 	void browseCurrentLocation();
 	void listOnlyFolderNames();
 	void processDirFileSizes();
@@ -428,10 +452,120 @@ private:
 	void importSampleFromSampleEditorFinish();
 	uint8_t* importFromSampleEditorAddress;
 	uint32_t importFromSampleEditorLength;
+    
 
 
 
+    
+	/// IMPORT MOD
 
+	void importModFileInit();
+	void importModFile_GetInstrumentData();
+	void importMod_SaveInstrument();
+
+	void importModFile_SongInit();
+	void importModFile_Patterns();
+	void importModFileWaves_ImportWave();
+	void importModFileWaves_WriteWave();
+	void importModFileFinish();
+	void importModFileError();
+
+
+	int8_t periodToNote(uint16_t period);
+	void printNote(uint8_t note);
+
+	bool importModFileAfterNewProject = 0;
+
+	char modToImportFilename[255];	// tylko nazwa
+	char modFilePath[255];			// cala sciezka
+
+	uint8_t modFileInstrumentsCount = 31;
+	uint8_t modFileInstruments_actualIndex = 0;
+	uint8_t modFileChannelsCount = 4;
+
+	uint8_t modFilePatterns_max = 1;
+	uint8_t modFilePatterns_actualIndex = 0;
+
+
+	/*
+	 * 'M.K', '4CHN',
+	'6CHN','8CHN','FLT4','FLT8.
+	 */
+
+
+
+	const uint8_t modSampleInfoSize = 30;
+	const uint8_t modSongInfoSize = 1 + 1 + 128 + 4;
+	const uint16_t modPatternSize = 1024;
+	static const uint8_t modSampleNameSize = 22;
+
+	uint8_t modFile_sample_actualIndex = 0;
+//	int16_t *modFile_sample_ptr = sdram_sampleBank;
+
+	uint8_t modSample_waveWriteFlag = 0;
+	int16_t *modSample_waveSrcPtr;
+
+	uint32_t modImport_saveLength = 0;
+
+//	SdFile modImport_wav;
+
+
+	struct strModFileData
+	{
+
+		char sampleName[modSampleNameSize];
+		uint16_t sampleLengthInWords = 0;
+		uint8_t finetune = 0;
+
+		/*
+		 *  Value:  Finetune:
+		 0        0
+		 1       +1
+		 2       +2
+		 3       +3
+		 4       +4
+		 5       +5
+		 6       +6
+		 7       +7
+		 8       -8
+		 9       -7
+		 A       -6
+		 B       -5
+		 C       -4
+		 D       -3
+		 E       -2
+		 F       -1
+
+		 */
+
+		//Range is $00-$40, or 0-64 decimal.
+		uint8_t volume = 0;
+
+		/*
+		 Repeat point for sample 1. Stored as number of words offset
+		 from start of sample. Multiply by two to get offset in bytes.
+		 */
+		uint16_t repeatPointInWords = 0;
+
+		/*
+		 Repeat Length for sample 1. Stored as number of words in
+		 loop. Multiply by two to get replen in bytes.
+		 */
+		uint16_t repeatLengthInWords = 0;
+
+	} modSampleData;
+
+
+	struct strModSong
+	{
+		uint8_t length = 0;
+		uint8_t oldByte = 127;
+		uint8_t playlist[128] { 0 };
+		uint8_t theFourLetters[4] { 0 };
+
+	} modSong;
+
+	/// IMPORT MOD KONIEC
 //patern undo
 
 

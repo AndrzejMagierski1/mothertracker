@@ -77,6 +77,9 @@ const char cProjectsSamplesFilesFormat[] 	= "Projects/%s/samples/instr%02d.wav";
 const char cExportPath[] 					= "Export";
 const char cExportProjectPathFormat[] 		= "Export/%s";
 
+const char cModsPath[] 						= "Mod";
+const char cModsPathFormat[] 				= "Mod/%s";
+
 
 
 

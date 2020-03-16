@@ -188,7 +188,6 @@ uint8_t Sequencer::randomFx()
 				retVal != fx.FX_TYPE_R4 &&
 				retVal != fx.FX_TYPE_R5 &&
 				retVal != fx.FX_TYPE_R10 &&
-				retVal != fx.FX_TYPE_R21 &&
 				retVal != fx.FX_TYPE_R30 &&
 				retVal != fx.FX_TYPE_R31 &&
 				retVal != fx.FX_TYPE_R22
@@ -1264,6 +1263,9 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	case fx.FX_TYPE_MICROTUNING:
 		return 198;
 
+	case fx.FX_TYPE_BREAK_PATTERN:
+			return 1;
+
 	case fx.FX_TYPE_MICROMOVE:
 		return 100;
 	case fx.FX_TYPE_TEMPO:
@@ -1314,6 +1316,8 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 		return 5;
 	case fx.FX_TYPE_PANNING:
 		return 0;
+	case fx.FX_TYPE_BREAK_PATTERN:
+		return 1;
 
 	case fx.FX_TYPE_ROLL:
 		return fx.ROLL_PERIOD_MIN;
@@ -1335,6 +1339,9 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 
 	case fx.FX_TYPE_ROLL:
 		return 1;
+
+	case fx.FX_TYPE_BREAK_PATTERN:
+			return 1;
 
 	case fx.FX_TYPE_PANNING:
 		return 50;
@@ -1452,6 +1459,10 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value)
 
 	case fx.FX_TYPE_REVERSE_PLAYBACK:
 		strcpy(ptr, val > 0 ? "<<<" : ">>>");
+		break;
+
+	case fx.FX_TYPE_BREAK_PATTERN:
+		strcpy(ptr, val > 0 ? "BRK" : "---");
 		break;
 
 	default:

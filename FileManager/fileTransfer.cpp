@@ -80,6 +80,74 @@ uint8_t cFileTransfer::loadFileToMemory(const char* file, uint8_t* memory, uint3
 	transferFile.close();
 	return fileTransferError;
 }
+uint8_t cFileTransfer::loadFileToMemory(const char* file, uint8_t* memory,
+										uint32_t memSize, uint32_t memOffset,
+										uint8_t mode)
+{
+	if (transferStep == 0)
+	{
+		if (!SD.exists(file)) return fileTransferFileNoExist;
+
+		if (transferFile.open(file))
+		{
+			memTotal = memSize;
+			memStep = (mode == fileWholeOnce) ? memTotal : memoryReadPerPart;
+			memComplited = 0;
+			transferStep = 1;
+
+			memset(memory, 0, memSize);
+		}
+	}
+
+	if (transferStep == 1)
+	{
+		int32_t result = transferFile.seek(memOffset);
+		if (result >= 0)
+		{
+			transferStep = 2;
+		}
+		else
+		{
+			return fileTransferError;
+		}
+
+	}
+
+	if (transferStep == 2)
+	{
+		int32_t result = transferFile.read(memory + memComplited, memStep);
+
+		if (result >= 0)
+		{
+			memComplited += result;
+
+			if (result == 0) //koniec pliku
+			{
+				transferStep = 3;
+			}
+			else if (memComplited >= memSize) //wczytany wiekszy plik << niebezpieczne przekroczenie pamieci
+			{
+				transferStep = 3;
+			}
+			else
+			{
+				return fileTransferInProgress;
+			}
+		}
+		//else wysypuje error na koncu funkcji \/
+	}
+
+	if (transferStep == 3)
+	{
+		transferStep = 0;
+		transferFile.close();
+		return fileTransferEnd;
+	}
+
+	transferStep = 0;
+	transferFile.close();
+	return fileTransferError;
+}
 
 
 uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uint32_t* outSampleCount)

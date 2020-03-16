@@ -36,6 +36,7 @@ public:
 //-------------------------------------------------------------
 	void showDefaultScreen();
 	void showProjectsList();
+	void showModsList();
 //	void showTemplatesList();
 
 
@@ -43,6 +44,7 @@ public:
 	void setExportWindowFuncts();
 //-------------------------------------------------------------
 	void processProjectList();
+	void processModsList();
 
 	uint8_t loadSamplesBank();
 
@@ -92,16 +94,23 @@ public:
 	char** projectsList;
 	uint8_t projectsListLength;
 
+	uint8_t selectedMod;
+	char** modsList;
+	uint8_t modsListLength;
+
+
 //-------------------------------------------------------------
 	void showEnterNameKeyboard();
 
 //-------------------------------------------------------------
 	void functShowSaveLastWindow();
 	void functShowSaveLastWindowBeforeOpen();
+	void functShowSaveLastWindowBeforeImportMod();
 	void showSaveLastWindow();
 	void functShowOverwriteWindow();
 
-	void showDeleteLastWindow();
+	void showDeleteProjectLastWindow();
+	void showDeleteModLastWindow();
 
 
 /*	void showOpeningHorizontalBar();
@@ -158,6 +167,7 @@ public:
 	uint8_t openOnSaveEndFlag = 0;
 	//uint8_t saveingProgress = 0;
 	uint8_t projectListActiveFlag = 0;
+	uint8_t modsListActiveFlag = 0;
 	char currentInfo[100];
 	char currentPatchProjectName[PATCH_SIZE];
 
@@ -171,7 +181,8 @@ public:
 	{
 		stopActionOpen = 1,
 		stopActionNewProject,
-		stopActionExport
+		stopActionExport,
+		stopActionImportMod
 	};
 	uint8_t stopAction = 0;
 

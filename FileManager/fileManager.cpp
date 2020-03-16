@@ -42,6 +42,7 @@ void cFileManager::update()
 
 	case fmBrowseSamples: 				updateBrowseSamples(); 					break;
 	case fmBrowseProjects: 				updateBrowseProjects(); 				break;
+	case fmBrowseMods: 					updateBrowseMods(); 					break;
 	case fmBrowseFirmwares: 			updateBrowseFirmwares(); 				break;
 
 	case fmImportSamplesToWorkspace:	updateImportSamplesToWorkspace(); 		break;
@@ -56,6 +57,8 @@ void cFileManager::update()
 
 	case fmImportSampleFromSampleEditor:updateImportSampleFromSampleEditor(); break;
 
+
+	case fmImportModFile:				updateImportModFile(); 			break;
 
 	default: break;
 	}
@@ -81,6 +84,25 @@ void cFileManager::updateLoadProjectFromWorkspace() // fmLoadWorkspaceProject - 
 		case 5:		loadProjectFromWorkspaceFinish(); 		break;// wykonczenie
 		default:	stopOperationWithError(fmLoadError); 	break;
 	}
+}
+
+void cFileManager::updateImportModFile()
+{
+	switch (currentOperationStep)
+	{
+	case 0:		importModFileInit();							break;
+	case 1:		importModFile_GetInstrumentData();				break;
+	case 2:		importMod_SaveInstrument();						break;
+	case 3:		importModFile_SongInit();						break;
+	case 4:		importModFile_Patterns();						break;
+	case 5:		importModFileWaves_ImportWave();							break;
+	case 6:		importModFileWaves_WriteWave();							break;
+	case 7:		importModFileFinish();							break;
+	default:
+		importModFileError();
+		stopOperationWithError(fmImportModError);		break;
+	}
+
 }
 
 void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
@@ -144,6 +166,15 @@ void cFileManager::updateBrowseProjects() //fmBrowseProjects - 6
 	{
 		case 0: 	browseProjectsLocation();  						break;
 		default:	stopOperationWithError(fmBrowseProjectsError); 	break;
+	}
+}
+
+void cFileManager::updateBrowseMods() //fmBrowseProjects - 6
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	browseModsLocation();  						break;
+		default:	stopOperationWithError(fmBrowseModsError); 	break;
 	}
 }
 
@@ -337,13 +368,18 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 
 	sequencer.switchRamPatternsNow();
 
-	// swiezo wczytany projekt jest zawsze zgodny z zapisanym - nieeee?!
-	//mtProject.values.projectNotSavedFlag = 0;
-
-
-	status = fmLoadEnd;
-	currentOperationStep = 0;
-	currentOperation = fmNoOperation;
+	if (importModFileAfterNewProject)
+	{
+		status = fmImportingMod;
+		currentOperationStep = 0;
+		currentOperation = fmImportModFile;
+	}
+	else
+	{
+		status = fmLoadEnd;
+		currentOperationStep = 0;
+		currentOperation = fmNoOperation;
+	}
 }
 
 //------------------------------------------------------------------------------------------copyProjectsToWorkspace
@@ -711,6 +747,38 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 	return true;
 }
 
+bool cFileManager::importModAfterLoadNewProject(uint8_t index)
+{
+//	if(status != fmIdle) return false;
+//	if(currentOperation != fmNoOperation) return false;
+
+	if (modsList[index] == nullptr) return false;
+	//pobranie nazwy otwieranego projektu tu
+
+	strcpy(modToImportFilename, modsList[index]);
+
+	char modName[20] { 0 };
+	for (uint8_t a = 0; a < sizeof(modName); a++)
+	{
+		if (modToImportFilename[a] != '.')
+		{
+			modName[a] = modToImportFilename[a];
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	strcpy(currentProjectName, modName);
+
+	importModFileAfterNewProject = 1;
+
+	return true;
+}
+
+
+
 bool cFileManager::saveProjectToWorkspace(bool forceSaveAll) //xxx jak narazie nigdzie nie uzywane force=true
 {
 	if(status != fmIdle && status != fmSavingProjectToProjects) return false;
@@ -891,6 +959,21 @@ bool cFileManager::deleteProject(uint8_t index)
 	sprintf(project_dir, cProjectsPathFormat, projectsList[index]);
 
 	SD.removeDirWithFiles(project_dir);
+
+	return true;
+}
+bool cFileManager::deleteMod(uint8_t index)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	if(index >= modsListLength) return false;
+//	if(strcmp(projectsList[index], currentProjectName) == 0) return false;
+
+	char project_dir[255];
+	sprintf(project_dir, cModsPathFormat, modsList[index]);
+
+	SD.remove(project_dir);
 
 	return true;
 }
