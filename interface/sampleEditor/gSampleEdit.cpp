@@ -1,5 +1,6 @@
 #include "sampleEditor.h"
 #include "mtSampleEditorEngine.h"
+#include "core/interfacePopups.h"
 
 char * const effectNamesLabels[editorEffectMax] =
 {
@@ -35,18 +36,6 @@ void cSampleEditor::initDisplayControls()
 	popupProgressProperties.w = 420;
 	if(popupProgressBar == nullptr)  popupProgressBar = display.createControl<cHorizontalBar>(&popupProgressProperties);
 
-	strControlProperties popupLabelProperties;
-
-	popupLabelProperties.value = 1;
-	popupLabelProperties.x = 400;
-	popupLabelProperties.colors = popupLabelColors;
-	popupLabelProperties.y = 300;
-	popupLabelProperties.h = 100;
-	popupLabelProperties.w = 800-(10);
-	popupLabelProperties.style = ( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
-	popupLabelProperties.text = nullptr;
-
-	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&popupLabelProperties);
 //frame
 	strControlProperties frameProperties;
 
@@ -185,12 +174,11 @@ void cSampleEditor::destroyDisplayControls()
 //popups
 	display.destroyControl(popupProgressBar);
 	popupProgressBar = nullptr;
-
-	display.destroyControl(popupLabel);
-	popupLabel = nullptr;
+	mtPopups.hideInfoPopup();
 //background label
 	display.destroyControl(bgLabel);
 	bgLabel = nullptr;
+
 
 //*********************
 }
@@ -290,10 +278,8 @@ void cSampleEditor::showMainScreen()
 
 	showInstrumentName();
 //popups
-	display.setControlHide(popupLabel);
-	display.refreshControl(popupLabel);
 	display.setControlHide(popupProgressBar);
-	display.refreshControl(popupLabel);
+	display.refreshControl(popupProgressBar);
 //background label
 
 	display.setControlValue(bgLabel,0b01111111);
@@ -392,10 +378,8 @@ void cSampleEditor::showEffectParamsScreen()
 
 	showInstrumentName();
 //popups
-	display.setControlHide(popupLabel);
-	display.refreshControl(popupLabel);
 	display.setControlHide(popupProgressBar);
-	display.refreshControl(popupLabel);
+	display.refreshControl(popupProgressBar);
 //background label
 
 	display.setControlValue(bgLabel,0b11111111);
@@ -578,8 +562,7 @@ void cSampleEditor::showStaticPopupCommonWindow()
 	display.refreshControl(titleLabel);
 	showInstrumentName();
 //popups
-	display.setControlHide(popupLabel);
-	display.refreshControl(popupLabel);
+
 	display.setControlHide(popupProgressBar);
 	display.refreshControl(popupProgressBar);
 //background label
@@ -590,16 +573,12 @@ void cSampleEditor::showStaticPopupCommonWindow()
 }
 void cSampleEditor::hideStaticPopup()
 {
-	display.setControlHide(popupLabel);
-	display.refreshControl(popupLabel);
+	mtPopups.hideInfoPopup();
 }
 //Stop Seq
 void cSampleEditor::showPopupStopSequencer()
 {
-	display.setControlText(popupLabel, "This action will stop the pattern. Do you want to continue?");
-	display.setControlText2(popupLabel,"");
-	display.setControlShow(popupLabel);
-	display.refreshControl(popupLabel);
+	mtPopups.showInfoPopup("This action will stop the pattern.", "Do you want to continue?");
 
 	display.setControlText(label[6], "No");
 	display.setControlText(label[7], "Yes");
@@ -616,10 +595,7 @@ void cSampleEditor::showPopupSeqWindow()
 //Too Long instrument
 void cSampleEditor::showPopupTooLongSample()
 {
-	display.setControlText(popupLabel, "Selected sample is too long. Choose another one.");
-	display.setControlText2(popupLabel,"");
-	display.setControlShow(popupLabel);
-	display.refreshControl(popupLabel);
+	mtPopups.showInfoPopup("Selected sample is too long.", "Choose another one.");
 
 	display.setControlText(label[7], "Ok");
 	display.refreshControl(label[7]);
@@ -634,11 +610,7 @@ void cSampleEditor::showPopupTooLongSampleWindow()
 //Too Long processed sample
 void cSampleEditor::showPopupTooLongProcessedSample()
 {
-	display.setControlText(popupLabel, "After applying changes, the sample will be too long.");
-	display.setControlText2(popupLabel, "Change the effect parameters and try again.");
-	display.setControlShow(popupLabel);
-	display.refreshControl(popupLabel);
-
+	mtPopups.showInfoPopup("After applying changes,the sample will be too long.", "Change the effect parameters and try again.");
 	display.setControlText(label[7], "Ok");
 }
 void cSampleEditor::showPopupTooLongProcessedSampleWindow()
