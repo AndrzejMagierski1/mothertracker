@@ -332,6 +332,7 @@ void cSampleImporter::showInstrumentsList()
 
 void cSampleImporter::refreshInstrumentsList()
 {
+	display.setControlValue(instrumentListControl,selectedSlot);
 	display.setControlShow(instrumentListControl);
 	display.refreshControl(instrumentListControl);
 }

@@ -98,8 +98,9 @@ void cSampleImporter::update()
 			selectedSlot = (selectedSlot+addNextOffset >= INSTRUMENTS_COUNT) ? INSTRUMENTS_COUNT-1 : selectedSlot + addNextOffset;
 		}
 
+		cancelSelect(listInstruments);
 		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
+		SI->refreshInstrumentsList();
 		SI->handleMemoryBar();
 		FM->unblockAllInputs();
 
@@ -120,7 +121,7 @@ void cSampleImporter::update()
 	else if(managerStatus == fmDeleteInstrumentsEnd)
 	{
 		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
+		SI->refreshInstrumentsList();
 		SI->handleMemoryBar();
 		FM->unblockAllInputs();
 

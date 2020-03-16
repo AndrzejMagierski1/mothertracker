@@ -23,7 +23,7 @@ const char fxDescriptions[FX_COUNT][300] =
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_MICROTUNING,
 	{
-			"Sets the microtunig \nadjustments."
+			"Sets the microtuning \nadjustments."
 			"\n"
 			"\nFrom -99 cents \nto +99 cents."
 	},
@@ -57,7 +57,7 @@ const char fxDescriptions[FX_COUNT][300] =
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL,
 	{
-			"Sets the type and value of the Roll (step devider) parameter."
+			"Sets the type and value of the Roll (step divider) parameter."
 			"\n"
 			"\nFrom 0 to 16 for each Roll type."
 			"\nR - regular Roll."
