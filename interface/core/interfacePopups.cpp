@@ -1021,7 +1021,7 @@ void cInterfacePopups::hideProgressPopup()
 void cInterfacePopups::showInfoPopup(const char* text1, const char* text2)
 {
 	display.setControlPosition(textLabel1, 400, 190);
-	display.setControlSize(textLabel1,  400, 70);
+	display.setControlSize(textLabel1,  420, 70);
 	display.setControlText(textLabel1, text1);
 	if(text2 != nullptr) display.setControlText2(textLabel1, text2);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);

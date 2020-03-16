@@ -168,7 +168,6 @@ public:
 		titleLabel = nullptr;
 		instrumentLabel = nullptr;
 		popupProgressBar = nullptr;
-		popupLabel = nullptr;
 		bgLabel = nullptr;
 	}
 	virtual ~cSampleEditor() {}
@@ -189,7 +188,6 @@ public:
 	hControl instrumentLabel;
 //popups
 	hControl popupProgressBar;
-	hControl popupLabel;
 //background label
 	hControl bgLabel;
 //*********************
