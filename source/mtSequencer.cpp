@@ -1749,10 +1749,10 @@ void Sequencer::killFxOnSlot(uint8_t slot)
 		}
 
 	}
-	if (player.performance.tempoSource == slot)
-	{
-		player.performance.tempo = 0.0f;
-	}
+//	if (player.performance.tempoSource == slot)
+//	{
+//		player.performance.tempo = 0.0f;
+//	}
 }
 
 void Sequencer::setPerformancePatternLength(int8_t length)
