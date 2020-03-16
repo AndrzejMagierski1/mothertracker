@@ -28,7 +28,7 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 {
 	char patternToLoad[PATCH_SIZE];
 	sprintf(patternToLoad, cWorkspacePatternFileFormat, index);
-	mtProject.values.actualPattern = index;
+	loadedPattern = index;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(patternToLoad,  (uint8_t*)&fileManagerPatternBuffer, sizeof(Sequencer::strPattern), fileWholeOnce); //fileDivIntoParts
 
@@ -38,7 +38,7 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 		{
 			sequencer.loadFromFileOK();
 			//sequencer.switchRamPatternsNow();
-			report(" no blocking pattern load - success ", mtProject.values.actualPattern);
+			report(" no blocking pattern load - success ",loadedPattern);
 			moveToNextOperationStep();
 		}
 		else
@@ -211,7 +211,7 @@ bool cFileManager::loadWorkspacePatternNow(uint8_t index)
 	char patternToLoad[PATCH_SIZE];
 
 	sprintf(patternToLoad, cWorkspacePatternFileFormat, index);
-	mtProject.values.actualPattern = index;
+	loadedPattern = index;
 
 	if(!SD.exists(patternToLoad))
 	{
@@ -225,12 +225,12 @@ bool cFileManager::loadWorkspacePatternNow(uint8_t index)
 
 	if(status)
 	{
-		report(" load pattern now - success " , mtProject.values.actualPattern);
+		report(" load pattern now - success " , loadedPattern);
 		sequencer.loadFromFileOK();
 	}
 	else
 	{
-		report(" load pattern now - failed " , mtProject.values.actualPattern);
+		report(" load pattern now - failed " , loadedPattern);
 		sequencer.loadFromFileERROR();
 	}
 
@@ -375,4 +375,10 @@ bool cFileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
 	mtProject.values.perfTracksPatterns[trackIndex] = pattIndex;
 
 	return true;
+}
+
+
+uint8_t cFileManager::getLoadedPatternIndex()
+{
+	return loadedPattern;
 }

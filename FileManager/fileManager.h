@@ -136,6 +136,8 @@ public:
 	uint8_t getModsList(char*** list);
 	uint8_t getFirmwaresList(char*** list);
 
+	uint8_t getLoadedPatternIndex();
+
 	//setery
 	void setProjectStructChanged();
 	void setPatternStructChanged(uint8_t pattern);
@@ -303,6 +305,7 @@ private:
 
 	// pattern ------------------------------------
 	void loadPatternFromWorkspace(uint8_t index);
+	uint8_t loadedPattern = 0;
 	void savePatternToWorkspace();
 	void copyPaterns();
 

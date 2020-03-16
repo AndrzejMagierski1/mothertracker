@@ -1581,6 +1581,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 	{
 		if (isEditMode())
 		{
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+
 			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
 			if (!isMultiSelection())
 			{
@@ -1600,6 +1602,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 		}
 		else if (isRec())
 		{
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+
 			for (uint8_t tr = getActualTrack(); tr < 8; tr++)
 			{
 				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
@@ -1668,6 +1672,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 		}
 		else if (isRec())
 		{
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+
 			for (uint8_t tr = 0; tr < 8; tr++)
 			{
 				if (player.track[tr].noteOpen
@@ -1749,10 +1755,10 @@ void Sequencer::killFxOnSlot(uint8_t slot)
 		}
 
 	}
-	if (player.performance.tempoSource == slot)
-	{
-		player.performance.tempo = 0.0f;
-	}
+//	if (player.performance.tempoSource == slot)
+//	{
+//		player.performance.tempo = 0.0f;
+//	}
 }
 
 void Sequencer::setPerformancePatternLength(int8_t length)
@@ -1839,4 +1845,11 @@ uint8_t Sequencer::getInstrumentVelo(uint8_t ins)
 void Sequencer::feedExternalTempo(float setTempo)
 {
 	player.externalTempo = (3 * player.externalTempo + setTempo) / 4;
+}
+
+void Sequencer::switchRamPatternsNow()
+{
+	cancelFxes();
+	player.ramBank = !player.ramBank;
+	mtProject.values.actualPattern = newFileManager.getLoadedPatternIndex();
 }
