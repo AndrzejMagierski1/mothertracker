@@ -397,6 +397,7 @@ void cFileManager::copyProjectsToWorkspaceInit()
 
 	currentInstrument = 0;
 	currentSample = 0;
+	currentPattern = 1;
 
 	//
 	moveToNextOperationStep();
@@ -512,6 +513,7 @@ void cFileManager::copyWorkspaceToProjectsInit()
 
 	currentInstrument = 0;
 	currentSample = 0;
+	currentPattern = 1;
 
 	moveToNextOperationStep();
 }
@@ -1065,8 +1067,7 @@ void cFileManager::setProjectStructChanged()
 
 void cFileManager::setPatternStructChanged(uint8_t pattern)
 {
-	debugLog.addLineToSdBuffer("changed pattern");
-	debugLog.addTextToSdBuffer(" no: ");
+	debugLog.addLineToSdBuffer("changed pattern: ");
 	debugLog.addValueToSdBuffer(pattern);
 
 	changesFlags.pattern[pattern] = 1;
@@ -1176,7 +1177,7 @@ void cFileManager::throwError(uint8_t source)
 
 	currentSample = 0;
 	currentInstrument = 0;
-	currentPattern = 0;
+	currentPattern = 1;
 
 	status = fmError;
 	currentOperationStep = 0;

@@ -193,7 +193,7 @@ bool cFileManager::continuePatternProcess()
 	currentPattern++;
 	if(currentPattern > PATTERN_INDEX_MAX)
 	{
-		currentPattern = 0;
+		currentPattern = 1;
 		moveToNextOperationStep();
 		return false;
 	}
