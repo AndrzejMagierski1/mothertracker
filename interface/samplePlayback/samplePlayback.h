@@ -59,7 +59,7 @@ public:
 		pointsControl = nullptr;
 		slicePointsControl = nullptr;
 		label[7] = {nullptr};
-		popupLabel = nullptr;
+		//popupLabel = nullptr;
 		lastSampleLength = 0;
 	}
 	virtual ~cSamplePlayback() {}
@@ -122,7 +122,7 @@ public:
 	hControl granularCursor;
 	hControl wtPositionCursor;
 	hControl bgLabel;
-	hControl popupLabel;
+	//hControl popupLabel;
 
 
 

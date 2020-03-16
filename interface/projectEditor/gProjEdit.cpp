@@ -1,6 +1,8 @@
 
 #include "projectEditor/projectEditor.h"
 
+#include "core/interfacePopups.h"
+
 #include "mtLED.h"
 #include "fileManager.h"
 //#include "mtFileManager.h"
@@ -38,17 +40,17 @@ void cProjectEditor::initDisplayControls()
 	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
-	strControlProperties prop5;
-
-	prop5.x = 400;
-	prop5.colors = popUpLabelColors;
-	prop5.y = 300;
-
-	prop5.h = 100;
-	prop5.w = 800-(10);
-	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop5.text = (char*)"";
-	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop5);
+//	strControlProperties prop5;
+//
+//	prop5.x = 400;
+//	prop5.colors = popUpLabelColors;
+//	prop5.y = 300;
+//
+//	prop5.h = 100;
+//	prop5.w = 800-(10);
+//	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+//	prop5.text = (char*)"";
+//	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop5);
 
 	labelArrow.bitmaps[0].bitmapIndex = displayArrowU;
 	labelArrow.bitmaps[0].xValue =  (800/8)*0+(800/16);
@@ -178,8 +180,8 @@ void cProjectEditor::destroyDisplayControls()
 	display.destroyControl(editName);
 	editName = nullptr;
 
-	display.destroyControl(popupWindowLabel);
-	popupWindowLabel = nullptr;
+//	display.destroyControl(popupWindowLabel);
+//	popupWindowLabel = nullptr;
 
 	display.destroyControl(loadHorizontalBarControl);
 	loadHorizontalBarControl = nullptr;
@@ -192,6 +194,9 @@ void cProjectEditor::destroyDisplayControls()
 
 	display.destroyControl(processControl);
 	processControl = nullptr;
+
+
+	mtPopups.hideInfoPopup();
 }
 
 void cProjectEditor::showDefaultScreen()
@@ -262,8 +267,10 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
-	display.setControlHide(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+
+ 	mtPopups.hideInfoPopup();
+	//display.setControlHide(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
@@ -530,11 +537,12 @@ void cProjectEditor::showSaveLastWindow()
 	display.setControlText(label[6], "Don't save");
 	display.setControlText(label[7], "Save");
 
-	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", newFileManager.getCurrentProjectName());
+	sprintf(currentInfo,"\"%s\"?", newFileManager.getCurrentProjectName());
 
-	display.setControlText(popupWindowLabel, currentInfo);
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+ 	mtPopups.showInfoPopup("Do you want to save the changes to ", currentInfo);
+	//display.setControlText(popupWindowLabel, currentInfo);
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -554,11 +562,12 @@ void cProjectEditor::showDeleteProjectLastWindow()
 	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Delete");
 
-	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", projectsList[selectedProject]);
+	sprintf(currentInfo,"\"%s\"?", projectsList[selectedProject]);
 
-	display.setControlText(popupWindowLabel, currentInfo);
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+ 	mtPopups.showInfoPopup("Do you want to delete project:", currentInfo);
+	//display.setControlText(popupWindowLabel, currentInfo);
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -577,11 +586,13 @@ void cProjectEditor::showDeleteModLastWindow()
 	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Delete");
 
-	sprintf(currentInfo,"Do you want to delete file: \"%s\"?", modsList[selectedMod]);
+	sprintf(currentInfo,"\"%s\"?", modsList[selectedMod]);
 
-	display.setControlText(popupWindowLabel, currentInfo);
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+
+ 	mtPopups.showInfoPopup("Do you want to delete file:", currentInfo);
+	//display.setControlText(popupWindowLabel, currentInfo);
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -604,11 +615,16 @@ void cProjectEditor::showOverwriteWindow()
 	display.setControlText(label[7], "Overwrite");
 	display.setControlText(label[6], "Cancel");
 
-	sprintf(currentInfo,"Do you want overwrite \"%s\"?", keyboardManager.getName());
+	sprintf(currentInfo,"\"%s\"?", keyboardManager.getName());
 
-	display.setControlText(popupWindowLabel, currentInfo);
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+ 	mtPopups.showInfoPopup("Do you want overwrite ", currentInfo);
+//
+//	display.setControlText(popupWindowLabel, currentInfo);
+//	display.setControlShow(popupWindowLabel);
+//	display.refreshControl(popupWindowLabel);
+
+
+
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -631,11 +647,12 @@ void cProjectEditor::showStopPatternWindow()
 	display.setControlText(label[7], "Yes");
 	display.setControlText(label[6], "No");
 
-	sprintf(currentInfo,"This action will stop the pattern. Do you want to continue?");
+	//sprintf(currentInfo,"This action will stop the pattern. Do you want to continue?");
 
-	display.setControlText(popupWindowLabel, currentInfo);
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+ 	mtPopups.showInfoPopup("This action will stop the pattern.", "Do you want to continue?");
+	//display.setControlText(popupWindowLabel, currentInfo);
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -672,8 +689,9 @@ void cProjectEditor::showExportingHorizontalBar()
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 
-	display.setControlHide(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+ 	mtPopups.hideInfoPopup();
+	//display.setControlHide(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 }
 
 
@@ -709,8 +727,9 @@ void cProjectEditor::showExportWindow()
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 
-	display.setControlHide(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+ 	mtPopups.hideInfoPopup();
+	//display.setControlHide(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }

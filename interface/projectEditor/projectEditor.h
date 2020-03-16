@@ -73,7 +73,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl titleLabelProjectName = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl popupWindowLabel = nullptr;
+	//hControl popupWindowLabel = nullptr;
 	hControl loadHorizontalBarControl = nullptr;
 	hControl popupLabel = nullptr;
 	hControl coverImg = nullptr;

@@ -79,7 +79,7 @@ public:
 		 keyboardControl = nullptr;
 		 editName = nullptr;
 		 saveHorizontalBarControl = nullptr;
-		 popupWindowLabel = nullptr;
+		 //popupWindowLabel = nullptr;
 
 	}
 	virtual ~cSampleRecorder() {}
@@ -136,7 +136,7 @@ public:
 	hControl keyboardControl;
 	hControl editName;
 	hControl saveHorizontalBarControl;
-	hControl popupWindowLabel;
+	//hControl popupWindowLabel;
 	hControl progressCursor;
 	hControl radioRdsLabel;
 	hControl titleBar = nullptr;

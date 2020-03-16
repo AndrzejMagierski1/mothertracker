@@ -105,7 +105,7 @@ void cInterface::begin()
 
 	popupConfig.time = 2;
 	popupConfig.w = 300;
-	popupConfig.h = 100;
+	popupConfig.h = 70;
 	popupConfig.x = 800/2-150;
 	popupConfig.y = 480/2-50;
 	popupConfig.lineColor[0] = 0xffffff;

@@ -1,5 +1,6 @@
 
 
+#include "core/interfacePopups.h"
 #include "samplePlayback.h"
 #include "mtAudioEngine.h"
 
@@ -29,15 +30,15 @@ static uint32_t popUpLabelColors[] =
 
 void cSamplePlayback::initDisplayControls()
 {
-	strControlProperties prop3;
-
-	prop3.x = 400;
-	prop3.colors = popUpLabelColors;
-	prop3.y = 300;
-	prop3.h = 100;
-	prop3.w = 800-(10);
-	prop3.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
-	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&prop3);
+//	strControlProperties prop3;
+//
+//	prop3.x = 400;
+//	prop3.colors = popUpLabelColors;
+//	prop3.y = 300;
+//	prop3.h = 100;
+//	prop3.w = 800-(10);
+//	prop3.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
+//	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&prop3);
 
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
@@ -166,8 +167,8 @@ void cSamplePlayback::destroyDisplayControls()
 	display.destroyControl(slicePointsControl);
 	slicePointsControl = nullptr;
 
-	display.destroyControl(popupLabel);
-	popupLabel = nullptr;
+//	display.destroyControl(popupLabel);
+//	popupLabel = nullptr;
 
 	display.destroyControl(playModeListControl);
 	playModeListControl = nullptr;
@@ -197,6 +198,8 @@ void cSamplePlayback::destroyDisplayControls()
 	display.destroyControl(wtPositionCursor);
 	wtPositionCursor = nullptr;
 
+
+	mtPopups.hideInfoPopup();
 }
 
 void cSamplePlayback::showTitleBar()
@@ -381,9 +384,10 @@ void cSamplePlayback::showDefaultScreen()
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
+	mtPopups.hideInfoPopup();
 
-	display.setControlHide(popupLabel);
-	display.refreshControl(popupLabel);
+	//display.setControlHide(popupLabel);
+	//display.refreshControl(popupLabel);
 
 	display.synchronizeRefresh();
 
@@ -569,7 +573,9 @@ void cSamplePlayback::hideWavetablePositionCursor()
 
 void cSamplePlayback::showAutoSlicePopup()
 {
-	display.setControlText(popupLabel,(char*)"This action will rewrite the current slices. Do you want to continue?");
+
+	mtPopups.showInfoPopup("This action will rewrite the current slices.", "Do you want to continue?");
+	//display.setControlText(popupLabel,(char*)"This action will rewrite the current slices. Do you want to continue?");
 
 	display.setControlText(label[0], "");
 	display.setControlText(label[1], "");
@@ -588,10 +594,10 @@ void cSamplePlayback::showAutoSlicePopup()
 	display.setRemoveControlStyle(label[6], controlStyleShowBitmap);
 	display.setControlText2(label[6], "");
 
-	display.setControlShow(popupLabel);
+	//display.setControlShow(popupLabel);
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
-	display.refreshControl(popupLabel);
+	//display.refreshControl(popupLabel);
 	for(uint8_t i = 0; i < 7; i++)
 	{
 		display.refreshControl(label[i]);
