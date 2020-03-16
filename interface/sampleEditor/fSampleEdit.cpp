@@ -6,6 +6,7 @@
 #include "mtAudioEngine.h"
 #include "fileManager.h"
 #include "debugLog.h"
+#include "core/interfacePopups.h"
 
 cSampleEditor sampleEditor;
 
@@ -35,6 +36,8 @@ static uint16_t paramsScreenFramePlaces[6][4] =
 //************************************************************************** ACTION FUNCTIONS DECLARATIONS
 static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+
+static  uint8_t functInstrument(uint8_t state);
 
 //Main screen functions
 static  uint8_t functMainScreenLeft();
@@ -90,6 +93,9 @@ void cSampleEditor::start(uint32_t options)
 		setStopSeqFunctions();
 		return;
 	}
+
+	currentEffect=sampleEditorEffect[currentEffectIdx];
+	currentEffect->undo.isEnable = false;
 
 	screenType = mainScreen;
 	previewState = previewStatePreview;
@@ -196,16 +202,16 @@ void cSampleEditor::update()
 			if(applyingProgress)
 			{
 				resetZoom();
-				SE->screenType = cSampleEditor::mainScreen;
-				SE->switchScreen(SE->screenType);
+				screenType = cSampleEditor::mainScreen;
+				switchScreen(screenType);
 				applyingProgress = 0;
 			}
 			showProgressApplying();
 
 			hideProgressPopup();
 
-			SE->selection.startPoint = SE->currentEffect->getNewStartPoint();
-			SE->selection.endPoint = SE->currentEffect->getNewEndPoint();
+			selection.startPoint = currentEffect->getNewStartPoint();
+			selection.endPoint = currentEffect->getNewEndPoint();
 
 			refreshStartPoint();
 			refreshEndPoint();
@@ -253,7 +259,16 @@ void cSampleEditor::update()
 	{
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
-		SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+		if(reloadOnEndSaveing)
+		{
+			reloadOnEndSaveing = false;
+			mtProject.values.lastUsedInstrument = afterReloadInstrumentIdx;
+			start(0);
+		}
+		else
+		{
+			SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+		}
 	}
 	else if(fileManagerStatus >=  fmError)
 	{
@@ -282,12 +297,12 @@ void cSampleEditor::setCommonFunctions()
 	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
 	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX) return;
 	if(!editorInstrument->isActive) return;
 	FM->setPadsGlobal(functPads);
 
-	//todo: popup instrument
 	//todo: popup note
 }
 void cSampleEditor::setMainScreenFunctions()
@@ -982,6 +997,30 @@ void cSampleEditor::setStopFunction()
 	showStopLabel();
 }
 
+//global popups
+void cSampleEditor::cancelGlobalPopups()
+{
+	if(mtPopups.getStepPopupState() != stepPopupNone)
+	{
+		mtPopups.hideStepPopups();
+		if(confirmedDataIsChanged)
+		{
+			reloadOnEndSaveing = true;
+
+			if(newFileManager.importSampleFromSampleEditor(SE->currentEffect->getAddresToPlay(),
+													  SE->currentEffect->getLengthToPlay(),
+													  mtProject.values.lastUsedInstrument))
+			{
+				SE->FM->blockAllInputs();
+			}
+		}
+		else
+		{
+			start(0);
+		}
+	}
+}
+
 //************************************************************************** ACTION FUNCTIONS
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -1042,6 +1081,24 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		padsBacklight.setFrontLayer(0,0, pad);
 		mtPadBoard.stopInstrument(pad);
+	}
+	return 1;
+}
+
+static  uint8_t functInstrument(uint8_t state)
+{
+	if(state == buttonRelease)
+	{
+		SE->afterReloadInstrumentIdx = mtProject.values.lastUsedInstrument;
+		if(SE->confirmedDataIsChanged) mtProject.values.lastUsedInstrument = SE->beforeReloadInstrumentIdx;
+		SE->cancelGlobalPopups();
+		SE->currentEffect->undo.isEnable = false;
+
+	}
+	else if(state == buttonPress)
+	{
+		SE->beforeReloadInstrumentIdx = mtProject.values.lastUsedInstrument;
+		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 	}
 	return 1;
 }
@@ -1168,6 +1225,7 @@ static 	uint8_t functListDown()
 }
 static  uint8_t functUndo()
 {
+	if(!SE->currentEffect->undo.isEnable) return 1;
 	SE->currentEffect->startUndo();
 	SE->refreshUndoState();
 
@@ -1389,3 +1447,4 @@ static  uint8_t functTooLongProcessedSampleOk()
 	SE->setCommonFunctions();
 	return 1;
 }
+

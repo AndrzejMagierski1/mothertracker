@@ -114,6 +114,8 @@ public:
 
 	void hideProgressPopup();
 
+	void cancelGlobalPopups();
+
 //Stop Seq
 	void showPopupStopSequencer();
 	void showPopupSeqWindow();
@@ -227,6 +229,9 @@ public:
 	bool isProcessedData;
 
 	bool confirmedDataIsChanged;
+	bool reloadOnEndSaveing;
+	uint8_t afterReloadInstrumentIdx;
+	uint8_t beforeReloadInstrumentIdx;
 
 	uint8_t moduleToChange;
 
@@ -343,6 +348,14 @@ public:
 				limiterParams::iDownConstrain,limiterParams::fDownConstrain,
 				limiterParams::changeStep,limiterParams::displayMult,
 				limiterParams::afterValueText,limiterParams::displayType
+			},
+			{
+				{(32767+1)/2,1,100,100,0,0},{0,0,0,0,0,0}, //start values
+				4,compressorParams::labelText,compressorParams::paramsType,
+				compressorParams::iUpConstrain,compressorParams::fUpConstrain,
+				compressorParams::iDownConstrain,compressorParams::fDownConstrain,
+				compressorParams::changeStep,compressorParams::displayMult,
+				compressorParams::afterValueText,compressorParams::displayType
 			}
 	};
 

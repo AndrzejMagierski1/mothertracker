@@ -60,7 +60,7 @@ int32_t mtEffectFlanger::updateProcess()
 	uint32_t processedBlockLength = dif > 8192 ? 8192 : dif;
 	uint32_t processingNumber = processedBlockLength / 128;
 
-	for(int i = 0; i < processingNumber; i++)
+	for(int i = 0; i < (int)processingNumber; i++)
 	{
 		calculate(srcAddr, dstAddr);
 		srcAddr+=128;
