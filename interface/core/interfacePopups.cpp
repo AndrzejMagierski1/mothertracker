@@ -1003,10 +1003,12 @@ void cInterfacePopups::showProgressPopup(const char* text)
 	display.refreshControl(textLabel1);
 }
 
+
 void cInterfacePopups::changePopupProgress(uint8_t value)
 {
 
 }
+
 
 void cInterfacePopups::hideProgressPopup()
 {
@@ -1016,5 +1018,30 @@ void cInterfacePopups::hideProgressPopup()
 }
 
 
+void cInterfacePopups::showInfoPopup(const char* text1, const char* text2)
+{
+	display.setControlPosition(textLabel1, 400, 190);
+	display.setControlSize(textLabel1,  400, 70);
+	display.setControlText(textLabel1, text1);
+	if(text2 != nullptr) display.setControlText2(textLabel1, text2);
+	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
+	display.setControlStyle2(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
+	display.setControlColors(textLabel1, progressPopupColors);
+	display.setControlValue(textLabel1, 1);
+//
+//	display.setControlPosition(bgLabel, 250, 210);
+//	display.setControlSize(bgLabel,  300, 60);
+//	display.setControlText(bgLabel, "");
+//	display.setControlColors(bgLabel, listBgLabelColors);
 
+//	display.refreshControl(bgLabel);
+	display.refreshControl(textLabel1);
+}
+
+void cInterfacePopups::hideInfoPopup()
+{
+	display.setControlHide(textLabel1);
+	//display.setControlHide(bgLabel);
+	display.refreshControl(textLabel1);
+}
 

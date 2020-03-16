@@ -12,7 +12,7 @@ void labelString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, c
 static uint32_t defaultColors[] =
 {
 	0x000000, // tekst
-	0x0a0a0a, // tło
+	0x222222, // tło
 	one_true_red, // ramka
 };
 

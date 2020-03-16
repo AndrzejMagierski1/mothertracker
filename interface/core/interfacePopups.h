@@ -79,7 +79,8 @@ public:
 	void changePopupProgress(uint8_t value);
 	void hideProgressPopup();
 
-
+	void showInfoPopup(const char* text1, const char* text2);
+	void hideInfoPopup();
 	//-------------------------------------
 	// global popups functs
 

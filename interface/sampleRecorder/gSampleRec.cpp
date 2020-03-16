@@ -1,6 +1,9 @@
 
 
 #include "sampleRecorder.h"
+
+#include "core/interfacePopups.h"
+
 #include "Si4703.h"
 #include "mtRecorder.h"
 #include "mtLED.h"
@@ -62,19 +65,19 @@ uint32_t radioLabelColors[3]=
 void cSampleRecorder::initDisplayControls()
 {
 
-	strControlProperties prop9;
-
-	prop9.x = 400;
-	prop9.colors = popUpLabelColors;
-//	prop.colors = &color[0];
-	prop9.y = 300;
-	//prop.w = 800/4-10;
-//	prop9.style = controlStyleValue_0_100;
-	prop9.h = 100;
-	prop9.w = 800-(10);
-	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
-	prop9.text = (char*)"Changes will be lost. Do you want to continue?";
-	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop9);
+//	strControlProperties prop9;
+//
+//	prop9.x = 400;
+//	prop9.colors = popUpLabelColors;
+////	prop.colors = &color[0];
+//	prop9.y = 300;
+//	//prop.w = 800/4-10;
+////	prop9.style = controlStyleValue_0_100;
+//	prop9.h = 100;
+//	prop9.w = 800-(10);
+//	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
+//	prop9.text = (char*)"Changes will be lost. Do you want to continue?";
+//	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop9);
 
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
@@ -281,12 +284,15 @@ void cSampleRecorder::destroyDisplayControls()
 	display.destroyControl(saveHorizontalBarControl);
 	saveHorizontalBarControl = nullptr;
 
-	display.destroyControl(popupWindowLabel);
-	popupWindowLabel = nullptr;
+	//display.destroyControl(popupWindowLabel);
+	//popupWindowLabel = nullptr;
 
 
 	display.destroyControl(radioRdsLabel);
 	radioRdsLabel = nullptr;
+
+
+	mtPopups.hideInfoPopup();
 }
 
 void cSampleRecorder::showDefaultScreen()
@@ -582,8 +588,10 @@ void cSampleRecorder::showDefaultScreen()
 		showEndPointValue();
 		showStartPointValue();
 	}
-	display.setControlHide(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+
+	mtPopups.hideInfoPopup();
+	//display.setControlHide(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -850,9 +858,10 @@ void cSampleRecorder::showSelectionWindow()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(popupWindowLabel,"Changes will be lost. Do you want to continue?");
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+	mtPopups.showInfoPopup("Changes will be lost. Do you want to continue?", nullptr);
+	//display.setControlText(popupWindowLabel,"Changes will be lost. Do you want to continue?");
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -873,9 +882,10 @@ void cSampleRecorder::showSelectionWindowSave()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(popupWindowLabel,"This name already exists. Do you want to overwrite it?");
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+	mtPopups.showInfoPopup("This name already exists.", "Do you want to overwrite it?");
+	//display.setControlText(popupWindowLabel,"This name already exists. Do you want to overwrite it?");
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -894,9 +904,10 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(popupWindowLabel,"The memory is full. Recording has been stopped.");
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+	mtPopups.showInfoPopup("The memory is full. Recording has been stopped.", nullptr);
+	//display.setControlText(popupWindowLabel,"The memory is full. Recording has been stopped.");
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -915,9 +926,11 @@ void cSampleRecorder::showSelectionNotEnoughInstruments()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(popupWindowLabel,"There are not enough instruments");
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+	//display.setControlText(popupWindowLabel,"There are not enough instruments");
+
+	mtPopups.showInfoPopup("There are not enough instruments", nullptr);
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -936,9 +949,10 @@ void cSampleRecorder::showSelectionNotEnoughMemory()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(popupWindowLabel,"There is not enough Memory in sample bank.");
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+	mtPopups.showInfoPopup("There is not enough Memory in sample bank.", nullptr);
+	//display.setControlText(popupWindowLabel,"There is not enough Memory in sample bank.");
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -965,9 +979,10 @@ void cSampleRecorder::showSelectionStopPattern()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(popupWindowLabel,"This action will stop the pattern. Do you want to continue?");
-	display.setControlShow(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
+	mtPopups.showInfoPopup("This action will stop the pattern.", "Do you want to continue?");
+	//display.setControlText(popupWindowLabel,"This action will stop the pattern. Do you want to continue?");
+	//display.setControlShow(popupWindowLabel);
+	//display.refreshControl(popupWindowLabel);
 
 	display.setControlValue(bgLabel,255);
 	display.setControlShow(bgLabel);

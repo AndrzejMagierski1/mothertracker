@@ -16,7 +16,7 @@
 elapsedMillis startScreenRefresh;
 elapsedMillis shutdownScreenRefresh;
 
-extern cProjectEditor* PE;
+//extern cProjectEditor* PE;
 
 
 //==================================================================================================
@@ -257,7 +257,7 @@ void cInterface::commonThingsUpdate()
 				case fmImportingSamplesToWorkspace	: text_index = 4;	break;
 				case fmCopyingInstrumentsInWorkspace: text_index = 5;	break;
 				case fmDeleteingInstruments      	: text_index = 6;	break;
-				case fmPreviewSampleFromSd       	: text_index = 7;	break;
+				case fmPreviewSampleFromSd       	: break;
 				case fmLoadingProjectfromWorkspace	: text_index = 8;	break;
 				case fmLoadingProjectFromProjects	: text_index = 9;	break;
 				case fmSavingProjectToWorkspace  	: 	break;
