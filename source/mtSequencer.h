@@ -610,11 +610,8 @@ public:
 		return &seq[player.ramBank];
 	}
 
-	void switchRamPatternsNow()
-	{
-		cancelFxes();
-		player.ramBank = !player.ramBank;
-	}
+	void switchRamPatternsNow();
+
 
 // SEQUENCER
 

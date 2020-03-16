@@ -1840,3 +1840,10 @@ void Sequencer::feedExternalTempo(float setTempo)
 {
 	player.externalTempo = (3 * player.externalTempo + setTempo) / 4;
 }
+
+void Sequencer::switchRamPatternsNow()
+{
+	cancelFxes();
+	player.ramBank = !player.ramBank;
+	mtProject.values.actualPattern = newFileManager.getLoadedPatternIndex();
+}
