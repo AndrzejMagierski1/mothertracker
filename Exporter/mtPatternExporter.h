@@ -20,7 +20,11 @@ class mtPatternExporter
 public:
 	void start(char * path);
 	void finish();
+	void finishReceiving();
+	void finishSave();
 	void update();
+	void updateReceiving();
+	void updateSave();
 	void cancel();
 	uint8_t getStatus();
 	void setOnLastStep();
@@ -37,6 +41,8 @@ public:
 private:
 	void switchBuffer();
 	void refresh();
+	void refreshReceiving();
+	void refreshSave();
 	int16_t * recBuf = nullptr;
 	int16_t * sendBuf = nullptr;
 	int16_t * const buf1 = exportBuffer1;
@@ -50,6 +56,7 @@ private:
 	uint32_t microsTime;
 	uint32_t localTime;
 	uint32_t packageLR;
+	bool headerIsNotSaved = false;
 	int16_t * const packageL = (int16_t *) (&packageLR);
 	int16_t * const packageR = (int16_t *) ((int16_t *)&packageLR + 1);
 };

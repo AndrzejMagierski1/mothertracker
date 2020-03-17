@@ -71,7 +71,8 @@ void loop()
 
 	padsBacklight.update();
 
-	exporter.update();
+//	exporter.update();
+	exporter.updateSave();
 	sliceDetector.update();
 
 	//fileManager.update();

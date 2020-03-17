@@ -35,6 +35,9 @@ public:
 	void start(char * path, uint8_t t);
 	void begin();
 	void update();
+	void updateReceiving();
+	void updateSave();
+
 	void cancel();
 	uint8_t getProgress();
 	uint8_t getState();
