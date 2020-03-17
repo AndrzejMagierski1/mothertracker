@@ -177,7 +177,7 @@ const strPopupStyleConfig popupDebugConfig =
 		800 / 2 - 150,		// x
 		480 / 2 - 50,		// y
 		300,				// w
-		100,				// h
+		70,					// h
 		0xffffff,			// lineColor[4];
 		0xffffff,
 		0xffffff,
