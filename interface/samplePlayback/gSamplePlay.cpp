@@ -79,7 +79,7 @@ void cSamplePlayback::initDisplayControls()
 	labelArrow.bitmaps[1].xValue =  (800/8)*7+(800/16);
 	labelArrow.bitmaps[1].yValue = 460;
 
-	for(uint8_t i = 0; i<6; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.value =  1;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
@@ -93,6 +93,7 @@ void cSamplePlayback::initDisplayControls()
 	}
 
 	prop2.x = (800/8)*6+(800/8);
+	prop2.w = 800/4-6;
 	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
 
 
@@ -173,7 +174,7 @@ void cSamplePlayback::destroyDisplayControls()
 	display.destroyControl(playModeListControl);
 	playModeListControl = nullptr;
 
-	for(uint8_t i = 0; i<7; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
@@ -231,7 +232,8 @@ void cSamplePlayback::showDefaultScreen()
 	showPlayModeList();
 
 	//display.setControlText(bottomLabel[7], "");
-
+	display.setControlPosition(label[6],  (800/8)*6+(800/8),  424);
+	display.setControlSize(label[6], 800/4-6,55);
 	display.setControlData(label[6], &labelArrow);
 	display.setAddControlStyle(label[6], controlStyleShowBitmap);
 
@@ -242,14 +244,14 @@ void cSamplePlayback::showDefaultScreen()
 	display.setControlText2(label[4], "");
 	display.setControlText2(label[5], "");
 	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
+	display.setControlHide(label[7]);
 
 
 	if(loadedInstrumentType == mtSampleTypeWaveFile)
 	{
 		display.setControlShow(progressCursor);
 		display.refreshControl(progressCursor);
-
-
 
 		if(editorInstrument->playMode == playModeSlice)
 		{
@@ -285,7 +287,6 @@ void cSamplePlayback::showDefaultScreen()
 			display.setControlText(label[2], "Length");
 			display.setControlText(label[3], "Shape");
 			display.setControlText(label[4], "Loop");
-
 			display.setControlText(label[6], "Play Mode");
 
 			display.setControlColors(granularCursor, granularColors);
@@ -310,7 +311,6 @@ void cSamplePlayback::showDefaultScreen()
 		{
 			display.setControlHide(slicePointsControl);
 			display.refreshControl(slicePointsControl);
-
 
 			display.setControlHide(granularCursor);
 			display.refreshControl(granularCursor);
@@ -373,14 +373,14 @@ void cSamplePlayback::showDefaultScreen()
 		showWavetablePositionCursor();
 	}
 
-	for(uint8_t i = 0; i<7; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
 
-	display.setControlValue(bgLabel,127);
+	display.setControlValue(bgLabel, 127);
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
@@ -388,6 +388,10 @@ void cSamplePlayback::showDefaultScreen()
 
 	//display.setControlHide(popupLabel);
 	//display.refreshControl(popupLabel);
+
+
+	display.setControlHide(label[7]);
+	display.refreshControl(label[7]);
 
 	display.synchronizeRefresh();
 
@@ -541,6 +545,44 @@ void cSamplePlayback::hideLoopPoints()
 	display.setControlText2(label[3], "");
 	display.setControlShow(label[3]);
 	display.refreshControl(label[3]);
+}
+
+void cSamplePlayback::showStopPatternPopup()
+{
+	mtPopups.showInfoPopup("This action will stop the pattern.", "Do you want to continue?");
+
+	for(uint8_t i = 0 ; i < 8; i ++)
+	{
+		display.setControlStyle(label[i], (controlStyleCenterX | controlStyleFont3));
+		display.setControlStyle2(label[i], (controlStyleCenterX | controlStyleFont2));
+		display.setControlPosition(label[i],  (800/8)*i+(800/16),  424);
+		display.setControlSize(label[i],  800/8-6,  55);
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+	}
+	display.setControlText(label[6], "No");
+	display.setControlShow(label[6]);
+	display.setControlText(label[7], "Yes");
+	display.setControlShow(label[7]);
+
+	for(uint8_t i = 0 ; i < 8; i ++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+
+	display.setControlValue(bgLabel, 255);
+	display.refreshControl(bgLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSamplePlayback::hideStopPatternPopup()
+{
+	mtPopups.hideInfoPopup();
+
+	showDefaultScreen();
+	display.synchronizeRefresh();
 }
 
 void cSamplePlayback::showLoopPoints()
