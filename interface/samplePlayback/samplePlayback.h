@@ -58,7 +58,7 @@ public:
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
 		slicePointsControl = nullptr;
-		label[7] = {nullptr};
+		label[8] = {nullptr};
 		//popupLabel = nullptr;
 		lastSampleLength = 0;
 	}
@@ -77,6 +77,11 @@ public:
 	void processSlicePoints();
 	void showPreviewValue();
 	void hidePreviewValue();
+
+	void showStopPatternPopup();
+	void hideStopPatternPopup();
+	void setStopPatternFunction();
+	void clearStopPatternFunction();
 
 	char startPointValueText[8];
 	char endPointValueText[8];
@@ -109,7 +114,7 @@ public:
 
 	strLabelData labelArrow;
 
-	hControl label[7];
+	hControl label[8];
 	hControl playModeListControl;
 	hControl spectrumControl;
 	hControl pointsControl;

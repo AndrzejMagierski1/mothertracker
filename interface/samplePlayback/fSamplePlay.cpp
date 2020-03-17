@@ -56,6 +56,9 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 static uint8_t functStepNote(uint8_t value);
 
+static uint8_t functStopPatternYes();
+static uint8_t functStopPatternNo();
+
 static void modSliceSelect(int16_t value);
 static void modSliceAdjust(int16_t value);
 
@@ -564,6 +567,25 @@ void cSamplePlayback::cancelPopups()
 	}
 }
 
+void cSamplePlayback::setStopPatternFunction()
+{
+	FM->clearButton(interfaceButton6);
+	FM->clearButton(interfaceButton7);
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
+	FM->blockAllInputsExcept(interfaceButton6, interfaceButton7);
+}
+void cSamplePlayback::clearStopPatternFunction()
+{
+	FM->clearButton(interfaceButton6);
+	FM->clearButton(interfaceButton7);
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functPlayMode);
+	FM->setButtonObj(interfaceButton7, buttonPress, functPlayMode);
+
+	FM->unblockAllInputs();
+}
 
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
@@ -572,12 +594,9 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		SP->startNoteStoppedSeq = 1;
-		sequencer.stop();
-		for(uint8_t i = 0; i < 8; i++)
-		{
-			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
-		}
+		SP->showStopPatternPopup();
+		SP->setStopPatternFunction();
+		return 1;
 	}
 
 	if(state == 1)
@@ -1377,12 +1396,9 @@ static 	uint8_t functPreview(uint8_t state)
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		SP->startNoteStoppedSeq = 1;
-		sequencer.stop();
-		for(uint8_t i = 0; i < 8; i++)
-		{
-			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
-		}
+		SP->showStopPatternPopup();
+		SP->setStopPatternFunction();
+		return 1;
 	}
 
 	if(state == 1)
@@ -2178,6 +2194,25 @@ static uint8_t functStepNote(uint8_t value)
 		//SE->lightUpPadBoard();
 	}
 
+	return 1;
+}
+
+static uint8_t functStopPatternYes()
+{
+	sequencer.stop();
+	SP->startNoteStoppedSeq = 1;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
+	}
+	SP->hideStopPatternPopup();
+	SP->clearStopPatternFunction();
+	return 1;
+}
+static uint8_t functStopPatternNo()
+{
+	SP->hideStopPatternPopup();
+	SP->clearStopPatternFunction();
 	return 1;
 }
 
