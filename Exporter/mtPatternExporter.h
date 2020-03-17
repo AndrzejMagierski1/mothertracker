@@ -52,6 +52,7 @@ private:
 	uint32_t byteRecorded;
 	SdFile wavExport;
 	uint32_t position;
+	bool requiredSave;
 	uint8_t lastStep = 0;
 	uint32_t microsTime;
 	uint32_t localTime;

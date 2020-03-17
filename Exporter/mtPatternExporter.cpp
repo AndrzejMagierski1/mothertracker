@@ -84,11 +84,13 @@ void mtPatternExporter::finishSave()
 		position = 0;
 		switchBuffer();
 		byteRecorded += wavExport.write(sendBuf,2 * saveLenBytes);
+		Serial.println("FINISH WRITE");
 
 	}
 
 	if(headerIsNotSaved && (status == exportStatus::exportFinished))
 	{
+		Serial.println("HEADER_WRITE");
 		headerIsNotSaved = false;
 
 		header.chunkId = 0x46464952; 																// "RIFF"
@@ -123,7 +125,7 @@ void mtPatternExporter::start(char * path)
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
-
+	requiredSave = false;
 
 	strcpy(currentSongExportPath, path);
 
@@ -216,6 +218,13 @@ void mtPatternExporter::refreshReceiving()
 
 			exportL.freeBuffer();
 			exportR.freeBuffer();
+
+			if(position >= SEND_BUF_SIZE)
+			{
+				position-=SEND_BUF_SIZE;
+				requiredSave = true;
+				switchBuffer();
+			}
 		}
 	}
 }
@@ -226,11 +235,10 @@ void mtPatternExporter::refreshSave()
 	{
 		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
 
-		if(position >= SEND_BUF_SIZE)
+		if(requiredSave)
 		{
-			position-=SEND_BUF_SIZE;
-
-			switchBuffer();
+			requiredSave = false;
+			Serial.println("SAVE EXPORT");
 			byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
 		}
 	}
