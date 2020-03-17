@@ -7,6 +7,13 @@ __NOINIT(EXTERNAL_RAM) int16_t exportBuffer2[SEND_BUF_SIZE];
 
 mtExporter exporter;
 
+IntervalTimer updateExportTimer;
+
+void updateReceivingExport()
+{
+	exporter.updateReceiving();
+}
+
 void setOnLastExportStep()
 {
 	switch(exporter.type)
@@ -33,17 +40,32 @@ void mtExporter::begin()
 {
 	sequencer.setOnPatternEnd(setOnLastExportStep);
 	sequencer.setOnSongEnd(setOnLastExportStepInSong);
+
+	updateExportTimer.begin(updateReceivingExport,1500);
+	updateExportTimer.priority(255);
 }
 
-void mtExporter::update()
+void mtExporter::updateReceiving()
 {
 	switch(type)
 	{
-		case exportSong : 				songExporter.update();				break;
-		case exportSongStems : 			songStemsExporter.update();	 		break;
-		case exportPattern : 			patternExporter.update();			break;
-		case exportPatternStems :	 	patternStemsExporter.update();		break;
-		case exportRenderSelection : 	renderExporter.update();			break;
+		case exportSong : 				songExporter.updateReceiving();			break;
+		case exportSongStems : 			songStemsExporter.updateReceiving();	break;
+		case exportPattern : 			patternExporter.updateReceiving();		break;
+		case exportPatternStems :	 	patternStemsExporter.updateReceiving();	break;
+		case exportRenderSelection : 	renderExporter.updateReceiving();		break;
+		default: break;
+	}
+}
+void mtExporter::updateSave()
+{
+	switch(type)
+	{
+		case exportSong : 				songExporter.updateSave();				break;
+		case exportSongStems : 			songStemsExporter.updateSave();	 		break;
+		case exportPattern : 			patternExporter.updateSave();			break;
+		case exportPatternStems :	 	patternStemsExporter.updateSave();		break;
+		case exportRenderSelection : 	renderExporter.updateSave();			break;
 		default: break;
 	}
 }

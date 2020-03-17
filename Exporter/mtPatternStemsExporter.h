@@ -8,7 +8,8 @@ class mtPatternTrackExporter
 {
 public:
 	void start(char * path, uint8_t track_n);
-	void update();
+	void updateReceiving();
+	void updateSave();
 	uint8_t getStatus();
 	void clearSoloTrack(uint8_t n);
 	friend void setOnLastExportStep();
@@ -26,7 +27,8 @@ class mtPatternStemsExporter
 {
 public:
 	void start(char * path);
-	void update();
+	void updateReceiving();
+	void updateSave();
 	void cancel();
 	uint8_t getStatus();
 	uint8_t getProgress();

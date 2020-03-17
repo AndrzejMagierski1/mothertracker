@@ -15,29 +15,33 @@ void mtPatternExporter::setOnLastStep()
 
 }
 
-void mtPatternExporter::finish()
+void mtPatternExporter::finishReceiving()
 {
-	//__disable_irq();
 	if(status != exportStatus::exportFinished)
 	{
 		while ((exportL.available() >= 1) && (exportR.available() >= 1 ))
 		{
-			refresh();
+			refreshReceiving();
 		}
 		exportL.end();
 		exportR.end();
 
-		if(position != 0)
-		{
-			switchBuffer();
-			//__disable_irq();
-			byteRecorded += wavExport.write(sendBuf,2 * position);
-			//__enable_irq();
+		status = exportStatus::exportFinishedReceiving;
+	}
+}
+void mtPatternExporter::finishSave()
+{
+	if((position != 0) && (status == exportStatus::exportFinishedReceiving))
+	{
+		uint32_t saveLenBytes = 2 * position;
+		position = 0;
+		switchBuffer();
+		byteRecorded += wavExport.write(sendBuf,saveLenBytes);
+	}
 
-			position=0;
-		}
-		status = exportStatus::exportFinished;
-
+	if(headerIsNotSaved && (status == exportStatus::exportFinishedReceiving))
+	{
+		headerIsNotSaved = false;
 
 		header.chunkId = 0x46464952; 																// "RIFF"
 		header.chunkSize = byteRecorded + 36;
@@ -58,9 +62,13 @@ void mtPatternExporter::finish()
 		wavExport.write(&header,sizeof(header));
 		wavExport.close();
 
+		status = exportStatus::exportFinished;
 	}
-	//__enable_irq()
+
+
+
 }
+
 char currentSongExportPath[PATCH_SIZE];
 
 void mtPatternExporter::start(char * path)
@@ -69,7 +77,7 @@ void mtPatternExporter::start(char * path)
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
-
+	requiredSave = false;
 
 	strcpy(currentSongExportPath, path);
 
@@ -81,6 +89,7 @@ void mtPatternExporter::start(char * path)
 		wavExport.write(recBuf,44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
+		headerIsNotSaved = true;
 
 		exportL.begin();
 		exportR.begin();
@@ -94,15 +103,14 @@ void mtPatternExporter::start(char * path)
 
 }
 
-void mtPatternExporter::refresh()
+//odswiezanie zapisu danych do bufora z audio streamu
+void mtPatternExporter::refreshReceiving()
 {
-
 	if(status == exportStatus::exportDuring)
 	{
 		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
 		if ((exportL.available() >= 1) || (exportR.available() >= 1 ))
 		{
-
 			int16_t * srcL = exportL.readBuffer();
 			int16_t * srcR = exportR.readBuffer();
 			uint32_t * dest = (uint32_t*)(recBuf + position);
@@ -121,26 +129,33 @@ void mtPatternExporter::refresh()
 			exportL.freeBuffer();
 			exportR.freeBuffer();
 
-
-
-			if(position == SEND_BUF_SIZE)
+			if(position >= SEND_BUF_SIZE)
 			{
+				position-=SEND_BUF_SIZE;
+				requiredSave = true;
 				switchBuffer();
-				//__disable_irq();
-				byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
-				//__enable_irq();
-
-				position=0;
 			}
+		}
+	}
+}
+// odswiezanie zapisu exportu na karte w petli glownej.
+void mtPatternExporter::refreshSave()
+{
+	if(status == exportStatus::exportDuring)
+	{
+		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
+
+		if(requiredSave)
+		{
+			requiredSave = false;
+			byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
 		}
 	}
 
 }
-
-
-void mtPatternExporter::update()
+void mtPatternExporter::updateReceiving()
 {
-	refresh();
+	refreshReceiving();
 	if(lastStep)
 	{
 		float rmsL = 0 , rmsR = 0;
@@ -150,13 +165,18 @@ void mtPatternExporter::update()
 			rmsL = exportRmsL.read();
 			rmsR = exportRmsR.read();
 
-			if((rmsL < 0.001f) && (rmsR < 0.001f))
+			if((rmsL < 0.0001f) && (rmsR < 0.0001f))
 			{
 				lastStep = 0;
-				finish();
+				finishReceiving();
 			}
 		}
 	}
+}
+void mtPatternExporter::updateSave()
+{
+	refreshSave();
+	finishSave();
 }
 
 void mtPatternExporter::switchBuffer()
@@ -169,7 +189,7 @@ void mtPatternExporter::switchBuffer()
 
 void mtPatternExporter::cancel()
 {
-	finish();
+	finishReceiving();
 	sequencer.stop();
 
 	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);

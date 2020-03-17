@@ -8,7 +8,8 @@ class mtSongTrackExporter: public mtPatternTrackExporter
 {
 public:
 	void start(char * path, uint8_t track_n);
-	void update();
+	void updateReceiving();
+	void updateSave();
 	uint8_t getStatus();
 	friend void setOnLastExportStepInSong();
 	mtSongExporter localSongExporter;
@@ -24,7 +25,8 @@ class mtSongStemsExporter
 {
 public:
 	void start(char * path);
-	void update();
+	void updateReceiving();
+	void updateSave();
 	uint8_t getStatus();
 	uint8_t getProgress();
 	uint8_t getTrack();

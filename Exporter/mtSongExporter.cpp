@@ -14,6 +14,7 @@ void mtSongExporter::start(char * path)
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
+	requiredSave = false;
 
 	songLength = 0;
 	while(mtProject.song.playlist[songLength] && songLength  < SONG_MAX) songLength++;
@@ -29,6 +30,7 @@ void mtSongExporter::start(char * path)
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 
+		headerIsNotSaved = true;
 		exportL.begin();
 		exportR.begin();
 		sequencer.playSong(0);

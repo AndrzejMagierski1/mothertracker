@@ -13,15 +13,19 @@ void mtSongTrackExporter::start(char * path, uint8_t track_n)
 
 	localSongExporter.start(path);
 }
-void mtSongTrackExporter::update()
+
+void mtSongTrackExporter::updateReceiving()
 {
-	localSongExporter.update();
-	//*********************** wykrywanie końca
+	localSongExporter.updateReceiving();
 	currentStatus = localSongExporter.getStatus();
 	if((currentStatus == 0) && (currentStatus != lastStatus)) clearSoloTrack(currentTrack);
 	lastStatus = currentStatus;
-	//***********************
 }
+void mtSongTrackExporter::updateSave()
+{
+	localSongExporter.updateSave();
+}
+
 uint8_t mtSongTrackExporter::getStatus()
 {
 	return localSongExporter.getStatus();
@@ -43,11 +47,11 @@ void mtSongStemsExporter::start(char * path)
 
 }
 
-void mtSongStemsExporter::update()
+void mtSongStemsExporter::updateReceiving()
 {
 	if(status == 1)
 	{
-		trackExporter.update();
+		trackExporter.updateReceiving();
 		currentTrackState = trackExporter.getStatus();
 
 		if((currentTrackState == 0) && (currentTrackState != lastTrackState))
@@ -77,12 +81,15 @@ void mtSongStemsExporter::update()
 
 		lastTrackState = currentTrackState;
 	}
-
+}
+void mtSongStemsExporter::updateSave()
+{
+	trackExporter.updateSave();
 }
 
 void mtSongStemsExporter::cancel()
 {
-	trackExporter.localSongExporter.finish();
+	trackExporter.localSongExporter.finishReceiving();
 	status = 0;
 	sequencer.stop();
 	char currentPath[PATCH_SIZE];

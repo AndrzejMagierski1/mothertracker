@@ -42,7 +42,7 @@ void mtRenderWAV::start(char * path)
 
 void mtRenderWAV::cancel()
 {
-	finish();
+	finishReceiving();
 	sequencer.stop();
 
 	if(SD.exists(currentRenderExportPath)) SD.remove(currentRenderExportPath);
