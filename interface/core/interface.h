@@ -71,7 +71,7 @@ public:
 	void hideDisplayShutdown();
 
 	void commonThingsUpdate();
-
+	void processFileManagerPopupProgress(uint8_t status);
 	// interfaceInputs.cpp -----------------------------
 	void potChange(uint8_t n, int16_t value);
 	void buttonChange(uint8_t n, uint8_t value);
@@ -132,6 +132,7 @@ private:
 
 	uint8_t fileManagerPopupEnabled = 0;
 	uint8_t fileManagerPopupState = 0;
+	int8_t fileManagerLastProgress;
 };
 
 
