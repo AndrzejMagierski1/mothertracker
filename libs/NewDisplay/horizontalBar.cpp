@@ -110,7 +110,7 @@ uint8_t cHorizontalBar::update()
     uint16_t barWidth = (5*width)/7;
     uint16_t barX = posX+ (width/7);
 
-    uint16_t barHeight = 3 ;
+    uint16_t barHeight = 2 ;
     uint16_t barY = posY + ((3*height)/5);
 
     uint16_t textX = posX + (width/2);
@@ -150,17 +150,16 @@ uint8_t cHorizontalBar::update()
 
 		API_LINE_WIDTH(8);
 		API_BEGIN(RECTS);
-		API_VERTEX2F(barX+1, barY+1);
-		API_VERTEX2F(barX+barFillY-1, barY+barHeight-1);
+		API_VERTEX2F(barX, barY);
+		API_VERTEX2F(barX+barFillY, barY+barHeight);
 		API_END();
 
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
-		API_CMD_TEXT(textX, textY, textFont, OPT_CENTER, text);
+		if(text != nullptr) API_CMD_TEXT(textX, textY, textFont, OPT_CENTER, text);
 	}
 
 	//API_COLOR(colors[0]);
-
 	//if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
 
 

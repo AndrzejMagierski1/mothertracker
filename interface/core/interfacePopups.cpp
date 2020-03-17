@@ -69,8 +69,6 @@ void cInterfacePopups::initPopupsDisplayControls()
 {
 
 	strControlProperties prop;
-
-
 	popupList.start = 0;
 	popupList.linesCount = 16;
 	popupList.length = 16;
@@ -97,6 +95,15 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop.value = -1;
 	prop.data = &padNamesStruct;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cNotePopout>(&prop);
+
+
+	strControlProperties prop1;
+	prop1.x = 190;
+	prop1.y = 170;
+	prop1.style = controlStyleValue_0_100 | controlStyleCenterX;
+	prop1.h = 100;
+	prop1.w = 420;
+	if(progressBar == nullptr)  progressBar = display.createControl<cHorizontalBar>(&prop1);
 
 
 	strControlProperties prop3;
@@ -1000,19 +1007,30 @@ void cInterfacePopups::showProgressPopup(const char* text)
 //	display.setControlText(bgLabel, "");
 //	display.setControlColors(bgLabel, listBgLabelColors);
 
+	display.setControlPosition(progressBar, 250, 195);
+	display.setControlSize(progressBar,  300, 70);
+
+
+	display.setControlValue(progressBar, 0);
+
+
 //	display.refreshControl(bgLabel);
 	display.refreshControl(textLabel1);
 }
 
 
-void cInterfacePopups::changePopupProgress(uint8_t value)
+void cInterfacePopups::changePopupProgress(int8_t value)
 {
-
+	display.setControlShow(progressBar);
+	display.setControlValue(progressBar, value);
+	display.refreshControl(progressBar);
 }
 
 
 void cInterfacePopups::hideProgressPopup()
 {
+
+	display.setControlHide(progressBar);
 	display.setControlHide(textLabel1);
 	//display.setControlHide(bgLabel);
 	display.refreshControl(textLabel1);

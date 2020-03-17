@@ -76,7 +76,7 @@ public:
 	//-------------------------------------
 	// blocking/progress
 	void showProgressPopup(const char* text);
-	void changePopupProgress(uint8_t value);
+	void changePopupProgress(int8_t value);
 	void hideProgressPopup();
 
 	void showInfoPopup(const char* text1, const char* text2);
@@ -119,6 +119,8 @@ private:
 	hControl popupListControl;
 	hControl keyboardControl;
 	hControl textBox;
+
+	hControl progressBar;
 
 	hControl bgLabel;
 	hControl textLabel1;

@@ -6,6 +6,7 @@
 
 //#include "mtFileManager.h"
 #include "fileManager.h"
+#include "mtExporterWAV.h"
 
 #include <display.h>
 #include "MTP.h"
@@ -13,8 +14,7 @@
 #include "debugLog.h"
 
 
-elapsedMillis startScreenRefresh;
-elapsedMillis shutdownScreenRefresh;
+elapsedMillis screenRefreshTimer;
 
 //extern cProjectEditor* PE;
 
@@ -106,8 +106,8 @@ void cInterface::initStartScreen()
 
 void cInterface::refreshStartScreen()
 {
-	if(startScreenRefresh < 40) return;
-	startScreenRefresh = 0;
+	if(screenRefreshTimer < 40) return;
+	screenRefreshTimer = 0;
 
 	startProjectLoadingProgress = newFileManager.getProgress();
 
@@ -215,8 +215,8 @@ void cInterface::showDisplayShutdown()
 
 void cInterface::refreshDisplayShutdown()
 {
-	if(shutdownScreenRefresh < 30) return;
-	shutdownScreenRefresh = 0;
+	if(screenRefreshTimer < 30) return;
+	screenRefreshTimer = 0;
 
 //	sprintf(turnOffText, "Shutdown in %.1fs", (lowPower.getTimeLeft()/1000.0));
 	sprintf(turnOffText, "Shutting down");
@@ -235,7 +235,7 @@ void cInterface::hideDisplayShutdown()
 
 
 
-
+// takie różne globalne rzeczy
 void cInterface::commonThingsUpdate()
 {
 
@@ -280,15 +280,19 @@ void cInterface::commonThingsUpdate()
 				if(text_index >= 0)
 				{
 					fileManagerPopupState = 1;
+					fileManagerLastProgress = 0;
 					mtPopups.showProgressPopup(&fileManagerPopupText[text_index][0]);
 				}
 			}
 			else // przetwarzaj popup - progress
 			{
-				//elapsed millis tu uzuc
+				if(screenRefreshTimer > 50)
+				{
+					screenRefreshTimer = 0;
 
+					processFileManagerPopupProgress(managerStatus);
+				}
 			}
-
 		}
 		else // zniknij popup
 		{
@@ -296,6 +300,7 @@ void cInterface::commonThingsUpdate()
 			{
 				mtPopups.hideProgressPopup();
 				fileManagerPopupState = 0;
+				fileManagerLastProgress = 0;
 			}
 		}
 	}
@@ -308,7 +313,47 @@ void cInterface::commonThingsUpdate()
 
 
 
+void cInterface::processFileManagerPopupProgress(uint8_t status)
+{
 
+	int8_t progress = -1;
+
+	switch(status)
+	{
+	case fmBrowsingSamples           		: 		break;
+	case fmBrowsingProjects          		: 		break;
+	case fmBrowsingFirmwares         		: 		break;
+	case fmImportingSamplesToWorkspace		: 		break;
+	case fmCopyingInstrumentsInWorkspace	: 		break;
+	case fmDeleteingInstruments      		: 		break;
+	case fmPreviewSampleFromSd       		:		break;
+	case fmLoadingProjectfromWorkspace		:		break;
+	case fmLoadingProjectFromProjects		: 		break;
+	case fmSavingProjectToWorkspace  		:		break;
+	case fmSavingProjectToProjects   		: 		break;
+	case fmLoadingPatternFromWorkspace		:		break;
+	case fmExportingSoundSong				:
+	case fmExportingSoundSongStems			:
+	case fmExportingSoundPattern			:
+	case fmExportingSoundPatternStems		:
+	case fmExportingSoundRenderSelection	: 		progress = constrain(exporter.getProgress(), 0 , 100); break;
+	case fmSavingRecordedSound				: 		break;
+	case fmSavingImportingRecordedSound		: 		break;
+	case fmImportingSampleFromSampleEditor	:		break;
+    case fmImportingMod   					: 		break;
+	default									: 		break;
+
+	}
+
+
+	if(progress >= 0 && fileManagerLastProgress < progress)
+	{
+		fileManagerLastProgress = progress;
+		mtPopups.changePopupProgress(progress);
+	}
+
+
+}
 
 
 
