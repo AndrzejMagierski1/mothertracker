@@ -12,18 +12,20 @@ void mtPatternTrackExporter::start(char * path, uint8_t track_n)
 		setSoloTrack(track_n);
 	}
 
-
 	localPatternExporter.start(path);
 }
 
-void mtPatternTrackExporter::update()
+void mtPatternTrackExporter::updateReceiving()
 {
-	localPatternExporter.update();
-	//*********************** wykrywanie końca
+	localPatternExporter.updateReceiving();
+
 	currentStatus = localPatternExporter.getStatus();
 	if((currentStatus == 0) && (currentStatus != lastStatus)) clearSoloTrack(currentTrack);
 	lastStatus = currentStatus;
-	//***********************
+}
+void mtPatternTrackExporter::updateSave()
+{
+	localPatternExporter.updateSave();
 }
 
 uint8_t mtPatternTrackExporter::getStatus()
@@ -58,11 +60,11 @@ void mtPatternStemsExporter::start(char * path)
 	trackExporter.start(currentPath, currentTrack); // tablica żyje podczas korzystania z tego wskaznika
 
 }
-void mtPatternStemsExporter::update()
+void mtPatternStemsExporter::updateReceiving()
 {
 	if(status == 1)
 	{
-		trackExporter.update();
+		trackExporter.updateReceiving();
 		currentTrackState = trackExporter.getStatus();
 
 		if((currentTrackState == 0) && (currentTrackState != lastTrackState))
@@ -94,10 +96,14 @@ void mtPatternStemsExporter::update()
 	}
 
 }
+void mtPatternStemsExporter::updateSave()
+{
+	trackExporter.updateSave();
+}
 
 void mtPatternStemsExporter::cancel()
 {
-	trackExporter.localPatternExporter.finish();
+	trackExporter.localPatternExporter.finishReceiving();
 	status = 0;
 	sequencer.stop();
 	char currentPath[PATCH_SIZE];

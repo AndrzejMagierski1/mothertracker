@@ -19,10 +19,8 @@ class mtPatternExporter
 
 public:
 	void start(char * path);
-	void finish();
 	void finishReceiving();
 	void finishSave();
-	void update();
 	void updateReceiving();
 	void updateSave();
 	void cancel();
@@ -32,6 +30,7 @@ public:
 	enum struct exportStatus
 	{
 		exportFinished,
+		exportFinishedReceiving,
 		exportDuring
 	};
 
@@ -40,7 +39,6 @@ public:
 	friend class mtSongExporter;
 private:
 	void switchBuffer();
-	void refresh();
 	void refreshReceiving();
 	void refreshSave();
 	int16_t * recBuf = nullptr;
