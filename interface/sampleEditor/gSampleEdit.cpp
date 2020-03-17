@@ -31,7 +31,7 @@ void cSampleEditor::initDisplayControls()
 
 	popupProgressProperties.x = 190;
 	popupProgressProperties.y = 170;
-	popupProgressProperties.style = controlStyleValue_0_100;
+	popupProgressProperties.style = controlStyleValue_0_100 | controlStyleBackground;
 	popupProgressProperties.h = 100;
 	popupProgressProperties.w = 420;
 	if(popupProgressBar == nullptr)  popupProgressBar = display.createControl<cHorizontalBar>(&popupProgressProperties);

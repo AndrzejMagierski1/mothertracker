@@ -140,6 +140,7 @@ void cFileManager::copySamples()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     SAVE     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
+// save pojedynczego pliku wav
 void cFileManager::saveSamplesToWorkspace()
 {
 	if(currentSample >= INSTRUMENTS_COUNT) { moveToNextOperationStep(); return; } //zabiezpeiczenie
@@ -151,9 +152,6 @@ void cFileManager::saveSamplesToWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
-		mtProject.used_memory += currentSampleSamplesCount*2; // zwieksz uzycie pamieci
-		completeLoadedSampleStruct(true); // wypelnij strukture dodanego sampla dodatkowymi danymi
-		sampleInProgress = 0;
 		moveToNextOperationStep();
 	}
 	else if(saveStatus >= fileTransferError)

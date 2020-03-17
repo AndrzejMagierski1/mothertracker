@@ -309,6 +309,11 @@ void cFileManager::goUpInActualPath()
 ///====================================================================================================
 void cFileManager::browseProjectsLocation()
 {
+	if(!SD.exists(cProjectsPath))
+	{
+		SD.mkdir(0, cModsPath);
+	}
+
 	sdLocation.close();
 
 	if(!sdLocation.open(cProjectsPath, O_READ))
@@ -357,6 +362,12 @@ uint8_t cFileManager::getProjectsList(char*** list)
 ///====================================================================================================
 void cFileManager::browseModsLocation()
 {
+	if(!SD.exists(cModsPath))
+	{
+		SD.mkdir(0, cModsPath);
+	}
+
+
 	sdLocation.close();
 
 	if (!sdLocation.open(cModsPath, O_READ))
