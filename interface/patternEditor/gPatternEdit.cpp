@@ -962,7 +962,8 @@ void cPatternEditor::refreshFillFrom()
 		sequencer.makeFxValLabel(
 				fillText1,
 				interfaceGlobals.fxIDs[fillData[editParam].param],
-				fillData[editParam].from);
+				fillData[editParam].from,
+				Sequencer::fxValLabelAlign_center);
 
 		display.setControlText2(label[4], fillText1);
 
@@ -1029,7 +1030,8 @@ void cPatternEditor::refreshFillTo()
 		sequencer.makeFxValLabel(
 						fillText2,
 						interfaceGlobals.fxIDs[fillData[editParam].param],
-						fillData[editParam].to);
+						fillData[editParam].to,
+						Sequencer::fxValLabelAlign_center);
 
 		display.setControlText2(label[5], fillText2);
 

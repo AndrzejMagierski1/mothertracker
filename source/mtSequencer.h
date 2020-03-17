@@ -742,7 +742,15 @@ public:
 	uint8_t calcStepLength(uint8_t track, uint8_t step);
 	int16_t rollValueToPeriod(int16_t value);
 	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
-	void makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value);
+	void makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value);
+	enum enFxValLabelAlign
+	{
+		fxValLabelAlign_right = 0,
+		fxValLabelAlign_center,
+	};
+	void makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
+						enFxValLabelAlign);
+
 	uint8_t isTrackEngineMuted(uint8_t track);
 
 	uint8_t getActualPos()

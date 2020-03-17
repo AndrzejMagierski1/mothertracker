@@ -1433,7 +1433,13 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 	makeFxValLabel(ptr, actualStep->fx[fxID].type, actualStep->fx[fxID].value);
 
 }
-void Sequencer::makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value)
+void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value)
+{
+	makeFxValLabel(ptr, fxType, value, fxValLabelAlign_right);
+}
+
+void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
+							   enFxValLabelAlign align)
 {
 
 	int16_t val = getFxValueCorrection(fxType, value);
@@ -1466,10 +1472,10 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value)
 		break;
 
 	default:
-		if (val >= 0)
+		if (abs(val) <10 && (align == fxValLabelAlign_center))
 		{
 			sprintf(ptr,
-					"%3i",
+					"%2i",
 					val
 					);
 		}
