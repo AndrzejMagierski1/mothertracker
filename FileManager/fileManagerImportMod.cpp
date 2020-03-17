@@ -579,6 +579,9 @@ void cFileManager::importModFileWaves_WriteWave()
 }
 void cFileManager::importModFileFinish()
 {
+
+	importModFileAfterNewProject = 0;
+
 	status = fmLoadEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
