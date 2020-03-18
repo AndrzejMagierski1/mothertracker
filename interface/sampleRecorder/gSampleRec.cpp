@@ -851,7 +851,7 @@ void cSampleRecorder::showSelectionWindow()
 	}
 
 	display.setControlText(label[7], "Yes");
-	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[6], "No");
 	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
