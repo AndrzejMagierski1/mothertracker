@@ -12,7 +12,10 @@ void playerEngine:: update()
 //**************HANDLE UPDATE ENVELOPE
 	//stablicowanie warunkow odswiezenia envelopeow
 	bool envelopeCondition[ACTIVE_ENVELOPES];
-	envelopeCondition[envAmp] = (mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable == 1);
+	envelopeCondition[envAmp] = ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable == 1) ||
+				(trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[envAmp]]) 	||
+				(trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[envAmp]]) 	||
+				(trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[envAmp]]));
 	envelopeCondition[envCutoff] = (mtProject.instrument[currentInstrument_idx].filterEnable == 1);
 	envelopeCondition[envPan] = true;
 	envelopeCondition[envWtPos] = (mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable);
@@ -102,7 +105,10 @@ void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableCondition)
 		}
 		else
 		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[type].enable)
+			if((mtProject.instrument[currentInstrument_idx].envelope[type].enable)||
+			  (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[type]]) ||
+			  (trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[type]]) ||
+			  (trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[type]]))
 			{
 				bool isActiveEnvelope = ((envelopePtr[type]->isKeyPressed() == 1) || (envelopePtr[type]->getPhase() != 0));
 
