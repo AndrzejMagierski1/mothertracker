@@ -237,7 +237,7 @@ void cSampleRecorder::start(uint32_t options)
 	dontTurnOffRadio = 0;
 //--------------------------------------------------------------------
 
-
+	currentScreen = cSampleRecorder::screenTypeConfig;
 	FM->setPadsGlobal(functPads);
 
 	keyboardManager.init(keyboardControl, editName);
@@ -917,21 +917,32 @@ static  uint8_t functActionButton7()
 
 	if(SR->selectionWindowFlag == 1)
 	{
-		SR->clearAllNodes();
-		SR->cancelMultiFrame();
+		if(SR->changesLostSource == cSampleRecorder::enChangesLostSource::cancelFunct)
+		{
+			SR->clearAllNodes();
+			SR->cancelMultiFrame();
 
-		SR->selectionWindowFlag = 0;
+			SR->selectionWindowFlag = 0;
 
-		SR->currentScreen = cSampleRecorder::screenTypeConfig;
-		SR->selectedPlace = 0;
-		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+			SR->currentScreen = cSampleRecorder::screenTypeConfig;
+			SR->selectedPlace = 0;
+			if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
 
-		GP.spectrumResetZoom(0, recorder.getLength(), &SR->zoom);
+			GP.spectrumResetZoom(0, recorder.getLength(), &SR->zoom);
 
-		SR->showDefaultScreen();
-		SR->activateLabelsBorder();
+			SR->showDefaultScreen();
+			SR->activateLabelsBorder();
 
-		return 1;
+			return 1;
+		}
+		else if(SR->changesLostSource == cSampleRecorder::enChangesLostSource::switchModuleFunct)
+		{
+
+			SR->selectionWindowFlag = 0;
+			SR->eventFunct(eventSwitchModule,SR,&SR->moduleToSwitch,0);
+			return 1;
+		}
+
 	}
 
 	if(SR->selectionWindowSaveFlag == 1)
@@ -1243,6 +1254,7 @@ static  uint8_t functActionGoBack()
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
 		SR->selectionWindowFlag = 1;
+		SR->changesLostSource = cSampleRecorder::enChangesLostSource::cancelFunct;
 		SR->showSelectionWindow();
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
@@ -1722,7 +1734,16 @@ static uint8_t functSwitchModule(uint8_t button)
 	if(SR->notEnoughInstrumentsFlag) return 1;
 	if(SR->notEnoughMemoryFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
+	if(button == interfaceButtonSampleRec ) return 1;
 
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->selectionWindowFlag = 1;
+		SR->changesLostSource = cSampleRecorder::enChangesLostSource::switchModuleFunct;
+		SR->moduleToSwitch = button;
+		SR->showSelectionWindow();
+		return 1;
+	}
 
 
 	if(button == interfaceButtonMaster) SR->dontTurnOffRadio = 1;

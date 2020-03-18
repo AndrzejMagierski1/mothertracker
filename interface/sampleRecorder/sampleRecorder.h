@@ -286,7 +286,12 @@ uint8_t cropCounter = 0;
 	uint8_t notEnoughMemoryFlag = 0;
 	uint8_t patternIsPlayingFlag = 0;
 
-
+	enum struct enChangesLostSource
+	{
+		cancelFunct,
+		switchModuleFunct
+	} changesLostSource;
+	uint8_t moduleToSwitch;
 	uint8_t selectionWindowFlag = 0;
 // selection window  - zapis
 	uint8_t selectionWindowSaveFlag = 0;
