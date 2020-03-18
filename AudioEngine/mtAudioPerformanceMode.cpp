@@ -333,7 +333,8 @@ void playerEngine::changeWavetableWindowPerformanceMode(int16_t value)
 	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::wavetablePosition]) wavetableWindow = currentSeqModValues.wavetablePosition;
 	else wavetableWindow = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
 
-	int32_t valueMap = map(value,-255,255,- mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber) ;
+	int32_t valueMap = map(value,-100,100,- mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber) ;
+
 
 	if(wavetableWindow + valueMap >= mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber) currentPerformanceValues.wavetablePosition = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
 	else if(wavetableWindow + valueMap < 0) currentPerformanceValues.wavetablePosition = 0;
@@ -363,7 +364,7 @@ void playerEngine::changeGranularPositionPerformanceMode(int16_t value)
 	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::granularPosition]) granularPosition = currentSeqModValues.granularPosition;
 	else granularPosition = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
 
-	int32_t valueMap = map(value,-255,255,- MAX_16BIT,MAX_16BIT) ;
+	int32_t valueMap = map(value,-100,100,- MAX_16BIT,MAX_16BIT) ;
 
 	if(granularPosition + valueMap >= MAX_16BIT) currentPerformanceValues.granularPosition = MAX_16BIT;
 	else if(granularPosition + valueMap < 0) currentPerformanceValues.granularPosition = 0;
@@ -380,15 +381,15 @@ void playerEngine::changeGranularPositionPerformanceMode(int16_t value)
 
 void playerEngine::changePositionPerformanceMode(int16_t value)
 {
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+	if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
 	{
-		changeGranularPositionPerformanceMode(map(value,-100,100,-MAX_16BIT,MAX_16BIT));
+		changeGranularPositionPerformanceMode(value);
 	}
-	else if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable)
 	{
-		changeWavetableWindowPerformanceMode(map(value,-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
+		changeWavetableWindowPerformanceMode(value);
 	}
-	else if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+	else if(mtProject.instrument[currentInstrument_idx].playMode != playModeSlice)
 	{
 		changeStartPointPerformanceMode(map(value,-100,100,-MAX_16BIT,MAX_16BIT));
 	}
