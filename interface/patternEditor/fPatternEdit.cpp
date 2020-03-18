@@ -177,6 +177,7 @@ void cPatternEditor::stop()
 //
 //	}
 
+	sequencer.stopManualNotes();
 	if(fillState) fillState = 0;
 
 	padsBacklight.clearAllPads(1, 1, 1);
@@ -2849,12 +2850,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad,
-									127);
+									127, pad);
 		}
 		else if (state == buttonRelease)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
+			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
 		}
 		return 1;
 	}
