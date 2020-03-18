@@ -45,6 +45,7 @@ void mtExporter::begin()
 	updateExportTimer.priority(255);
 }
 
+//wspolna funkcja eksportu - update danych z audio streamu w przerwaniu timera
 void mtExporter::updateReceiving()
 {
 	switch(type)
@@ -57,6 +58,8 @@ void mtExporter::updateReceiving()
 		default: break;
 	}
 }
+
+// wspolna funkcja eksportu - update zapisu na karte SD - w petli glownej
 void mtExporter::updateSave()
 {
 	switch(type)
