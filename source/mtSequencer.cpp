@@ -405,38 +405,54 @@ void Sequencer::play_microStep(uint8_t row)
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
 
-				sendCC(0, _fx.value);
+				if (!isTrackEngineMuted(row))
+				{
+					sendCC(0, _fx.value);
+				}
 				break;
 			case fx.FX_TYPE_SEND_CC_B:
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
 
-				sendCC(1, _fx.value);
+				if (!isTrackEngineMuted(row))
+				{
+					sendCC(1, _fx.value);
+				}
 				break;
 			case fx.FX_TYPE_SEND_CC_C:
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
 
-				sendCC(2, _fx.value);
+				if (!isTrackEngineMuted(row))
+				{
+					sendCC(2, _fx.value);
+				}
 				break;
 			case fx.FX_TYPE_SEND_CC_D:
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
 
-				sendCC(3, _fx.value);
+				if (!isTrackEngineMuted(row))
+				{
+					sendCC(3, _fx.value);
+				}
 				break;
 			case fx.FX_TYPE_SEND_CC_E:
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
-
-				sendCC(4, _fx.value);
+				if (!isTrackEngineMuted(row))
+				{
+					sendCC(4, _fx.value);
+				}
 				break;
 
 			case fx.FX_TYPE_PROGRAM_CHANGE:
 				killFxOnSlot(fxIndex);
 				noMoFx = 1;
-
-				sendProgramChange(_fx.value);
+				if (!isTrackEngineMuted(row))
+				{
+					sendProgramChange(_fx.value);
+				}
 				break;
 
 			case fx.FX_TYPE_TEMPO:
@@ -1020,10 +1036,26 @@ void Sequencer::send_allNotesOff(void)
 		}
 	}
 }
+// zatrzymuje nuty wywolane z palca
+void Sequencer::stopManualNotes(void)
+{
+	for (uint8_t tr = 0; tr < 8; tr++)
+	{
+		if (player.track[tr].noteOpen
+				&& player.track[tr].recOpen)
+		{
+			instrumentPlayer[tr].noteOff();
+			player.track[tr].noteOpen = 0;
+			player.track[tr].recOpen = 0;
+			player.track[tr].sourcePad = -1;
+		}
+	}
+}
 
 void Sequencer::stop(void)
 {
 
+	stopManualNotes();
 	send_allNotesOff();
 
 	player.isPlay = 0;
@@ -1649,13 +1681,14 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 					player.track[tr].noteOpen = 1;
 					player.track[tr].noteLength = 9999;
 					player.track[tr].recOpen = note;
+					player.track[tr].sourcePad = pad;
 
 					instrumentPlayer[tr].noteOff();
 					instrumentPlayer[tr].noteOn(
 							mtProject.values.lastUsedInstrument,
 							note,
 							STEP_VELO_DEFAULT);
-					Serial.printf("noteON tr %d\n", tr);
+//					Serial.printf("noteON tr %d\n", tr);
 					break;
 				}
 			}
@@ -1718,12 +1751,13 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 			for (uint8_t tr = 0; tr < 8; tr++)
 			{
 				if (player.track[tr].noteOpen
-						&& player.track[tr].recOpen)
+						&& player.track[tr].recOpen
+						&& player.track[tr].sourcePad == pad)
 				{
 					instrumentPlayer[tr].noteOff();
 					player.track[tr].noteOpen = 0;
 					player.track[tr].recOpen = 0;
-					Serial.printf("\tnoteOFF tr %d\n", tr);
+//					Serial.printf("\tnoteOFF tr %d\n", tr);
 					break;
 				}
 			}

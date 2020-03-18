@@ -434,6 +434,7 @@ public:
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 			uint8_t recOpen = 0;		// znacznik czy została wysłana nuta
+			int8_t sourcePad = -1;		// źródo
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
@@ -497,6 +498,7 @@ public:
 
 	void send_clock(uint8_t);
 	void send_allNotesOff(void);
+
 
 	/********************************
 	 * ******************************
@@ -624,6 +626,7 @@ public:
 	void pause(void);
 	void rec(void);
 	void stop(void);
+	void stopManualNotes(void);
 
 // SELECTION
 	void insert(strSelection *selection);
@@ -742,7 +745,15 @@ public:
 	uint8_t calcStepLength(uint8_t track, uint8_t step);
 	int16_t rollValueToPeriod(int16_t value);
 	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
-	void makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value);
+	void makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value);
+	enum enFxValLabelAlign
+	{
+		fxValLabelAlign_right = 0,
+		fxValLabelAlign_center,
+	};
+	void makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
+						enFxValLabelAlign);
+
 	uint8_t isTrackEngineMuted(uint8_t track);
 
 	uint8_t getActualPos()
