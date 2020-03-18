@@ -1257,7 +1257,7 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 
 			uint8_t localRate = mtProject.instrument[currentInstrument_idx].lfo[type].speed;
 
-			if(trackControlParameter[(int)controlType::performanceMode][type])
+			if(trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[type]])
 			{
 				switch(type)
 				{
@@ -1267,8 +1267,8 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 					case envWtPos: 		localRate	= currentPerformanceValues.lfoWavetablePositionRate;		break;
 				}
 			}
-			else if ( (trackControlParameter[(int)controlType::sequencerMode][type]) ||
-					  (trackControlParameter[(int)controlType::sequencerMode2][type]) )
+			else if ( (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[type]]) ||
+					  (trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[type]]) )
 			{
 				switch(type)
 				{
