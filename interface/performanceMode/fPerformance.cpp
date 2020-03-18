@@ -654,7 +654,7 @@ static  uint8_t functEncoder(int16_t value)
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePositionPerformanceMode(value);
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePositionPerformanceMode(FX_VALUE(place));
 				}
 				break;
 			}
