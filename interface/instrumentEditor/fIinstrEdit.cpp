@@ -855,15 +855,6 @@ void changeEnvAmount(int16_t value)
 	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].amount + fVal > AMOUNT_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].amount = AMOUNT_MAX;
 	else IE->editorInstrument->envelope[IE->selectedEnvelope].amount += fVal;
 
-	if(IE->editorInstrument->envelope[IE->selectedEnvelope].amount == 0)
-	{
-		IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
-	}
-	else
-	{
-		IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
-	}
-
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showEnvAmount();
