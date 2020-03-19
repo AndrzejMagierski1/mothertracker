@@ -61,7 +61,8 @@ void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
 	//mtPrint("start: ");
 	//mtPrintln(voiceToTake);
 
-	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad), mtSampleTypeWaveFile);
+	if(pad < 48) instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad), mtSampleTypeWaveFile);
+	else instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(12), mtSampleTypeWaveFile);
 }
 
 int8_t cMtPadBoard::getEmptyVoice()

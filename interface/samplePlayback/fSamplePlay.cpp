@@ -1424,17 +1424,17 @@ static 	uint8_t functPreview(uint8_t state)
 			}
 		}
 
-		mtPadBoard.startInstrument(12, mtProject.values.lastUsedInstrument,-1);
+		mtPadBoard.startInstrument(INTERFACE_BUTTON_PREVIEW, mtProject.values.lastUsedInstrument,-1);
 	}
 	else if(state == 0)
 	{
-		mtPadBoard.stopInstrument(12);
+		mtPadBoard.stopInstrument(INTERFACE_BUTTON_PREVIEW);
 
 		if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 		{
 			if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
 			{
-				if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+				if(mtPadBoard.getVoiceTakenByPad(INTERFACE_BUTTON_PREVIEW) == 0)
 				{
 					SP->playProgressValue=0;
 					SP->playProgressInSpectrum = 0;
@@ -1448,7 +1448,7 @@ static 	uint8_t functPreview(uint8_t state)
 		{
 			if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
 			{
-				if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+				if(mtPadBoard.getVoiceTakenByPad(INTERFACE_BUTTON_PREVIEW) == 0)
 				{
 					SP->isPlayingWavetable = 0;
 				}

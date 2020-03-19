@@ -1168,7 +1168,7 @@ static  uint8_t functActionPreview()
 	length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
 	addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
 
-	mtPadBoard.startInstrument(12,recorder.getStartAddress()+ addressShift,length - addressShift );
+	mtPadBoard.startInstrument(INTERFACE_BUTTON_PREVIEW,recorder.getStartAddress()+ addressShift,length - addressShift );
 
 
 	SR->playInProgressFlag = 1;
@@ -1177,7 +1177,7 @@ static  uint8_t functActionPreview()
 
 static uint8_t functActionStopPreview()
 {
-	if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+	if(mtPadBoard.getVoiceTakenByPad(INTERFACE_BUTTON_PREVIEW) == 0)
 	{
 		SR->playProgressValue=0;
 		SR->playProgressInSpectrum = 0;
@@ -1187,7 +1187,7 @@ static uint8_t functActionStopPreview()
 		SR->hidePreviewValue();
 	}
 
-	mtPadBoard.stopInstrument(12);
+	mtPadBoard.stopInstrument(INTERFACE_BUTTON_PREVIEW);
 
 	return 1;
 }

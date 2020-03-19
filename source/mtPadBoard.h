@@ -5,7 +5,7 @@
 
 #include "scales.h"
 
-
+constexpr uint8_t INTERFACE_BUTTON_PREVIEW = 96;
 
 class cMtPadBoard
 {
