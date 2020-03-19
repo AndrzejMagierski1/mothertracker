@@ -313,6 +313,8 @@ void cFileManager::importModFile_Patterns()
 
 	}
 
+	updatePatternBitmask(mtProject.values.actualPattern-1,(uint8_t*) patt);
+
 	if (!writePatternToFileStruct(sequencer.getPatternToSaveToFile(),
 									(uint8_t*) &fileManagerPatternBuffer))
 	{
@@ -582,6 +584,8 @@ void cFileManager::importModFileWaves_WriteWave()
 }
 void cFileManager::importModFileFinish()
 {
+
+	setProjectStructChanged();
 
 	importModFileAfterNewProject = 0;
 
