@@ -2012,7 +2012,10 @@ mtRandomNameGenerator randomNameGenerator;
 
 char * mtRandomNameGenerator::getRandomName()
 {
+
+	randomSeed(micros());
 	uint16_t rand1 = random(0,RANDOM_NAME_TABS_SIZE-1);
+	randomSeed(micros());
 	uint16_t rand2 = random(0,RANDOM_NAME_TABS_SIZE-1);
 
 	const char* word1_ptr = word1[rand1];
