@@ -435,8 +435,21 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 
 void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
 {
-	if(state) display.setControlColors(label[track], redBlinkLabelColors);
-	else 	display.setControlColors(label[track], interfaceGlobals.activeLabelsColors);
+	if (state)
+	{
+		display.setControlColors(label[track], redBlinkLabelColors);
+	}
+	else
+	{
+		uint32_t *ptrColors = interfaceGlobals.activeLabelsColors;
+		if (mtProject.values.trackMute[track] > 0)
+		{
+			ptrColors = interfaceGlobals.disabledLabelsColors;
+		}
+
+		display.setControlColors(label[track],
+									ptrColors);
+	}
 
 	display.refreshControl(label[track]);
 }
