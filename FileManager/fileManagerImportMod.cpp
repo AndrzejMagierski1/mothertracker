@@ -33,7 +33,10 @@ void cFileManager::importModFileInit()
 
 	modSample_waveWriteFlag = 0;
 
+	modFilePatterns_max = 1;
+
 	modFile_sample_ptr = sdram_sampleBank;
+	memset(sdram_sampleBank,0,sizeof(sdram_sampleBank));
 
 	// wew
 	char byteBuffer[4];
