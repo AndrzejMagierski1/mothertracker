@@ -2043,32 +2043,32 @@ static uint8_t functInsertHome(uint8_t state)
 {
 	if (state == buttonPress || state == buttonHold)
 	{
-		if (PTE->editMode == 1)
+		if(tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			// HOME
-			if(tactButtons.isButtonPressed(interfaceButtonShift))
+			if (isMultiSelection())
 			{
-				if (isMultiSelection())
-				{
-					PTE->trackerPattern.selectColumn = 0;
-					PTE->trackerPattern.selectState = 1;
-					PTE->isSelectingNow = 0;
+				PTE->trackerPattern.selectColumn = 0;
+				PTE->trackerPattern.selectState = 1;
+				PTE->isSelectingNow = 0;
 
-					PTE->trackerPattern.selectStartStep = 0;
-					PTE->trackerPattern.selectEndStep = 0;
-					PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
-					PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+				PTE->trackerPattern.selectStartStep = 0;
+				PTE->trackerPattern.selectEndStep = 0;
+				PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
+				PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
 
-					PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
-				}
-				else
-				{
-					PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
-				}
+				PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
 			}
-			// INSERT
 			else
 			{
+				PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
+			}
+		}
+		else
+		{
+			if(PTE->editMode == 1)
+			{
+				// INSERT
 				newFileManager.storePatternUndoRevision();
 
 				sendSelection();
@@ -2076,11 +2076,9 @@ static uint8_t functInsertHome(uint8_t state)
 
 				newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 			}
-
 		}
 
 		PTE->refreshPattern();
-
 	}
 
 	return 1;
