@@ -75,7 +75,7 @@ void cSelectionWindow::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cSelectionWindow::setText(char* text)
+void cSelectionWindow::setText(const char* text)
 {
 	this->text = text;
 }

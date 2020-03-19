@@ -6,6 +6,7 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 
+#include "core/songTimer.h"
 #include "mtMidi.h"
 #include "configEditor/configEditor.h"
 
@@ -913,6 +914,7 @@ uint16_t Sequencer::stutterValToPeriod(int8_t rollVal)
 
 void Sequencer::play(void)
 {
+	songTimer.start();
 	engine.endAllFx();
 	engine.clearReverb();
 
@@ -1053,6 +1055,7 @@ void Sequencer::stopManualNotes(void)
 void Sequencer::stop(void)
 {
 
+	songTimer.stop();
 	stopManualNotes();
 	send_allNotesOff();
 

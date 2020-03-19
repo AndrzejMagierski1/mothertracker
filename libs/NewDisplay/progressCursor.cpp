@@ -60,7 +60,7 @@ void cProgressCursor::setStyle(uint32_t style)
 	this->style = style;
 }
 
-void cProgressCursor::setText(char* text)
+void cProgressCursor::setText(const char* text)
 {
 
 }

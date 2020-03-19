@@ -63,7 +63,7 @@ void cSpectrum::setStyle(uint32_t style)
 	this->style = style;
 }
 
-void cSpectrum::setText(char* text)
+void cSpectrum::setText(const char* text)
 {
 
 }

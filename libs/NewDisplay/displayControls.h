@@ -26,7 +26,7 @@ public:
 */
 
 	virtual void setStyle(uint32_t style) = 0;
-	virtual void setText(char* text) = 0;
+	virtual void setText(const char* text) = 0;
 	virtual void setValue(int value) = 0;
 	virtual void setColors(uint32_t* colors) = 0;
 	virtual void setDefaultColors(uint32_t* colors) = 0;
@@ -58,7 +58,7 @@ protected:
 	uint32_t ramSize;
 
 	uint32_t style;
-	char* text;
+	const char* text;
 	int value;
 
 	uint16_t posX;

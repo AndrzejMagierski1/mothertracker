@@ -84,7 +84,7 @@ void cSongPlayer::setStyle(uint32_t style)
 	font = &fonts[textFont];
 }
 
-void cSongPlayer::setText(char* text)
+void cSongPlayer::setText(const char* text)
 {
 	this->text = text;
 }

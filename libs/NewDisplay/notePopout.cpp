@@ -71,7 +71,7 @@ void cNotePopout::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cNotePopout::setText(char* text)
+void cNotePopout::setText(const char* text)
 {
 	this->text = text;
 }

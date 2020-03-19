@@ -77,7 +77,7 @@ void cMultiLabel::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cMultiLabel::setText(char* text)
+void cMultiLabel::setText(const char* text)
 {
 	this->text = text;
 }

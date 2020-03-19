@@ -56,7 +56,7 @@ void cInstrumentEditor::initDisplayControls()
 	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
-	prop2.x = 769;
+	prop2.x = 790;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 2;
@@ -978,8 +978,8 @@ void cInstrumentEditor::showActualInstrument()
 
 	if(i < INSTRUMENTS_COUNT)
 	{
-		sprintf(actualInstrName, "%d. ", i+1);
-		strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+		sprintf(actualInstrName, "%d.", i+1);
+		strncat(actualInstrName, mtProject.instrument[i].sample.file_name, 25);
 	}
 	else
 	{

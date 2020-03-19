@@ -68,7 +68,7 @@ void cHorizontalBar::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cHorizontalBar::setText(char* text)
+void cHorizontalBar::setText(const char* text)
 {
 	this->text = text;
 }

@@ -15,6 +15,7 @@
 #include "core/interfacePopups.h"
 #include "game/game.h"
 #include "masterParams/masterParams.h"
+#include "core/songTimer.h"
 
 #include "fileManager.h"
 #include "mtTest.h"
@@ -190,6 +191,7 @@ void cInterface::doStartTasks()
 										mtConfig.firmware.ver_3,
 										beta);
 
+	songTimer.initControls();
 	mtPopups.initPopupsDisplayControls();
 
 	initStartScreen();
@@ -289,6 +291,7 @@ void cInterface::activateModule(hModule module, uint32_t options)
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
 
+	if(module != &patternEditor) songTimer.show();
 	module->initDisplayControls();
 	module->start(options);
 	onScreenModule = module;
@@ -304,6 +307,7 @@ void cInterface::deactivateModule(hModule module)
 
 	module->stop();
 	mtPopups.hideStepPopups();
+	songTimer.hide();
 	display.resetControlQueue();
 	module->destroyDisplayControls();
 	if(module == onScreenModule) onScreenModule = nullptr;

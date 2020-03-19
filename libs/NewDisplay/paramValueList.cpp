@@ -87,7 +87,7 @@ void cParamValueList::setStyle(uint32_t style)
 	//textFont =  fonts[textFont].handle;
 }
 
-void cParamValueList::setText(char* text)
+void cParamValueList::setText(const char* text)
 {
 	this->text = text;
 }

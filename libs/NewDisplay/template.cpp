@@ -66,7 +66,7 @@ void cTemplate::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cTemplate::setText(char* text)
+void cTemplate::setText(const char* text)
 {
 	this->text = text;
 }

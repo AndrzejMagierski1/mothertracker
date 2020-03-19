@@ -74,7 +74,7 @@ void cTextBox::setStyle(uint32_t style)
 	font = &fonts[textFont];
 }
 
-void cTextBox::setText(char* text)
+void cTextBox::setText(const char* text)
 {
 	this->text = text;
 }
@@ -290,7 +290,7 @@ int16_t cTextBox::getNextLineLength()
 {
 	//width; // niby powinno patrzec na szerokosc miejsca zeby jesli dlugi wyraz nie wyjsc poza i ciąc wyraz wtedy ale...
 
-	char* temp_pos = position;
+	const char* temp_pos = position;
 	int16_t last_length = -1;
 	//int8_t
 

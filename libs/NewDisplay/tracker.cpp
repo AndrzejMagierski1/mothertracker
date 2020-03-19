@@ -144,7 +144,7 @@ void cTracker::setStyle(uint32_t style)
 	this->style = style;
 }
 
-void cTracker::setText(char* text)
+void cTracker::setText(const char* text)
 {
 
 }

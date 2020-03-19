@@ -54,7 +54,7 @@ public:
 	virtual uint8_t append(uint32_t address);
 
 	virtual void setStyle(uint32_t style);
-	virtual void setText(char* text);
+	virtual void setText(const char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
 	virtual void setDefaultColors(uint32_t* colors);
