@@ -1332,7 +1332,7 @@ static  uint8_t functPreview()
 static  uint8_t functPlay()
 {
 	mtPadBoard.cutAllInstrument();
-	mtPadBoard.startInstrument(12, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview());
+	mtPadBoard.startInstrument(INTERFACE_BUTTON_PREVIEW, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview());
 	SE->playingInProgress = 1;
 	SE->playingProgress = 0;
 	SE->showPopupPlaying();
@@ -1343,7 +1343,7 @@ static  uint8_t functPlay()
 }
 static  uint8_t functStop()
 {
-	mtPadBoard.stopInstrument(12);
+	mtPadBoard.stopInstrument(INTERFACE_BUTTON_PREVIEW);
 	SE->playingInProgress = 0;
 	SE->hideProgressPopup();
 
