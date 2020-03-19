@@ -55,17 +55,17 @@ public:
 	virtual uint8_t append(uint32_t address);
 
 	virtual void setStyle(uint32_t style);
-	virtual void setText(char* text);
+	virtual void setText(const char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
 	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
-	void string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length);
+	void string2Bitmaps(int16_t x, int16_t y, const char* string, int8_t length);
 
 
 
-	void setText2(char* text);
+	void setText2(const char* text);
 	void setStyle2(uint32_t style);
 
 	uint16_t textStyle1;
@@ -80,7 +80,7 @@ public:
 
 	strLabelData* data = nullptr;
 
-	char* text2 = nullptr;
+	const char* text2 = nullptr;
 	uint32_t style2 = 0;
 
 };
@@ -97,7 +97,7 @@ public:
 	virtual uint8_t memCpy(uint32_t address);
 
 	virtual void setStyle(uint32_t style);
-	virtual void setText(char* text);
+	virtual void setText(const char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
 	virtual void setDefaultColors(uint32_t colors[]);
@@ -120,7 +120,7 @@ public:
 	virtual uint8_t memCpy(uint32_t address);
 
 	virtual void setStyle(uint32_t style);
-	virtual void setText(char* text);
+	virtual void setText(const char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
 	virtual void setDefaultColors(uint32_t colors[]);
@@ -147,7 +147,7 @@ public:
 	virtual uint8_t append(uint32_t address);
 
 	virtual void setStyle(uint32_t style);
-	virtual void setText(char* text);
+	virtual void setText(const char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
 	virtual void setDefaultColors(uint32_t colors[]);

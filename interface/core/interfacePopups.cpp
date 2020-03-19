@@ -5,6 +5,7 @@
 
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
+#include "core/songTimer.h"
 
 #include "mtSequencer.h"
 
@@ -203,6 +204,8 @@ uint8_t cInterfacePopups::getStepPopupState()
 void cInterfacePopups::showNotesPopup()
 {
 	display.hideAllControls();
+
+	songTimer.show();
 
 	display.setControlPosition(bgLabel, 2, 0);
 	display.setControlSize(bgLabel, 795, 26);
@@ -610,9 +613,9 @@ void cInterfacePopups::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i+1);
+	sprintf(actualInstrName, "%d.", i+1);
 
-	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	strncat(actualInstrName, mtProject.instrument[i].sample.file_name, 25);
 
 	display.setControlText(textLabel2,  actualInstrName);
 	display.setControlStyle(textLabel2, controlStyleShow  | controlStyleCenterY);

@@ -7,6 +7,7 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 #include "mtExporterWAV.h"
+#include "songTimer.h"
 
 #include <display.h>
 #include "MTP.h"
@@ -238,6 +239,8 @@ void cInterface::hideDisplayShutdown()
 // takie różne globalne rzeczy
 void cInterface::commonThingsUpdate()
 {
+
+	if(songTimer.enabled) songTimer.refresh();
 
 	if(fileManagerPopupEnabled)
 	{

@@ -111,7 +111,7 @@ void cSampleEditor::initDisplayControls()
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&titleLabelProperties);
 
 	titleLabelProperties.style = ( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
-	titleLabelProperties.x = 769;
+	titleLabelProperties.x = 790;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&titleLabelProperties);
 
 	titleLabelProperties.style = 	( controlStyleShow | controlStyleBackground);

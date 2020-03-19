@@ -57,7 +57,7 @@ void cFrame::setStyle(uint32_t style)
 	this->style = style;
 }
 
-void cFrame::setText(char* text)
+void cFrame::setText(const char* text)
 {
 	this->text = text;
 }

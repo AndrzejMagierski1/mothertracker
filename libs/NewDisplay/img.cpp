@@ -67,7 +67,7 @@ void cImg::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cImg::setText(char* text)
+void cImg::setText(const char* text)
 {
 	this->text = text;
 }

@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-void labelString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
+void labelString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, const char* string, int8_t length);
 
 
 static uint32_t defaultColors[] =
@@ -97,12 +97,12 @@ void cLabel::setStyle2(uint32_t style)
 	font2 = &fonts[textFont];
 }
 
-void cLabel::setText(char* text)
+void cLabel::setText(const char* text)
 {
 	this->text = text;
 }
 
-void cLabel::setText2(char* text)
+void cLabel::setText2(const char* text)
 {
 	this->text2 = text;
 }
@@ -403,7 +403,7 @@ uint8_t cLabel::append(uint32_t address)
 	return 0;
 }
 
-void cLabel::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
+void cLabel::string2Bitmaps(int16_t x, int16_t y, const char* string, int8_t length)
 {
 	//y = y - fontHeight/2;
 	uint8_t strPtr = 0;

@@ -107,7 +107,7 @@ private:
 	hModule onScreenModule = nullptr;
 	uint32_t lastOptions = 0;
 
-	uint8_t toggledState = 0; //blokuje toggl(1) kiedy nie bylo toggle(0) a modol tez nie jest aktywny
+	uint8_t toggledState = 0; //blokuje toggl(1) kiedy nie bylo toggle(0) a modul tez nie jest aktywny
 
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
@@ -116,6 +116,7 @@ private:
 	uint8_t minStartTimeCounter = 0;
 	uint8_t startProjectLoadingProgress = 0;
 	hControl startScreenControl = nullptr;
+	const char *projectLoadText = "Opening last project...";
 	strStartScreenData startScreenData;
 
 	hControl turnOffProgressBar = nullptr;
@@ -123,16 +124,22 @@ private:
 
 	hControl noSdTextControl;
 	const char *noSdText = "Please insert SD card to continue";
-	const char *projectLoadText = "Opening last project...";
 
 	//styl popupu interfejsu
 	strPopupStyleConfig popupConfig;
 
 	uint8_t shutdownSaveFlag = 0;
 
+	// globalne popupy fileManagera
 	uint8_t fileManagerPopupEnabled = 0;
 	uint8_t fileManagerPopupState = 0;
 	int8_t fileManagerLastProgress;
+
+	// song timer
+
+
+
+
 };
 
 

@@ -91,7 +91,7 @@ void cTextPopup::setStyle(uint32_t style)
 
 }
 
-void cTextPopup::setText(char* text)
+void cTextPopup::setText(const char* text)
 {
 	this->text = text;
 }

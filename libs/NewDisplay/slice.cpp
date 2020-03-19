@@ -65,7 +65,7 @@ void cSlicePoints::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cSlicePoints::setText(char* text)
+void cSlicePoints::setText(const char* text)
 {
 	this->text = text;
 }

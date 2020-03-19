@@ -69,7 +69,7 @@ void cPoints::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cPoints::setText(char* text)
+void cPoints::setText(const char* text)
 {
 	this->text = text;
 }

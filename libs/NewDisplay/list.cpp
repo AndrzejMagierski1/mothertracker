@@ -87,7 +87,7 @@ void cList::setStyle(uint32_t style)
 	//textFont =  fonts[textFont].handle;
 }
 
-void cList::setText(char* text)
+void cList::setText(const char* text)
 {
 	this->text = text;
 }
