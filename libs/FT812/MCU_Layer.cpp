@@ -476,8 +476,9 @@ void MCU_Delay_500ms(void)
 void MCU_set_sleepMode(void)
 {
 	EVE_MemWrite8(REG_PWM_DUTY, 0);
-	EVE_CmdWrite(0x43,0x00);
-    EVE_CmdWrite(0x50,0x00);
+	//EVE_CmdWrite(0x43,0x00);
+    //EVE_CmdWrite(0x50,0x00);
+    EVE_CmdWrite(0x42,0x00);
 }
 
 void MCU_set_runMode(void)
