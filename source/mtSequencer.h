@@ -310,7 +310,7 @@ public:
 	void init_player_timer(void);
 	void cancelFxes(int8_t track);
 	void cancelFxes();
-	void killFxOnSlot(uint8_t slot);
+	void killFxOnSlot(uint8_t row, uint8_t slot);
 	uint8_t getRollType(uint8_t value);
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
