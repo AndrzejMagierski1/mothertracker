@@ -1000,11 +1000,9 @@ void Sequencer::playSong(uint8_t fromPos)
 	uint8_t patternToStart = newFileManager.getSongPattern(fromPos);
 	newFileManager.setSongPos(fromPos);
 
-	if (patternToStart == mtProject.values.actualPattern)
-	{
-		newFileManager.saveWorkspacePatternNow(patternToStart);
-	}
-	else
+	newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
+
+	if (patternToStart != mtProject.values.actualPattern)
 	{
 		newFileManager.loadWorkspacePatternNow(patternToStart);
 		switchRamPatternsNow();
