@@ -1043,7 +1043,7 @@ void Sequencer::stopManualNotes(void)
 			instrumentPlayer[tr].noteOff();
 			player.track[tr].noteOpen = 0;
 			player.track[tr].recOpen = 0;
-			player.track[tr].sourcePad = -1;
+			player.track[tr].noteSource = -1;
 		}
 	}
 }
@@ -1600,7 +1600,10 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
 	handleNote(channel, note, velocity, -1);
 }
-void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
+void Sequencer::handleNote(byte channel,
+							byte note,
+							byte velocity,
+							int16_t source) // jesli midi to source = nuta+100
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1628,7 +1631,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 			instrumentPlayer[sel->firstTrack].noteOn(
 					mtProject.values.lastUsedInstrument,
 					note,
-					STEP_VELO_DEFAULT);
+					map(velocity,0,127,0,100),
+					0,0,0,0); //magiczne zera
 		}
 		else if (isRec())
 		{
@@ -1641,16 +1645,16 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 				if (step->note == STEP_NOTE_EMPTY &&
 						step->fx[0].type == 0 &&
 						step->fx[1].type == 0 &&
-						(pad < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
+						(source < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
 				{
 					step->note = note;
-					if (pad < 0)
+					if (source < 0)
 					{
 						step->instrument = mtProject.values.lastUsedInstrument;
 					}
 					else
 					{
-						step->instrument = pad;
+						step->instrument = source;
 					}
 
 					player.track[tr].stepSent.note = note;
@@ -1661,7 +1665,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 					instrumentPlayer[tr].noteOn(
 												step->instrument,
 												step->note,
-												STEP_VELO_DEFAULT);
+												map(velocity,0,127,0,100),
+												0,0,0,0); //magiczne zera
 
 					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = map(player.uStep + 1, 1, 48, 0, 100);
@@ -1680,13 +1685,14 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 					player.track[tr].noteOpen = 1;
 					player.track[tr].noteLength = 9999;
 					player.track[tr].recOpen = note;
-					player.track[tr].sourcePad = pad;
+					player.track[tr].noteSource = source;
 
 					instrumentPlayer[tr].noteOff();
 					instrumentPlayer[tr].noteOn(
 							mtProject.values.lastUsedInstrument,
 							note,
-							STEP_VELO_DEFAULT);
+							map(velocity,0,127,0,100),
+							0,0,0,0); //magiczne zera
 //					Serial.printf("noteON tr %d\n", tr);
 					break;
 				}
@@ -1719,7 +1725,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 
 					strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
 
-					if (pad < 0) // tylko wtedy dajemy offy
+					if (source < 0) // tylko wtedy dajemy offy
 					{
 						if (step->note == STEP_NOTE_EMPTY)
 						{
@@ -1752,7 +1758,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 			{
 				if (player.track[tr].noteOpen
 						&& player.track[tr].recOpen
-						&& player.track[tr].sourcePad == pad)
+						&& player.track[tr].noteSource == source)
 				{
 					instrumentPlayer[tr].noteOff();
 					player.track[tr].noteOpen = 0;
