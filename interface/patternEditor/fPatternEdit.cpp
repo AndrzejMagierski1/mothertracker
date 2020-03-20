@@ -81,7 +81,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 //muty
-static uint8_t functActionButton(uint8_t button, uint8_t state);
+static uint8_t functMuteTrack(uint8_t button, uint8_t state);
 
 //--------------------------------------------
 static uint8_t getSelectedElement();
@@ -816,7 +816,7 @@ void cPatternEditor::setActualPatternEditStep(int16_t value)
 }
 
 //======================================================================================================================
-static uint8_t functActionButton(uint8_t button, uint8_t state)
+static uint8_t functMuteTrack(uint8_t button, uint8_t state)
 {
 	if(state == buttonPress)
 	{
@@ -1188,14 +1188,14 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 	}
 	else
 	{
-		FM->setButtonObj(interfaceButton0, functActionButton);
-		FM->setButtonObj(interfaceButton1, functActionButton);
-		FM->setButtonObj(interfaceButton2, functActionButton);
-		FM->setButtonObj(interfaceButton3, functActionButton);
-		FM->setButtonObj(interfaceButton4, functActionButton);
-		FM->setButtonObj(interfaceButton5, functActionButton);
-		FM->setButtonObj(interfaceButton6, functActionButton);
-		FM->setButtonObj(interfaceButton7, functActionButton);
+		FM->setButtonObj(interfaceButton0, functMuteTrack);
+		FM->setButtonObj(interfaceButton1, functMuteTrack);
+		FM->setButtonObj(interfaceButton2, functMuteTrack);
+		FM->setButtonObj(interfaceButton3, functMuteTrack);
+		FM->setButtonObj(interfaceButton4, functMuteTrack);
+		FM->setButtonObj(interfaceButton5, functMuteTrack);
+		FM->setButtonObj(interfaceButton6, functMuteTrack);
+		FM->setButtonObj(interfaceButton7, functMuteTrack);
 
 	}
 }
