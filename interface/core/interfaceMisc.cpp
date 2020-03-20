@@ -55,7 +55,6 @@ uint8_t cInterface::detectProjectLoadState()
 
 
 	// taski na koniec otwierania projektu startowego
-
 	fileManagerPopupEnabled = 1;
 
 	if(mtpd.state == 0)
