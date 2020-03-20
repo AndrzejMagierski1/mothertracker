@@ -82,7 +82,7 @@ void cSongTimer::refresh()
 	if(sequencer.isPlay()) 	step = sequencer.ptrPlayer->track[0].actual_pos+1;
 	else 					step = patternEditor.trackerPattern.actualStep+1;
 
-	sprintf(timerText, "%3im :%2is |%3ip%3is", minutes, seconds, mtProject.values.actualPattern, step);
+	sprintf(timerText, "%3im :%2is |%3iP %3iS", minutes, seconds, mtProject.values.actualPattern, step);
 
 	display.setControlText(timerLabel, timerText);
 	display.refreshControl(timerLabel);
