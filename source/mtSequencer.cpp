@@ -1115,10 +1115,16 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	int8_t playMode = player.track[row].performancePlayMode;
 	int8_t patternLength = seq[player.ramBank].track[0].length;
 
+	if (player.performanceMode)
+	{
+		patternLength = player.performance.initialPatternLength;
+	}
+
 	if (player.performance.patternLength > -1)
 	{
 		patternLength = player.performance.patternLength;
 	}
+
 	// liczymy globalny licznik stepa
 	if (row == 0)
 	{
@@ -1151,10 +1157,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 			if (player.track[x].performanceSourcePattern != -1)
 			{
-				enterPerformanceMode();
-				newFileManager.loadTrack(
-						player.track[x].performanceSourcePattern,
-						x);
+
+				switchPerformanceTrackNow(x);
 				cancelFxes(x);
 
 				player.track[x].performanceSourcePattern = -1;
@@ -1809,6 +1813,13 @@ void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 
 void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 {
+	if (!player.performanceMode)
+	{
+		enterPerformanceMode();
+	}
+
+	newFileManager.loadPerformanceTrackToBuffer(sourcePattern, track);
+
 	player.track[track].performanceSourcePattern = sourcePattern;
 }
 
@@ -1885,4 +1896,18 @@ void Sequencer::switchRamPatternsNow()
 	cancelFxes();
 	player.ramBank = !player.ramBank;
 	mtProject.values.actualPattern = newFileManager.getLoadedPatternIndex();
+}
+
+extern Sequencer::strPattern fileManagerPerformancePatternBuffer;
+
+// podmienia zaladowane w performance tracki
+void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
+{
+
+	Sequencer::strPattern *patternTo = sequencer.getActualPattern();
+	Sequencer::strPattern *patternFrom = &fileManagerPerformancePatternBuffer;
+
+	patternTo->track[trackToSwitch] = patternFrom->track[trackToSwitch];
+	player.track[trackToSwitch].performanceSourcePattern = -1;
+
 }

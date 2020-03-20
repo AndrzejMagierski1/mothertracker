@@ -17,6 +17,8 @@
 //          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
 
 __NOINIT(EXTERNAL_RAM) Sequencer::strPattern fileManagerPatternBuffer {0};
+__NOINIT(EXTERNAL_RAM) Sequencer::strPattern fileManagerPerformancePatternBuffer {0};
+
 
 
 
@@ -343,10 +345,10 @@ bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 }
 
 
-
-bool cFileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
+/// tu tylko ladujemy do bufora, podmieniamy w sequ
+bool cFileManager::loadPerformanceTrackToBuffer(uint8_t pattIndex, uint8_t trackIndex)
 {
-	report(" load track ");
+	report(" load perf track to buff");
 
 	if(trackIndex > 7) trackIndex = 7;
 
@@ -355,7 +357,7 @@ bool cFileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
 
 
 	Sequencer::strPattern * patternFrom = (Sequencer::strPattern*) sequencer.getPatternToLoadFromFile();
-	Sequencer::strPattern * patternTo = sequencer.getActualPattern();
+	Sequencer::strPattern * patternTo = &fileManagerPerformancePatternBuffer;
 
 
 
@@ -376,7 +378,6 @@ bool cFileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
 
 	return true;
 }
-
 
 uint8_t cFileManager::getLoadedPatternIndex()
 {

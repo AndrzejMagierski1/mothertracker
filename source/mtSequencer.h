@@ -266,7 +266,7 @@ public:
 	private:
 
 	strPattern seq[3];
-	Sequencer::strPattern *getPattern();
+	Sequencer::strPattern* getPattern();
 
 	struct strGlobalConfig
 	{
@@ -389,7 +389,8 @@ public:
 
 		struct strPerformance
 		{
-			int8_t patternLength = -1;
+			int16_t patternLength = -1;
+			int16_t initialPatternLength = 8;
 			float tempo = 0.0;
 			int8_t tempoSource = -1;
 		} performance;
@@ -448,8 +449,6 @@ public:
 
 			boolean cancelStep = 0;
 
-
-
 			boolean rollIsOn = 0;
 			uint8_t rollPeriod = 0; // 1/1, 1/2, 1/4 ...
 			uint8_t rollVal = 0;
@@ -499,7 +498,6 @@ public:
 	void send_clock(uint8_t);
 	void send_allNotesOff(void);
 
-
 	/********************************
 	 * ******************************
 	 * 			PUBLIC				*
@@ -531,18 +529,18 @@ public:
 	void feedExternalTempo(float setTempo);
 	void handle_nanoStep(uint8_t step);
 
-	strPlayer const * ptrPlayer = &player;
+	strPlayer const *ptrPlayer = &player;
 
-	uint8_t * getPatternToSaveToFile()
+	uint8_t* getPatternToSaveToFile()
 	{
-		return (uint8_t *) &seq[player.ramBank];
+		return (uint8_t*) &seq[player.ramBank];
 	}
 
-	strPattern * getActualPattern()
+	strPattern* getActualPattern()
 	{
 		return &seq[player.ramBank];
 	}
-	strPattern * getBuffPattern()
+	strPattern* getBuffPattern()
 	{
 		return &seq[!player.ramBank];
 	}
@@ -560,7 +558,7 @@ public:
 	{
 		player.songMode = 0;
 		player.performanceMode = 1;
-		player.performance.patternLength = getActualPattern()->track[0].length;
+		player.performance.initialPatternLength = getActualPattern()->track[0].length;
 	}
 
 	enum enSeqState
@@ -589,9 +587,9 @@ public:
 		player.performance.patternLength = -1;
 	}
 
-	uint8_t * getPatternToLoadFromFile()
+	uint8_t* getPatternToLoadFromFile()
 	{
-		return (uint8_t *) &seq[!player.ramBank];
+		return (uint8_t*) &seq[!player.ramBank];
 	}
 	void loadFromFileOK()
 	{
@@ -607,13 +605,14 @@ public:
 		return sizeof(strPattern);
 	}
 
-	strPattern * getPatternToUI()
+	strPattern* getPatternToUI()
 	{
 		return &seq[player.ramBank];
 	}
 
 	void switchRamPatternsNow();
-
+	void switchPerformanceTrackNow(uint8_t trackToSwitch);
+	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
 
 // SEQUENCER
 
@@ -656,13 +655,13 @@ public:
 	uint8_t getCopySelectionHeight();
 
 	void clearSingleTrack(strPattern::strTrack *track);
-	void clearPattern(strPattern * patt);
-	void setPatternHeader(strPattern * patt);
+	void clearPattern(strPattern *patt);
+	void setPatternHeader(strPattern *patt);
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
-	void clearStep(strPattern::strTrack::strStep *);
-	void clearStep(strPattern::strTrack::strStep * step, uint8_t);
-	void clearSelected(strSelection * sel, uint8_t elements);
+	void clearStep(strPattern::strTrack::strStep*);
+	void clearStep(strPattern::strTrack::strStep *step, uint8_t);
+	void clearSelected(strSelection *sel, uint8_t elements);
 	void clearSelected();
 	void clearSelected(uint8_t);
 
@@ -674,7 +673,7 @@ public:
 	uint8_t getInstrumentPosInOrder(int8_t value);
 	uint8_t getInstrumentFromOrder(int8_t value);
 	uint8_t changeInstrumentInSpecificOrder(int8_t actualValue,
-														int16_t delta);
+											int16_t delta);
 
 	void setSelectionFxType(uint8_t index, int16_t value);
 	void setSelectionFxValueByPad(uint8_t index, int16_t value);
@@ -721,7 +720,7 @@ public:
 
 	void setPerformancePatternLength(int8_t length);
 	void setPerformancePatternLengthFromFxVal(int8_t val);
-	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
+
 	// inne
 	void handle_uStep_timer(void);
 	bool isInternalClock(void);
@@ -744,7 +743,7 @@ public:
 	char getRollTypeChar(uint8_t val);
 	uint8_t calcStepLength(uint8_t track, uint8_t step);
 	int16_t rollValueToPeriod(int16_t value);
-	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
+	void makeFxValLabel(char *ptr, uint8_t fxID, uint8_t track, uint8_t step);
 	void makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value);
 	enum enFxValLabelAlign
 	{

@@ -181,7 +181,8 @@ public:
 
 	bool loadWorkspacePatternNow(uint8_t index);
 	bool saveWorkspacePatternNow(uint8_t index);
-	bool loadTrack(uint8_t pattIndex, uint8_t trackIndex);
+	bool loadPerformanceTrackToBuffer(uint8_t pattIndex, uint8_t trackIndex);
+
 
 	uint8_t getNextSongPattern();
 	uint8_t getSongPattern(uint8_t pos);
