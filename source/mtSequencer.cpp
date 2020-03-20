@@ -281,7 +281,8 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		playerRow.noteTimer++;
 
-		if ((playerRow.noteTimer >= playerRow.noteLength))
+		if ((playerRow.noteTimer >= playerRow.noteLength) ||
+				(isTrackEngineMuted(row) && playerRow.stepSent.instrument > INSTRUMENTS_MAX))
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
@@ -301,6 +302,9 @@ void Sequencer::play_microStep(uint8_t row)
 		if (((playerRow.uStep - 1) % 8) == 0)
 			sendMidiClock();
 	}
+
+	if (isTrackEngineMuted(row))
+		return;
 
 	// ************************************
 	// 		 PRE EFEKTY i operacje na uStep == 1
@@ -405,54 +409,44 @@ void Sequencer::play_microStep(uint8_t row)
 				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(0, _fx.value);
-				}
+				sendCC(0, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_B:
 				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(1, _fx.value);
-				}
+				sendCC(1, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_C:
 				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(2, _fx.value);
-				}
+				sendCC(2, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_D:
 				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(3, _fx.value);
-				}
+				sendCC(3, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_E:
 				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(4, _fx.value);
-				}
+
+				sendCC(4, _fx.value);
+
 				break;
 
 			case fx.FX_TYPE_PROGRAM_CHANGE:
 				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
-				if (!isTrackEngineMuted(row))
-				{
-					sendProgramChange(_fx.value);
-				}
+
+				sendProgramChange(_fx.value);
+
 				break;
 
 			case fx.FX_TYPE_TEMPO:
@@ -715,6 +709,7 @@ void Sequencer::play_microStep(uint8_t row)
 	// **************************
 	// 		kontynuowanie nuty
 	// **************************
+	// performance stutter
 	if (playerRow.performanceStutter != 0)
 	{
 		uint8_t tempRollType = 0;
@@ -737,6 +732,7 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepSent = playerRow.stepToSend;
 		}
 	}
+	// rolka z patternu
 	else if (playerRow.stepOpen)
 	{
 		if (playerRow.rollPeriod != fx.ROLL_PERIOD_NONE && playerRow.rollIsOn)
@@ -1451,12 +1447,10 @@ uint8_t Sequencer::isStop(void)
 void Sequencer::sendNoteOn(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
-	if (isTrackEngineMuted(track)) return;
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		if (step->velocity == -1)
 		{
-//			todo:
 			uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_COUNT].velocity;
 
 			sendMidiNoteOn(step->note,
@@ -1466,7 +1460,7 @@ void Sequencer::sendNoteOn(uint8_t track,
 		else
 		{
 			sendMidiNoteOn(step->note,
-							step->velocity,
+							map(step->velocity, 0, 100, 0, 127),
 							step->instrument - INSTRUMENTS_MAX);
 		}
 	}
@@ -1489,7 +1483,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t instrument)
 {
 
-	if (isTrackEngineMuted(track)) return;
 	if (instrument > INSTRUMENTS_MAX)
 	{
 		sendMidiNoteOff(note,
@@ -1505,7 +1498,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
-	if (isTrackEngineMuted(track)) return;
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		sendMidiNoteOff(step->note,
