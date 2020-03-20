@@ -435,7 +435,7 @@ public:
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 			uint8_t recOpen = 0;		// znacznik czy została wysłana nuta
-			int8_t sourcePad = -1;		// źródo
+			int16_t noteSource = -1;		// źródo
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
@@ -733,7 +733,7 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
-	void handleNote(byte channel, byte pitch, byte velocity, int8_t source);
+	void handleNote(byte channel, byte pitch, byte velocity, int16_t source);
 	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
