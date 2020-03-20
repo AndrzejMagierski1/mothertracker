@@ -44,6 +44,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 
 #include "mtHardware.h"
 #include "SPI2.h"
+#include "kinetis.h"
 
 #define CS LCD_CS
 #define PD LCD_PD
@@ -478,7 +479,36 @@ void MCU_set_sleepMode(void)
 	EVE_MemWrite8(REG_PWM_DUTY, 0);
 	//EVE_CmdWrite(0x43,0x00);
     //EVE_CmdWrite(0x50,0x00);
-    EVE_CmdWrite(0x42,0x00);
+
+//	ramDisplayList = RAM_DL;                                                    // start of Display List
+//    EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
+//
+//    ramDisplayList += 4;                                                        // point to next location
+//    EVE_MemWrite32(ramDisplayList, (0x26000000 | 0x00000007));                  // Clear 00100110 -------- -------- -----CST  (C/S/T define which parameters to clear)
+//
+//    ramDisplayList += 4;                                                        // point to next location
+//    EVE_MemWrite32(ramDisplayList, 0x00000000);                                 // DISPLAY command 00000000 00000000 00000000 00000000 (end of display list)
+//
+//    EVE_MemWrite32(REG_DLSWAP, DLSWAP_FRAME);                                   // Swap display list to make the edited one active
+//
+
+    //EVE_MemWrite8(REG_PCLK, 0);
+
+	EVE_CmdWrite(0x42,0x00);
+    //delay(100);
+
+   // pinMode(LCD_RESET, OUTPUT);
+	//digitalWrite(LCD_RESET, LOW);
+    //delay(100);
+	//digitalWrite(LCD_RESET, HIGH);
+	//digitalWrite(LCD_RESET, LOW);
+	//PORTD_PCR10 = (PORTD_PCR10 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(mux);
+	//PORT_SetPinMux(PORTD, PIN5_IDX, kPORT_MuxAsGpio);
+	//delay(2000);
+
+
+   // MCU_CShigh();
+   // MCU_PDhigh();
 }
 
 void MCU_set_runMode(void)

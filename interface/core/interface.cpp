@@ -110,7 +110,7 @@ void cInterface::begin()
 	popupConfig.x = 800/2-150;
 	popupConfig.y = 480/2-50;
 	popupConfig.lineColor[0] = 0xffffff;
-	popupConfig.lineStyle[0] = controlStyleCenterX;
+	popupConfig.lineStyle[0] = controlStyleCenterX | controlStyleCenterY;
 	mtPopups.config(4, &popupConfig);
 
 	FM->unblockAllInputs();

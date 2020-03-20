@@ -858,7 +858,7 @@ void cSampleRecorder::showSelectionWindow()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	mtPopups.showInfoPopup("Changes will be lost. Do you want to continue?", nullptr);
+	mtPopups.showInfoPopup("Changes will be lost.", "Do you want to continue?");
 	//display.setControlText(popupWindowLabel,"Changes will be lost. Do you want to continue?");
 	//display.setControlShow(popupWindowLabel);
 	//display.refreshControl(popupWindowLabel);
@@ -904,7 +904,7 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	mtPopups.showInfoPopup("The memory is full. Recording has been stopped.", nullptr);
+	mtPopups.showInfoPopup("The memory is full.", "Recording has been stopped.");
 	//display.setControlText(popupWindowLabel,"The memory is full. Recording has been stopped.");
 	//display.setControlShow(popupWindowLabel);
 	//display.refreshControl(popupWindowLabel);
