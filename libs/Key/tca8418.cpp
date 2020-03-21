@@ -27,13 +27,13 @@
 #include <wire.h>
 #include "mtHardware.h"
 #include <tca8418.h>
-
+#include "debugLog.h"
 
 #ifdef TCA8418_INTERRUPT_SUPPORT
 #endif
 
 
-
+extern KEYS Keypad;
 
 KEYS::KEYS()
 {
@@ -79,6 +79,7 @@ void KEYS::configureKeys(uint8_t rows, uint16_t cols, uint8_t config)
 	writeByte(col_tmp, REG_KP_GPIO3);
 
 	config |= CFG_AI;
+	currentConfig = config;
 	writeByte(config, REG_CFG);
 
 	clearInterruptStatus();
@@ -92,8 +93,14 @@ void KEYS::writeByte(uint8_t data, uint8_t reg)
 	I2C_WRITE((uint8_t ) reg);
 
 	I2C_WRITE((uint8_t ) data);
-	I2C_ENDTRANS();
+	uint8_t error = I2C_ENDTRANS();
 
+	if(error)
+	{
+		debugLog.addLine("i2c Write error:  ");
+		debugLog.addValue(error);
+		refreshConfig();
+	}
 	return;
 }
 
@@ -101,15 +108,29 @@ bool KEYS::readByte(uint8_t *data, uint8_t reg)
 {
 	I2C_BEGINTRANS(_address);
 	I2C_WRITE((uint8_t ) reg);
-	I2C_ENDTRANS();
+	uint8_t error = I2C_ENDTRANS();
+
+	if(error)
+	{
+		debugLog.addLine("i2c write in read error");
+		debugLog.addValue(error);
+		refreshConfig();
+	}
+
 	uint8_t timeout = 0;
 
-	I2C_REQUESTFROM(_address, (uint8_t) 0x01);
+	uint8_t error_req = I2C_REQUESTFROM(_address, (uint8_t) 0x01);
+	if(!error_req)
+	{
+		debugLog.addLine("i2c error request");
+		refreshConfig();
+	}
 	while (I2C_AVALIBLE() < 1)
 	{
 		timeout++;
 		if (timeout > I2CTIMEOUT)
 		{
+			*data = 0;
 			return (true);
 		}
 		delay(1);
@@ -550,3 +571,16 @@ uint8_t KEYS::isButtonPressed(uint8_t n)
 {
 	return buttonPush[n];
 }
+
+void KEYS::refreshConfig()
+{
+	if(this == &Keypad)
+	{
+		localWire->begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
+		writeByte(0, REG_CFG);
+		writeByte(currentConfig, REG_CFG);
+	}
+
+}
+
+
