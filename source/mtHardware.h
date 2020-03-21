@@ -62,7 +62,7 @@
 #define LCD_SCK    		53	 		//PTD12			pin-141
 #define LCD_CS     		54 			//PTD15			pin-144
 #define LCD_PD     		55 			//PTD11			pin-140
-#define LCD_RESET  		xxx 		//PTD10			pin-139
+#define LCD_RESET  		82 			//PTD10			pin-139
 
 // FLASH
 #define FLASH_MOSI 	 	28 			//PTA16			pin-68

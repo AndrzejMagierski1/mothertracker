@@ -49,8 +49,11 @@ void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 		{
 			sendSelection();
 
-			sequencer.handleNote(channel, pitch, velocity);
-			patternEditor.moveCursorByStep();
+			sequencer.handleNote(channel, pitch, velocity, pitch + 100);
+			if (isEditMode())
+			{
+				patternEditor.moveCursorByStep();
+			}
 
 			patternEditor.refreshPattern();
 		}
@@ -71,8 +74,11 @@ void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
 
 			sendSelection();
 
-			sequencer.handleNote(channel, pitch, velocity);
-			patternEditor.moveCursorByStep();
+			sequencer.handleNote(channel, pitch, velocity, pitch + 100);
+			if (isEditMode())
+			{
+				patternEditor.moveCursorByStep();
+			}
 
 			patternEditor.refreshPattern();
 		}
@@ -92,7 +98,7 @@ void handleJackNoteOff(byte channel, byte pitch, byte velocity)
 		if (isIncomingChannelDesired(channel))
 		{
 			sendSelection();
-			sequencer.handleNote(channel, pitch, 0);
+			sequencer.handleNote(channel, pitch, 0, pitch + 100);
 		}
 	}
 }
@@ -109,7 +115,7 @@ void handleUsbNoteOff(byte channel, byte pitch, byte velocity)
 		if (isIncomingChannelDesired(channel))
 		{
 			sendSelection();
-			sequencer.handleNote(channel, pitch, 0);
+			sequencer.handleNote(channel, pitch, 0, pitch + 100);
 		}
 	}
 }
@@ -308,7 +314,7 @@ void sendCC(uint8_t internalControl, uint8_t value)
 	{
 		usbMIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
 									value,
-									mtConfig.midi.notesOutChannel+1);
+									mtConfig.midi.notesOutChannel + 1);
 	}
 
 	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
@@ -316,7 +322,7 @@ void sendCC(uint8_t internalControl, uint8_t value)
 	{
 		MIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
 								value,
-								mtConfig.midi.notesOutChannel+1);
+								mtConfig.midi.notesOutChannel + 1);
 	}
 }
 
@@ -326,14 +332,14 @@ void sendProgramChange(uint8_t value)
 			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
 	{
 		usbMIDI.sendProgramChange(value,
-									mtConfig.midi.notesOutChannel+1);
+									mtConfig.midi.notesOutChannel + 1);
 	}
 
 	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
 			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
 	{
 		MIDI.sendProgramChange(value,
-								mtConfig.midi.notesOutChannel+1);
+								mtConfig.midi.notesOutChannel + 1);
 	}
 }
 

@@ -126,7 +126,7 @@ typedef enum enControlId
 
 struct strControlProperties
 {
-	char* text = nullptr;
+	const char* text = nullptr;
 	int value = 0;
 	void* data = nullptr;
 
@@ -183,7 +183,7 @@ extern strGetProps getProps;
 const uint32_t one_true_red  = 0xcd1818;
 const uint32_t one_true_green  = 0x32d642;
 
-uint16_t getTextWidth(strFont* font, char* text, uint16_t length);
+uint16_t getTextWidth(strFont* font, const char* text, uint16_t length);
 
 
 // NIE-EDITABLE

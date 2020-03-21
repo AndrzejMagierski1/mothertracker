@@ -7,7 +7,7 @@
 
 
 
-uint16_t getTextWidth(strFont* font, char* text, uint16_t length)
+uint16_t getTextWidth(strFont* font, const char* text, uint16_t length)
 {
 	uint16_t width = 0;
 

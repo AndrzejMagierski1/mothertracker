@@ -33,7 +33,10 @@ void cFileManager::importModFileInit()
 
 	modSample_waveWriteFlag = 0;
 
+	modFilePatterns_max = 1;
+
 	modFile_sample_ptr = sdram_sampleBank;
+	memset(sdram_sampleBank,0,sizeof(sdram_sampleBank));
 
 	// wew
 	char byteBuffer[4];
@@ -310,6 +313,8 @@ void cFileManager::importModFile_Patterns()
 
 	}
 
+	updatePatternBitmask(mtProject.values.actualPattern-1,(uint8_t*) patt);
+
 	if (!writePatternToFileStruct(sequencer.getPatternToSaveToFile(),
 									(uint8_t*) &fileManagerPatternBuffer))
 	{
@@ -579,6 +584,8 @@ void cFileManager::importModFileWaves_WriteWave()
 }
 void cFileManager::importModFileFinish()
 {
+
+	setProjectStructChanged();
 
 	importModFileAfterNewProject = 0;
 

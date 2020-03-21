@@ -28,10 +28,10 @@ struct strUndo
 			0xffffff,
 			0xffffff,
 			0xffffff,
-			controlStyleCenterX,//lineStyle[4];
-			controlStyleCenterX,
-			controlStyleCenterX,
-			controlStyleCenterX };
+			controlStyleCenterX | controlStyleCenterY,//lineStyle[4];
+			controlStyleCenterX | controlStyleCenterY,
+			controlStyleCenterX | controlStyleCenterY,
+			controlStyleCenterX | controlStyleCenterY };
 
 } static undo;
 

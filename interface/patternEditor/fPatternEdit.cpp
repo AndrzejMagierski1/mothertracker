@@ -81,7 +81,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 //muty
-static uint8_t functActionButton(uint8_t button, uint8_t state);
+static uint8_t functMuteTrack(uint8_t button, uint8_t state);
 
 //--------------------------------------------
 static uint8_t getSelectedElement();
@@ -816,7 +816,7 @@ void cPatternEditor::setActualPatternEditStep(int16_t value)
 }
 
 //======================================================================================================================
-static uint8_t functActionButton(uint8_t button, uint8_t state)
+static uint8_t functMuteTrack(uint8_t button, uint8_t state)
 {
 	if(state == buttonPress)
 	{
@@ -1188,14 +1188,14 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 	}
 	else
 	{
-		FM->setButtonObj(interfaceButton0, functActionButton);
-		FM->setButtonObj(interfaceButton1, functActionButton);
-		FM->setButtonObj(interfaceButton2, functActionButton);
-		FM->setButtonObj(interfaceButton3, functActionButton);
-		FM->setButtonObj(interfaceButton4, functActionButton);
-		FM->setButtonObj(interfaceButton5, functActionButton);
-		FM->setButtonObj(interfaceButton6, functActionButton);
-		FM->setButtonObj(interfaceButton7, functActionButton);
+		FM->setButtonObj(interfaceButton0, functMuteTrack);
+		FM->setButtonObj(interfaceButton1, functMuteTrack);
+		FM->setButtonObj(interfaceButton2, functMuteTrack);
+		FM->setButtonObj(interfaceButton3, functMuteTrack);
+		FM->setButtonObj(interfaceButton4, functMuteTrack);
+		FM->setButtonObj(interfaceButton5, functMuteTrack);
+		FM->setButtonObj(interfaceButton6, functMuteTrack);
+		FM->setButtonObj(interfaceButton7, functMuteTrack);
 
 	}
 }
@@ -2043,32 +2043,32 @@ static uint8_t functInsertHome(uint8_t state)
 {
 	if (state == buttonPress || state == buttonHold)
 	{
-		if (PTE->editMode == 1)
+		if(tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			// HOME
-			if(tactButtons.isButtonPressed(interfaceButtonShift))
+			if (isMultiSelection())
 			{
-				if (isMultiSelection())
-				{
-					PTE->trackerPattern.selectColumn = 0;
-					PTE->trackerPattern.selectState = 1;
-					PTE->isSelectingNow = 0;
+				PTE->trackerPattern.selectColumn = 0;
+				PTE->trackerPattern.selectState = 1;
+				PTE->isSelectingNow = 0;
 
-					PTE->trackerPattern.selectStartStep = 0;
-					PTE->trackerPattern.selectEndStep = 0;
-					PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
-					PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+				PTE->trackerPattern.selectStartStep = 0;
+				PTE->trackerPattern.selectEndStep = 0;
+				PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
+				PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
 
-					PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
-				}
-				else
-				{
-					PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
-				}
+				PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
 			}
-			// INSERT
 			else
 			{
+				PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
+			}
+		}
+		else
+		{
+			if(PTE->editMode == 1)
+			{
+				// INSERT
 				newFileManager.storePatternUndoRevision();
 
 				sendSelection();
@@ -2076,11 +2076,9 @@ static uint8_t functInsertHome(uint8_t state)
 
 				newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 			}
-
 		}
 
 		PTE->refreshPattern();
-
 	}
 
 	return 1;

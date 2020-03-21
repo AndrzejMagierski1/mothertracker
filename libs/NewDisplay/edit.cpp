@@ -14,7 +14,7 @@ static uint32_t defaultColors[] =
 	0x0a0a0a, 		//tlo
 };
 
-void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
+void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, const char* string, int8_t length);
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void cEdit::setStyle(uint32_t style)
 
 }
 
-void cEdit::setText(char* text)
+void cEdit::setText(const char* text)
 {
 	this->text = text;
 }
@@ -224,7 +224,7 @@ uint8_t cEdit::append(uint32_t address)
 	return 0;
 }
 
-void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length)
+void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, const char* string, int8_t length)
 {
 	y = y - font->height/2;
 	uint8_t strPtr = 0;

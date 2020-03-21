@@ -469,8 +469,8 @@ void cSampleImporter::showActualInstrument()
 
 	if(i < INSTRUMENTS_COUNT)
 	{
-		sprintf(actualInstrName, "%d. ", i+1);
-		strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+		sprintf(actualInstrName, "%d.", i+1);
+		strncat(actualInstrName, mtProject.instrument[i].sample.file_name, 25);
 	}
 	else
 	{

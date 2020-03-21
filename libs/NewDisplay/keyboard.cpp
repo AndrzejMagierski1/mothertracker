@@ -69,7 +69,7 @@ void cKeyboard::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cKeyboard::setText(char* text)
+void cKeyboard::setText(const char* text)
 {
 	this->text = text;
 }

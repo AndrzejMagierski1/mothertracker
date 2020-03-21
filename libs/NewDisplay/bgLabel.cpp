@@ -67,7 +67,7 @@ void cBgLabel::setStyle(uint32_t style)
 
 }
 
-void cBgLabel::setText(char* text)
+void cBgLabel::setText(const char* text)
 {
 	this->text = text;
 }

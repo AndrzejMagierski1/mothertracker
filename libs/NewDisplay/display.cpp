@@ -454,13 +454,13 @@ void cDisplay::setControlText(hControl handle,  char const* text)
 	setControlText(handle, (char*)text);
 }
 */
-void cDisplay::setControlText(hControl handle, char* text)
+void cDisplay::setControlText(hControl handle, const char* text)
 {
 	if(handle == nullptr) return;
 	handle->setText(text);
 }
 
-void cDisplay::setControlText2(hControl handle, char* text)
+void cDisplay::setControlText2(hControl handle, const char* text)
 {
 	if(handle == nullptr) return;
 	((cLabel*)handle)->setText2(text);

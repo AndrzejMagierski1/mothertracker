@@ -73,7 +73,7 @@ void cProcessingPop::setStyle(uint32_t style)
 
 }
 
-void cProcessingPop::setText(char* text)
+void cProcessingPop::setText(const char* text)
 {
 	this->text = text;
 	memset(localBaseText,0,strlen(localBaseText));

@@ -5,6 +5,7 @@
 
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
+#include "core/songTimer.h"
 
 #include "mtSequencer.h"
 
@@ -107,7 +108,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 
 
 	strControlProperties prop3;
-	prop3.style = 	(controlStyleBackground);
+	prop3.style = 	(controlStyleBackground | controlStyleBottomShadow);
 	prop3.x = 0;
 	prop3.y = 0;
 	prop3.w = 50;
@@ -203,6 +204,8 @@ uint8_t cInterfacePopups::getStepPopupState()
 void cInterfacePopups::showNotesPopup()
 {
 	display.hideAllControls();
+
+	songTimer.show();
 
 	display.setControlPosition(bgLabel, 2, 0);
 	display.setControlSize(bgLabel, 795, 26);
@@ -610,9 +613,9 @@ void cInterfacePopups::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i+1);
+	sprintf(actualInstrName, "%d.", i+1);
 
-	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	strncat(actualInstrName, mtProject.instrument[i].sample.file_name, 25);
 
 	display.setControlText(textLabel2,  actualInstrName);
 	display.setControlStyle(textLabel2, controlStyleShow  | controlStyleCenterY);
@@ -965,7 +968,7 @@ void cInterfacePopups::show(uint8_t config_slot, char** multiLineText, uint8_t l
 	display.setControlData(textPopup, &popupData);
 	display.setControlPosition(textPopup, globalConfig[config_slot].x, globalConfig[config_slot].y);
 	display.setControlSize(textPopup, globalConfig[config_slot].w, globalConfig[config_slot].h);
-	display.setControlStyle(textPopup, controlStyleShow | controlStyleBackground);
+	display.setControlStyle(textPopup, controlStyleShow | controlStyleBackground | controlStyleBottomShadow | controlStyleNoTransparency);
 	display.setControlShow(textPopup);
 	display.refreshControl(textPopup);
 }
@@ -994,28 +997,36 @@ void cInterfacePopups::config(uint8_t slot, strPopupStyleConfig* config)
 //##############################################################################################################
 void cInterfacePopups::showProgressPopup(const char* text)
 {
-	display.setControlPosition(textLabel1, 400, 190);
-	display.setControlSize(textLabel1,  300, 70);
-	display.setControlText(textLabel1, text);
-	display.setControlText2(textLabel1,"");
-	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
-	display.setControlColors(textLabel1, progressPopupColors);
-	display.setControlValue(textLabel1, 1);
-//
-//	display.setControlPosition(bgLabel, 250, 210);
-//	display.setControlSize(bgLabel,  300, 60);
-//	display.setControlText(bgLabel, "");
-//	display.setControlColors(bgLabel, listBgLabelColors);
+	textLines[0] = (char*)text;
+	textLines[1] = nullptr;
+
+	progressPopupTextStyle = controlStyleCenterX | controlStyleCenterY;
+	progressPopupTextColor = 0xffffff;
+
+	popupData.textLinesCount = 2;
+	popupData.multiLineText = textLines;
+
+	for(uint8_t i = 0; i < textLinesCount; i++)
+	{
+		textStyles[i] = &progressPopupTextStyle;
+		textColors[i] = &progressPopupTextColor;
+	}
+
+	popupData.multiLineStyle = textStyles;
+	popupData.multiLineColors = textColors;
+
+	// odsiwezenie kontrolki
+	display.setControlData(textPopup, &popupData);
+	display.setControlPosition(textPopup, 800/2-150, 480/2-50);
+	display.setControlSize(textPopup, 300, 70);
+	display.setControlStyle(textPopup, controlStyleShow | controlStyleBackground | controlStyleBottomShadow | controlStyleNoTransparency);
+	display.setControlShow(textPopup);
+	display.refreshControl(textPopup);
 
 	display.setControlPosition(progressBar, 250, 195);
 	display.setControlSize(progressBar,  300, 70);
-
-
 	display.setControlValue(progressBar, 0);
 
-
-//	display.refreshControl(bgLabel);
-	display.refreshControl(textLabel1);
 }
 
 
@@ -1029,38 +1040,55 @@ void cInterfacePopups::changePopupProgress(int8_t value)
 
 void cInterfacePopups::hideProgressPopup()
 {
-
+	display.setControlHide(textPopup);
 	display.setControlHide(progressBar);
-	display.setControlHide(textLabel1);
-	//display.setControlHide(bgLabel);
-	display.refreshControl(textLabel1);
+	display.refreshControl(progressBar);
 }
 
 
 void cInterfacePopups::showInfoPopup(const char* text1, const char* text2)
 {
-	display.setControlPosition(textLabel1, 400, 190);
-	display.setControlSize(textLabel1,  420, 70);
-	display.setControlText(textLabel1, text1);
-	if(text2 != nullptr) display.setControlText2(textLabel1, text2);
-	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
-	display.setControlStyle2(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
-	display.setControlColors(textLabel1, progressPopupColors);
-	display.setControlValue(textLabel1, 1);
-//
-//	display.setControlPosition(bgLabel, 250, 210);
-//	display.setControlSize(bgLabel,  300, 60);
-//	display.setControlText(bgLabel, "");
-//	display.setControlColors(bgLabel, listBgLabelColors);
 
-//	display.refreshControl(bgLabel);
-	display.refreshControl(textLabel1);
+	textLines[0] = (char*)text1;
+	if(text2 == nullptr)
+	{
+		textLines[1] = nullptr;
+		popupData.textLinesCount = 1;
+	}
+	else
+	{
+		textLines[1] = (char*)text2;
+		popupData.textLinesCount = 2;
+	}
+
+	progressPopupTextStyle = controlStyleCenterX | controlStyleCenterY;
+	progressPopupTextColor = 0xffffff;
+
+	popupData.multiLineText = textLines;
+
+	for(uint8_t i = 0; i < textLinesCount; i++)
+	{
+		textStyles[i] = &progressPopupTextStyle;
+		textColors[i] = &progressPopupTextColor;
+	}
+
+	popupData.multiLineStyle = textStyles;
+	popupData.multiLineColors = textColors;
+
+	// odsiwezenie kontrolki
+	display.setControlData(textPopup, &popupData);
+	display.setControlPosition(textPopup, 800/2-150, 480/2-50);
+	display.setControlSize(textPopup, 400, 70);
+	display.setControlStyle(textPopup, controlStyleShow | controlStyleBackground | controlStyleBottomShadow | controlStyleNoTransparency);
+	display.setControlShow(textPopup);
+	display.refreshControl(textPopup);
+
 }
+
 
 void cInterfacePopups::hideInfoPopup()
 {
-	display.setControlHide(textLabel1);
-	//display.setControlHide(bgLabel);
-	display.refreshControl(textLabel1);
+	display.setControlHide(textPopup);
+	display.refreshControl(textPopup);
 }
 

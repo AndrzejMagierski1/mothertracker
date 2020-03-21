@@ -73,7 +73,7 @@ void cBar::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cBar::setText(char* text)
+void cBar::setText(const char* text)
 {
 	this->text = text;
 }

@@ -443,7 +443,9 @@ void cSampleEditor::reloadInstrumentName()
 	}
 	else
 	{
-		sprintf(currentInstrumentName,"%d. %s",mtProject.values.lastUsedInstrument + 1, editorInstrument->sample.file_name);
+		sprintf(currentInstrumentName, "%d.", mtProject.values.lastUsedInstrument + 1);
+		strncat(currentInstrumentName, editorInstrument->sample.file_name, 25);
+		//sprintf(currentInstrumentName,"%d. %s",mtProject.values.lastUsedInstrument + 1, editorInstrument->sample.file_name);
 	}
 }
 void cSampleEditor::reloadStartPointText()

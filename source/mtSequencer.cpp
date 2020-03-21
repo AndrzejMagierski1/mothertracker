@@ -6,6 +6,7 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 
+#include "core/songTimer.h"
 #include "mtMidi.h"
 #include "configEditor/configEditor.h"
 
@@ -233,17 +234,17 @@ void Sequencer::play_microStep(uint8_t row)
 {
 	if (row > MAXTRACK)
 		return;
-	strPattern::strTrack & patternRow = seq[player.ramBank].track[row];
-	strPlayer::strPlayerTrack & playerRow = player.track[row];
+	strPattern::strTrack &patternRow = seq[player.ramBank].track[row];
+	strPlayer::strPlayerTrack &playerRow = player.track[row];
 
-	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
-	strPlayer::strPlayerTrack::strSendStep & stepToSend = player.track[row].stepToSend;
-	strPlayer::strPlayerTrack::strSendStep & stepSent = player.track[row].stepSent;
+	strPattern::strTrack::strStep &patternStep = patternRow.step[playerRow.actual_pos];
+	strPlayer::strPlayerTrack::strSendStep &stepToSend = player.track[row].stepToSend;
+	strPlayer::strPlayerTrack::strSendStep &stepSent = player.track[row].stepSent;
 
 	if (!playerRow.isActive)
 		return;
 
-	memcpy((uint8_t *) &stepToSend, (uint8_t *) &patternStep,
+	memcpy((uint8_t*) &stepToSend, (uint8_t*) &patternStep,
 			sizeof(patternStep));
 	if (playerRow.uStep == 1)
 	{
@@ -281,7 +282,8 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		playerRow.noteTimer++;
 
-		if ((playerRow.noteTimer >= playerRow.noteLength))
+		if ((playerRow.noteTimer >= playerRow.noteLength) ||
+				(isTrackEngineMuted(row) && playerRow.stepSent.instrument > INSTRUMENTS_MAX))
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
@@ -301,6 +303,9 @@ void Sequencer::play_microStep(uint8_t row)
 		if (((playerRow.uStep - 1) % 8) == 0)
 			sendMidiClock();
 	}
+
+	if (isTrackEngineMuted(row))
+		return;
 
 	// ************************************
 	// 		 PRE EFEKTY i operacje na uStep == 1
@@ -360,7 +365,7 @@ void Sequencer::play_microStep(uint8_t row)
 			{
 
 			case fx.FX_TYPE_MICROMOVE:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				playerRow.isOffset = 1;
@@ -371,7 +376,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				stepToSend.velocity = _fx.value;
@@ -379,7 +384,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_OFF:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				if (fxIndex == playerRow.rollFxId)
@@ -393,7 +398,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_CHANCE:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				if (random(0, getFxMax(fx.FX_TYPE_CHANCE)) > _fx.value)
@@ -402,68 +407,58 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_SEND_CC_A:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(0, _fx.value);
-				}
+				sendCC(0, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_B:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(1, _fx.value);
-				}
+				sendCC(1, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_C:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(2, _fx.value);
-				}
+				sendCC(2, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_D:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(3, _fx.value);
-				}
+				sendCC(3, _fx.value);
+
 				break;
 			case fx.FX_TYPE_SEND_CC_E:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
-				if (!isTrackEngineMuted(row))
-				{
-					sendCC(4, _fx.value);
-				}
+
+				sendCC(4, _fx.value);
+
 				break;
 
 			case fx.FX_TYPE_PROGRAM_CHANGE:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
-				if (!isTrackEngineMuted(row))
-				{
-					sendProgramChange(_fx.value);
-				}
+
+				sendProgramChange(_fx.value);
+
 				break;
 
 			case fx.FX_TYPE_TEMPO:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				player.performance.tempo = float(_fx.value * 2);
 				player.performance.tempoSource = fxIndex;
 				break;
 			case fx.FX_TYPE_BREAK_PATTERN:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				setBreakPattern = 1;
@@ -471,7 +466,7 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				noMoFx = 1;
 
 				stepToSend.velocity = constrain(random(0,
@@ -493,7 +488,7 @@ void Sequencer::play_microStep(uint8_t row)
 				case fx.FX_TYPE_NONE:
 					break;
 				case fx.FX_TYPE_ROLL:
-					killFxOnSlot(fxIndex);
+					killFxOnSlot(row, fxIndex);
 
 					playerRow.rollIsOn = 1;
 					playerRow.rollFxId = fxIndex;
@@ -507,12 +502,12 @@ void Sequencer::play_microStep(uint8_t row)
 						playerRow.rollLength = calcStepLength(
 								row, playerRow.actual_pos);
 
-						playerRow.rollVolumeStart = stepToSend.velocity;
+						playerRow.rollVolumeStart = stepSent.velocity;
 					}
 
 					break;
 				default:
-					killFxOnSlot(fxIndex);
+					killFxOnSlot(row, fxIndex);
 					instrumentPlayer[row].seqFx(_fx.type, _fx.value, fxIndex);
 					break;
 				}
@@ -593,13 +588,13 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 
 				playerRow.rollIsOn = 1;
 				playerRow.rollFxId = fxIndex;
 				playerRow.rollVal = _fx.value;
-				playerRow.rollPeriod = _fx.value;
 				playerRow.rollDir = getRollType(_fx.value);
+				playerRow.rollPeriod = _fx.value;
 				playerRow.rollVolumeOption = rollValToVolumeOption(_fx.value);
 				if (playerRow.rollVolumeOption != rollVolumeOption_const)
 				{
@@ -612,7 +607,7 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_NOTE:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				stepToSend.note = constrain(
 						random(patternStep.note - _fx.value,
 								patternStep.note + _fx.value + 1),
@@ -620,7 +615,7 @@ void Sequencer::play_microStep(uint8_t row)
 						127);
 				break;
 			case fx.FX_TYPE_RANDOM_INSTRUMENT:
-				killFxOnSlot(fxIndex);
+				killFxOnSlot(row, fxIndex);
 				if (stepToSend.instrument < INSTRUMENTS_COUNT)
 				{
 					stepToSend.instrument = constrain(
@@ -715,6 +710,7 @@ void Sequencer::play_microStep(uint8_t row)
 	// **************************
 	// 		kontynuowanie nuty
 	// **************************
+	// performance stutter
 	if (playerRow.performanceStutter != 0)
 	{
 		uint8_t tempRollType = 0;
@@ -737,6 +733,7 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepSent = playerRow.stepToSend;
 		}
 	}
+	// rolka z patternu
 	else if (playerRow.stepOpen)
 	{
 		if (playerRow.rollPeriod != fx.ROLL_PERIOD_NONE && playerRow.rollIsOn)
@@ -800,7 +797,7 @@ void Sequencer::setPerformancePlayMode(uint8_t track, int8_t playmode)
 	player.track[track].performancePlayMode = playmode;
 }
 
-Sequencer::strPattern *Sequencer::getPattern()
+Sequencer::strPattern* Sequencer::getPattern()
 {
 	return &seq[player.ramBank];
 }
@@ -913,6 +910,7 @@ uint16_t Sequencer::stutterValToPeriod(int8_t rollVal)
 
 void Sequencer::play(void)
 {
+	songTimer.start();
 	engine.endAllFx();
 	engine.clearReverb();
 
@@ -968,7 +966,7 @@ float Sequencer::getPlaySelectionProgress(void) // potrzebuje aktualnego zaznacz
 {
 	if (player.selectionMode && isSelectionCorrect(&selection))
 	{
-		strSelection * s = &selection;
+		strSelection *s = &selection;
 		float retVal = (float(player.globalPos - s->firstStep) /
 				float(s->lastStep - s->firstStep)) * 100.0f;
 		return constrain(retVal, 0.0f, 100.0f);
@@ -1000,11 +998,9 @@ void Sequencer::playSong(uint8_t fromPos)
 	uint8_t patternToStart = newFileManager.getSongPattern(fromPos);
 	newFileManager.setSongPos(fromPos);
 
-	if (patternToStart == mtProject.values.actualPattern)
-	{
-		newFileManager.saveWorkspacePatternNow(patternToStart);
-	}
-	else
+	newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
+
+	if (patternToStart != mtProject.values.actualPattern)
 	{
 		newFileManager.loadWorkspacePatternNow(patternToStart);
 		switchRamPatternsNow();
@@ -1047,7 +1043,7 @@ void Sequencer::stopManualNotes(void)
 			instrumentPlayer[tr].noteOff();
 			player.track[tr].noteOpen = 0;
 			player.track[tr].recOpen = 0;
-			player.track[tr].sourcePad = -1;
+			player.track[tr].noteSource = -1;
 		}
 	}
 }
@@ -1055,6 +1051,7 @@ void Sequencer::stopManualNotes(void)
 void Sequencer::stop(void)
 {
 
+	songTimer.stop();
 	stopManualNotes();
 	send_allNotesOff();
 
@@ -1117,10 +1114,16 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	int8_t playMode = player.track[row].performancePlayMode;
 	int8_t patternLength = seq[player.ramBank].track[0].length;
 
+	if (player.performanceMode)
+	{
+		patternLength = player.performance.initialPatternLength;
+	}
+
 	if (player.performance.patternLength > -1)
 	{
 		patternLength = player.performance.patternLength;
 	}
+
 	// liczymy globalny licznik stepa
 	if (row == 0)
 	{
@@ -1153,10 +1156,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 			if (player.track[x].performanceSourcePattern != -1)
 			{
-				enterPerformanceMode();
-				newFileManager.loadTrack(
-						player.track[x].performanceSourcePattern,
-						x);
+
+				switchPerformanceTrackNow(x);
 				cancelFxes(x);
 
 				player.track[x].performanceSourcePattern = -1;
@@ -1449,12 +1450,10 @@ uint8_t Sequencer::isStop(void)
 void Sequencer::sendNoteOn(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
-	if (isTrackEngineMuted(track)) return;
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		if (step->velocity == -1)
 		{
-//			todo:
 			uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_COUNT].velocity;
 
 			sendMidiNoteOn(step->note,
@@ -1464,7 +1463,7 @@ void Sequencer::sendNoteOn(uint8_t track,
 		else
 		{
 			sendMidiNoteOn(step->note,
-							step->velocity,
+							map(step->velocity, 0, 100, 0, 127),
 							step->instrument - INSTRUMENTS_MAX);
 		}
 	}
@@ -1487,7 +1486,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t instrument)
 {
 
-	if (isTrackEngineMuted(track)) return;
 	if (instrument > INSTRUMENTS_MAX)
 	{
 		sendMidiNoteOff(note,
@@ -1503,7 +1501,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
-	if (isTrackEngineMuted(track)) return;
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		sendMidiNoteOff(step->note,
@@ -1603,7 +1600,10 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
 	handleNote(channel, note, velocity, -1);
 }
-void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
+void Sequencer::handleNote(byte channel,
+							byte note,
+							byte velocity,
+							int16_t source) // jesli midi to source = nuta+100
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1613,7 +1613,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 	{
 		if (isEditMode())
 		{
-			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+			newFileManager.setPatternStructChanged(
+					mtProject.values.actualPattern);
 
 			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
 			if (!isMultiSelection())
@@ -1630,11 +1631,13 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 			instrumentPlayer[sel->firstTrack].noteOn(
 					mtProject.values.lastUsedInstrument,
 					note,
-					STEP_VELO_DEFAULT);
+					map(velocity,0,127,0,100),
+					0,0,0,0); //magiczne zera
 		}
 		else if (isRec())
 		{
-			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+			newFileManager.setPatternStructChanged(
+					mtProject.values.actualPattern);
 
 			for (uint8_t tr = getActualTrack(); tr < 8; tr++)
 			{
@@ -1642,16 +1645,16 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 				if (step->note == STEP_NOTE_EMPTY &&
 						step->fx[0].type == 0 &&
 						step->fx[1].type == 0 &&
-						(pad < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
+						(source < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
 				{
 					step->note = note;
-					if (pad < 0)
+					if (source < 0)
 					{
 						step->instrument = mtProject.values.lastUsedInstrument;
 					}
 					else
 					{
-						step->instrument = pad;
+						step->instrument = source;
 					}
 
 					player.track[tr].stepSent.note = note;
@@ -1662,7 +1665,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 					instrumentPlayer[tr].noteOn(
 												step->instrument,
 												step->note,
-												STEP_VELO_DEFAULT);
+												map(velocity,0,127,0,100),
+												0,0,0,0); //magiczne zera
 
 					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = map(player.uStep + 1, 1, 48, 0, 100);
@@ -1681,13 +1685,14 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 					player.track[tr].noteOpen = 1;
 					player.track[tr].noteLength = 9999;
 					player.track[tr].recOpen = note;
-					player.track[tr].sourcePad = pad;
+					player.track[tr].noteSource = source;
 
 					instrumentPlayer[tr].noteOff();
 					instrumentPlayer[tr].noteOn(
 							mtProject.values.lastUsedInstrument,
 							note,
-							STEP_VELO_DEFAULT);
+							map(velocity,0,127,0,100),
+							0,0,0,0); //magiczne zera
 //					Serial.printf("noteON tr %d\n", tr);
 					break;
 				}
@@ -1705,7 +1710,8 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 		}
 		else if (isRec())
 		{
-			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+			newFileManager.setPatternStructChanged(
+					mtProject.values.actualPattern);
 
 			for (uint8_t tr = 0; tr < 8; tr++)
 			{
@@ -1719,7 +1725,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 
 					strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
 
-					if (pad < 0) // tylko wtedy dajemy offy
+					if (source < 0) // tylko wtedy dajemy offy
 					{
 						if (step->note == STEP_NOTE_EMPTY)
 						{
@@ -1752,7 +1758,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 			{
 				if (player.track[tr].noteOpen
 						&& player.track[tr].recOpen
-						&& player.track[tr].sourcePad == pad)
+						&& player.track[tr].noteSource == source)
 				{
 					instrumentPlayer[tr].noteOff();
 					player.track[tr].noteOpen = 0;
@@ -1779,16 +1785,14 @@ void Sequencer::cancelFxes(int8_t track)
 	player.track[track].rollIsOn = 0;
 }
 
-void Sequencer::killFxOnSlot(uint8_t slot)
+void Sequencer::killFxOnSlot(uint8_t row, uint8_t slot)
 {
-	for (uint8_t a = 0; a <= MAXTRACK; a++)
-	{
-		if (player.track[a].rollFxId == slot)
-		{
-			player.track[a].rollIsOn = 0;
-		}
 
+	if (player.track[row].rollFxId == slot)
+	{
+		player.track[row].rollIsOn = 0;
 	}
+
 //	if (player.performance.tempoSource == slot)
 //	{
 //		player.performance.tempo = 0.0f;
@@ -1810,6 +1814,13 @@ void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 
 void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 {
+	if (!player.performanceMode)
+	{
+		enterPerformanceMode();
+	}
+
+	newFileManager.loadPerformanceTrackToBuffer(sourcePattern, track);
+
 	player.track[track].performanceSourcePattern = sourcePattern;
 }
 
@@ -1837,7 +1848,7 @@ uint8_t Sequencer::rollValToVolumeOption(uint8_t value)
  */
 uint8_t Sequencer::getRollVelo(uint8_t row)
 {
-	strPlayer::strPlayerTrack & playerRow = player.track[row];
+	strPlayer::strPlayerTrack &playerRow = player.track[row];
 	int8_t volMax = 1;
 	if (playerRow.rollVolumeStart < 0)
 	{
@@ -1886,4 +1897,18 @@ void Sequencer::switchRamPatternsNow()
 	cancelFxes();
 	player.ramBank = !player.ramBank;
 	mtProject.values.actualPattern = newFileManager.getLoadedPatternIndex();
+}
+
+extern Sequencer::strPattern fileManagerPerformancePatternBuffer;
+
+// podmienia zaladowane w performance tracki
+void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
+{
+
+	Sequencer::strPattern *patternTo = sequencer.getActualPattern();
+	Sequencer::strPattern *patternFrom = &fileManagerPerformancePatternBuffer;
+
+	patternTo->track[trackToSwitch] = patternFrom->track[trackToSwitch];
+	player.track[trackToSwitch].performanceSourcePattern = -1;
+
 }

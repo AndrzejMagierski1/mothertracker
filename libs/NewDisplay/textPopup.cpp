@@ -91,7 +91,7 @@ void cTextPopup::setStyle(uint32_t style)
 
 }
 
-void cTextPopup::setText(char* text)
+void cTextPopup::setText(const char* text)
 {
 	this->text = text;
 }
@@ -165,6 +165,53 @@ uint8_t cTextPopup::update()
 		{
 			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 		}
+
+		if(style & controlStyleBottomShadow)
+		{
+			//API_BLEND_FUNC(SRC_ALPHA , ZERO);
+
+//			API_SAVE_CONTEXT();
+
+			uint16_t grad_y = border_y+height+1;
+			uint16_t grad_h = 13;
+
+//			API_SCISSOR_XY(border_x-1, grad_y);
+//			API_SCISSOR_SIZE(width+2, grad_h);
+//			API_CMD_GRADIENT(0, grad_y, colors[1], 0, grad_y+grad_h, 0x0);
+//			API_RESTORE_CONTEXT();
+
+			API_LINE_WIDTH(16);
+			API_BEGIN(LINES);
+			API_COLOR(0x000000);
+
+			char alpha_tab[grad_h] = {130,120,110,100,90,80,70,60,50,40,30,20,10};
+
+			API_SAVE_CONTEXT();
+
+
+			for(uint8_t i = 0; i < grad_h; i++)
+			{
+				API_COLOR_A(alpha_tab[i]);
+
+				API_VERTEX2F(border_x, grad_y+i);
+				API_VERTEX2F(border_x+width, grad_y+i);
+			}
+
+
+			API_RESTORE_CONTEXT();
+
+//			API_COLOR(0x000000);
+//			API_LINE_WIDTH(1);
+//			API_BEGIN(LINES);
+//			API_VERTEX2F(border_x-1, grad_y);
+//			API_VERTEX2F(border_x-1, grad_y+grad_h);
+//			API_VERTEX2F(border_x+width+1, border_y);
+//			API_VERTEX2F(border_x+width+1, border_y+height);
+//			API_END();
+
+			//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+		}
+
 	}
 	if(style & controlStyleBorder)
 	{
@@ -198,7 +245,7 @@ uint8_t cTextPopup::update()
 			else API_COLOR(colors[0]);
 
 			// styl :OOOOOOOOO
-			line_textStyle = 0;
+			line_textStyle = OPT_CENTERY;
 //			line_fontWidth = font->width;
 			line_fontHeight = font->height;
 			line_textFont = font->handle;
@@ -225,11 +272,13 @@ uint8_t cTextPopup::update()
 			else line_posX = posX+10;
 
 
-			line_posY += (10+line_fontHeight);
+			line_posY += height/(data->textLinesCount+1);
 
 
 			// wkoncu text
 			API_CMD_TEXT(line_posX, line_posY, line_textFont, line_textStyle, data->multiLineText[i]);
+
+
 
 /*
 			if(style & controlStyleManualText)

@@ -69,7 +69,7 @@ void cStartScreen::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cStartScreen::setText(char* text)
+void cStartScreen::setText(const char* text)
 {
 	this->text = text;
 }

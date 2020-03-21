@@ -7,6 +7,7 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 #include "mtExporterWAV.h"
+#include "songTimer.h"
 
 #include <display.h>
 #include "MTP.h"
@@ -54,7 +55,6 @@ uint8_t cInterface::detectProjectLoadState()
 
 
 	// taski na koniec otwierania projektu startowego
-
 	fileManagerPopupEnabled = 1;
 
 	if(mtpd.state == 0)
@@ -238,6 +238,8 @@ void cInterface::hideDisplayShutdown()
 // takie różne globalne rzeczy
 void cInterface::commonThingsUpdate()
 {
+
+	if(songTimer.enabled) songTimer.refresh();
 
 	if(fileManagerPopupEnabled)
 	{

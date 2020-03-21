@@ -62,7 +62,7 @@ void cSimpleText::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cSimpleText::setText(char* text)
+void cSimpleText::setText(const char* text)
 {
 	this->text = text;
 }
