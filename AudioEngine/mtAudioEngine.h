@@ -15,8 +15,37 @@
 
 typedef Sequencer::strFxConsts fx_t;
 
-const float tempoSyncRates[20] =
+const float tempoSyncRatesAmp[20] =
 {
+	6,
+	4,
+	3,
+	2,
+	1.5,
+	1,
+	0.75,
+	0.5,
+	0.375,
+	0.333333,
+	0.25,
+	0.1875,
+	0.166667,
+	0.125,
+	0.083333,
+	0.0625,
+	0.041667,
+	0.03125,
+	0.020833,
+	0.015625
+};
+
+const float tempoSyncRatesOthers[25] =
+{
+	32,
+	24,
+	16,
+	12,
+	8,
 	6,
 	4,
 	3,
@@ -648,7 +677,7 @@ private:
 	void changePointsPerformanceMode(int32_t spValue, int32_t epValue);
 	void endPointsPerformanceMode();
 
-	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate);
+	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate, uint8_t isAmp);
 
 
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);

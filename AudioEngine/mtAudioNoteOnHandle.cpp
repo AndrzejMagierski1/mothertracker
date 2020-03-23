@@ -367,7 +367,7 @@ void playerEngine::handleInitNoteOnAmpEnvelope()
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed );
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed,1);
 
 			initEnvelopesParamiters(envAmp, &lfoBasedEnvelope[envAmp]);
 		}
@@ -395,7 +395,7 @@ void playerEngine::handleInitNoteOnEnvelope(uint8_t n)
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[n].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[n], &mtProject.instrument[currentInstrument_idx].lfo[n],mtProject.instrument[currentInstrument_idx].lfo[n].speed);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[n], &mtProject.instrument[currentInstrument_idx].lfo[n],mtProject.instrument[currentInstrument_idx].lfo[n].speed,0);
 				initEnvelopesParamiters(n, &lfoBasedEnvelope[n]);
 			}
 			else

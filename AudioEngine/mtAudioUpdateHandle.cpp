@@ -94,7 +94,7 @@ void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableCondition)
 							{
 								mostSignificantLFORate = currentSeqModValues.lfoAmpRate;
 							}
-							calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mostSignificantLFORate);
+							calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mostSignificantLFORate, 1);
 							initEnvelopesParamiters(envAmp, &lfoBasedEnvelope[envAmp]);
 						}
 
@@ -460,7 +460,7 @@ void playerEngine::handleUpdateRefreshAmpLFO()
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp],mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed );
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp],mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed, 1);
 				initEnvelopesParamiters(envAmp, &lfoBasedEnvelope[envAmp]);
 			}
 		}
@@ -481,7 +481,7 @@ void playerEngine::handleUpdateRefreshCutoffLFO()
 			{
 				if(mtProject.instrument[currentInstrument_idx].envelope[envCutoff].loop)
 				{
-					calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[currentInstrument_idx].lfo[envCutoff],mtProject.instrument[currentInstrument_idx].lfo[envCutoff].speed);
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[currentInstrument_idx].lfo[envCutoff],mtProject.instrument[currentInstrument_idx].lfo[envCutoff].speed,0);
 					initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
 					setSyncParamsLFO(envCutoff);
 				}
@@ -505,7 +505,7 @@ void playerEngine::handleUpdateRefreshWtPosLFO()
 			{
 				if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 				{
-					calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],mtProject.instrument[currentInstrument_idx].lfo[envWtPos].speed);
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],mtProject.instrument[currentInstrument_idx].lfo[envWtPos].speed,0);
 					initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 					setSyncParamsLFO(envWtPos);
 				}
@@ -527,7 +527,7 @@ void playerEngine::handleUpdateRefreshGranPosLFO()
 			{
 				if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 				{
-					calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],mtProject.instrument[currentInstrument_idx].lfo[envGranPos].speed);
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],mtProject.instrument[currentInstrument_idx].lfo[envGranPos].speed, 0);
 					initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 					setSyncParamsLFO(envGranPos);
 				}
@@ -549,7 +549,7 @@ void playerEngine::handleUpdateRefreshPanningLFO()
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],mtProject.instrument[currentInstrument_idx].lfo[envPan].speed);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],mtProject.instrument[currentInstrument_idx].lfo[envPan].speed, 0);
 				initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 				setSyncParamsLFO(envPan);
 			}
