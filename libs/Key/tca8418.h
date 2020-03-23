@@ -204,7 +204,7 @@ public:
   void setOnRelease(void(*funct)(uint8_t));
   void setOnHold(void(*funct)(uint8_t));
   uint8_t isButtonPressed(uint8_t n);
-
+  void refreshConfig();
   uint8_t keyInt = 0;
 
 private:
@@ -214,6 +214,7 @@ private:
   void (*onRelease)(uint8_t);
   void (*onHold)(uint8_t);
 
+  uint8_t currentConfig = 0;
   uint8_t buttonPush[BUTTON_MAX] = {0};
   elapsedMillis holdTim[BUTTON_MAX];
   uint8_t holdFactor[BUTTON_MAX] = {0};
