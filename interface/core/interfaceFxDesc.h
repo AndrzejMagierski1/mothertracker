@@ -104,7 +104,7 @@ const char fxDescriptions[FX_COUNT][300] =
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_POSITION,
 	{
-			"In realtion to the chosen sample playback type - changes the position of: Sample start or Wavetable position or Granular \nposition."
+			"In relation to the chosen sample playback type - changes the position of: Sample start or Wavetable position or Granular \nposition."
 			"\n"
 			"\n"
 			"From 0% to 100%."
