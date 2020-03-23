@@ -90,16 +90,16 @@ void cFileManager::updateImportModFile()
 {
 	switch (currentOperationStep)
 	{
-	case 0:		importModFileInit();							break;
+	case 0:		importModFile_Init();							break;
 	case 1:		importModFile_GetInstrumentData();				break;
-	case 2:		importMod_SaveInstrument();						break;
+	case 2:		importModFile_SaveInstrument();					break;
 	case 3:		importModFile_SongInit();						break;
 	case 4:		importModFile_Patterns();						break;
-	case 5:		importModFileWaves_ImportWave();				break;
-	case 6:		importModFileWaves_WriteWave();					break;
-	case 7:		importModFileFinish();							break;
+	case 5:		importModFile_ImportWave();						break;
+	case 6:		importModFile_WriteWave();						break;
+	case 7:		importModFile_Finish();							break;
 	default:
-		importModFileError();
+		importModFile_Error();
 		stopOperationWithError(fmImportModError);		break;
 	}
 
@@ -768,14 +768,14 @@ bool cFileManager::importModAfterLoadNewProject(uint8_t index)
 	if (modsList[index] == nullptr) return false;
 	//pobranie nazwy otwieranego projektu tu
 
-	strcpy(modToImportFilename, modsList[index]);
+	strcpy(modFileData.filename, modsList[index]);
 
 	char modName[20] { 0 };
 	for (uint8_t a = 0; a < sizeof(modName); a++)
 	{
-		if (modToImportFilename[a] != '.')
+		if (modFileData.filename[a] != '.')
 		{
-			modName[a] = modToImportFilename[a];
+			modName[a] = modFileData.filename[a];
 		}
 		else
 		{
