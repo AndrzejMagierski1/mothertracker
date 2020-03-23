@@ -11,7 +11,7 @@
 #include "core/interfaceDefs.h"
 extern Sequencer sequencer;
 
-void fromToSwap(int16_t & from, int16_t & to)
+void fromToSwap(int16_t &from, int16_t &to)
 {
 	if (to < from)
 	{
@@ -651,7 +651,7 @@ uint8_t Sequencer::getInstrumentFromOrder(int8_t value)
 uint8_t Sequencer::changeInstrumentInSpecificOrder(int8_t actualValue,
 													int16_t delta)
 {
-	delta = constrain(delta, -5,5);
+	delta = constrain(delta, -5, 5);
 	return constrain(
 			getInstrumentFromOrder(
 					getInstrumentPosInOrder(actualValue) + delta),
@@ -855,18 +855,18 @@ void Sequencer::clearStep(uint8_t x, uint8_t row)
 
 void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 {
-	strPattern::strTrack * tempRow = &seq[bank].track[row];
-	strPattern::strTrack::strStep * step = &tempRow->step[x];
+	strPattern::strTrack *tempRow = &seq[bank].track[row];
+	strPattern::strTrack::strStep *step = &tempRow->step[x];
 
 	clearStep(step, 0);
 }
 
-void Sequencer::clearStep(strPattern::strTrack::strStep * step)
+void Sequencer::clearStep(strPattern::strTrack::strStep *step)
 {
 	clearStep(step, 0);
 }
 
-void Sequencer::clearStep(strPattern::strTrack::strStep * step,
+void Sequencer::clearStep(strPattern::strTrack::strStep *step,
 							uint8_t elements)
 {
 	switch (elements)
@@ -902,7 +902,7 @@ void Sequencer::clearSelected(uint8_t elements)
 {
 	clearSelected(&selection, elements);
 }
-void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
+void Sequencer::clearSelected(strSelection *selection, uint8_t elements)
 {
 	if (!isSelectionCorrect(selection)) return;
 
@@ -915,7 +915,7 @@ void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 	}
 }
 
-void Sequencer::setPatternHeader(strPattern * patt)
+void Sequencer::setPatternHeader(strPattern *patt)
 {
 	patt->header.id_file[0] = 'K';
 	patt->header.id_file[1] = 'S';
@@ -935,7 +935,7 @@ void Sequencer::setPatternHeader(strPattern * patt)
 	patt->header.size = sizeof(strPattern);
 }
 
-void Sequencer::clearPattern(strPattern * patt)
+void Sequencer::clearPattern(strPattern *patt)
 {
 
 	patt->swing = DEFAULT_SWING;
@@ -1264,7 +1264,7 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		return 198;
 
 	case fx.FX_TYPE_BREAK_PATTERN:
-			return 1;
+		return 1;
 
 	case fx.FX_TYPE_MICROMOVE:
 		return 100;
@@ -1296,7 +1296,9 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	case fx.FX_TYPE_FILTER_LFO:
 		case fx.FX_TYPE_PANNING_LFO:
 		case fx.FX_TYPE_POSITION_LFO:
-		case fx.FX_TYPE_VOLUME_LFO:
+		return 24;
+
+	case fx.FX_TYPE_VOLUME_LFO:
 		return 19;
 
 	default:
@@ -1341,7 +1343,7 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 		return 1;
 
 	case fx.FX_TYPE_BREAK_PATTERN:
-			return 1;
+		return 1;
 
 	case fx.FX_TYPE_PANNING:
 		return 50;
@@ -1401,7 +1403,7 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 	}
 }
 
-const char lfoSeqName[20][4] =
+const char lfoAmpLabels[20][4] =
 		{
 				"  6",
 				"  4",
@@ -1425,7 +1427,36 @@ const char lfoSeqName[20][4] =
 				"/64"
 		};
 
-void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
+const char lfoSpeedLabels[25][4] =
+		{
+				"32",
+				"24",
+				"16",
+				"12",
+				"8",
+				"6",
+				"4",
+				"3",
+				"2",
+				"3/2",
+				"1",
+				"3/4",
+				"1/2",
+				"3/8",
+				"1/3",
+				"1/4",
+				"316",
+				"1/6",
+				"1/8",
+				"/12",
+				"/16",
+				"/24",
+				"/32",
+				"/48",
+				"/64"
+		};
+
+void Sequencer::makeFxValLabel(char *ptr, uint8_t fxID, uint8_t track,
 								uint8_t step)
 {
 	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
@@ -1439,7 +1470,7 @@ void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value)
 }
 
 void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
-							   enFxValLabelAlign align)
+								enFxValLabelAlign align)
 {
 
 	int16_t val = getFxValueCorrection(fxType, value);
@@ -1456,9 +1487,13 @@ void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
 	case fx.FX_TYPE_FILTER_LFO:
 		case fx.FX_TYPE_PANNING_LFO:
 		case fx.FX_TYPE_POSITION_LFO:
-		case fx.FX_TYPE_VOLUME_LFO:
-		strcpy(ptr, lfoSeqName[val]);
+		strcpy(ptr, lfoSpeedLabels[val]);
 		break;
+
+	case fx.FX_TYPE_VOLUME_LFO:
+		strcpy(ptr, lfoAmpLabels[val]);
+		break;
+
 	case fx.FX_TYPE_OFF:
 		strcpy(ptr, "OFF");
 		break;
@@ -1472,7 +1507,7 @@ void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
 		break;
 
 	default:
-		if (abs(val) <10 && (align == fxValLabelAlign_center))
+		if (abs(val) < 10 && (align == fxValLabelAlign_center))
 		{
 			sprintf(ptr,
 					"%2i",
