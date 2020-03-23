@@ -1124,13 +1124,13 @@ void cSampleImporter::playSdFile()
 {
 
 
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		showStopPatternPopup();
-		setStopPatternFunction();
-		stopPatternAction = enStopPatternAction::previewSD;
-		return;
-	}
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		showStopPatternPopup();
+//		setStopPatternFunction();
+//		stopPatternAction = enStopPatternAction::previewSD;
+//		return;
+//	}
 
 	stopPlaying();
 
