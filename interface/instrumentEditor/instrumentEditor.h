@@ -64,8 +64,13 @@ const char lfoShapeLabels[lfoShapeMax][11]=
 		"Square"
 };
 
-const char lfoSpeedLabels[20][7]=
+const char lfoSpeedLabels[25][7]=
 {
+		"32",
+		"24",
+		"16",
+		"12",
+		"8",
 		"6",
 		"4",
 		"3",
@@ -263,7 +268,31 @@ public:
 		&lfoShapeLabels[3][0]
 	};
 
-	const char * lfoSpeedNames[20] =
+	const char * lfoSpeedNamesAmp[20] =
+	{
+		&lfoSpeedLabels[5][0],
+		&lfoSpeedLabels[6][0],
+		&lfoSpeedLabels[7][0],
+		&lfoSpeedLabels[8][0],
+		&lfoSpeedLabels[9][0],
+		&lfoSpeedLabels[10][0],
+		&lfoSpeedLabels[11][0],
+		&lfoSpeedLabels[12][0],
+		&lfoSpeedLabels[13][0],
+		&lfoSpeedLabels[14][0],
+		&lfoSpeedLabels[15][0],
+		&lfoSpeedLabels[16][0],
+		&lfoSpeedLabels[17][0],
+		&lfoSpeedLabels[18][0],
+		&lfoSpeedLabels[19][0],
+		&lfoSpeedLabels[20][0],
+		&lfoSpeedLabels[21][0],
+		&lfoSpeedLabels[22][0],
+		&lfoSpeedLabels[23][0],
+		&lfoSpeedLabels[24][0]
+	};
+
+	const char * lfoSpeedNamesOthers[25] =
 	{
 		&lfoSpeedLabels[0][0],
 		&lfoSpeedLabels[1][0],
@@ -284,7 +313,12 @@ public:
 		&lfoSpeedLabels[16][0],
 		&lfoSpeedLabels[17][0],
 		&lfoSpeedLabels[18][0],
-		&lfoSpeedLabels[19][0]
+		&lfoSpeedLabels[19][0],
+		&lfoSpeedLabels[20][0],
+		&lfoSpeedLabels[21][0],
+		&lfoSpeedLabels[22][0],
+		&lfoSpeedLabels[23][0],
+		&lfoSpeedLabels[24][0]
 	};
 
 	char volumeVal[4];

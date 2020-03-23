@@ -191,7 +191,7 @@ void cInstrumentEditor::initDisplayControls()
 	lfoSpeedList.linesCount = 14;
 	lfoSpeedList.start = 0;
 	lfoSpeedList.length = 20;
-	lfoSpeedList.data = (char**)lfoSpeedNames;
+	lfoSpeedList.data = (char**)lfoSpeedNamesOthers;
 	prop.x = (800/8)*(4)+1;
 	prop.y = 29;
 	prop.w = 800/8-3;
@@ -282,6 +282,17 @@ void cInstrumentEditor::showInstrumentEnv()
 {
 	showTitleBar();
 	refreshFramePosition();
+
+	if(selectedEnvelope == 0 )
+	{
+		lfoSpeedList.data = (char**)lfoSpeedNamesAmp;
+		lfoSpeedList.length = 20;
+	}
+	else
+	{
+		lfoSpeedList.data = (char**)lfoSpeedNamesOthers;
+		lfoSpeedList.length = 25;
+	}
 
 	for ( uint8_t i = 0; i < 8; i++ )
 	{
@@ -760,7 +771,9 @@ void cInstrumentEditor::showLfoShape()
 }
 void cInstrumentEditor::showLfoSpeed()
 {
-	display.setControlText2(label[4], lfoSpeedLabels[editorInstrument->lfo[selectedEnvelope].speed]);
+	uint8_t selectedLabel = (selectedEnvelope == 0) ?
+			editorInstrument->lfo[selectedEnvelope].speed + 5 : editorInstrument->lfo[selectedEnvelope].speed;
+	display.setControlText2(label[4], lfoSpeedLabels[selectedLabel]);
 	display.refreshControl(label[4]);
 
 	display.setControlValue(speedListControl, editorInstrument->lfo[selectedEnvelope].speed);

@@ -590,7 +590,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	{
 		if(mtProject.instrument[instr_idx].envelope[envAmp].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[instr_idx].lfo[envAmp],mtProject.instrument[instr_idx].lfo[envAmp].speed);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[instr_idx].lfo[envAmp],mtProject.instrument[instr_idx].lfo[envAmp].speed, 1);
 			initEnvelopesParamiters(envAmp, &lfoBasedEnvelope[envAmp]);
 		}
 		else
@@ -613,7 +613,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envCutoff].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[instr_idx].lfo[envCutoff], mtProject.instrument[instr_idx].lfo[envCutoff].speed);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[instr_idx].lfo[envCutoff], mtProject.instrument[instr_idx].lfo[envCutoff].speed,0);
 				initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
 			}
 			else
@@ -640,7 +640,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[instr_idx].lfo[envWtPos],mtProject.instrument[instr_idx].lfo[envWtPos].speed);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[instr_idx].lfo[envWtPos],mtProject.instrument[instr_idx].lfo[envWtPos].speed,0);
 				initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 			}
 			else
@@ -657,7 +657,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[instr_idx].lfo[envGranPos], mtProject.instrument[instr_idx].lfo[envGranPos].speed);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[instr_idx].lfo[envGranPos], mtProject.instrument[instr_idx].lfo[envGranPos].speed,0);
 				initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 			}
 			else
@@ -673,7 +673,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[instr_idx].lfo[envPan], mtProject.instrument[instr_idx].lfo[envPan].speed);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[instr_idx].lfo[envPan], mtProject.instrument[instr_idx].lfo[envPan].speed,0);
 			initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 		}
 		else
@@ -979,7 +979,7 @@ uint32_t playerEngine::getEnvelopeGranPosMod()
 	}
 }
 
-void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate)
+void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate, uint8_t isAmp)
 {
 	env->loop = 1;
 	env->enable = 1;
@@ -989,7 +989,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 
 	float lfoFrequency = (sequencer.getActualTempo()/15.0);
 
-	float periodTime = (1000 / lfoFrequency) * tempoSyncRates[rate];
+	float periodTime = (1000 / lfoFrequency) * (isAmp ? tempoSyncRatesAmp[rate] : tempoSyncRatesOthers[rate]);
 
 
 	switch(lfo->shape)
