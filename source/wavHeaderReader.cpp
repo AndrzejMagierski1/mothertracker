@@ -28,6 +28,7 @@ void readHeader(strWavFileHeader* header, SdFile * wavfile)
 	while(subchunkCounter < 10)
 	{
 		wavfile->read(&subchunkHeader,8);
+
 		subchunkCounter++;
 
 		if((subchunkHeader.id[0] == 'f') && (subchunkHeader.id[1] == 'm') && (subchunkHeader.id[2] == 't') && (subchunkHeader.id[3] == ' '))
@@ -35,12 +36,12 @@ void readHeader(strWavFileHeader* header, SdFile * wavfile)
 			memcpy(&header->subchunk1Id,subchunkHeader.id,4);
 			header->subchunk1Size = subchunkHeader.size;
 			wavfile->read(&header->AudioFormat,16);
-			wavfile->seekCur(subchunkHeader.size-16);
+			wavfile->seekCur((subchunkHeader.size % 2 == 1 ? subchunkHeader.size + 1: subchunkHeader.size) - 16);
 			break;
 		}
 		else
 		{
-			wavfile->seekCur(subchunkHeader.size);
+			wavfile->seekCur(subchunkHeader.size % 2 == 1 ? subchunkHeader.size + 1: subchunkHeader.size);
 		}
 	}
 	if(subchunkCounter == 10)
@@ -64,7 +65,7 @@ void readHeader(strWavFileHeader* header, SdFile * wavfile)
 		}
 		else
 		{
-			wavfile->seekCur(subchunkHeader.size);
+			wavfile->seekCur(subchunkHeader.size % 2 == 1 ? subchunkHeader.size + 1: subchunkHeader.size);
 		}
 	}
 
