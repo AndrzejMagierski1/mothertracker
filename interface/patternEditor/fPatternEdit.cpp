@@ -8,6 +8,7 @@
 #include "mtPadsBacklight.h"
 
 #include "core/interfacePopups.h"
+#include "core/songTimer.h"
 
 #include "keyScanner.h"
 #include "sdramTest.h"
@@ -661,6 +662,9 @@ void cPatternEditor::cancelPopups()
 		setDefaultScreenFunct();
 		showDefaultScreen();
 		refreshEditState();
+
+		// schowaj w przypadku wychodzenia z note popup
+		songTimer.hide();
 
 		PTE->trackerPattern.popupMode  &= ~(2 | 4);
 
