@@ -109,11 +109,11 @@ AudioConnection          connect48(&envelopeAmp[7], 0, &mixerReverb, 7);
 AudioConnection          connect49(&mixerReverb,&reverb);
 
 
-AudioConnection          connect82(&reverb, &filterReverbOut);
-AudioConnection          connect83(&reverb, &filterReverbOut);
+//AudioConnection          connect82(&reverb, &filterReverbOut);
+//AudioConnection          connect83(&reverb, &filterReverbOut);
 
-AudioConnection          connect50(&filterReverbOut, 0, &mixerL, 8);
-AudioConnection          connect51(&filterReverbOut, 0, &mixerR, 8);
+AudioConnection          connect50(&reverb, 0, &mixerL, 8);
+AudioConnection          connect51(&reverb, 0, &mixerR, 8);
 
 AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
 AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
@@ -205,9 +205,9 @@ void audioEngine::init()
 		mixerSourceL.gain(i,ampLogValues[50] );
 	}
 
-	filterReverbOut.setType(filterType::lowPass);
-	filterReverbOut.setCutoff(0.5);
-	filterReverbOut.connect();
+//	filterReverbOut.setType(filterType::lowPass);
+//	filterReverbOut.setCutoff(0.5);
+//	filterReverbOut.connect();
 
 
 	audioShield.volume(mtProject.values.volume/100.0);
@@ -781,7 +781,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	}
 
 	filterDisconnect();
-	ampPtr->gain(0.5);
+	ampPtr->gain(ampLogValues[50]);
 	engine.clearReverb();
 
 	mixerL.gain(nChannel,1.0);
