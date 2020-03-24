@@ -325,14 +325,14 @@ void cInterface::processFileManagerPopupProgress(uint8_t status)
 	case fmBrowsingSamples           		: 		break;
 	case fmBrowsingProjects          		: 		break;
 	case fmBrowsingFirmwares         		: 		break;
-	case fmImportingSamplesToWorkspace		: 		break;
+	case fmImportingSamplesToWorkspace		: 		progress = newFileManager.getProgress();	break;
 	case fmCopyingInstrumentsInWorkspace	: 		break;
 	case fmDeleteingInstruments      		: 		break;
 	case fmPreviewSampleFromSd       		:		break;
 	case fmLoadingProjectfromWorkspace		:		break;
-	case fmLoadingProjectFromProjects		: 		break;
+	case fmLoadingProjectFromProjects		: 		progress = newFileManager.getProgress();	break;
 	case fmSavingProjectToWorkspace  		:		break;
-	case fmSavingProjectToProjects   		: 		break;
+	case fmSavingProjectToProjects   		: 		progress = newFileManager.getProgress();	break;
 	case fmLoadingPatternFromWorkspace		:		break;
 	case fmExportingSoundSong				:
 	case fmExportingSoundSongStems			:

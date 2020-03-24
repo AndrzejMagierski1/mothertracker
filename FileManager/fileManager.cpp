@@ -331,10 +331,11 @@ void cFileManager::loadProjectFromWorkspaceInit()
 	mtProject.instrument[0].sample.address = sdram_sampleBank;
 	//lastActiveInstrument = 0;
 
+	mtProject.instruments_count = 0;
 	mtProject.used_memory = 0;
 
+	if(status == fmLoadingProjectfromWorkspace) calcTotalMemoryToTransfer();
 
-	calcTotalMemoryToTransfer();
 	moveToNextOperationStep();
 }
 
@@ -398,8 +399,16 @@ void cFileManager::copyProjectsToWorkspaceInit()
 	currentInstrument = 0;
 	currentSample = 0;
 	currentPattern = 1;
+	copiedPatternsCount = 0;
 
-	//
+	mtProject.instruments_count = 0;
+
+	// do progressu
+	samplesMemoryCopied = 0;
+
+	// progress
+	calcTotalMemoryToTransfer();
+
 	moveToNextOperationStep();
 }
 
@@ -514,6 +523,13 @@ void cFileManager::copyWorkspaceToProjectsInit()
 	currentInstrument = 0;
 	currentSample = 0;
 	currentPattern = 1;
+	copiedPatternsCount = 0;
+
+	mtProject.instruments_count = 0;
+
+	// do progressu
+	samplesMemoryCopied = 0;
+	calcTotalMemoryToTransfer();
 
 	moveToNextOperationStep();
 }
@@ -558,6 +574,10 @@ void cFileManager::importSamplesToWorkspaceInit()
 //		mtProject.instrument[instr].sample.file_name[0] = 0;
 //		mtProject.instrument[instr].isActive = 0;
 	}
+
+	// do progressu
+	samplesMemoryCopied = 0;
+	calcTotalMemoryToTransfer();
 
 	moveToNextOperationStep();
 }
@@ -616,6 +636,10 @@ void cFileManager::copyInstrumentsInWorkspaceInit()
 		oldSamplesSize += mtProject.instrument[copyDestSlot].sample.length*2;
 		mtProject.used_memory -= mtProject.instrument[copyDestSlot].sample.length*2;
 	}
+
+	// do progressu
+	samplesMemoryCopied = 0;
+	calcTotalMemoryToTransfer();
 
 	moveToNextOperationStep();
 }
@@ -733,9 +757,6 @@ bool cFileManager::openProjectFromWorkspace()
 	if(!SD.exists(cWorkspacePath)) return false;
 	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
 	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
-
-	mtProject.used_memory = 0;
-	mtProject.instruments_count = 0;
 
 	status = fmLoadingProjectfromWorkspace;
 	currentOperationStep = 0;
@@ -1119,42 +1140,6 @@ bool cFileManager::projectExist(char* name)
 
 
 
-
-
-//-----------------------------------------------------------------------------------------------------
-//----------------------------------------   POSTEP   -------------------------------------------------
-//-----------------------------------------------------------------------------------------------------
-
-
-void cFileManager::calcTotalMemoryToTransfer()
-{
-	totalMemoryToTranfser = 0;
-	totalMemoryToTranfser += sizeof(strProjectFile);
-	totalMemoryToTranfser += sizeof(Sequencer::strPattern);
-	totalMemoryToTranfser += calcWorkspaceInstrumentsSize();
-	totalMemoryToTranfser += calcWorkspaceSamplesSize(); //xxx moze troche trwac, mozna zoptymalizwac
-
-}
-
-void cFileManager::calcActualMemoryTransfered()
-{
-	if(currentOperationStep > 0) actualMemoryTransfered = sizeof(strProjectFile);
-	if(currentOperationStep > 1) actualMemoryTransfered += sizeof(Sequencer::strPattern);
-	if(currentOperationStep > 2) actualMemoryTransfered += sizeof(strInstrumentFile)*mtProject.instruments_count;
-	if(currentOperationStep > 3) actualMemoryTransfered += getActualSampleMemoryLoaded();
-	if(currentOperationStep > 4) actualMemoryTransfered += getActualSampleMemoryLoaded();
-
-}
-
-
-
-uint8_t cFileManager::getProgress()
-{
-	if(status == fmLoadEnd) return 100;
-
-	calcActualMemoryTransfered();
-	return (actualMemoryTransfered < totalMemoryToTranfser) ? (actualMemoryTransfered*100)/totalMemoryToTranfser: 100;
-}
 
 
 //-----------------------------------------------------------------------------------------------------

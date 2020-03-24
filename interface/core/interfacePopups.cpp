@@ -1023,6 +1023,7 @@ void cInterfacePopups::showProgressPopup(const char* text)
 	display.setControlShow(textPopup);
 	display.refreshControl(textPopup);
 
+	display.setControlValue(progressBar, 0);
 	display.setControlPosition(progressBar, 250, 195);
 	display.setControlSize(progressBar,  300, 70);
 	display.setControlValue(progressBar, 0);
@@ -1040,6 +1041,7 @@ void cInterfacePopups::changePopupProgress(int8_t value)
 
 void cInterfacePopups::hideProgressPopup()
 {
+	display.setControlValue(progressBar, 0);
 	display.setControlHide(textPopup);
 	display.setControlHide(progressBar);
 	display.refreshControl(progressBar);

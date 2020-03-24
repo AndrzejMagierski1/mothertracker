@@ -52,6 +52,7 @@ public:
 	uint8_t getFileProgress() 			{ return (memComplited*100)/memTotal; }
 	uint32_t getBytesComplited() 		{ return memComplited; }
 	uint32_t getConvertedSampleSize() 	{ return convertedDataSize; }
+	uint8_t getTransferStep()			{ return transferStep; }
 	void resetConvertedSampleSize() 	{ convertedDataSize = 0; }
 	void endTransfer();
 

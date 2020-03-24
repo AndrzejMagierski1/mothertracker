@@ -261,7 +261,7 @@ void cFileManager::processDirFileSizes() // wykonywalne w petli
 
 	strcat(filePath, explorerList[openCurrentPos]);
 
-	currentFolderMemoryFileUsage[openCurrentPos] = 2 * getWaveSizeIfValid(filePath);
+	currentFolderMemoryFileUsage[openCurrentPos] = getWaveSizeIfValid(filePath);
 
 	openCurrentPos++;
 

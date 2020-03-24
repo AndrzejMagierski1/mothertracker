@@ -34,6 +34,9 @@ void cFileManager::saveRecording()
 			importEndSlot = recordingImportSlot;
 			calcFirstSlotToMoveInMemory(importEndSlot+1);
 
+			// do progressu
+			samplesMemoryCopied = 0;
+
 			moveToNextOperationStep();
 		}
 		else

@@ -118,6 +118,7 @@ void cFileManager::copySamples()
 
 	if(loadStatus == fileTransferEnd)
 	{
+		samplesMemoryCopied += fileTransfer.getBytesComplited();
 		moveToNextOperationStep();
 	}
 	else if(loadStatus == fileTransferFileNoExist)
@@ -422,6 +423,39 @@ uint32_t cFileManager::calcWorkspaceSamplesSize()
 	return size;
 }
 
+
+uint32_t cFileManager::calcProjectSamplesSize()
+{
+	char currentPatch[PATCH_SIZE];
+	uint32_t size = 0;
+
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		sprintf(currentPatch, cProjectsSamplesFilesFormat, currentProjectName, i);
+
+		size += getWaveSizeIfValid(currentPatch);
+	}
+
+	return size;
+}
+
+uint32_t cFileManager::calcImportSamplesSize()
+{
+	char currentPatch[PATCH_SIZE];
+	uint32_t size = 0;
+
+	for(uint8_t i = importCurrentFile; i < (importCurrentFile+(importEndSlot-importStartSlot)+1); i++)
+	{
+		sprintf(currentPatch, "%s/%s", explorerCurrentPath, explorerList[i]);
+
+		size += getFileSizePlus(currentPatch);
+	}
+
+	return size;
+}
+
+
+// wielksoc wava w bajtach po konwersji na mono-16bit
 uint32_t cFileManager::getWaveSizeIfValid(const char *filename)
 {
 	uint8_t wav_len = strlen(filename);
@@ -453,11 +487,55 @@ uint32_t cFileManager::getWaveSizeIfValid(const char *filename)
 		return 0;
 	}
 
-	return localSampleHead.subchunk2Size/localSampleHead.blockAlign;
+	return (localSampleHead.subchunk2Size/localSampleHead.blockAlign) * 2;
 }
 
+// wielksoc pliku wave w bajtach + wielkosc po konwersji
+uint32_t cFileManager::getFileSizePlus(const char *filename)
+{
+	uint8_t wav_len = strlen(filename);
+	if(wav_len<5) return 0;
+
+	if(((filename[wav_len - 1] != 'V') && (filename[wav_len - 1] != 'v'))
+	|| ((filename[wav_len - 2] != 'A') && (filename[wav_len - 2] != 'a'))
+	|| ((filename[wav_len - 3] != 'W') && (filename[wav_len - 3] != 'w'))
+	||  (filename[wav_len - 4] != '.')) return 0;
+
+	if(!SD.exists(filename)) return 0;
+
+	wavfile.open(filename);
+	if(!wavfile)
+	{
+		wavfile.close();
+		return 0;
+	}
+
+	uint32_t fileSize = wavfile.size();
+
+	strWavFileHeader localSampleHead;
+	readHeader(&localSampleHead,&wavfile);
+	wavfile.close();
+
+	if((localSampleHead.format != 1163280727)
+		||((localSampleHead.AudioFormat != 1) && (localSampleHead.AudioFormat != 3) )
+		||((localSampleHead.bitsPerSample != 16) && (localSampleHead.bitsPerSample != 24) && (localSampleHead.bitsPerSample != 32))
+		|| localSampleHead.sampleRate != 44100 )
+	{
+		return 0;
+	}
+
+	return fileSize + (localSampleHead.subchunk2Size/localSampleHead.blockAlign) * 2;
+}
 
 uint32_t cFileManager::getActualSampleMemoryLoaded()
 {
-	return (ptrSampleMemory-sdram_sampleBank)+fileTransfer.getBytesComplited();
+	return ((uint8_t*)ptrSampleMemory-(uint8_t*)sdram_sampleBank)
+			+ (fileTransfer.getTransferStep() == 1 ? fileTransfer.getBytesComplited() : 0);
+}
+
+
+uint32_t cFileManager::getTotalSampleMemoryCopied()
+{
+	return samplesMemoryCopied;
+			//+ (fileTransfer.getTransferStep() == 1 ? fileTransfer.getBytesComplited() : 0);
 }

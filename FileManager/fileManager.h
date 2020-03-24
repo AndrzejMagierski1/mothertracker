@@ -322,7 +322,11 @@ private:
 	bool saveActualPattern(const char* path, uint8_t index);
 	bool loadPattern(const char* path, uint8_t index);
 
+	uint32_t calcProjectPatternsSize();
+
 	uint16_t currentPattern = 0;
+	uint16_t projectPatternsCount = 0;
+	uint16_t copiedPatternsCount = 0;
 
 	// instrument ------------------------------------
 	void loadInstrumentsFromWorkspace();
@@ -344,6 +348,7 @@ private:
 	void setDefaultActiveInstrument(struct strInstrument* targetInstrument);
 	void getEmptyInstrument(struct strInstrument* source);
 	uint32_t calcWorkspaceInstrumentsSize();
+	uint32_t calcProjectsInstrumentsSize();
 
 	uint8_t copySrcSlot;
 	uint8_t copyDestSlot;
@@ -352,6 +357,8 @@ private:
 	uint8_t currentInstrument = 0;
 	uint8_t lastActiveInstrument = 0; // do przydzielania pamieci
 	uint8_t deleteEndInstrument;
+
+	uint32_t instrumentsMemoryCopied;
 
 	//samples ------------------------------------
 	void loadSamplesFromWorkspace();
@@ -377,8 +384,12 @@ private:
 	void deleteInstrumentsFromWorkspaceFinish();
 
 	uint32_t getWaveSizeIfValid(const char *filename);
+	uint32_t getFileSizePlus(const char *filename);
 	uint32_t calcWorkspaceSamplesSize();
+	uint32_t calcProjectSamplesSize();
+	uint32_t calcImportSamplesSize();
 	uint32_t getActualSampleMemoryLoaded();
+	uint32_t getTotalSampleMemoryCopied();
 	void sampleThrowError();
 
 
@@ -395,7 +406,7 @@ private:
 	int8_t importEndSlot;
 	int8_t firstSlotToMoveInMemory;
 
-
+	uint32_t samplesMemoryCopied;
 
 
 
