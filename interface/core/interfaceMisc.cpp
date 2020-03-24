@@ -283,6 +283,7 @@ void cInterface::commonThingsUpdate()
 				{
 					fileManagerPopupState = 1;
 					fileManagerLastProgress = 0;
+					noProgressChangeCounter = 0;
 					mtPopups.showProgressPopup(&fileManagerPopupText[text_index][0]);
 				}
 			}
@@ -303,6 +304,7 @@ void cInterface::commonThingsUpdate()
 				mtPopups.hideProgressPopup();
 				fileManagerPopupState = 0;
 				fileManagerLastProgress = 0;
+				noProgressChangeCounter = 0;
 			}
 		}
 	}
@@ -348,8 +350,21 @@ void cInterface::processFileManagerPopupProgress(uint8_t status)
 	}
 
 
+	// pchanie progressu kiedy nie zmienia sie przez dluzszy czas
+	if(fileManagerLastProgress == progress && fileManagerLastProgress < 100)
+	{
+		noProgressChangeCounter++;
+
+		if(noProgressChangeCounter > 5)
+		{
+			progress = fileManagerLastProgress+1;
+		}
+	}
+
+
 	if(progress >= 0 && fileManagerLastProgress < progress)
 	{
+		noProgressChangeCounter = 0;
 		fileManagerLastProgress = progress;
 		mtPopups.changePopupProgress(progress);
 	}

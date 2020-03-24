@@ -91,9 +91,12 @@ void cFileManager::calcActualMemoryTransfered()
 		{
 			if(currentOperationStep == 0) actualMemoryTransfered = 0;
 			if(currentOperationStep > 0) actualMemoryTransfered = sizeof(strProjectFile);
-			if(currentOperationStep > 1) actualMemoryTransfered += sizeof(Sequencer::strPattern)*copiedPatternsCount;
-			if(currentOperationStep > 2) actualMemoryTransfered += sizeof(strInstrumentFile)*mtProject.instruments_count;
-			if(currentOperationStep > 3) actualMemoryTransfered += getTotalSampleMemoryCopied()+fileTransfer.getBytesComplited();
+			if(currentOperationStep > 2)
+			{
+				actualMemoryTransfered += sizeof(Sequencer::strPattern)*copiedPatternsCount;
+			}
+			if(currentOperationStep > 3) actualMemoryTransfered += sizeof(strInstrumentFile)*mtProject.instruments_count;
+			if(currentOperationStep > 4) actualMemoryTransfered += getTotalSampleMemoryCopied()+fileTransfer.getBytesComplited();
 			//if(currentOperationStep > 4) actualMemoryTransfered += getActualSampleMemoryLoaded();
 		}
 		else //fmLoadWorkspaceProject

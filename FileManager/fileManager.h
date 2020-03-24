@@ -273,10 +273,13 @@ private:
 	void clearWorkspace();
 	bool createWorkspaceDirs();
 	bool createNewEmptyProjectInWorkspace();
+	void organizeClearWorkspace();
 
 	void clearProjectChangedFlag();
 	void clearPatternChanged(uint8_t pattern);
 	void clearInstrumentChanged(uint8_t instrument);
+
+	uint8_t organizeWorkspaceStep;
 
 	//init/finisz ------------------------------------
 	void loadProjectFromWorkspaceInit();

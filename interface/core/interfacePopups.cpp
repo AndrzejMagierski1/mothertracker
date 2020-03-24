@@ -109,10 +109,10 @@ void cInterfacePopups::initPopupsDisplayControls()
 
 	strControlProperties prop3;
 	prop3.style = 	(controlStyleBackground | controlStyleBottomShadow);
-	prop3.x = 0;
-	prop3.y = 0;
-	prop3.w = 50;
-	prop3.h = 50;
+	prop3.x = 800/2-150;
+	prop3.y = 480/2-50;
+	prop3.w = 300;
+	prop3.h = 70;
 	prop3.data = nullptr;
 	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
 

@@ -124,11 +124,12 @@ void cFileManager::updateCopyProjectsToWorkspace() // fmCopyProjectsToWorkspace 
 	switch(currentOperationStep)
 	{
 		case 0:		copyProjectsToWorkspaceInit();		 	break;
-		case 1:		copyProjectFile(); 						break;
-		case 2:		copyPaterns(); 							break;
-		case 3:		copyInstruments(); 						break;
-		case 4:		copySamples(); 							break;
-		case 5:		copyProjectsToWorkspaceFinish(); 		break;
+		case 1:		organizeClearWorkspace(); 				break;
+		case 2:		copyProjectFile(); 						break;
+		case 3:		copyPaterns(); 							break;
+		case 4:		copyInstruments(); 						break;
+		case 5:		copySamples(); 							break;
+		case 6:		copyProjectsToWorkspaceFinish(); 		break;
 		default:	stopOperationWithError(fmCopyError); 	break;
 	}
 }
@@ -393,9 +394,6 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 void cFileManager::copyProjectsToWorkspaceInit()
 {
 	// przygotuj workspace
-	clearWorkspace();
-	createWorkspaceDirs();
-
 	currentInstrument = 0;
 	currentSample = 0;
 	currentPattern = 1;
@@ -405,9 +403,7 @@ void cFileManager::copyProjectsToWorkspaceInit()
 
 	// do progressu
 	samplesMemoryCopied = 0;
-
-	// progress
-	calcTotalMemoryToTransfer();
+	organizeWorkspaceStep = 0;
 
 	moveToNextOperationStep();
 }
@@ -419,7 +415,7 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 		currentInstrument++;
 		currentSample++;
 
-		currentOperationStep = 3; //xxx najwazniejsze !
+		currentOperationStep = 4; //xxx najwazniejsze !
 		return;
 	}
 
