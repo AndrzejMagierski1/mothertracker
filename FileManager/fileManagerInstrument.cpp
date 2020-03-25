@@ -208,6 +208,7 @@ void cFileManager::createEmptyInstrumentInWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
+		instrumentsMemoryCopied += fileTransfer.getBytesComplited();
 		moveToNextOperationStep();
 	}
 	else// if(saveStatus >= fileTransferError)
@@ -351,6 +352,20 @@ uint32_t cFileManager::calcWorkspaceInstrumentsSize()
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
 		sprintf(currentPatch, cWorkspaceInstrumentFileFormat, i);
+		if(SD.exists(currentPatch)) size += sizeof(strInstrumentFile);
+	}
+
+	return size;
+}
+
+uint32_t cFileManager::calcProjectsInstrumentsSize()
+{
+	char currentPatch[PATCH_SIZE];
+	uint32_t size = 0;
+
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		sprintf(currentPatch, cProjectsInstrumentFileFormat, currentProjectName, i);
 		if(SD.exists(currentPatch)) size += sizeof(strInstrumentFile);
 	}
 

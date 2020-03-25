@@ -22,7 +22,7 @@ struct strUndo
 			2,					// time
 			800 / 2 - 150,		// x
 			480 / 2 - 50,		// y
-			300,				// w
+			400,				// w
 			70,				// h
 			0xffffff,			// lineColor[4];
 			0xffffff,

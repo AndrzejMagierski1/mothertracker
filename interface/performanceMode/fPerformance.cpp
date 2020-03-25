@@ -989,8 +989,6 @@ static  uint8_t functPlayAction()
 		{
 			sequencer.playPattern();
 		}
-
-		//PTE->lastPlayedPattern = 0;
 	}
 	else
 	{

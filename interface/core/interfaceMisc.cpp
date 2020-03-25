@@ -59,7 +59,7 @@ uint8_t cInterface::detectProjectLoadState()
 
 	if(mtpd.state == 0)
 	{
-//		if(mtConfig.general.mtpState) mtpd.state = 1; // TODO wylaczone mtp
+		if(mtConfig.general.mtpState) mtpd.state = 1; // TODO wylaczone mtp
 	}
 
 	return 1;
@@ -283,6 +283,7 @@ void cInterface::commonThingsUpdate()
 				{
 					fileManagerPopupState = 1;
 					fileManagerLastProgress = 0;
+					noProgressChangeCounter = 0;
 					mtPopups.showProgressPopup(&fileManagerPopupText[text_index][0]);
 				}
 			}
@@ -303,6 +304,7 @@ void cInterface::commonThingsUpdate()
 				mtPopups.hideProgressPopup();
 				fileManagerPopupState = 0;
 				fileManagerLastProgress = 0;
+				noProgressChangeCounter = 0;
 			}
 		}
 	}
@@ -325,14 +327,14 @@ void cInterface::processFileManagerPopupProgress(uint8_t status)
 	case fmBrowsingSamples           		: 		break;
 	case fmBrowsingProjects          		: 		break;
 	case fmBrowsingFirmwares         		: 		break;
-	case fmImportingSamplesToWorkspace		: 		break;
+	case fmImportingSamplesToWorkspace		: 		progress = newFileManager.getProgress();	break;
 	case fmCopyingInstrumentsInWorkspace	: 		break;
 	case fmDeleteingInstruments      		: 		break;
 	case fmPreviewSampleFromSd       		:		break;
 	case fmLoadingProjectfromWorkspace		:		break;
-	case fmLoadingProjectFromProjects		: 		break;
+	case fmLoadingProjectFromProjects		: 		progress = newFileManager.getProgress();	break;
 	case fmSavingProjectToWorkspace  		:		break;
-	case fmSavingProjectToProjects   		: 		break;
+	case fmSavingProjectToProjects   		: 		progress = newFileManager.getProgress();	break;
 	case fmLoadingPatternFromWorkspace		:		break;
 	case fmExportingSoundSong				:
 	case fmExportingSoundSongStems			:
@@ -348,8 +350,21 @@ void cInterface::processFileManagerPopupProgress(uint8_t status)
 	}
 
 
+	// pchanie progressu kiedy nie zmienia sie przez dluzszy czas
+	if(fileManagerLastProgress == progress && fileManagerLastProgress < 100)
+	{
+		noProgressChangeCounter++;
+
+		if(noProgressChangeCounter > 5)
+		{
+			progress = fileManagerLastProgress+1;
+		}
+	}
+
+
 	if(progress >= 0 && fileManagerLastProgress < progress)
 	{
+		noProgressChangeCounter = 0;
 		fileManagerLastProgress = progress;
 		mtPopups.changePopupProgress(progress);
 	}

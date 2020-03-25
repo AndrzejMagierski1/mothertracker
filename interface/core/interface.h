@@ -134,6 +134,7 @@ private:
 	uint8_t fileManagerPopupEnabled = 0;
 	uint8_t fileManagerPopupState = 0;
 	int8_t fileManagerLastProgress;
+	uint8_t noProgressChangeCounter = 0;
 
 	// song timer
 

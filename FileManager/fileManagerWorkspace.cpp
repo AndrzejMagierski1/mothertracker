@@ -79,3 +79,19 @@ void cFileManager::clearWorkspace()
 
 
 
+// opoznienie operacji o ~100 przebiegów petli glownej
+void cFileManager::organizeClearWorkspace()
+{
+
+	if(organizeWorkspaceStep == 100) clearWorkspace();
+
+	else if(organizeWorkspaceStep == 101)  createWorkspaceDirs();
+
+	// progress
+	else if(organizeWorkspaceStep == 102)  calcTotalMemoryToTransfer();
+
+	organizeWorkspaceStep++;
+
+	if(organizeWorkspaceStep == 103) moveToNextOperationStep();
+}
+

@@ -815,9 +815,16 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.play();
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
 	}
 	else
 	{

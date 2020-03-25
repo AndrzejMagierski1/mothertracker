@@ -109,10 +109,10 @@ void cInterfacePopups::initPopupsDisplayControls()
 
 	strControlProperties prop3;
 	prop3.style = 	(controlStyleBackground | controlStyleBottomShadow);
-	prop3.x = 0;
-	prop3.y = 0;
-	prop3.w = 50;
-	prop3.h = 50;
+	prop3.x = 800/2-150;
+	prop3.y = 480/2-50;
+	prop3.w = 300;
+	prop3.h = 70;
 	prop3.data = nullptr;
 	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
 
@@ -1023,6 +1023,7 @@ void cInterfacePopups::showProgressPopup(const char* text)
 	display.setControlShow(textPopup);
 	display.refreshControl(textPopup);
 
+	display.setControlValue(progressBar, 0);
 	display.setControlPosition(progressBar, 250, 195);
 	display.setControlSize(progressBar,  300, 70);
 	display.setControlValue(progressBar, 0);
@@ -1040,6 +1041,7 @@ void cInterfacePopups::changePopupProgress(int8_t value)
 
 void cInterfacePopups::hideProgressPopup()
 {
+	display.setControlValue(progressBar, 0);
 	display.setControlHide(textPopup);
 	display.setControlHide(progressBar);
 	display.refreshControl(progressBar);

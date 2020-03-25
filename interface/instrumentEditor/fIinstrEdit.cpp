@@ -5,6 +5,7 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtPadsBacklight.h"
+#include "keyScanner.h"
 
 
 #include "core/interfacePopups.h"
@@ -650,9 +651,16 @@ static  uint8_t functDown()
 //=========================================================================================================
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.play();
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
 	}
 	else
 	{

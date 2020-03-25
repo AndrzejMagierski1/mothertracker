@@ -81,6 +81,7 @@ void cFileManager::copyPaterns()
 
 	if(loadStatus == fileTransferEnd)
 	{
+		copiedPatternsCount++;
 		report(" copy patterns - success ", currentPattern);
 		continuePatternProcess();
 	}
@@ -383,3 +384,24 @@ uint8_t cFileManager::getLoadedPatternIndex()
 {
 	return loadedPattern;
 }
+
+
+uint32_t cFileManager::calcProjectPatternsSize()
+{
+	char currentPatch[PATCH_SIZE];
+	uint32_t size = 0;
+	projectPatternsCount = 0;
+
+	for(uint16_t i = 1; i < PATTERN_INDEX_MAX+1; i++)
+	{
+		sprintf(currentPatch, cProjectsPatternFileFormat, currentProjectName, i);
+		if(SD.exists(currentPatch))
+		{
+			size += sizeof(Sequencer::strPattern);
+			projectPatternsCount++;
+		}
+	}
+
+	return size;
+}
+

@@ -1,4 +1,6 @@
 
+#include "mtStructs.h"
+
 #include "SD.h"
 #include "MTP.h"
 
@@ -137,6 +139,12 @@ void MTPD::loop()
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+uint8_t MTPD::toggleState()
+{
+	return mtConfig.general.mtpState = !mtConfig.general.mtpState;
+}
+
 
 
 
