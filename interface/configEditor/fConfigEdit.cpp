@@ -10,9 +10,12 @@
 #include "mtConfig.h"
 #include "keyScanner.h"
 
+#include "MTP.h"
+
 #include "patternEditor/patternEditor.h"
 
 #include "mtAudioEngine.h"
+
 
 #include "SI4703.h"
 
@@ -360,6 +363,19 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		CE->saveConfigToEeprom();
 	}
 
+	else if(pad == 11)
+	{
+		mtPopups.config(4, (strPopupStyleConfig*)&popupDebugConfig);
+		if(mtpd.toggleState())
+		{
+			mtPopups.show(4, "File transfer enabled","This is an experimental feature, use it carefully");
+		}
+		else
+		{
+			mtPopups.show(4, "File transfer disabled");
+		}
+		CE->saveConfigToEeprom();
+	}
 
 
 

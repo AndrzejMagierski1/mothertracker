@@ -162,6 +162,7 @@ public:
 	}
 
 	uint8_t state = 0;
+	uint8_t toggleState();
 
 private:
 

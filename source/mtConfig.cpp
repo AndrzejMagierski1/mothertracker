@@ -374,7 +374,7 @@ void resetConfig()
 
 void firmwareVersionChange()
 {
-
+	mtConfig.general.mtpState = 0; //xxx po zmianie firmwaru wymusza wylaczenie mtp
 	//Serial.println("Firmware changed!");
 
 }
