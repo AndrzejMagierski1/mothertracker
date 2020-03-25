@@ -497,7 +497,7 @@ void MCU_set_sleepMode(void)
 	EVE_CmdWrite(0x42,0x00);
     //delay(100);
 
-   // pinMode(LCD_RESET, OUTPUT);
+	//pinMode(LCD_RESET, OUTPUT);
 	//digitalWrite(LCD_RESET, LOW);
     //delay(100);
 	//digitalWrite(LCD_RESET, HIGH);
@@ -507,8 +507,8 @@ void MCU_set_sleepMode(void)
 	//delay(2000);
 
 
-   // MCU_CShigh();
-   // MCU_PDhigh();
+	// MCU_CShigh();
+    //MCU_PDlow();
 }
 
 void MCU_set_runMode(void)

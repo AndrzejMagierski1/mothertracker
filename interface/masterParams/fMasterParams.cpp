@@ -6,6 +6,7 @@
 #include "mtSequencer.h"
 #include "mtConfig.h"
 #include "SI4703.h"
+#include "keyScanner.h"
 
 
 #include "patternEditor/patternEditor.h"
@@ -304,14 +305,22 @@ static  uint8_t functPlayAction()
 {
 	MP->turnOffRadio();
 
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.play();
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
 	}
 	else
 	{
 		sequencer.stop();
 	}
+
 
 	return 1;
 }

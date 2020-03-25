@@ -8,6 +8,7 @@
 #include "configEditor/configEditor.h"
 #include "mtSequencer.h"
 #include "mtConfig.h"
+#include "keyScanner.h"
 
 #include "patternEditor/patternEditor.h"
 
@@ -555,14 +556,23 @@ static  uint8_t functPlayAction()
 {
 	if(CE->updatePopupShown) return 1;
 
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.play();
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
 	}
 	else
 	{
 		sequencer.stop();
 	}
+
 
 	return 1;
 }

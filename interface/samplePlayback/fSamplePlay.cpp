@@ -5,6 +5,7 @@
 #include "mtAudioEngine.h"
 #include "mtPadsBacklight.h"
 #include "core/interfacePopups.h"
+#include "keyScanner.h"
 
 #include "core/graphicProcessing.h"
 //#include "mtFileManager.h"
@@ -1348,18 +1349,28 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
+			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);  // POTRZEBNE TO TU? xxx
 		}
-		sequencer.play();
+
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
 	}
 	else
 	{
 		sequencer.stop();
 	}
+
 
 	return 1;
 }

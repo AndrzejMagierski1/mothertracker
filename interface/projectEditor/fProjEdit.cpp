@@ -7,6 +7,7 @@
 #include "projectEditor/projectEditor.h"
 ///#include "mtFileManager.h"
 #include "mtAudioEngine.h"
+#include "keyScanner.h"
 #include "mtLED.h"
 #include "mtExporterWAV.h"
 #include "mtPadBoard.h"
@@ -79,7 +80,8 @@ static uint8_t functEncoder(int16_t value);
 static uint8_t functDeleteProject();
 static uint8_t functDeleteMod();
 static uint8_t functDeleteProject_Confirm();
-static uint8_t functDeleteMod_Confirm();
+static uint8_t functDeleteMod_Confirm();
+static  uint8_t functPlayAction();
 static uint8_t functStartGameModule()
 {
 	PE->eventFunct(eventActivateGameModule,PE,0,0);
@@ -205,6 +207,7 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsProject);
 	FM->setButtonObj(interfaceButton6, buttonPress, functExport);
 	//FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule); // ARKANOID
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 
 	FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
@@ -231,10 +234,34 @@ void cProjectEditor::setExportWindowFuncts()
 	PE->FM->setButtonObj(interfaceButton3, buttonPress, functExportPatternStems);
 	PE->FM->setButtonObj(interfaceButton4, buttonPress, functExportToMOD);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportGoBack);
+
+
+	PE->FM->clearButton(interfaceButtonPlay);
+
 }
 
 //==============================================================================================================
 //==============================================================================================================
+static  uint8_t functPlayAction()
+{
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	{
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
+	}
+	else
+	{
+		sequencer.stop();
+	}
+
+	return 1;
+}
 
 uint8_t cProjectEditor::loadProjectValues()
 {
