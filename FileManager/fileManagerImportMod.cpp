@@ -13,7 +13,6 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-
 extern int16_t sdram_sampleBank[4 * 1024 * 1024];
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
@@ -24,8 +23,38 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 			uint8_t,
 			uint8_t, uint8_t);
 
+enImportModMode cFileManager::checkImportFileType()
+{
+
+	char lowCase[255];
+	strcpy(lowCase, modFileData.filename);
+	for (uint16_t a = 0; a < 255; a++)
+	{
+		lowCase[a] = tolower(lowCase[a]);
+		if (lowCase[a] == 0) break;
+	}
+
+	if (strstr(lowCase, ".mod\0") != NULL)
+	{
+		return importModFiletype_mod;
+	}
+	else if (strstr(lowCase, ".it\0") != NULL)
+	{
+		return importModFiletype_it;
+	}
+
+	return importModFiletype_notSupported;
+
+}
+
 void cFileManager::importModFile_Init()
 {
+
+	importModFileType = checkImportFileType();
+	if (importModFileType != importModFiletype_mod)
+		return;
+
+
 	// wart wspólne
 	byteSampleOffset = 0;
 	modFileData.patternsActualIndex = 0;
@@ -535,7 +564,8 @@ void cFileManager::importModFile_WriteWave()
 		{
 			modFileData.waveWriteFlag = 0;
 
-			wavfile.write(modFileData.waveSrcPtr, modFileData.modImport_saveLength);
+			wavfile.write(modFileData.waveSrcPtr,
+							modFileData.modImport_saveLength);
 			modFileData.modImport_saveLength = 0;
 
 			// uzupełnienie headera

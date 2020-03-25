@@ -105,6 +105,14 @@ enum fileManagerOperation
 };
 
 
+enum enImportModMode
+{
+	importModFiletype_notSupported,
+	importModFiletype_mod,
+	importModFiletype_it,
+};
+
+
 struct strProjectFile;
 struct strInstrumentFile;
 class SdDir;
@@ -459,7 +467,7 @@ private:
 	uint32_t importFromSampleEditorLength;
     
 
-
+	enImportModMode  checkImportFileType();
 
     
 	/// IMPORT MOD
@@ -480,6 +488,9 @@ private:
 
 	bool importModFileAfterNewProject = 0;
 	static const uint8_t modSampleNameSize = 22;
+
+
+	uint8_t importModFileType = importModFiletype_mod;
 
 	struct strImportModFile
 	{
@@ -564,8 +575,14 @@ private:
 	} modSong;
 	/// IMPORT MOD KONIEC
 
+	// import IT
+	void importItFile_Init();
 
 
+
+
+
+	// import IT koniec
 	//song
 
 

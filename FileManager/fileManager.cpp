@@ -88,19 +88,50 @@ void cFileManager::updateLoadProjectFromWorkspace() // fmLoadWorkspaceProject - 
 
 void cFileManager::updateImportModFile()
 {
-	switch (currentOperationStep)
+	switch (importModFileType)
 	{
-	case 0:		importModFile_Init();							break;
-	case 1:		importModFile_GetInstrumentData();				break;
-	case 2:		importModFile_SaveInstrument();					break;
-	case 3:		importModFile_SongInit();						break;
-	case 4:		importModFile_Patterns();						break;
-	case 5:		importModFile_ImportWave();						break;
-	case 6:		importModFile_WriteWave();						break;
-	case 7:		importModFile_Finish();							break;
+	case importModFiletype_mod:
+
+		switch (currentOperationStep)
+		{
+		case 0:			importModFile_Init();				break;
+		case 1:			importModFile_GetInstrumentData();	break;
+		case 2:			importModFile_SaveInstrument();		break;
+		case 3:			importModFile_SongInit();			break;
+		case 4:			importModFile_Patterns();			break;
+		case 5:			importModFile_ImportWave();			break;
+		case 6:			importModFile_WriteWave();			break;
+		case 7:			importModFile_Finish();				break;
+		default:
+			importModFile_Error();
+			stopOperationWithError(fmImportModError);
+			break;
+		}
+		break;
+
+	case importModFiletype_it:
+		switch (currentOperationStep)
+		{
+
+		case 0:			importItFile_Init();				break;
+//		case 1:			importModFile_GetInstrumentData();	break;
+//		case 2:			importModFile_SaveInstrument();		break;
+//		case 3:			importModFile_SongInit();			break;
+//		case 4:			importModFile_Patterns();			break;
+//		case 5:			importModFile_ImportWave();			break;
+//		case 6:			importModFile_WriteWave();			break;
+//		case 7:			importModFile_Finish();				break;
+		default:
+//			importModFile_Error();
+			stopOperationWithError(fmImportModError);
+			break;
+		}
+
+		break;
+
 	default:
-		importModFile_Error();
-		stopOperationWithError(fmImportModError);		break;
+		stopOperationWithError(fmImportModError);
+		break;
 	}
 
 }
