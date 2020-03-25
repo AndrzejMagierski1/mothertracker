@@ -171,7 +171,7 @@ namespace limiterParams
 {
 	const char * const labelText[3] =
 	{
-		(const char * const)"Treshold",
+		(const char * const)"Threshold",
 		(const char * const)"Attack",
 		(const char * const)"Release"
 	};
@@ -201,7 +201,7 @@ namespace compressorParams
 {
 	const char * const labelText[4] =
 	{
-		(const char * const)"Treshold",
+		(const char * const)"Threshold",
 		(const char * const)"Ratio",
 		(const char * const)"Attack",
 		(const char * const)"Release",
