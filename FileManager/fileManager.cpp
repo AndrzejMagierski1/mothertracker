@@ -114,7 +114,7 @@ void cFileManager::updateImportModFile()
 		{
 
 		case 0:			importItFile_Init();				break;
-//		case 1:			importModFile_GetInstrumentData();	break;
+		case 1:			importItFile_ProcessHeader();	break;
 //		case 2:			importModFile_SaveInstrument();		break;
 //		case 3:			importModFile_SongInit();			break;
 //		case 4:			importModFile_Patterns();			break;
@@ -799,14 +799,14 @@ bool cFileManager::importModAfterLoadNewProject(uint8_t index)
 	if (modsList[index] == nullptr) return false;
 	//pobranie nazwy otwieranego projektu tu
 
-	strcpy(modFileData.filename, modsList[index]);
+	strcpy(impFileData.filename, modsList[index]);
 
 	char modName[20] { 0 };
 	for (uint8_t a = 0; a < sizeof(modName); a++)
 	{
-		if (modFileData.filename[a] != '.')
+		if (impFileData.filename[a] != '.')
 		{
-			modName[a] = modFileData.filename[a];
+			modName[a] = impFileData.filename[a];
 		}
 		else
 		{

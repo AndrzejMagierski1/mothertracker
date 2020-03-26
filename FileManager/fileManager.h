@@ -492,10 +492,15 @@ private:
 
 	uint8_t importModFileType = importModFiletype_mod;
 
-	struct strImportModFile
+	struct strImportFileDataCommon
 	{
 		char filename[255];	// tylko nazwa
 		char path[255];			// cala sciezka
+
+	} impFileData;
+
+	struct strImportModFile
+	{
 		uint8_t instrumentsCount = 31;
 		uint8_t instrumentsActualIndex = 0;
 		uint8_t channelsCount = 4;
@@ -577,6 +582,7 @@ private:
 
 	// import IT
 	void importItFile_Init();
+	void importItFile_ProcessHeader();
 
 
 

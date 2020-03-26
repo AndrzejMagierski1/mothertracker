@@ -27,7 +27,7 @@ enImportModMode cFileManager::checkImportFileType()
 {
 
 	char lowCase[255];
-	strcpy(lowCase, modFileData.filename);
+	strcpy(lowCase, impFileData.filename);
 	for (uint16_t a = 0; a < 255; a++)
 	{
 		lowCase[a] = tolower(lowCase[a]);
@@ -71,10 +71,10 @@ void cFileManager::importModFile_Init()
 	// wew
 	char byteBuffer[4];
 
-	sprintf(modFileData.path, "%.10s/%.200s", cModsPath, modFileData.filename);
+	sprintf(impFileData.path, "%.10s/%.200s", cModsPath, impFileData.filename);
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-														modFileData.path,
+														impFileData.path,
 														(uint8_t*) byteBuffer,
 														4,
 														1080,
@@ -111,10 +111,10 @@ void cFileManager::importModFile_GetInstrumentData()
 	char byteBuffer[modFileData.sampleInfoSize];
 	uint8_t buffOffset = 0;
 
-	sprintf(modFileData.path, "%.10s/%.200s", cModsPath, modFileData.filename);
+	sprintf(impFileData.path, "%.10s/%.200s", cModsPath, impFileData.filename);
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-			modFileData.path,
+			impFileData.path,
 			(uint8_t*) byteBuffer,
 			modFileData.sampleInfoSize, // memo
 			20 + modFileData.instrumentsActualIndex * modFileData.sampleInfoSize, // offset
@@ -239,7 +239,7 @@ void cFileManager::importModFile_SongInit()
 //	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-			modFileData.path,
+			impFileData.path,
 			(uint8_t*) byteBuffer,
 			modFileData.songInfoSize, // memo
 			20 + modFileData.instrumentsCount * modFileData.sampleInfoSize, // offset
@@ -274,7 +274,7 @@ void cFileManager::importModFile_Patterns()
 //	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-			modFileData.path,
+			impFileData.path,
 			(uint8_t*) byteBuffer,
 			modFileData.patternSize, // memo
 			20 + modFileData.instrumentsCount * modFileData.sampleInfoSize + modFileData.songInfoSize + modFileData.patternSize * modFileData.patternsActualIndex, // offset
@@ -485,7 +485,7 @@ void cFileManager::importModFile_ImportWave()
 	//	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-			modFileData.path,
+			impFileData.path,
 			(uint8_t*) modFile_sample_ptr,
 			instr->sample.length * 2, // memo
 			20 + modFileData.instrumentsCount * modFileData.sampleInfoSize + modFileData.songInfoSize + modFileData.patternSize * (modFileData.patternsMax + 1) + byteSampleOffset, // offset
