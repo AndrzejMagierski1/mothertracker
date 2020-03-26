@@ -583,6 +583,16 @@ private:
 	// import IT
 	void importItFile_Init();
 	void importItFile_ProcessHeader();
+	void importItFile_ProcessSong();
+	void importItFile_ProcessOffsets();
+
+	void importItFile_ProcessInstruments();
+
+
+
+	uint32_t getInstrumentOffset(uint8_t index);
+	uint32_t getSampleOffset(uint8_t index);
+	uint32_t getPatternOffset(uint8_t index);
 
 
 

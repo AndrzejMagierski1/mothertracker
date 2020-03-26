@@ -114,10 +114,11 @@ void cFileManager::updateImportModFile()
 		{
 
 		case 0:			importItFile_Init();				break;
-		case 1:			importItFile_ProcessHeader();	break;
-//		case 2:			importModFile_SaveInstrument();		break;
-//		case 3:			importModFile_SongInit();			break;
-//		case 4:			importModFile_Patterns();			break;
+		case 1:			importItFile_ProcessHeader();		break;
+		case 2:			importItFile_ProcessSong();			break;
+		case 3:			importItFile_ProcessOffsets();		break;
+
+		case 4:			importItFile_ProcessInstruments();	break;
 //		case 5:			importModFile_ImportWave();			break;
 //		case 6:			importModFile_WriteWave();			break;
 //		case 7:			importModFile_Finish();				break;
