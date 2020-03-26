@@ -216,6 +216,30 @@ uint32_t cFileManager::getSampleOffset(uint8_t index)
 	return 0;
 }
 
+uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
+										uint32_t offset,
+										uint8_t varSize)
+{
+
+	uint8_t byteBuffer[varSize];
+
+	uint32_t fileOffset = subFileOffset + offset;
+
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+														impFileData.path,
+														byteBuffer,
+														sizeof(varSize),
+														fileOffset, // fileOffset
+														fileWholeOnce); // fileDivIntoParts
+
+	if (loadStatus == fileTransferEnd)
+	{
+		return readUint(byteBuffer, varSize);
+	}
+
+	return 0;
+}
+
 uint32_t cFileManager::getPatternOffset(uint8_t index)
 {
 	if (index >= PatNum) return 0;
@@ -267,15 +291,19 @@ void cFileManager::importItFile_ProcessOffsets()
 void cFileManager::importItFile_ProcessInstruments()
 {
 
-	uint8_t byteBuffer[0x10];
+	uint32_t fileOffset = getInstrumentOffset(processedInstrument);
 
-	uint32_t fileOffset = getInstrumentOffset(processedPattern);
+	Serial.printf("Insstrument: %d, number of samples: %d, sample number: %d\n", processedInstrument,
+					getFileVariable(fileOffset, 0x1e, 1),
+					getFileVariable(fileOffset, 0x41, 1));
 
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-														impFileData.path,
-														byteBuffer,
-														sizeof(uint32_t),
-														fileOffset, // fileOffset
-														fileWholeOnce); // fileDivIntoParts
+
+
+
+	processedInstrument++;
+	if (processedInstrument >= InsNum)
+	{
+		moveToNextOperationStep();
+	}
 
 }

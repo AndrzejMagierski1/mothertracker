@@ -593,6 +593,9 @@ private:
 	uint32_t getInstrumentOffset(uint8_t index);
 	uint32_t getSampleOffset(uint8_t index);
 	uint32_t getPatternOffset(uint8_t index);
+	uint32_t getFileVariable(uint32_t subFileOffset,
+								uint32_t offset,
+								uint8_t varSize);
 
 
 
