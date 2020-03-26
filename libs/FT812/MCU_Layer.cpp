@@ -480,21 +480,21 @@ void MCU_set_sleepMode(void)
 	//EVE_CmdWrite(0x43,0x00);
     //EVE_CmdWrite(0x50,0x00);
 
-//	ramDisplayList = RAM_DL;                                                    // start of Display List
-//    EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
-//
-//    ramDisplayList += 4;                                                        // point to next location
-//    EVE_MemWrite32(ramDisplayList, (0x26000000 | 0x00000007));                  // Clear 00100110 -------- -------- -----CST  (C/S/T define which parameters to clear)
-//
-//    ramDisplayList += 4;                                                        // point to next location
-//    EVE_MemWrite32(ramDisplayList, 0x00000000);                                 // DISPLAY command 00000000 00000000 00000000 00000000 (end of display list)
-//
-//    EVE_MemWrite32(REG_DLSWAP, DLSWAP_FRAME);                                   // Swap display list to make the edited one active
-//
+	ramDisplayList = RAM_DL;                                                    // start of Display List
+    EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
 
-    //EVE_MemWrite8(REG_PCLK, 0);
+    ramDisplayList += 4;                                                        // point to next location
+    EVE_MemWrite32(ramDisplayList, (0x26000000 | 0x00000007));                  // Clear 00100110 -------- -------- -----CST  (C/S/T define which parameters to clear)
 
-	EVE_CmdWrite(0x42,0x00);
+    ramDisplayList += 4;                                                        // point to next location
+    EVE_MemWrite32(ramDisplayList, 0x00000000);                                 // DISPLAY command 00000000 00000000 00000000 00000000 (end of display list)
+
+    EVE_MemWrite32(REG_DLSWAP, DLSWAP_FRAME);                                   // Swap display list to make the edited one active
+
+
+    EVE_MemWrite8(REG_PCLK, 10);
+
+	//EVE_CmdWrite(0x42,0x00); // sleep mode command
     //delay(100);
 
 	//pinMode(LCD_RESET, OUTPUT);
