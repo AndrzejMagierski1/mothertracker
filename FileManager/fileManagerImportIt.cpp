@@ -265,24 +265,24 @@ uint32_t cFileManager::getPatternOffset(uint8_t index)
 void cFileManager::importItFile_ProcessOffsets()
 {
 
-	for (uint8_t a = 0; a < InsNum; a++)
-	{
-		Serial.printf("offset instr %d: %08X\n", a,
-						getInstrumentOffset(a));
-	}
-
-	for (uint8_t a = 0; a < SmpNum; a++)
-	{
-
-		Serial.printf("offset sample %d: %08X\n", a,
-						getSampleOffset(a));
-	}
-	for (uint8_t a = 0; a < PatNum; a++)
-	{
-
-		Serial.printf("offset pattern %d: %08X\n", a,
-						getPatternOffset(a));
-	}
+//	for (uint8_t a = 0; a < InsNum; a++)
+//	{
+//		Serial.printf("offset instr %d: %08X\n", a,
+//						getInstrumentOffset(a));
+//	}
+//
+//	for (uint8_t a = 0; a < SmpNum; a++)
+//	{
+//
+//		Serial.printf("offset sample %d: %08X\n", a,
+//						getSampleOffset(a));
+//	}
+//	for (uint8_t a = 0; a < PatNum; a++)
+//	{
+//
+//		Serial.printf("offset pattern %d: %08X\n", a,
+//						getPatternOffset(a));
+//	}
 
 	moveToNextOperationStep();
 
@@ -290,7 +290,6 @@ void cFileManager::importItFile_ProcessOffsets()
 uint8_t sampleNumber = 0;
 void cFileManager::importItFile_ProcessInstruments()
 {
-
 	strInstrument *instr = &mtProject.instrument[processedInstrument];
 	setDefaultActiveInstrument(instr);
 
@@ -299,18 +298,13 @@ void cFileManager::importItFile_ProcessInstruments()
 	sampleNumber = getFileVariable(fileOffset, 0x41, 1);
 	uint8_t GbV = getFileVariable(fileOffset, 0x18, 1); //Global Volume, 0->128
 
+	instr->volume = map(GbV, 0, 128, 0, 100);
+
 	Serial.printf("Insstrument: %d, NoS: %d, smp no: %d, GbV %d\n",
 					processedInstrument,
 					getFileVariable(fileOffset, 0x1e, 1),
 					sampleNumber,
 					GbV);
-
-	if (sampleNumber > 0) // 0 == no sample
-	{
-		instr->isActive = 1;
-		instr->sample.type = mtSampleTypeWaveFile;
-		instr->volume = map(GbV, 0, 128, 0, 100);
-	}
 
 	// pobieranie nazwy
 	char nameBuffer[26];
@@ -325,11 +319,12 @@ void cFileManager::importItFile_ProcessInstruments()
 		if (nameBuffer[0] != 0)
 		{
 			strcpy(instr->sample.file_name, nameBuffer);
+			Serial.println(instr->sample.file_name);
 		}
 		else
 		{
-			sprintf(instr->sample.file_name, "(untitled %d)",
-					processedInstrument + 1);
+//			sprintf(instr->sample.file_name, "(untitled %d)",
+//					processedInstrument + 1);
 		}
 	}
 
@@ -350,9 +345,11 @@ void cFileManager::importItFile_ProcessInstruments()
 	}
 
 }
+int16_t *itFile_sample_ptr = sdram_sampleBank;
 
 void cFileManager::importItFile_ProcessSample()
 {
+	strInstrument *instr = &mtProject.instrument[processedInstrument];
 
 	uint32_t fileOffset = getSampleOffset(sampleNumber - 1);
 
@@ -381,14 +378,98 @@ void cFileManager::importItFile_ProcessSample()
 		bool isCompression = (Flg & 0b00001000);
 		bool isLoop = (Flg & 0b00010000);
 		bool isPingPong = (Flg & 0b01000000);
+		bool isPingPongSustain = (Flg & 0b10000000);
 
-		Serial.printf("flags: %s %s %s %s %s %s \n",
-						isHeader ? "header" : "no header",
-						is16or8bit ? "16bit" : "8bit",
-						isStereo ? "stereo" : "mono",
-						isCompression ? "compressed" : "no compress",
-						isLoop ? "ude loop" : "no loop",
-						isPingPong ? "ping pong" : "forward");
+		Serial.printf(
+				"flags: %s %s %s %s %s %s %s \n",
+				isHeader ? "header" : "no header",
+				is16or8bit ? "16bit" : "8bit",
+				isStereo ? "stereo" : "mono",
+				isCompression ? "compressed" : "no compress",
+				isLoop ? "ude loop" : "no loop",
+				isPingPong ? "ping pong" : "forward",
+				isPingPongSustain ? "ping pong sutain" : "forward sustain");
+
+		Serial.printf(
+				"length: %d, loopBegin: %d, loopEnd %d, C5Speed: %d, SmpPoint %d\n",
+				length,
+				loopBegin,
+				loopEnd,
+				C5Speed,
+				SmpPoint
+				);
+
+		if (sampleNumber > 0) // 0 == no sample
+		{
+			instr->isActive = 1;
+			instr->sample.type = mtSampleTypeWaveFile;
+
+			instr->sample.length = length;
+			instr->startPoint = 0;
+
+			instr->loopPoint1 = map((float) loopBegin,
+									0,
+									length,
+									0,
+									MAX_16BIT);
+			instr->loopPoint2 = map((float) loopEnd,
+									0,
+									length,
+									0,
+									MAX_16BIT);
+
+			instr->endPoint = MAX_16BIT;
+
+			Serial.printf(
+							"loopPoint1: %d, loopPoint2 %d\n",
+							instr->loopPoint1,
+							instr->loopPoint2
+							);
+
+			// todo save instrument
+
+			if (isLoop)
+			{
+				if (isPingPongSustain)
+				{
+					instr->playMode = loopPingPong;
+				}
+				else
+				{
+					instr->playMode = loopForward;
+				}
+			}
+			else
+			{
+				instr->playMode = singleShot;
+			}
+
+			// kopiujemy dane sampli:
+
+			loadStatus = fileTransfer.loadFileToMemory(
+					impFileData.path,
+					(uint8_t*) itFile_sample_ptr,
+					instr->sample.length * 2, // memo
+					SmpPoint, // offset
+					fileWholeOnce
+					);
+
+			instr->sample.address = itFile_sample_ptr;
+
+			itFile_sample_ptr += instr->sample.length;
+
+			mtProject.used_memory += instr->sample.length * 2;
+
+			saveInstrument(processedInstrument);
+
+		}
+		else
+		{
+			instr->isActive = 0;
+			instr->sample.length = 0;
+		}
+
+		Serial.println();
 
 		processedInstrument++;
 		// jesli skonczyly sie instrumenty to 2 kroki dalej
