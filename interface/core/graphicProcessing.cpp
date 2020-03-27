@@ -37,6 +37,13 @@ void cGraphicProcessing::spectrumAutoZoomIn(uint16_t position, uint16_t zoomWidt
 
 void cGraphicProcessing::spectrumChangeZoom(int16_t value, uint32_t sampleLength, strZoomParams* zoom)
 {
+	if(sampleLength < 600)
+	{
+		zoom->zoomResolution = 1;
+		zoom->zoomValue = 1.0;
+		return;
+	}
+
 	uint16_t max_resolution = sampleLength / 600;
 	uint16_t min_resolution = sampleLength / MAX_16BIT + 1;
 
@@ -63,6 +70,11 @@ void cGraphicProcessing::processSpectrum(strSpectrumParams* params, strZoomParam
 			spectrum->upperData[i] = 0;
 			spectrum->lowerData[i] = 0;
 		}
+
+		zoom->zoomWidth = MAX_16BIT;
+		zoom->zoomStart = 0;
+		zoom->zoomEnd = MAX_16BIT;
+		spectrum->spectrumType = 1;
 
 		return;
 	}
@@ -135,6 +147,9 @@ void cGraphicProcessing::processSpectrum(strInstrument* instrument, strZoomParam
 			spectrum->lowerData[i] = 0;
 		}
 
+
+		spectrum->spectrumType = 1;
+
 		return;
 	}
 
@@ -195,45 +210,12 @@ void cGraphicProcessing::processSpectrum(int16_t* address, uint32_t length, strZ
 
 	uint16_t offset_pixel;
 	int16_t * sampleData;
-
-
-
 	uint32_t resolution;
 
-/*
-	switch(zoom->lastChangedPoint)
-	{
-		case 0: zoom->zoomPosition = instrument->startPoint; break; //MAX_16BIT/2; break;
 
-		case 1:
-			zoom->zoomPosition = instrument->startPoint;
-		break;
-		case 2:
-			zoom->zoomPosition = instrument->endPoint;
-		break;
-		case 3:
-			zoom->zoomPosition = instrument->loopPoint1;
-		break;
-		case 4:
-			zoom->zoomPosition = instrument->loopPoint2;
-		break;
-
-		default: zoom->zoomPosition = instrument->startPoint; break; //MAX_16BIT/2; break;
-	}
-
-*/
-
-
-	if(zoom->zoomValue > 1.0)
+	if(zoom->zoomValue > 1.0 && length > 600)
 	{
 		zoom->zoomWidth = (MAX_16BIT/zoom->zoomValue);
-/*
-		if(zoomWidth < 600)
-		{
-			zoomWidth = 600;
-			//zoomValue =
-		}
-*/
 
 		zoom->zoomStart =  zoom->zoomPosition - zoom->zoomWidth/2;
 		zoom->zoomEnd = zoom->zoomPosition + zoom->zoomWidth/2;
@@ -277,19 +259,40 @@ void cGraphicProcessing::processSpectrum(int16_t* address, uint32_t length, strZ
 	}
 
 
-	if(resolution < 1) resolution = 1;
-
-	//if(resolution > 200) resolution = 200;
-
 
 	int16_t up = 0;
 	int16_t low = 0;
 
-	uint32_t step = 0;
 
+	// kiedy dlugosc sampla mniejsza niz 600 probek
+	if(resolution < 1) //resolution = 1;
+	{
+		uint16_t sample = 0;
+		uint16_t px_per_sample = 600/length;
+
+		for(uint16_t i = 0; i < 600; i++)
+		{
+			if(px_per_sample > 0)
+			{
+				px_per_sample--;
+			}
+			else
+			{
+				sample++;
+				px_per_sample = ((600-i)/(length-sample));
+			}
+
+			spectrum->lowerData[i] = spectrum->upperData[i] = (*(sampleData+sample))/300;
+		}
+
+		spectrum->spectrumType = 1;
+		return;
+	}
+
+
+	uint32_t step = 0;
 	uint16_t max_resolution =  (resolution < 200) ? resolution : 200; 	// ogranicza liczbe przetwarzanych probek
 																		// oszukujac troche na wygladzie
-
 	if(offset_pixel > 0)
 	{
 		for(int16_t i = offset_pixel-1; i >= 0; i--)
@@ -323,15 +326,18 @@ void cGraphicProcessing::processSpectrum(int16_t* address, uint32_t length, strZ
 	{
 		low = up = 0; //*(sampleData+step);
 
+
+
 		for(uint16_t j = 0; j < max_resolution; j++)
 		{
 			int16_t sample = *(sampleData+step+j);
-
 
 			if(sample > up)  up = sample;
 			else if(sample < low) low = sample;
 
 		}
+
+
 		step+= resolution;
 
 		up = up/300;

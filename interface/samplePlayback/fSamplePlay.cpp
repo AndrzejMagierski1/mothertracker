@@ -188,7 +188,7 @@ void cSamplePlayback::update()
 
 	if(refreshSpectrum)
 	{
-		GP.processSpectrum(editorInstrument, &zoom, &spectrum,currentEnvelopeWtPos);
+		GP.processSpectrum(editorInstrument, &zoom, &spectrum, currentEnvelopeWtPos);
 
 		display.refreshControl(spectrumControl);
 

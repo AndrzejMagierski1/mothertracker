@@ -164,7 +164,7 @@ uint8_t cSpectrum::append(uint32_t address)
 void cSpectrum::refresh1()
 {
 	API_COLOR(colors[0]);
-	API_LINE_WIDTH(12);
+	API_LINE_WIDTH(16);
 
 
 	//uint16_t half = height/2;
@@ -188,14 +188,39 @@ void cSpectrum::refresh1()
 
 		//jedna lamana linia
 		API_COLOR(colors[0]);
-		API_LINE_WIDTH(12);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
+
+		int16_t last_sample_y = 1000;
+		int16_t sample_y = 0;
+		int16_t next_sample_y = 0;
 
 		for(uint16_t i = 0; i < width-1; i++)
 		{
-			if(spectrum->upperData[i] > 0) API_VERTEX2F( posX+i, center-spectrum->upperData[i]);
-			else if(spectrum->lowerData[i] < 0) API_VERTEX2F( posX+i, center-spectrum->lowerData[i]);
-			else API_VERTEX2F( posX+i, center);
+
+			if(spectrum->upperData[i] > 0) 			sample_y = center-spectrum->upperData[i];
+			else if(spectrum->lowerData[i] < 0) 	sample_y = center-spectrum->lowerData[i];
+			else 									sample_y = center;
+
+
+			if(i < width-2 && i > 0)
+			{
+				if(spectrum->upperData[i+1] > 0) 		next_sample_y = center-spectrum->upperData[i+1];
+				else if(spectrum->lowerData[i+1] < 0) 	next_sample_y = center-spectrum->lowerData[i+1];
+				else 									next_sample_y = center;
+
+			}
+			else next_sample_y = sample_y+1;
+
+
+			if(next_sample_y == sample_y)
+			{
+				continue; // omija powtorzenia takiej samej wartosci probki
+			}
+
+
+			API_VERTEX2F(posX+i, sample_y);
+
 		}
 	}
 	else if(spectrum->spectrumType == 0)
