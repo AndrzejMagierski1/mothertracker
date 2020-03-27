@@ -239,8 +239,8 @@ void cProjectEditor::setExportWindowFuncts()
 uint8_t cProjectEditor::loadProjectValues()
 {
 	engine.setHeadphonesVolume(mtProject.values.volume);
-	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
-	engine.setReverbDamping(mtProject.values.reverbDamping);
+	engine.setDelayFeedback(mtProject.values.delayFeedback);
+	engine.setDelayTime(mtProject.values.delayTime);
 	engine.setLimiterAttack(mtProject.values.limiterAttack);
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);

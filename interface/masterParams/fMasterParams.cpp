@@ -798,11 +798,11 @@ void changeVolume(int16_t value)
 
 void changeReverbRoomSize(int16_t value)
 {
-	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
-	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
-	else mtProject.values.reverbRoomSize += value;
-
-	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
+//	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
+//	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
+//	else mtProject.values.reverbRoomSize += value;
+//
+//	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
 
 	newFileManager.setProjectStructChanged();
 
@@ -811,11 +811,11 @@ void changeReverbRoomSize(int16_t value)
 
 void changeReverbDamping(int16_t value)
 {
-	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
-	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
-	else mtProject.values.reverbDamping += value;
-
-	engine.setReverbDamping(mtProject.values.reverbDamping);
+//	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
+//	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
+//	else mtProject.values.reverbDamping += value;
+//
+//	engine.setReverbDamping(mtProject.values.reverbDamping);
 
 	newFileManager.setProjectStructChanged();
 

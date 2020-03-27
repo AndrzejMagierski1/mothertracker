@@ -193,7 +193,9 @@ public:
 	void setHeadphonesVolume(uint8_t value);
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
-	void setReverbPanning(int8_t value);
+	void setDelayFeedback(uint8_t value);
+	void setDelayTime(uint16_t value);
+	void setDelayPanning(int8_t value);
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
 	void setLimiterTreshold(uint16_t threshold);
@@ -209,7 +211,8 @@ public:
 	void stopTestSignal();
 	void endAllFx();
 	void setPassEnvelope(uint8_t state);
-
+	void blockDelayRefresh();
+	void unblockDelayRefresh();
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;

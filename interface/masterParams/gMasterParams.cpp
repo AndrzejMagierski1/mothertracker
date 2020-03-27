@@ -377,9 +377,9 @@ void cMasterParams::showVolume()
 
 void cMasterParams::showReverbSize()
 {
-	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
-
-	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
+//	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
+//
+//	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
 	//display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[1]);
 
@@ -389,9 +389,9 @@ void cMasterParams::showReverbSize()
 
 void cMasterParams::showReverbDamping()
 {
-	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
+//	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
 
-	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
+//	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
 	//display.setControlShow(barControl[1]);
 	display.refreshControl(barControl[2]);
 

@@ -94,6 +94,8 @@ void cSampleEditor::start(uint32_t options)
 		return;
 	}
 
+	engine.blockDelayRefresh();
+
 	currentEffect=sampleEditorEffect[currentEffectIdx];
 	currentEffect->undo.isEnable = false;
 
@@ -281,7 +283,7 @@ void cSampleEditor::update()
 
 void cSampleEditor::stop()
 {
-
+	engine.unblockDelayRefresh();
 }
 
 void cSampleEditor::setCommonFunctions()

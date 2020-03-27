@@ -233,6 +233,7 @@ void cSampleRecorder::start(uint32_t options)
 		return;
 	}
 
+	engine.blockDelayRefresh();
 	moduleRefresh = 1;
 	dontTurnOffRadio = 0;
 //--------------------------------------------------------------------
@@ -320,7 +321,7 @@ void cSampleRecorder::stop()
 	moduleRefresh = 0;
 	keyboardManager.deinit();
 	//hideRDS();
-
+	engine.unblockDelayRefresh();
 }
 
 

@@ -187,7 +187,16 @@ void audioEngine::stopTestSignal()
 {
 	testWaveform.amplitude(0.0);
 }
-
+// blokowanie odswiezana delaya
+void audioEngine::blockDelayRefresh()
+{
+	shortDelay.blockUpdate();
+}
+// odblokowanie odswiezana delaya
+void audioEngine::unblockDelayRefresh()
+{
+	shortDelay.unblockUpdate();
+}
 void audioEngine::setPassEnvelope(uint8_t state)
 {
 	for(uint8_t i = 0; i < 8; i++)
@@ -209,7 +218,7 @@ void audioEngine::init()
 //	filterReverbOut.setType(filterType::lowPass);
 //	filterReverbOut.setCutoff(1.0);
 //	filterReverbOut.connect();
-	shortDelay.begin(0.7, 500);
+	shortDelay.begin(mtProject.values.delayFeedback, mtProject.values.delayTime);
 
 	audioShield.volume(mtProject.values.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
@@ -220,8 +229,8 @@ void audioEngine::init()
 	limiter[1].begin(mtProject.values.limiterTreshold, mtProject.values.limiterAttack/1000.0, mtProject.values.limiterRelease/1000.0);
 	bitDepthControl[0].setBitDepth(mtProject.values.bitDepth);
 	bitDepthControl[1].setBitDepth(mtProject.values.bitDepth);
-	setReverbDamping(mtProject.values.reverbDamping);
-	setReverbRoomsize(mtProject.values.reverbRoomSize);
+//	setReverbDamping(mtProject.values.reverbDamping);
+//	setReverbRoomsize(mtProject.values.reverbRoomSize);
 
 	testWaveform.begin(0.0,1000,WAVEFORM_SQUARE);
 
@@ -295,7 +304,17 @@ void audioEngine::setReverbDamping(uint8_t value)
 //	reverb.damping(value/100.0);
 }
 
-void audioEngine::setReverbPanning(int8_t value)
+void audioEngine::setDelayFeedback(uint8_t value)
+{
+	shortDelay.setFeedback(value/100.0);
+}
+
+void audioEngine::setDelayTime(uint16_t value)
+{
+	shortDelay.setTime(value);
+}
+
+void audioEngine::setDelayPanning(int8_t value)
 {
 	if(value > 0)
 	{
