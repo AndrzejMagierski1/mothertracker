@@ -16,10 +16,11 @@ const uint8_t FV_VER_2 =					9;		// official update
 const uint8_t FV_VER_3 =					57;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
-const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
+const uint8_t PROJECT_FILE_VERSION 	=		2;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	1;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			1;
+
 
 const float DEFAULT_TEMPO = 130;
 
@@ -447,9 +448,13 @@ struct strMtValues
 
 	uint8_t volume = 50;
 
-	uint8_t reverbRoomSize = 80;
-	uint8_t reverbDamping = 25;
-	int8_t reverbPanning;
+//	uint8_t reverbRoomSize = 80;
+//	uint8_t reverbDamping = 25;
+//	int8_t reverbPanning;
+
+	uint8_t delayFeedback;
+	uint16_t delayTime;
+	int8_t delayPanning;
 
 	uint16_t limiterAttack = 100;
 	float limiterRelease = 0.512;
