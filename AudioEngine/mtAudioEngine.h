@@ -202,7 +202,7 @@ public:
 	void soloTrack(uint8_t channel, uint8_t state);
 	void muteReverbSend(uint8_t channel, uint8_t state);
 	void soloReverbSend(uint8_t state);
-	void clearReverb();
+	void clearDelay();
 	void performanceModeEndAll();
 	void printLog(SdFile * log);
 	void startTestSignal(float amp, float freq);
@@ -245,7 +245,7 @@ public:
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
-	void modReverbSend(uint8_t value);
+	void modDelaySend(uint8_t value);
 
 	void modGranularPosition(uint16_t value);
 	void modGranularGrainLength();
@@ -501,7 +501,7 @@ private:
 	uint8_t 					lastPlayState = 0;
 
 	uint8_t 					muteState = 0;
-	uint8_t						onlyReverbMuteState = 0;
+	uint8_t						onlyDelayMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
 	float 						currentSeqTempo = 0;
@@ -703,7 +703,7 @@ extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
 
-extern AudioFilterStateVariable filterReverbOut;
+//extern AudioFilterStateVariable filterReverbOut;
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;

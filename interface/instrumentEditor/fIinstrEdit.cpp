@@ -1116,7 +1116,7 @@ void changeParamsReverbSend(int16_t value)
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		instrumentPlayer[i].setStatusBytes(REVERB_SEND_MASK);
+		instrumentPlayer[i].setStatusBytes(DELAY_SEND_MASK);
 	}
 
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);

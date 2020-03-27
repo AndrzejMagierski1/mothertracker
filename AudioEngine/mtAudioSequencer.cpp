@@ -1566,11 +1566,11 @@ void playerEngine::setFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 		{
-			modReverbSend(currentSeqModValues.reverbSend);
+			modDelaySend(currentSeqModValues.reverbSend);
 		}
-		else modReverbSend(AMP_MUTED);
+		else modDelaySend(AMP_MUTED);
 	}
 }
 void playerEngine::clearFxReverbSend()
@@ -1581,11 +1581,11 @@ void playerEngine::clearFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 		{
-			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+			modDelaySend(mtProject.instrument[currentInstrument_idx].reverbSend);
 		}
-		else modReverbSend(AMP_MUTED);
+		else modDelaySend(AMP_MUTED);
 	}
 }
 //FILTER

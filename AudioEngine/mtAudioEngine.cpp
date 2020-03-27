@@ -26,11 +26,12 @@ AudioEffectEnvelope      envelopeAmp[8];
 AudioAmplifier           amp[8];
 AudioFilterStateVariable filter[8];
 AudioAnalyzeRMS			 trackRMS[8];
-AudioEffectFreeverb		 reverb;
+//AudioEffectFreeverb		 reverb;
+AudioEffectShortDelay	 shortDelay;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
 
-AudioFilterStateVariable filterReverbOut;
+//AudioFilterStateVariable filterReverbOut;
 
 AudioMixer9				 mixerL,mixerR,mixerReverb;
 AudioMixer4              mixerRec;
@@ -106,14 +107,14 @@ AudioConnection          connect46(&envelopeAmp[5], 0, &mixerReverb, 5);
 AudioConnection          connect47(&envelopeAmp[6], 0, &mixerReverb, 6);
 AudioConnection          connect48(&envelopeAmp[7], 0, &mixerReverb, 7);
 
-AudioConnection          connect49(&mixerReverb,&reverb);
+AudioConnection          connect49(&mixerReverb,&shortDelay);
 
 
 //AudioConnection          connect82(&reverb, &filterReverbOut);
 //AudioConnection          connect83(&reverb, &filterReverbOut);
 
-AudioConnection          connect50(&reverb, 0, &mixerL, 8);
-AudioConnection          connect51(&reverb, 0, &mixerR, 8);
+AudioConnection          connect50(&shortDelay, 0, &mixerL, 8);
+AudioConnection          connect51(&shortDelay, 0, &mixerR, 8);
 
 AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
 AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
@@ -206,9 +207,9 @@ void audioEngine::init()
 	}
 
 //	filterReverbOut.setType(filterType::lowPass);
-//	filterReverbOut.setCutoff(0.5);
+//	filterReverbOut.setCutoff(1.0);
 //	filterReverbOut.connect();
-
+	shortDelay.begin(0.7, 500);
 
 	audioShield.volume(mtProject.values.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
@@ -286,12 +287,12 @@ void audioEngine::setHeadphonesVolume(uint8_t value)
 
 void audioEngine::setReverbRoomsize(uint8_t value)
 {
-	reverb.roomsize(value/100.0);
+//	reverb.roomsize(value/100.0);
 }
 
 void audioEngine::setReverbDamping(uint8_t value)
 {
-	reverb.damping(value/100.0);
+//	reverb.damping(value/100.0);
 }
 
 void audioEngine::setReverbPanning(int8_t value)
@@ -437,7 +438,7 @@ void playerEngine :: modTune(int8_t value)
 	playMemPtr->setTune(value,currentNote);
 }
 
-void playerEngine :: modReverbSend(uint8_t value)
+void playerEngine :: modDelaySend(uint8_t value)
 {
 	mixerReverb.gain(nChannel,value/100.0);
 }
@@ -575,7 +576,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
-	engine.clearReverb();
+	engine.clearDelay();
 	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
 	{
 		envelopePtr[i]->kill();
@@ -744,7 +745,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 		envelopePtr[i]->kill();
 	}
 
-	engine.clearReverb();
+	engine.clearDelay();
 
 	filterDisconnect();
 	ampPtr->gain(ampLogValues[50]);
@@ -782,7 +783,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 
 	filterDisconnect();
 	ampPtr->gain(ampLogValues[50]);
-	engine.clearReverb();
+	engine.clearDelay();
 
 	mixerL.gain(nChannel,1.0);
 	mixerR.gain(nChannel,1.0);
@@ -880,9 +881,10 @@ void audioEngine::soloReverbSend(uint8_t state)
 
 }
 
-void audioEngine::clearReverb()
+void audioEngine::clearDelay()
 {
-	reverb.clearFilters();
+//	reverb.clearFilters();
+	shortDelay.clear();
 }
 
 void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
@@ -890,13 +892,13 @@ void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
 	if(channel >= 8) return;
 	if(state == 0)
 	{
-		instrumentPlayer[channel].onlyReverbMuteState = 0;
-		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+		instrumentPlayer[channel].onlyDelayMuteState = 0;
+		instrumentPlayer[channel].setStatusBytes(DELAY_SEND_MASK);
 	}
 	else
 	{
-		instrumentPlayer[channel].onlyReverbMuteState = 1;
-		if(!forceSend) instrumentPlayer[channel].modReverbSend(0);
+		instrumentPlayer[channel].onlyDelayMuteState = 1;
+		if(!forceSend) instrumentPlayer[channel].modDelaySend(0);
 	}
 }
 
@@ -911,13 +913,13 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 	{
 		instrumentPlayer[channel].muteState = 0;
 		instrumentPlayer[channel].setStatusBytes(VOLUME_MASK);
-		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+		instrumentPlayer[channel].setStatusBytes(DELAY_SEND_MASK);
 	}
 	else
 	{
 		instrumentPlayer[channel].muteState = 1;
 		amp[channel].gain(AMP_MUTED);
-		if(!forceSend) instrumentPlayer[channel].modReverbSend(AMP_MUTED);
+		if(!forceSend) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
 	}
 }
 

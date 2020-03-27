@@ -317,9 +317,9 @@ void playerEngine::handleUpdateRefreshResonance()
 }
 void playerEngine::handleUpdateRefreshReverb()
 {
-	if(statusBytes & REVERB_SEND_MASK)
+	if(statusBytes & DELAY_SEND_MASK)
 	{
-		statusBytes &= (~REVERB_SEND_MASK);
+		statusBytes &= (~DELAY_SEND_MASK);
 
 		uint8_t localReverbSend = 0;
 
@@ -337,9 +337,9 @@ void playerEngine::handleUpdateRefreshReverb()
 			localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
 		}
 
-		if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
+		if(((muteState == 0) && (onlyDelayMuteState == 0)) || (engine.forceSend == 1))
 		{
-			modReverbSend(localReverbSend);
+			modDelaySend(localReverbSend);
 		}
 	}
 }
