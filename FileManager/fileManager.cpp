@@ -119,6 +119,7 @@ void cFileManager::updateImportModFile()
 		case 3:			importItFile_ProcessOffsets();		break;
 
 		case 4:			importItFile_ProcessInstruments();	break;
+		case 5:			importItFile_ProcessSample();		break;
 //		case 5:			importModFile_ImportWave();			break;
 //		case 6:			importModFile_WriteWave();			break;
 //		case 7:			importModFile_Finish();				break;
@@ -329,6 +330,10 @@ void cFileManager::autoSaveProjectToWorkspace()
 void cFileManager::moveToNextOperationStep()
 {
 	currentOperationStep++;
+}
+void cFileManager::moveToPrevOperationStep()
+{
+	currentOperationStep--;
 }
 
 

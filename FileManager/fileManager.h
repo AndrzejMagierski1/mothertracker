@@ -252,6 +252,7 @@ private:
 	void report(const char* text, uint8_t value = 0);
 	void report(const char* text, const char* text2);
 	void moveToNextOperationStep();
+	void moveToPrevOperationStep();
 	void skipNextOperationStep();
 	void calcTotalMemoryToTransfer();
 	void calcActualMemoryTransfered();
@@ -587,6 +588,7 @@ private:
 	void importItFile_ProcessOffsets();
 
 	void importItFile_ProcessInstruments();
+	void importItFile_ProcessSample();
 
 
 

@@ -287,23 +287,159 @@ void cFileManager::importItFile_ProcessOffsets()
 	moveToNextOperationStep();
 
 }
-
+uint8_t sampleNumber = 0;
 void cFileManager::importItFile_ProcessInstruments()
 {
 
+	strInstrument *instr = &mtProject.instrument[processedInstrument];
+	setDefaultActiveInstrument(instr);
+
 	uint32_t fileOffset = getInstrumentOffset(processedInstrument);
 
-	Serial.printf("Insstrument: %d, number of samples: %d, sample number: %d\n", processedInstrument,
+	sampleNumber = getFileVariable(fileOffset, 0x41, 1);
+	uint8_t GbV = getFileVariable(fileOffset, 0x18, 1); //Global Volume, 0->128
+
+	Serial.printf("Insstrument: %d, NoS: %d, smp no: %d, GbV %d\n",
+					processedInstrument,
 					getFileVariable(fileOffset, 0x1e, 1),
-					getFileVariable(fileOffset, 0x41, 1));
+					sampleNumber,
+					GbV);
 
+	if (sampleNumber > 0) // 0 == no sample
+	{
+		instr->isActive = 1;
+		instr->sample.type = mtSampleTypeWaveFile;
+		instr->volume = map(GbV, 0, 128, 0, 100);
+	}
 
+	// pobieranie nazwy
+	char nameBuffer[26];
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+														impFileData.path,
+														(uint8_t*) nameBuffer,
+														sizeof(nameBuffer),
+														fileOffset + 0x20, // fileOffset
+														fileWholeOnce); // fileDivIntoParts
+	if (loadStatus == fileTransferEnd)
+	{
+		if (nameBuffer[0] != 0)
+		{
+			strcpy(instr->sample.file_name, nameBuffer);
+		}
+		else
+		{
+			sprintf(instr->sample.file_name, "(untitled %d)",
+					processedInstrument + 1);
+		}
+	}
 
-
-	processedInstrument++;
-	if (processedInstrument >= InsNum)
+	if (sampleNumber > 0)
 	{
 		moveToNextOperationStep();
 	}
+	else // jesli nie ma sampla to powtarzamy krok
+	{
+		processedInstrument++;
+		// jesli skonczyly sie instrumenty to 2 kroki dalej
+		if (processedInstrument >= InsNum ||
+				processedInstrument > INSTRUMENTS_MAX)
+		{
+			moveToNextOperationStep();
+			moveToNextOperationStep();
+		}
+	}
 
 }
+
+void cFileManager::importItFile_ProcessSample()
+{
+
+	uint32_t fileOffset = getSampleOffset(sampleNumber - 1);
+
+	uint8_t sampleHeader[0x50];
+
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+														impFileData.path,
+														(uint8_t*) sampleHeader,
+														sizeof(sampleHeader),
+														fileOffset, // fileOffset
+														fileWholeOnce); // fileDivIntoParts
+
+	if (loadStatus == fileTransferEnd)
+	{
+
+		uint32_t Flg = readUint(&sampleHeader[0x12], 4);
+		uint32_t length = readUint(&sampleHeader[0x30], 4);
+		uint32_t loopBegin = readUint(&sampleHeader[0x34], 4);
+		uint32_t loopEnd = readUint(&sampleHeader[0x38], 4);
+		uint32_t C5Speed = readUint(&sampleHeader[0x3c], 4);
+		uint32_t SmpPoint = readUint(&sampleHeader[0x48], 4); //'Long' Offset of sample in file.
+
+		bool isHeader = (Flg & 0b00000001);
+		bool is16or8bit = (Flg & 0b00000010);
+		bool isStereo = (Flg & 0b00000100);
+		bool isCompression = (Flg & 0b00001000);
+		bool isLoop = (Flg & 0b00010000);
+		bool isPingPong = (Flg & 0b01000000);
+
+		Serial.printf("flags: %s %s %s %s %s %s \n",
+						isHeader ? "header" : "no header",
+						is16or8bit ? "16bit" : "8bit",
+						isStereo ? "stereo" : "mono",
+						isCompression ? "compressed" : "no compress",
+						isLoop ? "ude loop" : "no loop",
+						isPingPong ? "ping pong" : "forward");
+
+		processedInstrument++;
+		// jesli skonczyly sie instrumenty to 2 kroki dalej
+		if (processedInstrument >= InsNum ||
+				processedInstrument > INSTRUMENTS_MAX)
+		{
+			moveToNextOperationStep();
+		}
+		else
+		{
+			moveToPrevOperationStep();
+		}
+	}
+
+	else if (loadStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
+
+}
+/*
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
