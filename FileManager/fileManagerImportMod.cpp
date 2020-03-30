@@ -54,7 +54,6 @@ void cFileManager::importModFile_Init()
 	if (importModFileType != importModFiletype_mod)
 		return;
 
-
 	// wart wspólne
 	byteSampleOffset = 0;
 	modFileData.patternsActualIndex = 0;
@@ -298,6 +297,8 @@ void cFileManager::importModFile_Patterns()
 		patt->track[a].length = 63;
 	}
 
+	uint8_t lastInstr[4] { INSTRUMENTS_MAX, INSTRUMENTS_MAX, INSTRUMENTS_MAX, INSTRUMENTS_MAX };
+
 	for (uint16_t cell = 0, step = 0; cell < 256; cell++)
 	{
 
@@ -310,7 +311,8 @@ void cFileManager::importModFile_Patterns()
 		*((uint8_t*) &chData + 1) = byteBuffer[cell * 4 + 2];
 		*((uint8_t*) &chData + 0) = byteBuffer[cell * 4 + 3];
 
-		uint8_t instrument = (chData >> 12) & 0x0f;
+		uint8_t modInstr = ((chData >> 12) & 0x0000000f);
+		modInstr = constrain(modInstr, 0, INSTRUMENTS_MAX);
 
 		uint16_t period = (chData >> 16) & 0xfff;
 		int8_t note = periodToNote(period) - 5;
@@ -319,20 +321,26 @@ void cFileManager::importModFile_Patterns()
 		uint8_t fx2 = (chData & 0x0f0) >> 4;
 		uint8_t fx1 = (chData & 0xf00) >> 8;
 
-		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t\t",
-						instrument,
-						note,
-						fx1,
-						fx2, fx3);
+//		Serial.printf("inst %d note %d, fx1 %d, fx2 %d, fx3 %d\t\t",
+//						modInstr,
+//						note,
+//						fx1,
+//						fx2, fx3);
 
 		if (step <= Sequencer::MAXSTEP)
 		{
-			if (note >= 0)
+			if (note >= 0 && modInstr > 0 && modInstr <= INSTRUMENTS_MAX)
 			{
 				patt->track[chan].step[step].note = note;
-				patt->track[chan].step[step].instrument = instrument - 1;
-
+				patt->track[chan].step[step].instrument = modInstr - 1;
+				lastInstr[chan] = patt->track[chan].step[step].instrument;
 			}
+			else if (note >= 0 && modInstr == 0)
+			{
+				patt->track[chan].step[step].note = note;
+				patt->track[chan].step[step].instrument = lastInstr[chan];
+			}
+
 			setFx(&patt->track[chan].step[step], fx1, fx2, fx3);
 		}
 		if (chan == 3)
