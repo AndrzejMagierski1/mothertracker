@@ -196,13 +196,13 @@ void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		currentSeqModValues.reverbSend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+		currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
 		{
-			currentSeqModValues.reverbSend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 		}
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 1;
@@ -718,7 +718,7 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_REVERB_SEND);
 			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_REVERB_SEND);
 
-			currentSeqModValues.reverbSend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.delaySend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 		}
 	}
 
@@ -1568,7 +1568,7 @@ void playerEngine::setFxReverbSend()
 	{
 		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 		{
-			modDelaySend(currentSeqModValues.reverbSend);
+			modDelaySend(currentSeqModValues.delaySend);
 		}
 		else modDelaySend(AMP_MUTED);
 	}
@@ -1583,7 +1583,7 @@ void playerEngine::clearFxReverbSend()
 	{
 		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 		{
-			modDelaySend(mtProject.instrument[currentInstrument_idx].reverbSend);
+			modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 		}
 		else modDelaySend(AMP_MUTED);
 	}

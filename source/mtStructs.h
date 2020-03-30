@@ -421,7 +421,7 @@ struct strInstrument
     uint16_t glide;
     int16_t panning;
 
-    uint8_t reverbSend;
+    uint8_t delaySend;
 
     uint16_t slices[MAX_SLICE_NUMBER];
     uint8_t sliceNumber;

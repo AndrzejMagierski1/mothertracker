@@ -34,7 +34,8 @@ private:
   uint32_t bufferedDataLength;
   uint8_t feedbackVoiceMult[MAX_SHORT_DELAY_VOICES];
   uint32_t feedbackVoiceShift[MAX_SHORT_DELAY_VOICES];
-  bool noRefresh = false;
+  bool noRefresh;
+  bool isPingpong;
 };
 
 #endif /* LIBS_AUDIO_EFFECT_SHORTDELAY_H_ */

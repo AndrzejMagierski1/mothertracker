@@ -344,7 +344,7 @@ public:
 	    float filterCutoff;
 		uint8_t filterType;
 		uint8_t filterEnable;
-		uint8_t reverbSend;
+		uint8_t delaySend;
 		int16_t panning;
 
 		uint16_t ampAttack;
@@ -386,7 +386,7 @@ public:
 		float filterCutoff;
 		uint8_t filterType;
 		uint8_t filterEnable;
-		uint8_t reverbSend;
+		uint8_t delaySend;
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;

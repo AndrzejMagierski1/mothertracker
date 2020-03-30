@@ -935,11 +935,11 @@ void cInstrumentEditor::showFilterResonance()
 
 void cInstrumentEditor::showParamsReverbSend()
 {
-	sprintf(revSendVal,"%d",editorInstrument->reverbSend);
+	sprintf(revSendVal,"%d",editorInstrument->delaySend);
 	display.setControlText2(label[7], revSendVal);
 	display.refreshControl(label[7]);
 
-	display.setControlValue(barControl[7], editorInstrument->reverbSend);
+	display.setControlValue(barControl[7], editorInstrument->delaySend);
 	display.refreshControl(barControl[7]);
 }
 

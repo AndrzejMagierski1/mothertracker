@@ -325,16 +325,16 @@ void playerEngine::handleUpdateRefreshReverb()
 
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
-			localReverbSend = currentPerformanceValues.reverbSend;
+			localReverbSend = currentPerformanceValues.delaySend;
 		}
 		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
 				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend])
 		{
-			localReverbSend = currentSeqModValues.reverbSend;
+			localReverbSend = currentSeqModValues.delaySend;
 		}
 		else
 		{
-			localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+			localReverbSend = mtProject.instrument[currentInstrument_idx].delaySend;
 		}
 
 		if(((muteState == 0) && (onlyDelayMuteState == 0)) || (engine.forceSend == 1))

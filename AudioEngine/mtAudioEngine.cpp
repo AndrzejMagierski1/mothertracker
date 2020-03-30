@@ -114,7 +114,7 @@ AudioConnection          connect49(&mixerReverb,&shortDelay);
 //AudioConnection          connect83(&reverb, &filterReverbOut);
 
 AudioConnection          connect50(&shortDelay, 0, &mixerL, 8);
-AudioConnection          connect51(&shortDelay, 0, &mixerR, 8);
+AudioConnection          connect51(&shortDelay, 1, &mixerR, 8);
 
 AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
 AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
@@ -459,7 +459,7 @@ void playerEngine :: modTune(int8_t value)
 
 void playerEngine :: modDelaySend(uint8_t value)
 {
-	mixerReverb.gain(nChannel,value/100.0);
+	mixerReverb.gain(nChannel,ampLogValues[value]);
 }
 
 void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
@@ -734,7 +734,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
 
-	mixerReverb.gain(nChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+	modDelaySend(mtProject.instrument[instr_idx].delaySend);
 
 
 	/*======================================================================================================*/
@@ -771,7 +771,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 
 	mixerL.gain(nChannel,1.0);
 	mixerR.gain(nChannel,1.0);
-	mixerReverb.gain(nChannel,0.0);
+	modDelaySend(AMP_MUTED);
 	/*======================================================================================================*/
 	limiter[0].setAttack(300);
 	limiter[0].setRelease(10);
@@ -806,7 +806,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 
 	mixerL.gain(nChannel,1.0);
 	mixerR.gain(nChannel,1.0);
-	mixerReverb.gain(nChannel,0.0);
+	modDelaySend(AMP_MUTED);
 	/*======================================================================================================*/
 	limiter[0].setAttack(300);
 	limiter[0].setRelease(10);
