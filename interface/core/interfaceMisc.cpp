@@ -141,6 +141,7 @@ void cInterface::activateInterface()
 	hideDisplayNoSdCard();
 	hideDisplayShutdown();
 
+	interfaceGlobals.refreshFileExplorer = true;
 	uint8_t state = 1;
 	interfaceEnvents(eventToggleActiveModule,0,0,&state);
 

@@ -177,6 +177,8 @@ void cSampleRecorder::update()
 
 		newFileManager.clearStatus();
 
+		interfaceGlobals.refreshFileExplorer = true; // odwiez liste plikow w sample laderze
+
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
 			SR->forceSwitchModule = 1;

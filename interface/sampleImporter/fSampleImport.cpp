@@ -163,8 +163,10 @@ void cSampleImporter::start(uint32_t options)
 	}
 
 	// przeladuj pierwszy raz xxx rzeba to popawic
-	if(locationExplorerCount == 0)
+	if(locationExplorerCount == 0 || interfaceGlobals.refreshFileExplorer)
 	{
+		interfaceGlobals.refreshFileExplorer = false;
+
 		if(newFileManager.browseSdCard(nullptr))
 		{
 			SI->FM->blockAllInputs();
