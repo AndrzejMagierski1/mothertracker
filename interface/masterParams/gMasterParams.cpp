@@ -229,8 +229,8 @@ void cMasterParams::showMasterScreen()
 
 
 	display.setControlText(label[0], "Volume");
-	display.setControlText(label[1], "Rev. Size");
-	display.setControlText(label[2], "Rev. Damp");
+	display.setControlText(label[1], "Delay fb");
+	display.setControlText(label[2], "Delay time");
 	display.setControlText(label[3], "Bit Depth");
 	display.setControlText(label[4], "Limit. A");
 	display.setControlText(label[5], "Limit. R");
@@ -261,8 +261,8 @@ void cMasterParams::showMasterScreen()
 
 
 	showVolume();
-	showReverbSize();
-	showReverbDamping();
+	showDelayFeedback();
+	showDelayTime();
 	showLimiterAttack();
 	showLimiterRelease();
 	showLimiterTreshold();
@@ -375,27 +375,29 @@ void cMasterParams::showVolume()
 	display.refreshControl(label[0]);
 }
 
-void cMasterParams::showReverbSize()
+void cMasterParams::showDelayFeedback()
 {
-//	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
-//
-//	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
-	//display.setControlShow(barControl[0]);
+	sprintf(delayFeedbackVal,"%d",mtProject.values.delayFeedback);
+
+	uint8_t displayFeedbackTime = map(mtProject.values.delayFeedback,DELAY_FEEDBACK_MIN,DELAY_FEEDBACK_MAX,0,100);
+
+	display.setControlValue(barControl[1], displayFeedbackTime);
 	display.refreshControl(barControl[1]);
 
-	display.setControlText2(label[1], reverbSizeVal);
+	display.setControlText2(label[1], delayFeedbackVal);
 	display.refreshControl(label[1]);
 }
 
-void cMasterParams::showReverbDamping()
+void cMasterParams::showDelayTime()
 {
-//	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
+	sprintf(delayTimeVal,"%d ms",mtProject.values.delayTime);
 
-//	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
-	//display.setControlShow(barControl[1]);
+	uint8_t displayDelayTime = map(mtProject.values.delayTime,DELAY_TIME_MIN,DELAY_TIME_MAX,0,100);
+
+	display.setControlValue(barControl[2], displayDelayTime);
 	display.refreshControl(barControl[2]);
 
-	display.setControlText2(label[2], reverbDampVal);
+	display.setControlText2(label[2], delayTimeVal);
 	display.refreshControl(label[2]);
 }
 

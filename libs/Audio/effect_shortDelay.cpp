@@ -24,28 +24,31 @@ void AudioEffectShortDelay::setFeedback(float f)
 		maxVoiceNumber++;
 		if(maxVoiceNumber == MAX_SHORT_DELAY_VOICES) break;
 	}
-
+	__disable_irq();
 	delayVoicesNumber = maxVoiceNumber - 1;
 
 	for(uint8_t i = 1 ; i<= delayVoicesNumber; i++)
 	{
-		feedbackVoiceMult[i-1] = (uint8_t)(100 * pow(f,i));
+		feedbackVoiceMult[i-1] = f * 100; //(uint8_t)(100 * pow(f,i));
 		feedbackVoiceShift[i-1] = i * timeInSamples;
+		f*=f;
 	}
 	delaylineLength = delayVoicesNumber * timeInSamples;
 	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
+	__enable_irq();
 }
 void AudioEffectShortDelay::setTime(uint16_t t)
 {
 	if(t > 3500) t = 3500;
-
 	timeInSamples = (uint32_t)(t * 44.1) ;
-	delaylineLength = delayVoicesNumber * timeInSamples;
-	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
+	__disable_irq();
 	for(uint8_t i = 1 ; i<=delayVoicesNumber; i++)
 	{
 		feedbackVoiceShift[i-1] = i * timeInSamples;
 	}
+	delaylineLength = delayVoicesNumber * timeInSamples;
+	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
+	__enable_irq();
 }
 void AudioEffectShortDelay::clear()
 {

@@ -55,8 +55,8 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state);
 
 // MASTER EDIT FUNCTIONS
 void changeVolume(int16_t value);
-void changeReverbRoomSize(int16_t value);
-void changeReverbDamping(int16_t value);
+void changeDelayFeedback(int16_t value);
+void changeDelayTime(int16_t value);
 void changeLimiterAttack(int16_t value);
 void changeLimiterRelease(int16_t value);
 void changeLimiterTreshold(int16_t value);
@@ -202,8 +202,8 @@ static  uint8_t functEncoder(int16_t value)
 		switch(MP->selectedPlace)
 		{
 		case 0: changeVolume(value);			break;
-		case 1: changeReverbRoomSize(value);	break;
-		case 2: changeReverbDamping(value);		break;
+		case 1: changeDelayFeedback(value);	break;
+		case 2: changeDelayTime(value);		break;
 		case 3: changeBitDepth(value);			break;
 		case 4: changeLimiterAttack(value);		break;
 		case 5: changeLimiterRelease(value);	break;
@@ -257,8 +257,8 @@ static  uint8_t functUp()
 		switch(MP->selectedPlace)
 		{
 		case 10: changeVolume(1);			break;
-		case 11: changeReverbRoomSize(1);	break;
-		case 12: changeReverbDamping(1);	break;
+		case 11: changeDelayFeedback(1);	break;
+		case 12: changeDelayTime(1);	break;
 		case 13: changeBitDepth(1);			break;
 		case 14: changeLimiterAttack(1);	break;
 		case 15: changeLimiterRelease(1);	break;
@@ -284,8 +284,8 @@ static  uint8_t functDown()
 		switch(MP->selectedPlace)
 		{
 		case 10: changeVolume(-1);			break;
-		case 11: changeReverbRoomSize(-1);	break;
-		case 12: changeReverbDamping(-1);	break;
+		case 11: changeDelayFeedback(-1);	break;
+		case 12: changeDelayTime(-1);	break;
 		case 13: changeBitDepth(-1);		break;
 		case 14: changeLimiterAttack(-1);	break;
 		case 15: changeLimiterRelease(-1);	break;
@@ -373,7 +373,7 @@ static  uint8_t functSelectReverbSize(uint8_t state)
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeReverbRoomSize, node);
+		MP->addNode(changeDelayFeedback, node);
 		MP->frameData.multisel[node].frameNum = node;
 		MP->frameData.multisel[node].isActive = 1;
 		MP->frameData.multiSelActiveNum  += 1;
@@ -413,7 +413,7 @@ static  uint8_t functSelectReverbDamping(uint8_t state)
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeReverbDamping, node);
+		MP->addNode(changeDelayTime, node);
 		MP->frameData.multisel[node].frameNum = node;
 		MP->frameData.multisel[node].isActive = 1;
 		MP->frameData.multiSelActiveNum  += 1;
@@ -796,30 +796,30 @@ void changeVolume(int16_t value)
 	MP->showVolume();
 }
 
-void changeReverbRoomSize(int16_t value)
+void changeDelayFeedback(int16_t value)
 {
-//	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
-//	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
-//	else mtProject.values.reverbRoomSize += value;
-//
-//	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
+	if(mtProject.values.delayFeedback + value < DELAY_FEEDBACK_MIN) mtProject.values.delayFeedback = DELAY_FEEDBACK_MIN;
+	else if(mtProject.values.delayFeedback + value > DELAY_FEEDBACK_MAX) mtProject.values.delayFeedback = DELAY_FEEDBACK_MAX;
+	else mtProject.values.delayFeedback += value;
+
+	engine.setDelayFeedback(mtProject.values.delayFeedback);
 
 	newFileManager.setProjectStructChanged();
 
-	MP->showReverbSize();
+	MP->showDelayFeedback();
 }
 
-void changeReverbDamping(int16_t value)
+void changeDelayTime(int16_t value)
 {
-//	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
-//	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
-//	else mtProject.values.reverbDamping += value;
-//
-//	engine.setReverbDamping(mtProject.values.reverbDamping);
+	if(mtProject.values.delayTime + value < DELAY_TIME_MIN) mtProject.values.delayTime = DELAY_TIME_MIN;
+	else if(mtProject.values.delayTime + value > DELAY_TIME_MAX) mtProject.values.delayTime = DELAY_TIME_MAX;
+	else mtProject.values.delayTime += value;
+
+	engine.setDelayTime(mtProject.values.delayTime);
 
 	newFileManager.setProjectStructChanged();
 
-	MP->showReverbDamping();
+	MP->showDelayTime();
 }
 
 void changeLimiterAttack(int16_t value)

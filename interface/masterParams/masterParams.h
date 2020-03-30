@@ -48,8 +48,8 @@ public:
 
 	//master
 	void showVolume();
-	void showReverbSize();
-	void showReverbDamping();
+	void showDelayFeedback();
+	void showDelayTime();
 	void showLimiterAttack();
 	void showLimiterRelease();
 	void showLimiterTreshold();
@@ -152,8 +152,8 @@ public:
 //----------------------------------
 
 	char volumeVal[4];
-	char reverbSizeVal[4];
-	char reverbDampVal[4];
+	char delayFeedbackVal[4];
+	char delayTimeVal[9];
 	char limitAttackVal[8];
 	char limitReleaseVal[8];
 	char limitThresholdVal[4];
