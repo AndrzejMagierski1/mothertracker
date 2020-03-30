@@ -104,11 +104,13 @@ void cProjectEditor::update()
 		PE->setExportWindowFuncts();
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
+		interfaceGlobals.refreshFileExplorer = true;
 	}
 	else if(managerStatus == fmSaveEnd)
 	{
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
+		interfaceGlobals.refreshFileExplorer = true;
 	}
 	else if (managerStatus == fmBrowseModsEnd)
 	{
@@ -123,10 +125,9 @@ void cProjectEditor::update()
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 	}
-
-	else if(managerStatus >=  fmError)
+	else if(managerStatus >=  fmError) // a tu wszelakie errory
 	{
-		debugLog.addLine("Opretion Error");
+		debugLog.addLine("File Manager Opretion Error");
 		setDefaultScreenFunct();
 		showDefaultScreen();
 		FM->unblockAllInputs();

@@ -513,6 +513,12 @@ struct strInterfaceGlobals
 //-----------------------------------------------------
 
 
+	// oswiezanie listy plikow w sampleloaderze
+	bool refreshFileExplorer = false;
+
+
+
+
 };
 
 typedef void (*editFunct_t)(int16_t);
