@@ -30,6 +30,10 @@ public:
 		barControl[8] = {nullptr};
 		editorInstrument = nullptr;
 		frameControl = nullptr;
+
+		delayPingpongEnableList = nullptr;
+		delaySyncEnableList = nullptr;
+		delaySyncRateList = nullptr;
 	}
 	virtual ~cMasterParams() {}
 
@@ -48,23 +52,31 @@ public:
 
 	//master
 	void showVolume();
-	void showDelayFeedback();
-	void showDelayTime();
 	void showLimiterAttack();
 	void showLimiterRelease();
 	void showLimiterTreshold();
 	void showBitDepth();
 
+	//delay
+	void showDelayScreen();
+	void showDelayPingPongEnable();
+	void showDelaySyncEnable();
+	void showDelayRate();
+	void showDelayFeedback();
+	void showDelayTime();
+
 	enum struct display_t
 	{
 		masterValues,
-		mixer
+		mixer,
+		delay
 	} displayType;
 	//mixer
 	void showMixerScreen();
 	void showLevelBar(uint8_t n);
 	void switchToMaster();
 	void switchToMixer();
+	void switchToDelayScreen();
 	void calcTrackLevel(uint8_t n);
 
 	struct strTrackLevel
@@ -93,15 +105,12 @@ public:
 	};
 	//menu
 
-
-
 	//
 
 	//-----------------------------------------
 
 	void setMasterScreenFunct();
-
-
+	void setDelayScreenFunct();
 	// config
 	void changeConfigGroupSelection(int16_t value);
 
@@ -131,6 +140,43 @@ public:
 
 	strFrameData frameData;
 
+	strList pingpongEnableData;
+	strList syncEnableData;
+	strList syncRateData;
+
+	const char * delayPingPongEnable[2] =
+	{
+			(char *) "On",
+			(char *) "Off"
+	};
+
+	const char * delaySyncEnable[2] =
+	{
+			(char *) "On",
+			(char *) "Off"
+	};
+
+	const char * delaySyncRates[17] =
+	{
+			(char *) "2",
+			(char *) "3/2",
+			(char *) "1",
+			(char *) "3/4",
+			(char *) "1/2",
+			(char *) "3/8",
+			(char *) "1/3",
+			(char *) "1/4",
+			(char *) "3/16",
+			(char *) "1/6",
+			(char *) "1/8",
+			(char *) "1/12",
+			(char *) "1/16",
+			(char *) "1/24",
+			(char *) "1/32",
+			(char *) "1/48",
+			(char *) "1/64"
+	};
+
 	hControl label[8];
 	hControl barControl[8];
 
@@ -140,6 +186,10 @@ public:
 
 	hControl bgLabel;
 	hControl frameControl;
+
+	hControl delayPingpongEnableList;
+	hControl delaySyncEnableList;
+	hControl delaySyncRateList;
 
 	uint8_t selectedPlace = 0;
 
@@ -162,15 +212,6 @@ public:
 //----------------------------------
 
 	uint8_t exitOnButtonRelease = 0;
-
-	// MULTISEL
-	select_node_t selectNodes[MAX_SELECT_NODES];
-
-	void addNode(editFunct_t funct , uint8_t nodeNum);
-	void removeNode(uint8_t nodeNum);
-	void stepThroughNodes(int16_t value);
-	void clearAllNodes();
-	void cancelMultiFrame();
 
 	uint8_t getListsActive();
 	void setDataForLists(uint8_t listNum, uint8_t max);

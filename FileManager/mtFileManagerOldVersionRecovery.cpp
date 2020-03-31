@@ -45,7 +45,7 @@ static void recoveryProjectVersion1()
 	memcpy((uint8_t*)&receivedProject->values.limiterAttack, (uint8_t *)( ((uint32_t)&tmp.values.limiterAttack) - 4), bytesToCopy);
 	receivedProject->values.delayFeedback = 50;
 	receivedProject->values.delayTime = 500;
-	receivedProject->values.delayIsPingpong = 0;
+	receivedProject->values.delayParams = 0;
 
 	memcpy(receivedProject->projectName,(uint8_t *)(((uint32_t)&tmp.projectName) - 4) , PROJECT_NAME_SIZE );
 	// shift 4 zostal dobrany metoda prob i bledow, teoretycznie dodano 1 byte ale prawdopdobnie kompilator to ulozyl w jakis inny sposob

@@ -37,13 +37,19 @@ static  uint8_t functDown();
 
 //master
 static  uint8_t functSelectVolume(uint8_t state);
-static  uint8_t functSelectReverbSize(uint8_t state);
-static  uint8_t functSelectReverbDamping(uint8_t state);
 static  uint8_t functSelectLimiterAttack(uint8_t state);
 static  uint8_t functSelectLimiterRelease(uint8_t state);
 static  uint8_t functSelectLimiterTreshold(uint8_t state);
 static  uint8_t functSelectBitDepth(uint8_t state);
 
+//delay
+static  uint8_t functSwitchToDelayWindow();
+static 	uint8_t functSelectDelaySyncEnable();
+static 	uint8_t functSelectDelayPingpongEnable();
+static 	uint8_t functSelectDelaySyncRate();
+static 	uint8_t functSelectDelayTime();
+static 	uint8_t functSelectDelayFeedback();
+static 	uint8_t functDelayCancel();
 
 static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
@@ -92,11 +98,6 @@ void cMasterParams::start(uint32_t options)
 
 
 //--------------------------------------------------------------------
-
-	clearAllNodes();
-	cancelMultiFrame();
-
-
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
@@ -171,16 +172,22 @@ void cMasterParams::setMasterScreenFunct()
 
 	FM->setButtonObj(interfaceButton0, functSelectVolume);
 
-	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
-	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
+//	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
+//	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
 
-	FM->setButtonObj(interfaceButton3, functSelectBitDepth);
-	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
-	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
+	FM->setButtonObj(interfaceButton1, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton2, functSelectLimiterAttack);
+	FM->setButtonObj(interfaceButton3, functSelectLimiterRelease);
+	FM->setButtonObj(interfaceButton4, functSelectLimiterTreshold);
+	FM->setButtonObj(interfaceButton5, buttonPress, functSwitchToDelayWindow);
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+}
+
+void cMasterParams::setDelayScreenFunct()
+{
+
 }
 
 //##############################################################################################
@@ -193,24 +200,17 @@ void cMasterParams::setMasterScreenFunct()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
-	if(MP->frameData.multiSelActiveNum != 0)
+
+	switch(MP->selectedPlace)
 	{
-		MP->stepThroughNodes(value);
-	}
-	else
-	{
-		switch(MP->selectedPlace)
-		{
 		case 0: changeVolume(value);			break;
-		case 1: changeDelayFeedback(value);	break;
-		case 2: changeDelayTime(value);		break;
-		case 3: changeBitDepth(value);			break;
-		case 4: changeLimiterAttack(value);		break;
-		case 5: changeLimiterRelease(value);	break;
-		case 6: changeLimiterTreshold(value);	break;
-		case 7: break;
-		}
+		case 1: changeBitDepth(value);			break;
+		case 2: changeLimiterAttack(value);		break;
+		case 3: changeLimiterRelease(value);	break;
+		case 4: changeLimiterTreshold(value);	break;
+		default: break;
 	}
+
 	return 1;
 }
 
@@ -248,24 +248,15 @@ static  uint8_t functRight()
 static  uint8_t functUp()
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
-	if(MP->frameData.multiSelActiveNum != 0)
-	{
-		MP->stepThroughNodes(1);
-	}
-	else
-	{
-		switch(MP->selectedPlace)
-		{
-		case 10: changeVolume(1);			break;
-		case 11: changeDelayFeedback(1);	break;
-		case 12: changeDelayTime(1);	break;
-		case 13: changeBitDepth(1);			break;
-		case 14: changeLimiterAttack(1);	break;
-		case 15: changeLimiterRelease(1);	break;
-		case 16: changeLimiterTreshold(1);	break;
-		case 17: 	break;
 
-		}
+	switch(MP->selectedPlace)
+	{
+		case 0: changeVolume(1);			break;
+		case 1: changeBitDepth(1);			break;
+		case 2: changeLimiterAttack(1);		break;
+		case 3: changeLimiterRelease(1);	break;
+		case 4: changeLimiterTreshold(1);	break;
+		default: break;
 	}
 
 	return 1;
@@ -275,23 +266,15 @@ static  uint8_t functUp()
 static  uint8_t functDown()
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
-	if(MP->frameData.multiSelActiveNum != 0)
+
+	switch(MP->selectedPlace)
 	{
-		MP->stepThroughNodes(-1);
-	}
-	else
-	{
-		switch(MP->selectedPlace)
-		{
-		case 10: changeVolume(-1);			break;
-		case 11: changeDelayFeedback(-1);	break;
-		case 12: changeDelayTime(-1);	break;
-		case 13: changeBitDepth(-1);		break;
-		case 14: changeLimiterAttack(-1);	break;
-		case 15: changeLimiterRelease(-1);	break;
-		case 16: changeLimiterTreshold(-1);	break;
-		case 17: 	break;
-		}
+		case 0: changeVolume(-1);			break;
+		case 1: changeBitDepth(-1);			break;
+		case 2: changeLimiterAttack(-1);	break;
+		case 3: changeLimiterRelease(-1);	break;
+		case 4: changeLimiterTreshold(-1);	break;
+		default: break;
 	}
 
 	return 1;
@@ -333,112 +316,7 @@ static  uint8_t functSelectVolume(uint8_t state)
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeVolume, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
 	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
-	}
-
-	MP->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectReverbSize(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 1;
-
-	if(state == buttonPress)
-	{
-		MP->selectedPlace = node;
-		MP->addNode(changeDelayFeedback, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum  -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
-	}
-
-	MP->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectReverbDamping(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 2;
-
-	if(state == buttonPress)
-	{
-		MP->selectedPlace = node;
-		MP->addNode(changeDelayTime, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum  -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
-	}
-
 	MP->activateLabelsBorder();
 
 	return 1;
@@ -448,35 +326,11 @@ static  uint8_t functSelectBitDepth(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	uint8_t node = 3;
+	uint8_t node = 1;
 
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeBitDepth, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum  -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
 	}
 
 	MP->activateLabelsBorder();
@@ -488,37 +342,12 @@ static  uint8_t functSelectLimiterAttack(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	uint8_t node = 4;
+	uint8_t node = 2;
 
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeLimiterAttack, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
 	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum  -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
-	}
-
 	MP->activateLabelsBorder();
 
 	return 1;
@@ -528,35 +357,11 @@ static  uint8_t functSelectLimiterRelease(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	uint8_t node = 5;
+	uint8_t node = 3;
 
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeLimiterRelease, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum  -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
 	}
 
 	MP->activateLabelsBorder();
@@ -568,37 +373,12 @@ static  uint8_t functSelectLimiterTreshold(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	uint8_t node = 6;
+	uint8_t node = 4;
 
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
-		MP->addNode(changeLimiterTreshold, node);
-		MP->frameData.multisel[node].frameNum = node;
-		MP->frameData.multisel[node].isActive = 1;
-		MP->frameData.multiSelActiveNum  += 1;
 	}
-	else
-	{
-		MP->removeNode(node);
-
-		if(MP->frameData.multiSelActiveNum)
-		{
-			if(MP->frameData.multisel[node].isActive)
-			{
-				MP->removeNode(node);
-				MP->frameData.multiSelActiveNum  -= 1;
-
-				MP->frameData.multisel[node].isActive = 0;
-
-				if(MP->frameData.multiSelActiveNum == 0)
-				{
-					MP->selectedPlace = node;
-				}
-			}
-		}
-	}
-
 	MP->activateLabelsBorder();
 
 	return 1;
@@ -620,13 +400,14 @@ void cMasterParams::switchToMaster()
 
 	FM->setButtonObj(interfaceButton0, functSelectVolume);
 
-	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
-	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
+//	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
+//	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
 
-	FM->setButtonObj(interfaceButton3, functSelectBitDepth);
-	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
-	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
+	FM->setButtonObj(interfaceButton1, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton2, functSelectLimiterAttack);
+	FM->setButtonObj(interfaceButton3, functSelectLimiterRelease);
+	FM->setButtonObj(interfaceButton4, functSelectLimiterTreshold);
+	FM->setButtonObj(interfaceButton5, buttonPress, functSwitchToDelayWindow);
 
 	showMasterScreen();
 	displayType = display_t::masterValues;
@@ -652,6 +433,56 @@ void cMasterParams::switchToMixer()
 
 	showMixerScreen();
 	displayType = display_t::mixer;
+}
+
+void cMasterParams::switchToDelayScreen()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearButton(interfaceButtonShift);
+
+	FM->setButtonObj(interfaceButton0, buttonPress, functSelectDelayPingpongEnable);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSelectDelaySyncEnable);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSelectDelaySyncRate);
+	FM->setButtonObj(interfaceButton3, buttonPress, functSelectDelayTime);
+	FM->setButtonObj(interfaceButton4, buttonPress, functSelectDelayFeedback);
+	FM->setButtonObj(interfaceButton5, buttonPress, functDelayCancel);
+
+	showDelayScreen();
+
+	displayType = display_t::delay;
+}
+
+//delay
+static  uint8_t functSwitchToDelayWindow()
+{
+	MP->switchToDelayScreen();
+	return 1;
+}
+static 	uint8_t functSelectDelaySyncEnable()
+{
+	return 1;
+}
+static 	uint8_t functSelectDelayPingpongEnable()
+{
+	return 1;
+}
+static 	uint8_t functSelectDelaySyncRate()
+{
+	return 1;
+}
+static 	uint8_t functSelectDelayTime()
+{
+	return 1;
+}
+static 	uint8_t functSelectDelayFeedback()
+{
+	return 1;
+}
+
+static 	uint8_t functDelayCancel()
+{
+	MP->switchToMaster();
+	return 1;
 }
 
 void cMasterParams::calcTrackLevel(uint8_t n)
@@ -855,7 +686,11 @@ void changeLimiterRelease(int16_t value)
 
 void changeLimiterTreshold(int16_t value)
 {
-	value *= LIMITER_TRESHOLD_MAX/100;
+	int32_t val = value * LIMITER_TRESHOLD_MAX/100; // mnoznik jest na tyle duzy ze przy mocnym pokreceniu iloczyn przekracza 16bit
+
+	if(val> MAX_SIGNED_16BIT) value = MAX_SIGNED_16BIT;
+	else if(val < MIN_SIGNED_16BIT) value = MIN_SIGNED_16BIT;
+	else value = val;
 
 	if(mtProject.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
 	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
@@ -888,52 +723,4 @@ void changeBitDepth(int16_t value)
 }
 
 
-// MULTISEL
-void cMasterParams::addNode(editFunct_t funct , uint8_t nodeNum)
-{
-	if(selectNodes[nodeNum].isActive == 0)
-	{
-		selectNodes[nodeNum].isActive = 1;
-		selectNodes[nodeNum].editFunct = funct;
-	}
-}
-
-void cMasterParams::removeNode(uint8_t nodeNum)
-{
-	selectNodes[nodeNum].isActive = 0;
-	selectNodes[nodeNum].editFunct = NULL;
-}
-
-void cMasterParams::stepThroughNodes(int16_t value)
-{
-	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
-	{
-		if(selectNodes[node].isActive)
-		{
-			if(selectNodes[node].editFunct != NULL)
-			{
-				selectNodes[node].editFunct(value);
-			}
-		}
-	}
-}
-
-void cMasterParams::clearAllNodes()
-{
-	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
-	{
-		selectNodes[node].isActive = 0;
-		selectNodes[node].editFunct = NULL;
-	}
-}
-
-void cMasterParams::cancelMultiFrame()
-{
-	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
-	{
-		frameData.multisel[i].isActive = 0;
-	}
-
-	frameData.multiSelActiveNum = 0;
-}
 
