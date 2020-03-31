@@ -311,7 +311,7 @@ void cFileManager::importModFile_Patterns()
 		*((uint8_t*) &chData + 1) = byteBuffer[cell * 4 + 2];
 		*((uint8_t*) &chData + 0) = byteBuffer[cell * 4 + 3];
 
-		uint8_t modInstr = ((chData >> 12) & 0x0000000f);
+		uint8_t modInstr = ((chData >> 12) & 0x0000000f) | ((chData >> 24) & 0xf0);
 		modInstr = constrain(modInstr, 0, INSTRUMENTS_MAX);
 
 		uint16_t period = (chData >> 16) & 0xfff;

@@ -588,7 +588,8 @@ private:
 	void importItFile_ProcessOffsets();
 
 	void importItFile_ProcessInstruments();
-	void importItFile_ProcessSample();
+	void importItFile_OpenSample();
+	void importItFile_ProcessPattern();
 
 
 

@@ -14,6 +14,7 @@
 #include "fileManager.h"
 
 extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+int16_t *itFile_sampleDest_ptr = sdram_sampleBank;
 
 // elementy pliku IT
 uint16_t OrdNum;
@@ -60,6 +61,8 @@ void cFileManager::importItFile_Init()
 	processedPattern = 0;
 	processedInstrument = 0;
 	processedSample = 0;
+
+	itFile_sampleDest_ptr = sdram_sampleBank;
 
 	moveToNextOperationStep();
 }
@@ -119,6 +122,7 @@ void cFileManager::importItFile_ProcessHeader()
 		Serial.printf("SmpNum = %d\n", SmpNum);
 		Serial.printf("PatNum = %d\n", PatNum);
 		Serial.printf("Cwt = %d\n", Cwt);
+		Serial.printf("Cmwt = 0h%04X\n", Cwt);
 
 		Serial.println(
 				oldImpulseInstrumentFormat ? "old impulse format" : "new impulse format");
@@ -265,24 +269,24 @@ uint32_t cFileManager::getPatternOffset(uint8_t index)
 void cFileManager::importItFile_ProcessOffsets()
 {
 
-//	for (uint8_t a = 0; a < InsNum; a++)
-//	{
-//		Serial.printf("offset instr %d: %08X\n", a,
-//						getInstrumentOffset(a));
-//	}
-//
-//	for (uint8_t a = 0; a < SmpNum; a++)
-//	{
-//
-//		Serial.printf("offset sample %d: %08X\n", a,
-//						getSampleOffset(a));
-//	}
-//	for (uint8_t a = 0; a < PatNum; a++)
-//	{
-//
-//		Serial.printf("offset pattern %d: %08X\n", a,
-//						getPatternOffset(a));
-//	}
+	for (uint8_t a = 0; a < InsNum; a++)
+	{
+		Serial.printf("offset instr %d: %08X\n", a,
+						getInstrumentOffset(a));
+	}
+
+	for (uint8_t a = 0; a < SmpNum; a++)
+	{
+
+		Serial.printf("offset sample %d: %08X\n", a,
+						getSampleOffset(a));
+	}
+	for (uint8_t a = 0; a < PatNum; a++)
+	{
+
+		Serial.printf("offset pattern %d: %08X\n", a,
+						getPatternOffset(a));
+	}
 
 	moveToNextOperationStep();
 
@@ -295,7 +299,22 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	uint32_t fileOffset = getInstrumentOffset(processedInstrument);
 
-	sampleNumber = getFileVariable(fileOffset, 0x41, 1);
+	uint8_t tempSampleNumber = 0;
+	bool found = 0;
+	for (uint8_t a = 0; a < 120; a++)
+	{
+		tempSampleNumber = getFileVariable(fileOffset, 0x41 + a * 2, 1);
+//		Serial.printf("tempSampleNumber: %d\n", tempSampleNumber);
+
+		if (tempSampleNumber > 0 && !found)
+		{
+			sampleNumber = tempSampleNumber;
+			found = 1;
+			break; // powyżej na potrzeby testow
+		}
+
+	}
+
 	uint8_t GbV = getFileVariable(fileOffset, 0x18, 1); //Global Volume, 0->128
 
 	instr->volume = map(GbV, 0, 128, 0, 100);
@@ -332,6 +351,12 @@ void cFileManager::importItFile_ProcessInstruments()
 	{
 		moveToNextOperationStep();
 	}
+	else if (sampleNumber == 0 && (getSampleOffset(processedInstrument) > 0))
+	{
+		sampleNumber = processedInstrument + 1;
+		moveToNextOperationStep();
+
+	}
 	else // jesli nie ma sampla to powtarzamy krok
 	{
 		processedInstrument++;
@@ -345,13 +370,27 @@ void cFileManager::importItFile_ProcessInstruments()
 	}
 
 }
-int16_t *itFile_sample_ptr = sdram_sampleBank;
 
-void cFileManager::importItFile_ProcessSample()
+void cFileManager::importItFile_OpenSample()
 {
 	strInstrument *instr = &mtProject.instrument[processedInstrument];
 
 	uint32_t fileOffset = getSampleOffset(sampleNumber - 1);
+	if (fileOffset <= 0)
+	{
+		processedInstrument++;
+		// jesli skonczyly sie instrumenty to 2 kroki dalej
+		if (processedInstrument >= InsNum ||
+				processedInstrument > INSTRUMENTS_MAX)
+		{
+			moveToNextOperationStep();
+		}
+		else
+		{
+			moveToPrevOperationStep();
+		}
+		return;
+	}
 
 	uint8_t sampleHeader[0x50];
 
@@ -399,7 +438,7 @@ void cFileManager::importItFile_ProcessSample()
 				SmpPoint
 				);
 
-		if (sampleNumber > 0) // 0 == no sample
+		if (sampleNumber > 0 && length > 0) // 0 == no sample
 		{
 			instr->isActive = 1;
 			instr->sample.type = mtSampleTypeWaveFile;
@@ -420,12 +459,6 @@ void cFileManager::importItFile_ProcessSample()
 
 			instr->endPoint = MAX_16BIT;
 
-			Serial.printf(
-							"loopPoint1: %d, loopPoint2 %d\n",
-							instr->loopPoint1,
-							instr->loopPoint2
-							);
-
 			// todo save instrument
 
 			if (isLoop)
@@ -442,23 +475,74 @@ void cFileManager::importItFile_ProcessSample()
 			else
 			{
 				instr->playMode = singleShot;
+				instr->loopPoint1 = 1;
+				instr->loopPoint2 = MAX_16BIT - 1;
 			}
 
+			Serial.printf(
+							"loopPoint1: %d, loopPoint2 %d\n",
+							instr->loopPoint1,
+							instr->loopPoint2
+							);
+
 			// kopiujemy dane sampli:
+			if (is16or8bit)
+			{
+				loadStatus = fileTransfer.loadFileToMemory(
+						impFileData.path,
+						(uint8_t*) itFile_sampleDest_ptr,
+						instr->sample.length * 2, // memo
+						SmpPoint, // offset
+						fileWholeOnce
+						);
 
-			loadStatus = fileTransfer.loadFileToMemory(
-					impFileData.path,
-					(uint8_t*) itFile_sample_ptr,
-					instr->sample.length * 2, // memo
-					SmpPoint, // offset
-					fileWholeOnce
-					);
+				instr->sample.address = itFile_sampleDest_ptr;
 
-			instr->sample.address = itFile_sample_ptr;
+				itFile_sampleDest_ptr += instr->sample.length;
 
-			itFile_sample_ptr += instr->sample.length;
+				mtProject.used_memory += instr->sample.length * 2;
+			}
+			else // 8bit
+			{
+				uint32_t totalToRead = instr->sample.length;
+				uint8_t buff[512] { 0 };
 
-			mtProject.used_memory += instr->sample.length * 2;
+				uint16_t *tempPtr = (uint16_t*) itFile_sampleDest_ptr; // to je zle
+				while (totalToRead)
+				{
+					uint32_t bytesToRead =
+							totalToRead >= 512 ? 512 : totalToRead;
+
+					loadStatus = fileTransfer.loadFileToMemory(
+							impFileData.path,
+							(uint8_t*) buff,
+							bytesToRead, // memo
+							SmpPoint + (instr->sample.length - totalToRead), // offset
+							fileWholeOnce
+							);
+
+					for (uint16_t s = 0; s < bytesToRead; s++)
+					{
+						*tempPtr = map(buff[s],
+										0,
+										MAX_8BIT,
+										0,
+										MAX_16BIT);
+
+						tempPtr++;
+					}
+
+					totalToRead -= bytesToRead;
+
+				}
+
+				instr->sample.address = itFile_sampleDest_ptr;
+
+				itFile_sampleDest_ptr += instr->sample.length;
+
+				mtProject.used_memory += instr->sample.length * 2;
+
+			}
 
 			saveInstrument(processedInstrument);
 
@@ -489,6 +573,12 @@ void cFileManager::importItFile_ProcessSample()
 		throwError(1);
 	}
 
+}
+
+void cFileManager::importItFile_ProcessPattern()
+{
+
+	moveToNextOperationStep();
 }
 /*
  *
