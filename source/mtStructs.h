@@ -458,7 +458,7 @@ struct strMtValues
 
 	uint8_t delayFeedback;
 	uint16_t delayTime;
-	int8_t delayPanning;
+	int8_t delayIsPingpong;
 
 	uint16_t limiterAttack = 100;
 	float limiterRelease = 0.512;

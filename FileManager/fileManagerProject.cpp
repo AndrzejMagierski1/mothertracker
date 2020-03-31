@@ -275,7 +275,7 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 
 	source->delayFeedback = 50;
 	source->delayTime = 500;
-	source->delayPanning = 0;
+	source->delayIsPingpong = 0;
 
 	source->limiterAttack = 100;
 	source->limiterRelease = 0.512;

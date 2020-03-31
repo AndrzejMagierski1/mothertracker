@@ -284,6 +284,7 @@ void cSampleEditor::update()
 void cSampleEditor::stop()
 {
 	engine.unblockDelayRefresh();
+	engine.clearDelay();
 }
 
 void cSampleEditor::setCommonFunctions()

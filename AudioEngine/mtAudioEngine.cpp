@@ -595,7 +595,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
-	engine.clearDelay();
+//	engine.clearDelay();
 	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
 	{
 		envelopePtr[i]->kill();
@@ -764,7 +764,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 		envelopePtr[i]->kill();
 	}
 
-	engine.clearDelay();
+//	engine.clearDelay();
 
 	filterDisconnect();
 	ampPtr->gain(ampLogValues[50]);
@@ -802,7 +802,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 
 	filterDisconnect();
 	ampPtr->gain(ampLogValues[50]);
-	engine.clearDelay();
+//	engine.clearDelay();
 
 	mixerL.gain(nChannel,1.0);
 	mixerR.gain(nChannel,1.0);

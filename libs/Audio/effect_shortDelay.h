@@ -5,6 +5,7 @@
 
 extern int16_t sdram_effectsBank[(15*512*1024)/2];
 constexpr uint8_t MAX_SHORT_DELAY_VOICES = 12;
+constexpr uint16_t MAX_SHORT_DELAY_TIME = 3500;
 
 class AudioEffectShortDelay : public AudioStream
 {

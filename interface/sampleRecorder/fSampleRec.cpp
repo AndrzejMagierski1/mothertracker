@@ -322,6 +322,7 @@ void cSampleRecorder::stop()
 	keyboardManager.deinit();
 	//hideRDS();
 	engine.unblockDelayRefresh();
+	engine.clearDelay();
 }
 
 
