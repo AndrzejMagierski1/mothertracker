@@ -1121,7 +1121,7 @@ void changeParamsReverbSend(int16_t value)
 
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	IE->showParamsReverbSend();
+	IE->showParamsDelaySend();
 }
 
 

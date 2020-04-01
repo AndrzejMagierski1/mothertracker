@@ -115,11 +115,13 @@ void cMasterParams::start(uint32_t options)
 
 
 
-
+	isDelayScreen = false;
 	selectedPlace = 0;
 
 	showMasterScreen();
+
 	setMasterScreenFunct();
+
 
 	activateLabelsBorder();
 }
@@ -515,7 +517,7 @@ void cMasterParams::switchToDelayScreen()
 	FM->setButtonObj(interfaceButton2, buttonPress, functSelectDelaySyncRate);
 	FM->setButtonObj(interfaceButton3, buttonPress, functSelectDelayTime);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSelectDelayFeedback);
-	FM->setButtonObj(interfaceButton5, buttonPress, functDelayCancel);
+	FM->setButtonObj(interfaceButton7, buttonPress, functDelayCancel);
 
 	showDelayScreen();
 
@@ -813,7 +815,7 @@ void cMasterParams::changeDelayRate(int16_t val)
 	uint8_t temp = mtProject.values.delayParams & 0b00111111;
 
 	if(temp + val < 0) temp = 0;
-	else if(temp + val > 14) temp = 14;
+	else if(temp + val > 18) temp = 18;
 	else temp+=val;
 
 	mtProject.values.delayParams &= 0b11000000;

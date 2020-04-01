@@ -6,8 +6,12 @@ static int16_t zeroblock[AUDIO_BLOCK_SAMPLES] = {};
 constexpr uint32_t MAX_DELAYLINE_LENGTH = (MAX_SHORT_DELAY_VOICES - 1) * MAX_SHORT_DELAY_TIME * 44.1f;
 
 
-const float tempoSyncRatesShortDelay[15] =
+const float tempoSyncRatesShortDelay[19] =
 {
+	8,
+	6,
+	4,
+	3,
 	2,
 	1.5,
 	1,
@@ -168,8 +172,11 @@ void AudioEffectShortDelay::update(void)
 
 		for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			outL = 100 * (*sbuf);
-			outR = outL;
+//			outL = 100 * (*sbuf);
+//			outR = outL;
+
+			outL = 0;
+			outR = 0;
 
 			*currentTail++ = *sbuf++;
 			if(currentTail > wrapConstrain ) currentTail = startDelayLine;
@@ -225,7 +232,8 @@ void AudioEffectShortDelay::update(void)
 
         for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
         {
-        	out = 100 * (*sbuf);
+        	//out = 100 * (*sbuf);
+        	out = 0;
         	*currentTail++ = *sbuf++;
         	if(currentTail > wrapConstrain ) currentTail = startDelayLine;
 

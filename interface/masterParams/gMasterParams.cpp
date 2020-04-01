@@ -176,7 +176,7 @@ void cMasterParams::initDisplayControls()
 
 	syncRateData.linesCount = 14;
 	syncRateData.start = 0;
-	syncRateData.length = 15;
+	syncRateData.length = 19;
 	syncRateData.data = (char**)delaySyncRates;
 
 	propSyncRate.style = controlStyleBackground;
@@ -384,11 +384,11 @@ void cMasterParams::showDelayScreen()
 	display.setControlText(label[2], "Rate");
 	display.setControlText(label[3], "Time");
 	display.setControlText(label[4], "Feedback");
-	display.setControlText(label[5], "Cancel");
+	display.setControlText(label[5], " ");
 	display.setControlText2(label[5], " ");
 	display.setControlText(label[6], " ");
 	display.setControlText2(label[6], " ");
-	display.setControlText(label[7], " ");
+	display.setControlText(label[7], "Back");
 	display.setControlText2(label[7], " ");
 
 	resizeToDefaultMaster();

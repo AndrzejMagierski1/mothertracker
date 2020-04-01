@@ -162,8 +162,12 @@ public:
 			(char *) "Off"
 	};
 
-	const char * delaySyncRates[15] =
+	const char * delaySyncRates[19] =
 	{
+			(char *) "8",
+			(char *) "6",
+			(char *) "4",
+			(char *) "3",
 			(char *) "2",
 			(char *) "3/2",
 			(char *) "1",
