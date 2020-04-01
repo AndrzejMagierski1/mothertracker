@@ -802,6 +802,7 @@ void cMasterParams::changeDelaySyncEnable(int16_t val)
 	else if( val < 0) mtProject.values.delayParams |= 0b01000000;
 
 	engine.setDelayParams(mtProject.values.delayParams);
+	if(val > 0) engine.setDelayTime(mtProject.values.delayTime);
 
 	newFileManager.setProjectStructChanged();
 
