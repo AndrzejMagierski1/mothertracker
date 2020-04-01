@@ -273,9 +273,10 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 	//----------------------------------------------------------------------------------------------------
-	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
-			mtProject.values.padBoardNoteOffset,
-			mtProject.values.padBoardRootNote = 36);
+//	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
+//			mtProject.values.padBoardNoteOffset,
+//			mtProject.values.padBoardRootNote = 36);
+
 
 //	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 	mtPadBoard.configureInstrumentPlayer(8);

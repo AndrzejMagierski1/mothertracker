@@ -21,6 +21,7 @@
 #include "mtTest.h"
 #include "mtStructs.h"
 #include "mtConfig.h"
+#include "mtPadBoard.h"
 
 #include "mtHardware.h"
 #include "SD.h"
@@ -184,6 +185,13 @@ void cInterface::processOperatingMode()
 void cInterface::doStartTasks()
 {
 	readConfig();
+
+	// dzialania z uzyciem odczytanych wartosci z configu
+	mtPadBoard.setPadNotes(	mtConfig.values.padBoardScale,
+							mtConfig.values.padBoardNoteOffset+1,
+							mtConfig.values.padBoardRootNote);
+
+
 	//readSdConfig();
 	char beta = (mtConfig.firmware.beta == 1) ? 'b' : 0;
 	sprintf(interfaceGlobals.currentFirmwareVersion,"%d.%d.%d%c",mtConfig.firmware.ver_1,

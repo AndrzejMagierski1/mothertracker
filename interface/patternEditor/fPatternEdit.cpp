@@ -137,10 +137,6 @@ void cPatternEditor::start(uint32_t options)
 	moduleRefresh = 1;
 	patternButtonReleaseActive = 0;
 
-	mtProject.values.padBoardScale = 0;
-	mtProject.values.padBoardNoteOffset = 12;
-	mtProject.values.padBoardRootNote = 36;
-
 	trackerPattern.stepDevider = (mtConfig.general.patternDiv + 1);
 
 
@@ -2995,7 +2991,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		if (state == buttonPress)
 		{
-			PTE->moveCursorByStep();
+			if(!isMultiSelection()) PTE->moveCursorByStep();
 			PTE->lightUpPadBoard();
 			PTE->refreshPattern();
 		}

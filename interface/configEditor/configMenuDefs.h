@@ -3,6 +3,8 @@
 #define INTERFACE_CONFIGEDITOR_CONFIGMENUDEFS_H_
 
 #include <stdint.h>
+#include "scales.h"
+
 
 typedef enum enMenuType
 {
@@ -76,6 +78,16 @@ const char* const  ptrEmptyName = emptyName;
 //===========================================================
 //===========================================================
 //===========================================================
+// templates
+
+const char onOffStateTexts[2][7] =
+{
+		"Off",
+		"On",
+};
+
+
+
 // general
 
 
@@ -109,16 +121,74 @@ const char* const ptrRadioRegion[4] =
 		&radioRegion[3][0],
 };
 
-const char mtpState[3][7] =
+const char* const ptrRecQuantization[2] =
 {
-		"Off",
-		"On",
+		&onOffStateTexts[0][0],
+		&onOffStateTexts[1][0],
 };
 
-const char* const ptrMtpState[3] =
+const char performanceSourceTexts[2][9] =
 {
-		&mtpState[0][0],
-		&mtpState[1][0],
+		"Global",
+		"Project",
+};
+
+const char* const ptrPerformanceSource[2] =
+{
+	&performanceSourceTexts[0][0],
+	&performanceSourceTexts[1][0],
+};
+
+const char padsLayoutTexts[12][3] =
+{
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+		"11",
+		"12",
+};
+
+const char* const ptrPadsLayout[12] =
+{
+	&padsLayoutTexts[0][0],
+	&padsLayoutTexts[1][0],
+	&padsLayoutTexts[2][0],
+	&padsLayoutTexts[3][0],
+	&padsLayoutTexts[4][0],
+	&padsLayoutTexts[5][0],
+	&padsLayoutTexts[6][0],
+	&padsLayoutTexts[7][0],
+	&padsLayoutTexts[8][0],
+	&padsLayoutTexts[9][0],
+	&padsLayoutTexts[10][0],
+	&padsLayoutTexts[11][0],
+};
+
+/*
+const char Texts[2][7] =
+{
+		"",
+		"",
+};
+
+const char* const ptr[2] =
+{
+	&Texts[0][0],
+	&Texts[1][0],
+};
+*/
+
+const char* const ptrMtpState[2] =
+{
+		&onOffStateTexts[0][0],
+		&onOffStateTexts[1][0],
 };
 
 

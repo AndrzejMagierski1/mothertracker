@@ -32,7 +32,7 @@ void Sequencer::fillRandomNotes(int16_t fillStep,
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
-	uint8_t root = mtProject.values.padBoardRootNote;
+	uint8_t root = mtConfig.values.padBoardRootNote;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -65,7 +65,7 @@ void Sequencer::fillLinearNotes(int16_t fillStep,
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
 //	uint8_t scale = mtProject.values.padBoardScale;
-	uint8_t root = mtProject.values.padBoardRootNote;
+	uint8_t root = mtConfig.values.padBoardRootNote;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -712,6 +712,8 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 
 		}
 	}
+	if (!(player.isPlay && !player.selectionMode))
+		playSelection();
 }
 void Sequencer::setSelectionInstrument(int16_t value)
 {
@@ -760,11 +762,16 @@ void Sequencer::setSelectionInstrument(int16_t value)
 				if (step->note >= 0)
 				{
 					step->instrument = value;
-					mtProject.values.lastUsedInstrument = step->instrument;
-
+					//mtProject.values.lastUsedInstrument = step->instrument;
 				}
 			}
 		}
+	}
+
+	if (!isRec()
+			&& !isPlay())
+	{
+		playSelection();
 	}
 }
 //void Sequencer::setSelectionVelocity(int16_t value)
@@ -844,8 +851,27 @@ void Sequencer::setSelectionNote(int16_t value)
 				}
 				return;
 			}
+			else
+			{
+				if (step->note != STEP_NOTE_EMPTY)
+				{
+					step->note = value;
+				}
+			}
 		}
 	}
+
+	if (/*step->note >= 0
+			&&*/ !isRec()
+			&& !isPlay())
+	{
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+		playSelection();
+	}
+
 }
 
 void Sequencer::clearStep(uint8_t x, uint8_t row)

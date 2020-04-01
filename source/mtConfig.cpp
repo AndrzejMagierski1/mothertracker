@@ -202,10 +202,7 @@ void checkConfig()
 	}
 
 
-	// VALUES CHECK
-	if(mtConfig.values.padsLightBack > 31)	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
-	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
-	if(mtConfig.values.padsLightBackWeek > 31)	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
+	//  ----------------------------------------
 
 	if(mtConfig.arcanoidHighestScore > 20000)
 	{
@@ -262,6 +259,18 @@ void checkConfig()
 	}
 
 
+	// VALUES CHECK  --------------------
+	if(mtConfig.values.padsLightBack > 31)	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
+	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
+	if(mtConfig.values.padsLightBackWeek > 31)	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
+
+
+	if(mtConfig.values.padBoardScale > 39)	 	mtConfig.values.padBoardScale = 0;
+	if(mtConfig.values.padBoardNoteOffset > 12)	 mtConfig.values.padBoardNoteOffset = 12;
+	if(mtConfig.values.padBoardRootNote > 62)	 mtConfig.values.padBoardRootNote = 36;
+	if(mtConfig.values.padBoardMaxVoices > 8)	 mtConfig.values.padBoardMaxVoices = 8;
+
+
 	// general ----------------------------------------
 	if(mtConfig.general.dispBrightness > 2)
 	{
@@ -287,6 +296,15 @@ void checkConfig()
 	{
 		mtConfig.general.mtpState = 0;
 	}
+
+	if(mtConfig.general.recQuantization > 1) 		mtConfig.general.recQuantization = 0;
+	if(mtConfig.general.performanceSource > 1) 		mtConfig.general.performanceSource = 0;
+
+	if(mtConfig.general.padBoardScale > 39) 		mtConfig.general.padBoardScale = 0;
+	if(mtConfig.general.padBoardNoteOffset > 12) 	mtConfig.general.padBoardNoteOffset = 12;
+	if(mtConfig.general.padBoardRootNote > 25) 		mtConfig.general.padBoardRootNote = 12;
+	//if(mtConfig.general.padBoardMaxVoices > 8) 		mtConfig.general.padBoardMaxVoices = 8;
+
 
 	// interface ----------------------------------------
 	if(mtConfig.interface.fxPopupDescription > 1)
@@ -330,11 +348,6 @@ void resetConfig()
 	mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
 	mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
 
-	// values ----------------------------------------
-	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
-	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
-	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
-
 	// midi ----------------------------------------
 	for(uint8_t i = 0; i < 10; i++)
 	{
@@ -350,12 +363,28 @@ void resetConfig()
 	mtConfig.midi.notesOutMode = 0;
 	mtConfig.midi.notesOutChannel = 0;
 
+	// values ----------------------------------------
+	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
+	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
+	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
+	mtConfig.values.padBoardScale = 0;
+	mtConfig.values.padBoardNoteOffset = 12;
+	mtConfig.values.padBoardRootNote = 36;
+	mtConfig.values.padBoardMaxVoices = 8;
+
 	// general ----------------------------------------
 	mtConfig.general.dispBrightness = 2;
 	mtConfig.general.padsBrightness = 2;
 	mtConfig.general.patternDiv = 3; // czyli 4
 	mtConfig.general.radioRegion = 0;
 	mtConfig.general.mtpState = 0;
+
+	mtConfig.general.recQuantization = 0;
+	mtConfig.general.performanceSource = 0;
+	mtConfig.general.padBoardScale = 0;
+	mtConfig.general.padBoardNoteOffset = 12;
+	mtConfig.general.padBoardRootNote = 12;
+	//mtConfig.general.padBoardMaxVoices = 8;
 
 
 	// interface ----------------------------------------
@@ -374,6 +403,22 @@ void resetConfig()
 
 void firmwareVersionChange()
 {
+	// naprawki zmian -------------------------------------------------------------------------------------
+	if(mtConfig.firmware.ver_1 <= 0 && mtConfig.firmware.ver_2 <= 9 && mtConfig.firmware.ver_3 <= 61)
+	{
+		mtConfig.values.padBoardScale = 0;
+		mtConfig.values.padBoardNoteOffset = 12;
+		mtConfig.values.padBoardRootNote = 36;
+		mtConfig.values.padBoardMaxVoices = 8;
+
+		mtConfig.general.recQuantization = 1;
+		mtConfig.general.performanceSource = 1;
+		mtConfig.general.padBoardScale = 0;
+		mtConfig.general.padBoardNoteOffset = 11;
+		mtConfig.general.padBoardRootNote = 12;
+	}
+
+
 	mtConfig.general.mtpState = 0; //xxx po zmianie firmwaru wymusza wylaczenie mtp
 	//Serial.println("Firmware changed!");
 

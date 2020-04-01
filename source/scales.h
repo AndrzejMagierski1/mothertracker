@@ -6,7 +6,6 @@
 const uint8_t MIN_SCALE = 0;
 const uint8_t MAX_SCALE = 39;
 
-extern const char* ptrScaleNames[];
 
 uint8_t isInScale(uint8_t note,		// nuta do sprawdzenia ,
                   uint8_t root,		// root note
@@ -327,5 +326,133 @@ const char scaleNames[][10] =
 #define SCALENAME98 "test98"
 #define SCALENAME99 "test99"
 #define SCALENAME100 "test100"
+
+
+
+const char* const ptrScaleNames[40] =
+{
+		&scaleNames[0][0],
+		&scaleNames[1][0],
+		&scaleNames[2][0],
+		&scaleNames[3][0],
+		&scaleNames[4][0],
+		&scaleNames[5][0],
+		&scaleNames[6][0],
+		&scaleNames[7][0],
+		&scaleNames[8][0],
+		&scaleNames[9][0],
+		&scaleNames[10][0],
+		&scaleNames[11][0],
+		&scaleNames[12][0],
+		&scaleNames[13][0],
+		&scaleNames[14][0],
+		&scaleNames[15][0],
+		&scaleNames[16][0],
+		&scaleNames[17][0],
+		&scaleNames[18][0],
+		&scaleNames[19][0],
+		&scaleNames[20][0],
+		&scaleNames[21][0],
+		&scaleNames[22][0],
+		&scaleNames[23][0],
+		&scaleNames[24][0],
+		&scaleNames[25][0],
+		&scaleNames[26][0],
+		&scaleNames[27][0],
+		&scaleNames[28][0],
+		&scaleNames[29][0],
+		&scaleNames[30][0],
+		&scaleNames[31][0],
+		&scaleNames[32][0],
+		&scaleNames[33][0],
+		&scaleNames[34][0],
+		&scaleNames[35][0],
+		&scaleNames[36][0],
+		&scaleNames[37][0],
+		&scaleNames[38][0],
+		&scaleNames[39][0],
+};
+
+
+const char allNotes[128][5] =
+{
+	"C0",	"C#0",	"D0",	"D#0",	"E0",	"F0",	"F#0",	"G0",	"G#0",	"A0",	"A#0",	"B0",
+	"C1",	"C#1",	"D1",	"D#1",	"E1",	"F1",	"F#1",	"G1",	"G#1",	"A1",	"A#1",	"B1",
+	"C2",	"C#2",	"D2",	"D#2",	"E2",	"F2",	"F#2",	"G2",	"G#2",	"A2",	"A#2",	"B2",
+	"C3",	"C#3",	"D3",	"D#3",	"E3",	"F3",	"F#3",	"G3",	"G#3",	"A3",	"A#3",	"B3",
+	"C4",	"C#4",	"D4",	"D#4",	"E4",	"F4",	"F#4",	"G4",	"G#4",	"A4",	"A#4",	"B4",
+	"C5",	"C#5",	"D5",	"D#5",	"E5",	"F5",	"F#5",	"G5",	"G#5",	"A5",	"A#5",	"B5",
+	"C6",	"C#6",	"D6",	"D#6",	"E6",	"F6",	"F#6",	"G6",	"G#6",	"A6",	"A#6",	"B6",
+	"C7",	"C#7",	"D7",	"D#7",	"E7",	"F7",	"F#7",	"G7",	"G#7",	"A7",	"A#7",	"B7",
+	"C8",	"C#8",	"D8",	"D#8",	"E8",	"F8",	"F#8",	"G8",	"G#8",	"A8",	"A#8",	"B8",
+	"C9",	"C#9",	"D9",	"D#9",	"E9",	"F9",	"F#9",	"G9",	"G#9",	"A9",	"A#9",	"B9",
+	"C10",	"C#10",	"D10",	"D#10",	"E10",	"F10",	"F#10",	"G10"
+};
+
+const char* const ptrAllNotes[128] =
+{
+		&allNotes[0][0],
+		&allNotes[1][0],
+		&allNotes[2][0],
+		&allNotes[3][0],
+		&allNotes[4][0],
+		&allNotes[5][0],
+		&allNotes[6][0],
+		&allNotes[7][0],
+		&allNotes[8][0],
+		&allNotes[9][0],
+		&allNotes[10][0],
+		&allNotes[11][0],
+		&allNotes[12][0],
+		&allNotes[13][0],
+		&allNotes[14][0],
+		&allNotes[15][0],
+		&allNotes[16][0],
+		&allNotes[17][0],
+		&allNotes[18][0],
+		&allNotes[19][0],
+		&allNotes[20][0],
+		&allNotes[21][0],
+		&allNotes[22][0],
+		&allNotes[23][0],
+		&allNotes[24][0],
+		&allNotes[25][0],
+		&allNotes[26][0],
+		&allNotes[27][0],
+		&allNotes[28][0],
+		&allNotes[29][0],
+		&allNotes[30][0],
+		&allNotes[31][0],
+		&allNotes[32][0],
+		&allNotes[33][0],
+		&allNotes[34][0],
+		&allNotes[35][0],
+		&allNotes[36][0],
+		&allNotes[37][0],
+		&allNotes[38][0],
+		&allNotes[39][0],
+		&allNotes[40][0],
+		&allNotes[41][0],
+		&allNotes[42][0],
+		&allNotes[43][0],
+		&allNotes[44][0],
+		&allNotes[45][0],
+		&allNotes[46][0],
+		&allNotes[47][0],
+		&allNotes[48][0],
+		&allNotes[49][0],
+		&allNotes[50][0],
+		&allNotes[51][0],
+		&allNotes[52][0],
+		&allNotes[53][0],
+		&allNotes[54][0],
+		&allNotes[55][0],
+		&allNotes[56][0],
+		&allNotes[57][0],
+		&allNotes[58][0],
+		&allNotes[59][0],
+		&allNotes[60][0],
+		&allNotes[61][0],
+};
 
 #endif

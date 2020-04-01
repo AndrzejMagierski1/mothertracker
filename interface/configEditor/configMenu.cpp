@@ -15,7 +15,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 5);
 //=====================================================================================================================================
 
 // grupy glowne
-cMenuGroup menuGeneral	(menuBase, 0, "General", 	4);
+cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuFirmware	(menuBase, 2, "Firmware", 	2);
 cMenuGroup menuHelp		(menuBase, 3, "Help", 		1);
@@ -29,11 +29,25 @@ const strItemTypeListTextWithAction setupDispBrightness 	{ &mtConfig.general.dis
 const strItemTypeListTextWithAction setupPadsBrightness 	{ &mtConfig.general.padsBrightness,  3, ptrBrightness, setPadsBrightness };
 const strItemTypeListText setupMtpState 		{ &mtConfig.general.mtpState,  	 	2, ptrMtpState  };
 
+const strItemTypeListText setupRecQuantization 	{ &mtConfig.general.recQuantization,  		2,		ptrRecQuantization		};
+const strItemTypeListText setupPerfSource 		{ &mtConfig.general.performanceSource,  	2, 		ptrPerformanceSource	};
+const strItemTypeListTextWithAction setupPadsScale		{ &mtConfig.general.padBoardScale,  	40, ptrScaleNames,		setPadBoardValues };
+const strItemTypeListTextWithAction setupPadsRootNote	{ &mtConfig.general.padBoardRootNote,  	25,	&ptrAllNotes[24],	setPadBoardValues };
+const strItemTypeListTextWithAction setupPadsLayout		{ &mtConfig.general.padBoardNoteOffset,	12, ptrPadsLayout,		setPadBoardValues };
+
+
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListTextWithAction, &setupDispBrightness);
 cMenuItem melPadsBright	(menuGeneral, 		3, "Pads Brightness", 		menuTypeItemListTextWithAction, &setupPadsBrightness);
+cMenuItem melRecQuantization	(menuGeneral, 	4, "Record quantization", 	menuTypeItemListText, &setupRecQuantization);
+cMenuItem melPerformanceSource	(menuGeneral, 	5, "Performance source", 	menuTypeItemListText, &setupPerfSource);
+cMenuItem melPadsScale			(menuGeneral, 	6, "Pads Scale", 			menuTypeItemListTextWithAction, &setupPadsScale);
+cMenuItem melPadsRootNote		(menuGeneral, 	7, "Pads Root Note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
+cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
+
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
+
 
 ///////////////////
 const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};

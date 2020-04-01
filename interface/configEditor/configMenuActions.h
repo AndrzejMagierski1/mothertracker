@@ -7,7 +7,7 @@
 void setDisplayBrightness();
 void setPadsBrightness();
 
-
+void setPadBoardValues();
 
 
 
