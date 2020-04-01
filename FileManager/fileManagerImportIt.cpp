@@ -220,6 +220,28 @@ uint32_t cFileManager::getSampleOffset(uint8_t index)
 	return 0;
 }
 
+uint32_t cFileManager::getPatternOffset(uint8_t index)
+{
+	if (index >= PatNum) return 0;
+
+	uint8_t byteBuffer[4];
+
+	uint32_t fileOffset = 0x00C0 + OrdNum + InsNum * 4 + SmpNum * 4 + index * sizeof(uint32_t);
+
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+														impFileData.path,
+														byteBuffer,
+														sizeof(uint32_t),
+														fileOffset, // fileOffset
+														fileWholeOnce); // fileDivIntoParts
+
+	if (loadStatus == fileTransferEnd)
+	{
+		return readUint(byteBuffer, 4);
+	}
+
+	return 0;
+}
 uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 										uint32_t offset,
 										uint8_t varSize)
@@ -239,29 +261,6 @@ uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 	if (loadStatus == fileTransferEnd)
 	{
 		return readUint(byteBuffer, varSize);
-	}
-
-	return 0;
-}
-
-uint32_t cFileManager::getPatternOffset(uint8_t index)
-{
-	if (index >= PatNum) return 0;
-
-	uint8_t byteBuffer[4];
-
-	uint32_t fileOffset = 0x00C0 + OrdNum + InsNum * 4 + SmpNum * 4 + index * sizeof(uint32_t);
-
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-														impFileData.path,
-														byteBuffer,
-														sizeof(uint32_t),
-														fileOffset, // fileOffset
-														fileWholeOnce); // fileDivIntoParts
-
-	if (loadStatus == fileTransferEnd)
-	{
-		return readUint(byteBuffer, 4);
 	}
 
 	return 0;
@@ -575,10 +574,170 @@ void cFileManager::importItFile_OpenSample()
 
 }
 
-void cFileManager::importItFile_ProcessPattern()
+void cFileManager::importItFile_InitPattern()
 {
 
-	moveToNextOperationStep();
+	uint32_t patternOffset = getPatternOffset(processedPattern);
+
+	if (patternOffset == 0)
+	{
+		Serial.printf("patt %d, len: %d, rows: %d\n",
+						processedPattern,
+						0,
+						0);
+		/*
+		 Note that if the (long) offset to a pattern = 0, then the
+		 pattern is assumed to be a 64 row empty pattern.
+		 */
+		processedPattern++;
+		if (processedPattern >= PatNum)
+		{
+			moveToNextOperationStep();
+			moveToNextOperationStep();
+		}
+		return;
+
+	}
+
+	uint8_t byteBuffer[4];
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+														impFileData.path,
+														byteBuffer,
+														sizeof(byteBuffer),
+														patternOffset, // fileOffset
+														fileWholeOnce); // fileDivIntoParts
+
+	if (loadStatus == fileTransferEnd)
+	{
+
+		uint16_t length = readUint(&byteBuffer[0], 2);
+		uint16_t rows = readUint(&byteBuffer[2], 2);
+
+		Serial.printf("patt %d, len: %d, rows: %d\n",
+						processedPattern,
+						length,
+						rows);
+
+		importItFile_ProcessPattern(patternOffset,
+									length,
+									rows);
+
+		processedPattern++;
+		if (processedPattern >= PatNum)
+		{
+			moveToNextOperationStep();
+		}
+	}
+	else if (loadStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
+}
+
+void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
+												uint16_t length,
+												uint16_t rows)
+{
+	uint8_t byteBuffer[length];
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(
+														impFileData.path,
+														byteBuffer,
+														sizeof(byteBuffer),
+														patternOffset + 8, // fileOffset
+														fileWholeOnce); //
+	uint8_t previousmaskvariable[8] { 0 };
+	uint8_t lastNote[8] { 0 };
+	uint8_t lastInstrument[8] { 0 };
+	uint8_t lastVolume[8] { 0 };
+	uint8_t lastCommand[8] { 0 };
+	uint8_t lastCommandValue[8] { 0 };
+	if (loadStatus == fileTransferEnd)
+	{
+		uint16_t byteIndex = 0;
+		uint8_t channel = 0;
+		uint8_t maskvariable = 0;
+		uint8_t note = 0;
+		uint8_t instrument = 0;
+		uint8_t volume = 0;
+		uint8_t command = 0;
+		uint8_t commandValue = 0;
+
+		while (byteIndex < length)
+		{
+
+			uint8_t channelvariable = byteBuffer[byteIndex++];
+
+			if (channelvariable == 0)
+			{
+				Serial.println("end of row");
+			}
+
+			channel = (channelvariable - 1) & 63;
+
+			if (channelvariable & 128)
+			{
+				maskvariable = byteBuffer[byteIndex++];
+				previousmaskvariable[channel] = maskvariable;
+			}
+			else
+			{
+				maskvariable = previousmaskvariable[channel];
+			}
+
+			if (maskvariable & 1)
+			{
+				note = byteBuffer[byteIndex++];
+				lastNote[channel] = note;
+			}
+			if (maskvariable & 2)
+			{
+				instrument = byteBuffer[byteIndex++];
+				lastInstrument[channel] = instrument;
+			}
+			if (maskvariable & 4)
+			{
+				volume = byteBuffer[byteIndex++];
+				lastVolume[channel] = volume;
+			}
+			if (maskvariable & 8)
+			{
+				command = byteBuffer[byteIndex++];
+				commandValue = byteBuffer[byteIndex++];
+
+				lastCommand[channel] = command;
+				lastCommandValue[channel] = commandValue;
+			}
+			if (maskvariable & 16)
+			{
+				note = lastNote[channel];
+			}
+			if (maskvariable & 32)
+			{
+				instrument = lastInstrument[channel];
+			}
+			if (maskvariable & 64)
+			{
+				volume = lastVolume[channel];
+			}
+			if (maskvariable & 128)
+			{
+				command = lastCommand[channel];
+				commandValue = lastCommandValue[channel];
+			}
+
+			Serial.printf("chan: %d, note: %d, ins: %d\n",
+							channel,
+							note,
+							instrument);
+
+		}
+
+	}
+	else if (loadStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
+
 }
 /*
  *

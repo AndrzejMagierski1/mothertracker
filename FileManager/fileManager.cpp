@@ -119,10 +119,8 @@ void cFileManager::updateImportModFile()
 		case 3:			importItFile_ProcessOffsets();		break;
 
 		case 4:			importItFile_ProcessInstruments();	break;
-		case 5:			importItFile_OpenSample();		break;
-		case 6:			importItFile_ProcessPattern();			break;
-//		case 6:			importModFile_WriteWave();			break;
-//		case 7:			importModFile_Finish();				break;
+		case 5:			importItFile_OpenSample();			break;
+		case 6:			importItFile_InitPattern();			break;
 		default:
 //			importModFile_Error();
 			stopOperationWithError(fmImportModError);

@@ -589,7 +589,10 @@ private:
 
 	void importItFile_ProcessInstruments();
 	void importItFile_OpenSample();
-	void importItFile_ProcessPattern();
+	void importItFile_InitPattern();
+	void importItFile_ProcessPattern(uint32_t patternOffset,
+										uint16_t length,
+										uint16_t rows);
 
 
 
