@@ -61,8 +61,6 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state);
 
 // MASTER EDIT FUNCTIONS
 void changeVolume(int16_t value);
-void changeDelayFeedback(int16_t value);
-void changeDelayTime(int16_t value);
 void changeLimiterAttack(int16_t value);
 void changeLimiterRelease(int16_t value);
 void changeLimiterTreshold(int16_t value);
@@ -201,15 +199,32 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 
-	switch(MP->selectedPlace)
+	if(MP->isDelayScreen)
 	{
-		case 0: changeVolume(value);			break;
-		case 1: changeBitDepth(value);			break;
-		case 2: changeLimiterAttack(value);		break;
-		case 3: changeLimiterRelease(value);	break;
-		case 4: changeLimiterTreshold(value);	break;
-		default: break;
+		switch(MP->selectedPlaceDelay)
+		{
+			case 0: 	MP->changeDelayPingPongEnable(value);		break;
+			case 1: 	MP->changeDelaySyncEnable(value);			break;
+			case 2: 	MP->changeDelayRate(value);					break;
+			case 3: 	MP->changeDelayTime(value);					break;
+			case 4: 	MP->changeDelayFeedback(value);				break;
+			default: break;
+		}
 	}
+	else
+	{
+		switch(MP->selectedPlace)
+		{
+			case 0: changeVolume(value);			break;
+			case 1: changeBitDepth(value);			break;
+			case 2: changeLimiterAttack(value);		break;
+			case 3: changeLimiterRelease(value);	break;
+			case 4: changeLimiterTreshold(value);	break;
+			default: break;
+		}
+	}
+
+
 
 	return 1;
 }
@@ -222,11 +237,23 @@ static  uint8_t functEncoder(int16_t value)
 static  uint8_t functLeft()
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
-	if(MP->frameData.multiSelActiveNum != 0) return 1;
 
-	if(MP->selectedPlace > 0) MP->selectedPlace--;
+	if(MP->isDelayScreen)
+	{
+		if(MP->selectedPlaceDelay > 0) MP->selectedPlaceDelay--;
 
-	MP->activateLabelsBorder();
+		if( (MP->selectedPlaceDelay == 2) && !(mtProject.values.delayParams & 0b01000000)) MP->selectedPlaceDelay = 1;
+		else if ( (MP->selectedPlaceDelay == 3) && (mtProject.values.delayParams & 0b01000000)) MP->selectedPlaceDelay = 2;
+
+		MP->refreshDelayFrame();
+	}
+	else
+	{
+		if(MP->selectedPlace > 0) MP->selectedPlace--;
+		MP->activateLabelsBorder();
+	}
+
+
 
 	return 1;
 }
@@ -235,11 +262,21 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
-	if(MP->frameData.multiSelActiveNum != 0) return 1;
 
-	if(MP->selectedPlace < MP->frameData.placesCount-1) MP->selectedPlace++;
+	if(MP->isDelayScreen)
+	{
+		if(MP->selectedPlaceDelay < MP->frameData.placesCount-1) MP->selectedPlaceDelay++;
 
-	MP->activateLabelsBorder();
+		if( (MP->selectedPlaceDelay == 2) && !(mtProject.values.delayParams & 0b01000000)) MP->selectedPlaceDelay = 3;
+		else if ( (MP->selectedPlaceDelay == 3) && (mtProject.values.delayParams & 0b01000000)) MP->selectedPlaceDelay = 4;
+
+		MP->refreshDelayFrame();
+	}
+	else
+	{
+		if(MP->selectedPlace < MP->frameData.placesCount-1) MP->selectedPlace++;
+		MP->activateLabelsBorder();
+	}
 
 	return 1;
 }
@@ -249,15 +286,32 @@ static  uint8_t functUp()
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 
-	switch(MP->selectedPlace)
+	if(MP->isDelayScreen)
 	{
-		case 0: changeVolume(1);			break;
-		case 1: changeBitDepth(1);			break;
-		case 2: changeLimiterAttack(1);		break;
-		case 3: changeLimiterRelease(1);	break;
-		case 4: changeLimiterTreshold(1);	break;
-		default: break;
+		switch(MP->selectedPlaceDelay)
+		{
+			case 0: 	MP->changeDelayPingPongEnable(-1);		break;
+			case 1: 	MP->changeDelaySyncEnable(-1);			break;
+			case 2: 	MP->changeDelayRate(-1);				break;
+			case 3: 	MP->changeDelayTime(1);					break;
+			case 4: 	MP->changeDelayFeedback(1);				break;
+			default: break;
+		}
 	}
+	else
+	{
+		switch(MP->selectedPlace)
+		{
+			case 0: changeVolume(1);			break;
+			case 1: changeBitDepth(1);			break;
+			case 2: changeLimiterAttack(1);		break;
+			case 3: changeLimiterRelease(1);	break;
+			case 4: changeLimiterTreshold(1);	break;
+			default: break;
+		}
+	}
+
+
 
 	return 1;
 }
@@ -267,14 +321,29 @@ static  uint8_t functDown()
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 
-	switch(MP->selectedPlace)
+	if(MP->isDelayScreen)
 	{
-		case 0: changeVolume(-1);			break;
-		case 1: changeBitDepth(-1);			break;
-		case 2: changeLimiterAttack(-1);	break;
-		case 3: changeLimiterRelease(-1);	break;
-		case 4: changeLimiterTreshold(-1);	break;
-		default: break;
+		switch(MP->selectedPlaceDelay)
+		{
+			case 0: 	MP->changeDelayPingPongEnable(1);		break;
+			case 1: 	MP->changeDelaySyncEnable(1);			break;
+			case 2: 	MP->changeDelayRate(1);					break;
+			case 3: 	MP->changeDelayTime(-1);				break;
+			case 4: 	MP->changeDelayFeedback(-1);			break;
+			default: break;
+		}
+	}
+	else
+	{
+		switch(MP->selectedPlace)
+		{
+			case 0: changeVolume(-1);			break;
+			case 1: changeBitDepth(-1);			break;
+			case 2: changeLimiterAttack(-1);	break;
+			case 3: changeLimiterRelease(-1);	break;
+			case 4: changeLimiterTreshold(-1);	break;
+			default: break;
+		}
 	}
 
 	return 1;
@@ -411,6 +480,7 @@ void cMasterParams::switchToMaster()
 
 	showMasterScreen();
 	displayType = display_t::masterValues;
+	isDelayScreen = false;
 }
 void cMasterParams::switchToMixer()
 {
@@ -449,7 +519,8 @@ void cMasterParams::switchToDelayScreen()
 
 	showDelayScreen();
 
-	displayType = display_t::delay;
+	displayType = display_t::masterValues;
+	isDelayScreen = true;
 }
 
 //delay
@@ -458,24 +529,40 @@ static  uint8_t functSwitchToDelayWindow()
 	MP->switchToDelayScreen();
 	return 1;
 }
-static 	uint8_t functSelectDelaySyncEnable()
-{
-	return 1;
-}
 static 	uint8_t functSelectDelayPingpongEnable()
 {
+	MP->selectedPlaceDelay = 0;
+	MP->refreshDelayFrame();
 	return 1;
 }
+
+static 	uint8_t functSelectDelaySyncEnable()
+{
+	MP->selectedPlaceDelay = 1;
+	MP->refreshDelayFrame();
+	return 1;
+}
+
 static 	uint8_t functSelectDelaySyncRate()
 {
+	if(!(mtProject.values.delayParams & 0b01000000)) return 1;
+
+	MP->selectedPlaceDelay = 2;
+	MP->refreshDelayFrame();
 	return 1;
 }
 static 	uint8_t functSelectDelayTime()
 {
+	if(mtProject.values.delayParams & 0b01000000) return 1;
+
+	MP->selectedPlaceDelay = 3;
+	MP->refreshDelayFrame();
 	return 1;
 }
 static 	uint8_t functSelectDelayFeedback()
 {
+	MP->selectedPlaceDelay = 4;
+	MP->refreshDelayFrame();
 	return 1;
 }
 
@@ -586,7 +673,8 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 		}
 		else if(MP->displayType == cMasterParams::display_t::mixer)
 		{
-			MP->switchToMaster();
+			if(MP->isDelayScreen) MP->switchToDelayScreen();
+			else MP->switchToMaster();
 		}
 /*		CE->clearAllNodes();
 		CE->cancelMultiFrame();*/
@@ -625,32 +713,6 @@ void changeVolume(int16_t value)
 	newFileManager.setProjectStructChanged();
 
 	MP->showVolume();
-}
-
-void changeDelayFeedback(int16_t value)
-{
-	if(mtProject.values.delayFeedback + value < DELAY_FEEDBACK_MIN) mtProject.values.delayFeedback = DELAY_FEEDBACK_MIN;
-	else if(mtProject.values.delayFeedback + value > DELAY_FEEDBACK_MAX) mtProject.values.delayFeedback = DELAY_FEEDBACK_MAX;
-	else mtProject.values.delayFeedback += value;
-
-	engine.setDelayFeedback(mtProject.values.delayFeedback);
-
-	newFileManager.setProjectStructChanged();
-
-	MP->showDelayFeedback();
-}
-
-void changeDelayTime(int16_t value)
-{
-	if(mtProject.values.delayTime + value < DELAY_TIME_MIN) mtProject.values.delayTime = DELAY_TIME_MIN;
-	else if(mtProject.values.delayTime + value > DELAY_TIME_MAX) mtProject.values.delayTime = DELAY_TIME_MAX;
-	else mtProject.values.delayTime += value;
-
-	engine.setDelayTime(mtProject.values.delayTime);
-
-	newFileManager.setProjectStructChanged();
-
-	MP->showDelayTime();
 }
 
 void changeLimiterAttack(int16_t value)
@@ -720,6 +782,74 @@ void changeBitDepth(int16_t value)
 
 	newFileManager.setProjectStructChanged();
 	MP->showBitDepth();
+}
+
+void cMasterParams::changeDelayPingPongEnable(int16_t val)
+{
+	if(val > 0) mtProject.values.delayParams &= 0b01111111;
+	else if( val < 0) mtProject.values.delayParams |= 0b10000000;
+
+	engine.setDelayParams(mtProject.values.delayParams);
+
+	newFileManager.setProjectStructChanged();
+
+	showDelayPingPongEnable();
+
+}
+void cMasterParams::changeDelaySyncEnable(int16_t val)
+{
+	if(val > 0) mtProject.values.delayParams &= 0b10111111;
+	else if( val < 0) mtProject.values.delayParams |= 0b01000000;
+
+	engine.setDelayParams(mtProject.values.delayParams);
+
+	newFileManager.setProjectStructChanged();
+
+	showDelaySyncEnable();
+}
+void cMasterParams::changeDelayRate(int16_t val)
+{
+	uint8_t temp = mtProject.values.delayParams & 0b00111111;
+
+	if(temp + val < 0) temp = 0;
+	else if(temp + val > 14) temp = 14;
+	else temp+=val;
+
+	mtProject.values.delayParams &= 0b11000000;
+	mtProject.values.delayParams |= temp;
+
+	engine.setDelayParams(mtProject.values.delayParams);
+
+	newFileManager.setProjectStructChanged();
+
+	showDelayRate();
+}
+void cMasterParams::changeDelayTime(int16_t val)
+{
+	if(mtProject.values.delayTime < 500) val *= 10;
+	else val *= 30;
+
+	if(mtProject.values.delayTime + val < DELAY_TIME_MIN) mtProject.values.delayTime = DELAY_TIME_MIN;
+	else if(mtProject.values.delayTime + val > DELAY_TIME_MAX) mtProject.values.delayTime = DELAY_TIME_MAX;
+	else mtProject.values.delayTime += val;
+
+	engine.setDelayTime(mtProject.values.delayTime);
+
+	newFileManager.setProjectStructChanged();
+
+	showDelayTime();
+}
+void cMasterParams::changeDelayFeedback(int16_t val)
+{
+	if(mtProject.values.delayFeedback + val < DELAY_FEEDBACK_MIN) mtProject.values.delayFeedback = DELAY_FEEDBACK_MIN;
+	else if(mtProject.values.delayFeedback + val > DELAY_FEEDBACK_MAX) mtProject.values.delayFeedback = DELAY_FEEDBACK_MAX;
+	else mtProject.values.delayFeedback += val;
+
+	engine.setDelayFeedback(mtProject.values.delayFeedback);
+
+	newFileManager.setProjectStructChanged();
+
+	showDelayFeedback();
 }
 
 

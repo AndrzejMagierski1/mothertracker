@@ -509,6 +509,46 @@ struct strInterfaceGlobals
 		0xFF0000, // ramka
 	};
 
+	uint32_t activeBarColors[5] =
+	{
+		0xFFFFFF, // kolor glowny
+		0xff0000, // kolor dodatkowy 1 czer
+		0x00ff00, // kolor dodatkowy 2 ziel
+		0x080808, // kontener
+		0x0a0a0a, // tlo
+	};
+
+	uint32_t inactiveBarColors[5] =
+	{
+		0x222222, // kolor glowny
+		0xff0000, // kolor dodatkowy 1 czer
+		0x00ff00, // kolor dodatkowy 2 ziel
+		0x080808, // kontener
+		0x0a0a0a, // tlo
+	};
+
+	uint32_t activeListColors[7] =
+	{
+		0xFFFFFF,	//	uint32_t listItemFrame 			= DISP_RGB(255,255,255);
+		0x000000,	//	uint32_t listItemFrameBG 		= DISP_RGB(0,0,0);
+		0x575757,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
+		0x0a0a0a,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
+		0xFFFFFF,	//	uint32_t fontList 				= DISP_RGB(255,255,255);
+		one_true_red,   //  select color
+		0x000000	//	scrollParCont
+	};
+
+	uint32_t inactiveListColors[7] =
+	{
+		0x222222,	//	uint32_t listItemFrame
+		0x000000,	//	uint32_t listItemFrameBG 		= DISP_RGB(0,0,0);
+		0x575757,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
+		0x0a0a0a,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
+		0x222222,	//	uint32_t fontList
+		one_true_red,   //  select color
+		0x000000	//	scrollParCont
+	};
+
 
 //-----------------------------------------------------
 

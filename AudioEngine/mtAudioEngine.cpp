@@ -212,13 +212,15 @@ void audioEngine::init()
 	for(uint8_t i = 1; i < 4 ; i ++)
 	{
 		mixerSourceR.gain(i,ampLogValues[50]);
-		mixerSourceL.gain(i,ampLogValues[50] );
+		mixerSourceL.gain(i,ampLogValues[50]);
 	}
 
 //	filterReverbOut.setType(filterType::lowPass);
 //	filterReverbOut.setCutoff(1.0);
 //	filterReverbOut.connect();
-	shortDelay.begin(mtProject.values.delayFeedback, mtProject.values.delayTime);
+	shortDelay.begin(mtProject.values.delayFeedback, mtProject.values.delayTime,
+			mtProject.values.delayParams & 0b10000000,mtProject.values.delayParams & 0b01000000,
+			mtProject.values.delayParams & 0b00111111);
 
 	audioShield.volume(mtProject.values.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
@@ -250,6 +252,13 @@ void audioEngine::update()
 
 	if(recorder.mode == recorderModeStop)
 	{
+		currentTempo = sequencer.getActualTempo();
+		if(currentTempo != lastTempo)
+		{
+			setDelayParams(mtProject.values.delayParams);
+		}
+		lastTempo = currentTempo;
+
 		for(int i=0; i<8; i++)
 		{
 			instrumentPlayer[i].update();
@@ -312,6 +321,13 @@ void audioEngine::setDelayFeedback(uint8_t value)
 void audioEngine::setDelayTime(uint16_t value)
 {
 	shortDelay.setTime(value);
+}
+
+void audioEngine::setDelayParams(uint8_t value)
+{
+	shortDelay.setPingpongEnable(value & 0b10000000);
+	shortDelay.setSyncEnable(value & 0b01000000);
+	shortDelay.setRate(value & 0b00111111);
 }
 
 void audioEngine::setDelayPanning(int8_t value)

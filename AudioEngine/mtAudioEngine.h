@@ -196,6 +196,7 @@ public:
 	void setDelayFeedback(uint8_t value);
 	void setDelayTime(uint16_t value);
 	void setDelayPanning(int8_t value);
+	void setDelayParams(uint8_t value);
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
 	void setLimiterTreshold(uint16_t threshold);
@@ -216,6 +217,8 @@ public:
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;
+	uint16_t currentTempo;
+	uint16_t lastTempo;
 };
 
 

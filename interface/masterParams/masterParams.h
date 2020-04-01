@@ -68,9 +68,11 @@ public:
 	enum struct display_t
 	{
 		masterValues,
-		mixer,
-		delay
+		mixer
 	} displayType;
+
+	uint8_t selectedPlaceDelay;
+	bool isDelayScreen;
 	//mixer
 	void showMixerScreen();
 	void showLevelBar(uint8_t n);
@@ -122,15 +124,19 @@ public:
 	void changeLimiterRelease(int16_t value);
 	void changeLimiterTreshold(int16_t value);
 	void changeBitDepth(int16_t value);*/
+// delay
 
-
-	//master tracks
+	void changeDelayPingPongEnable(int16_t val);
+	void changeDelaySyncEnable(int16_t val);
+	void changeDelayRate(int16_t val);
+	void changeDelayTime(int16_t val);
+	void changeDelayFeedback(int16_t val);
 
 
 
 	//
 	void activateLabelsBorder();
-
+	void refreshDelayFrame();
 
 
 
@@ -156,7 +162,7 @@ public:
 			(char *) "Off"
 	};
 
-	const char * delaySyncRates[17] =
+	const char * delaySyncRates[15] =
 	{
 			(char *) "2",
 			(char *) "3/2",
@@ -173,8 +179,6 @@ public:
 			(char *) "1/16",
 			(char *) "1/24",
 			(char *) "1/32",
-			(char *) "1/48",
-			(char *) "1/64"
 	};
 
 	hControl label[8];

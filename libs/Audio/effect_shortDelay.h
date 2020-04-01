@@ -13,13 +13,16 @@ public:
   AudioEffectShortDelay(void):
   AudioStream(1,inputQueueArray)
   {
-	  begin(0.5,500);
+	  begin(0.5,500,false,false,0);
 	  blockUpdate();
   }
 
-  void begin(float f, uint32_t t);
+  void begin(float f, uint32_t t, bool pp, bool se, uint8_t sr);
   void setFeedback(float f);
   void setTime(uint16_t t);
+  void setRate(uint8_t r);
+  void setPingpongEnable(bool pp);
+  void setSyncEnable(bool se);
   virtual void update(void);
   void clear();
   void blockUpdate();
@@ -37,6 +40,8 @@ private:
   uint32_t feedbackVoiceShift[MAX_SHORT_DELAY_VOICES];
   bool noRefresh;
   bool isPingpong;
+  bool isSync;
+  uint8_t syncRate;
 };
 
 #endif /* LIBS_AUDIO_EFFECT_SHORTDELAY_H_ */

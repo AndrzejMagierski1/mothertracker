@@ -1,16 +1,41 @@
 #include "effect_shortDelay.h"
 #include "sdram.h"
-
+#include "mtSequencer.h"
 static int16_t zeroblock[AUDIO_BLOCK_SAMPLES] = {};
 
 constexpr uint32_t MAX_DELAYLINE_LENGTH = (MAX_SHORT_DELAY_VOICES - 1) * MAX_SHORT_DELAY_TIME * 44.1f;
 
-void AudioEffectShortDelay::begin(float f, uint32_t t)
+
+const float tempoSyncRatesShortDelay[15] =
 {
+	2,
+	1.5,
+	1,
+	0.75,
+	0.5,
+	0.375,
+	0.333333,
+	0.25,
+	0.1875,
+	0.166667,
+	0.125,
+	0.083333,
+	0.0625,
+	0.041667,
+	0.03125,
+};
+
+
+
+void AudioEffectShortDelay::begin(float f, uint32_t t, bool pp, bool se, uint8_t sr)
+{
+	isPingpong = pp;
+	isSync = se;
 	setTime(t);
 	setFeedback(f);
+	setRate(sr);
 	currentTail = startDelayLine;
-	isPingpong = true;
+
 	unblockUpdate();
 }
 void AudioEffectShortDelay::setFeedback(float f)
@@ -43,6 +68,8 @@ void AudioEffectShortDelay::setFeedback(float f)
 }
 void AudioEffectShortDelay::setTime(uint16_t t)
 {
+	if(isSync) return;
+
 	if(t > MAX_SHORT_DELAY_TIME) t = MAX_SHORT_DELAY_TIME;
 	timeInSamples = (uint32_t)(t * 44.1f) ;
 	__disable_irq();
@@ -54,6 +81,36 @@ void AudioEffectShortDelay::setTime(uint16_t t)
 	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
 	__enable_irq();
 }
+
+void AudioEffectShortDelay::setRate(uint8_t r)
+{
+	if(!isSync) return;
+
+	float tempo = sequencer.getActualTempo();
+
+	float freq = (tempo/15.0f); // *4,bo  beat = 4 step i /60, bo min = 60s
+	float time = (1000/freq) * tempoSyncRatesShortDelay[r];// w ms
+
+
+	timeInSamples = (uint32_t)(time * 44.1f) ;
+	__disable_irq();
+	for(uint8_t i = 1 ; i <= delayVoicesNumber; i++)
+	{
+		feedbackVoiceShift[i-1] = i * timeInSamples;
+	}
+	delaylineLength = delayVoicesNumber * timeInSamples;
+	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
+	__enable_irq();
+}
+void AudioEffectShortDelay::setPingpongEnable(bool pp)
+{
+	isPingpong = pp;
+}
+void AudioEffectShortDelay::setSyncEnable(bool se)
+{
+	isSync = se;
+}
+
 void AudioEffectShortDelay::clear()
 {
 	bufferedDataLength = 0;

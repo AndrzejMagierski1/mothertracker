@@ -176,7 +176,7 @@ void cMasterParams::initDisplayControls()
 
 	syncRateData.linesCount = 14;
 	syncRateData.start = 0;
-	syncRateData.length = 17;
+	syncRateData.length = 15;
 	syncRateData.data = (char**)delaySyncRates;
 
 	propSyncRate.style = controlStyleBackground;
@@ -309,6 +309,8 @@ void cMasterParams::showMasterScreen()
 
 	resizeToDefaultMaster();
 
+	display.setControlColors(barControl[3], interfaceGlobals.activeBarColors);
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
@@ -340,7 +342,7 @@ void cMasterParams::showMasterScreen()
 
 
 	frameData.placesCount = 5;
-	frameData.startPlace = 0;
+	frameData.startPlace = selectedPlace;
 	frameData.places[0] = &framesPlaces[0][0];
 	frameData.places[1] = &framesPlaces[1][0];
 	frameData.places[2] = &framesPlaces[2][0];
@@ -391,6 +393,23 @@ void cMasterParams::showDelayScreen()
 
 	resizeToDefaultMaster();
 
+	if(mtProject.values.delayParams & 0b01000000)
+	{
+		display.setControlColors(label[2], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(delaySyncRateList, interfaceGlobals.activeListColors);
+		display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
+		levelBarColors[3][0] = 0x222222;
+		display.setControlColors(barControl[3], levelBarColors[3]);
+	}
+	else
+	{
+		display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
+		levelBarColors[3][0] = 0xFFFFFF;
+		display.setControlColors(barControl[3], levelBarColors[3]);
+		display.setControlColors(label[2], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(delaySyncRateList, interfaceGlobals.inactiveListColors);
+	}
+
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
@@ -420,7 +439,7 @@ void cMasterParams::showDelayScreen()
 
 
 	frameData.placesCount = 5;
-	frameData.startPlace = 0;
+	frameData.startPlace = selectedPlaceDelay;
 	frameData.places[0] = &framesPlaces[0][0];
 	frameData.places[1] = &framesPlaces[1][0];
 	frameData.places[2] = &framesPlaces[2][0];
@@ -430,7 +449,7 @@ void cMasterParams::showDelayScreen()
 	frameData.places[6] = &framesPlaces[6][0];
 	frameData.places[7] = &framesPlaces[7][0];
 
-	activateLabelsBorder();
+	refreshDelayFrame();
 	display.synchronizeRefresh();
 }
 
@@ -441,6 +460,15 @@ void cMasterParams::activateLabelsBorder()
 	if(selectedPlace > frameData.placesCount-1) return;
 
 	display.setControlValue(frameControl, selectedPlace);
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+}
+
+void cMasterParams::refreshDelayFrame()
+{
+	if(selectedPlaceDelay > frameData.placesCount-1) return;
+
+	display.setControlValue(frameControl, selectedPlaceDelay);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
@@ -618,6 +646,19 @@ void cMasterParams::showDelaySyncEnable()
 
 		display.setControlText2(label[1], delaySyncEnable[0]);
 		display.refreshControl(label[1]);
+
+
+		display.setControlColors(label[2], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(delaySyncRateList, interfaceGlobals.activeListColors);
+		display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
+		levelBarColors[3][0] = 0x222222;
+		display.setControlColors(barControl[3], levelBarColors[3]);
+
+		display.refreshControl(label[2]);
+		display.refreshControl(delaySyncRateList);
+		display.refreshControl(label[3]);
+		display.refreshControl(barControl[3]);
+
 	}
 	else
 	{
@@ -626,7 +667,21 @@ void cMasterParams::showDelaySyncEnable()
 
 		display.setControlText2(label[1], delaySyncEnable[1]);
 		display.refreshControl(label[1]);
+
+
+		display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
+		levelBarColors[3][0] = 0xFFFFFF;
+		display.setControlColors(barControl[3], levelBarColors[3]);
+		display.setControlColors(label[2], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(delaySyncRateList, interfaceGlobals.inactiveListColors);
+
+		display.refreshControl(label[2]);
+		display.refreshControl(delaySyncRateList);
+		display.refreshControl(label[3]);
+		display.refreshControl(barControl[3]);
 	}
+
+	display.synchronizeRefresh();
 }
 void cMasterParams::showDelayRate()
 {
@@ -635,7 +690,7 @@ void cMasterParams::showDelayRate()
 	display.setControlValue(delaySyncRateList, rateIdx);
 	display.refreshControl(delaySyncRateList);
 
-	display.setControlText2(label[2], delaySyncEnable[rateIdx]);
+	display.setControlText2(label[2], delaySyncRates[rateIdx]);
 	display.refreshControl(label[2]);
 }
 void cMasterParams::showDelayFeedback()
@@ -655,7 +710,11 @@ void cMasterParams::showDelayTime()
 {
 	sprintf(delayTimeVal,"%d ms",mtProject.values.delayTime);
 
-	uint8_t displayDelayTime = map(mtProject.values.delayTime,DELAY_TIME_MIN,DELAY_TIME_MAX,0,100);
+	uint8_t displayDelayTime = 0 ;
+
+	if(mtProject.values.delayTime > 500) displayDelayTime = map(mtProject.values.delayTime,500,DELAY_TIME_MAX,50,100);
+	else displayDelayTime = map(mtProject.values.delayTime,0,500,0,50);
+
 
 	display.setControlValue(barControl[3], displayDelayTime);
 	display.refreshControl(barControl[3]);
@@ -728,10 +787,6 @@ void cMasterParams::showMixerScreen()
 
 void cMasterParams::showLevelBar(uint8_t n)
 {
-	display.setControlShow(barControl[n]);
-	display.setControlColors(barControl[n], levelBarColors[n]);
-	display.setControlValue(barControl[n], trackLevel[n].value);
-
 	constexpr uint8_t RED_COLOR_LEVEL = 95;
 	constexpr uint8_t LEVEL_TRESHOLD_UP = 80;
 	constexpr uint8_t LEVEL_TRESHOLD_LOW = 60;
@@ -771,6 +826,10 @@ void cMasterParams::showLevelBar(uint8_t n)
 
 	if(mtProject.values.trackMute[n]) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
 
+
+	display.setControlShow(barControl[n]);
+	display.setControlColors(barControl[n], levelBarColors[n]);
+	display.setControlValue(barControl[n], trackLevel[n].value);
 	display.refreshControl(barControl[n]);
 }
 
