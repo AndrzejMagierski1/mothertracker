@@ -167,7 +167,7 @@ const char fxDescriptions[FX_COUNT][300] =
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_REVERB_SEND,
 	{
-			"Sets the amount of Reverb send."
+			"Sets the amount of Delay send."
 			"\n"
 			"\n"
 			"From 0% to 100%."

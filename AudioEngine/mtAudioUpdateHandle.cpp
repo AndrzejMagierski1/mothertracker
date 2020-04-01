@@ -317,29 +317,29 @@ void playerEngine::handleUpdateRefreshResonance()
 }
 void playerEngine::handleUpdateRefreshReverb()
 {
-	if(statusBytes & REVERB_SEND_MASK)
+	if(statusBytes & DELAY_SEND_MASK)
 	{
-		statusBytes &= (~REVERB_SEND_MASK);
+		statusBytes &= (~DELAY_SEND_MASK);
 
 		uint8_t localReverbSend = 0;
 
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
-			localReverbSend = currentPerformanceValues.reverbSend;
+			localReverbSend = currentPerformanceValues.delaySend;
 		}
 		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
 				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend])
 		{
-			localReverbSend = currentSeqModValues.reverbSend;
+			localReverbSend = currentSeqModValues.delaySend;
 		}
 		else
 		{
-			localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+			localReverbSend = mtProject.instrument[currentInstrument_idx].delaySend;
 		}
 
-		if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
+		if(((muteState == 0) && (onlyDelayMuteState == 0)) || (engine.forceSend == 1))
 		{
-			modReverbSend(localReverbSend);
+			modDelaySend(localReverbSend);
 		}
 	}
 }

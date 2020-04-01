@@ -14,7 +14,7 @@
 
 #include "fileTransfer.h"
 #include "fileManager.h"
-
+#include "mtFileManagerOldVersionRecovery.h"
 
 __NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer {0};
 
@@ -143,13 +143,17 @@ bool cFileManager::loadProjectFileFormFileStruct(strMtProject* project, strProje
 
 	if(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] < PROJECT_FILE_VERSION)
 	{
-		//debugLog.setMaxLineCount(2);
 		debugLog.addLine("older version of project file opened");
+
+		versionRecovery.translateProject(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0],
+				PROJECT_FILE_VERSION, &pFile->projectDataAndHeader.project);
+
 	}
 	else if(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] > PROJECT_FILE_VERSION)
 	{
 		//debugLog.setMaxLineCount(2);
 		debugLog.addLine("newer version of project file opened");
+		//todo: informacja do interfejsu zeby wyswietlic popup
 	}
 
 
@@ -265,9 +269,13 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 
 	source->volume = 50;
 
-	source->reverbRoomSize = 80;
-	source->reverbDamping = 25;
-	source->reverbPanning = 0;
+//	source->reverbRoomSize = 80;
+//	source->reverbDamping = 25;
+//	source->reverbPanning = 0;
+
+	source->delayFeedback = 50;
+	source->delayTime = 500;
+	source->delayParams = 0;
 
 	source->limiterAttack = 100;
 	source->limiterRelease = 0.512;

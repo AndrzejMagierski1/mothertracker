@@ -456,7 +456,7 @@ void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstru
 	targetInstrument->tune = 0;
 	targetInstrument->fineTune = 0;
 
-	targetInstrument->reverbSend = 0;
+	targetInstrument->delaySend = 0;
 
 	targetInstrument->granular.grainLength = 441;
 

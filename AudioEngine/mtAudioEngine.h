@@ -193,7 +193,10 @@ public:
 	void setHeadphonesVolume(uint8_t value);
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
-	void setReverbPanning(int8_t value);
+	void setDelayFeedback(uint8_t value);
+	void setDelayTime(uint16_t value);
+	void setDelayPanning(int8_t value);
+	void setDelayParams(uint8_t value);
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
 	void setLimiterTreshold(uint16_t threshold);
@@ -202,17 +205,20 @@ public:
 	void soloTrack(uint8_t channel, uint8_t state);
 	void muteReverbSend(uint8_t channel, uint8_t state);
 	void soloReverbSend(uint8_t state);
-	void clearReverb();
+	void clearDelay();
 	void performanceModeEndAll();
 	void printLog(SdFile * log);
 	void startTestSignal(float amp, float freq);
 	void stopTestSignal();
 	void endAllFx();
 	void setPassEnvelope(uint8_t state);
-
+	void blockDelayRefresh();
+	void unblockDelayRefresh();
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;
+	uint16_t currentTempo;
+	uint16_t lastTempo;
 };
 
 
@@ -245,7 +251,7 @@ public:
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
-	void modReverbSend(uint8_t value);
+	void modDelaySend(uint8_t value);
 
 	void modGranularPosition(uint16_t value);
 	void modGranularGrainLength();
@@ -341,7 +347,7 @@ public:
 	    float filterCutoff;
 		uint8_t filterType;
 		uint8_t filterEnable;
-		uint8_t reverbSend;
+		uint8_t delaySend;
 		int16_t panning;
 
 		uint16_t ampAttack;
@@ -383,7 +389,7 @@ public:
 		float filterCutoff;
 		uint8_t filterType;
 		uint8_t filterEnable;
-		uint8_t reverbSend;
+		uint8_t delaySend;
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;
@@ -501,7 +507,7 @@ private:
 	uint8_t 					lastPlayState = 0;
 
 	uint8_t 					muteState = 0;
-	uint8_t						onlyReverbMuteState = 0;
+	uint8_t						onlyDelayMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
 	float 						currentSeqTempo = 0;
@@ -703,7 +709,7 @@ extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
 
-extern AudioFilterStateVariable filterReverbOut;
+//extern AudioFilterStateVariable filterReverbOut;
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;

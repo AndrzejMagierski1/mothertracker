@@ -18,7 +18,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_GLIDE :					fxGlide(fx_val, fx_n);					break;
 		case fx_t::FX_TYPE_MICROTUNING :			fxFinetune(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_PANNING :				fxPanning(fx_val, fx_n);				break;
-		case fx_t::FX_TYPE_REVERB_SEND :			fxReverbSend(fx_val, fx_n);				break;
+		case fx_t::FX_TYPE_DELAY_SEND :			fxReverbSend(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :		fxReversePlayback(fx_val, fx_n);		break;
 		case fx_t::FX_TYPE_R1 : break;
 		case fx_t::FX_TYPE_R7 : break;
@@ -61,7 +61,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 		case fx_t::FX_TYPE_GLIDE:						endFxGlide(fx_n);			break;
 		case fx_t::FX_TYPE_MICROTUNING :				endFxFinetune(fx_n);		break;
 		case fx_t::FX_TYPE_PANNING :					endFxPanning(fx_n);			break;
-		case fx_t::FX_TYPE_REVERB_SEND :				endFxReverbSend(fx_n);		break;
+		case fx_t::FX_TYPE_DELAY_SEND :				endFxReverbSend(fx_n);		break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :			endFxReversePlayback(fx_n);	break;
 		case fx_t::FX_TYPE_R1 : break;
 		case fx_t::FX_TYPE_R7 : break;
@@ -190,19 +190,19 @@ void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
-	uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_REVERB_SEND);
-	uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_REVERB_SEND);
+	uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
+	uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
 
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		currentSeqModValues.reverbSend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+		currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
 		{
-			currentSeqModValues.reverbSend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 		}
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 1;
@@ -715,10 +715,10 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
 		{
-			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_REVERB_SEND);
-			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_REVERB_SEND);
+			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
+			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
 
-			currentSeqModValues.reverbSend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.delaySend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 		}
 	}
 
@@ -1566,11 +1566,11 @@ void playerEngine::setFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 		{
-			modReverbSend(currentSeqModValues.reverbSend);
+			modDelaySend(currentSeqModValues.delaySend);
 		}
-		else modReverbSend(AMP_MUTED);
+		else modDelaySend(AMP_MUTED);
 	}
 }
 void playerEngine::clearFxReverbSend()
@@ -1581,11 +1581,11 @@ void playerEngine::clearFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 		{
-			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+			modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 		}
-		else modReverbSend(AMP_MUTED);
+		else modDelaySend(AMP_MUTED);
 	}
 }
 //FILTER

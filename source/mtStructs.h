@@ -16,10 +16,11 @@ const uint8_t FV_VER_2 =					9;		// official update
 const uint8_t FV_VER_3 =					60;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
-const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
+const uint8_t PROJECT_FILE_VERSION 	=		2;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	1;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			1;
+
 
 const float DEFAULT_TEMPO = 130;
 
@@ -131,7 +132,7 @@ constexpr uint32_t VOLUME_MASK =					0b00000000000000000000000000010000;
 constexpr uint32_t PANNING_MASK =					0b00000000000000000000000000100000;
 constexpr uint32_t CUTOFF_MASK =					0b00000000000000000000000001000000;
 constexpr uint32_t RESONANCE_MASK =					0b00000000000000000000000010000000;
-constexpr uint32_t REVERB_SEND_MASK =				0b00000000000000000000000100000000;
+constexpr uint32_t DELAY_SEND_MASK =				0b00000000000000000000000100000000;
 constexpr uint32_t WT_POS_SEND_MASK =				0b00000000000000000000001000000000;
 constexpr uint32_t GRANULAR_POS_SEND_MASK =			0b00000000000000000000010000000000;
 constexpr uint32_t GRANULAR_LEN_SEND_MASK =			0b00000000000000000000100000000000;
@@ -171,6 +172,10 @@ const uint8_t REVERB_DAMPING_MAX 			=	100;
 const int8_t REVERB_PANNING_MIN 			=	-100;
 const uint8_t REVERB_PANNING_MAX 			=	100;
 
+const uint8_t DELAY_FEEDBACK_MIN			= 	0;
+const uint8_t DELAY_FEEDBACK_MAX			=	70;
+const uint16_t DELAY_TIME_MIN				= 	1;
+const uint16_t DELAY_TIME_MAX				=	3500;
 
 const uint8_t LIMITER_ATTACK_MIN 			=	1;
 const uint16_t LIMITER_ATTACK_MAX  			=	1000;
@@ -416,7 +421,7 @@ struct strInstrument
     uint16_t glide;
     int16_t panning;
 
-    uint8_t reverbSend;
+    uint8_t delaySend;
 
     uint16_t slices[MAX_SLICE_NUMBER];
     uint8_t sliceNumber;
@@ -447,9 +452,13 @@ struct strMtValues
 
 	uint8_t volume = 50;
 
-	uint8_t reverbRoomSize = 80;
-	uint8_t reverbDamping = 25;
-	int8_t reverbPanning;
+//	uint8_t reverbRoomSize = 80;
+//	uint8_t reverbDamping = 25;
+//	int8_t reverbPanning;
+
+	uint8_t delayFeedback;
+	uint16_t delayTime;
+	uint8_t delayParams; // 7 - PINGPONG ENABLE , 6 - SYNC ENABLE, 5-0 SYNC RATE
 
 	uint16_t limiterAttack = 100;
 	float limiterRelease = 0.512;

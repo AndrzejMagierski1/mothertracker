@@ -1118,18 +1118,18 @@ void changeParamsPanning(int16_t value)
 
 void changeParamsReverbSend(int16_t value)
 {
-	if(IE->editorInstrument->reverbSend + value < REVERB_SEND_MIN) IE->editorInstrument->reverbSend = REVERB_SEND_MIN;
-	else if(IE->editorInstrument->reverbSend + value > REVERB_SEND_MAX ) IE->editorInstrument->reverbSend = REVERB_SEND_MAX;
-	else IE->editorInstrument->reverbSend += value;
+	if(IE->editorInstrument->delaySend + value < REVERB_SEND_MIN) IE->editorInstrument->delaySend = REVERB_SEND_MIN;
+	else if(IE->editorInstrument->delaySend + value > REVERB_SEND_MAX ) IE->editorInstrument->delaySend = REVERB_SEND_MAX;
+	else IE->editorInstrument->delaySend += value;
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		instrumentPlayer[i].setStatusBytes(REVERB_SEND_MASK);
+		instrumentPlayer[i].setStatusBytes(DELAY_SEND_MASK);
 	}
 
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	IE->showParamsReverbSend();
+	IE->showParamsDelaySend();
 }
 
 

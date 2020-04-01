@@ -61,7 +61,7 @@ public:
 	};
 
 	static constexpr float MAX_TEMPO = 400.0,
-			MIN_TEMPO = 10.0,
+			MIN_TEMPO = 40.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
 			//			DEFAULT_TEMPO = 130.0,
@@ -105,7 +105,7 @@ public:
 			FX_TYPE_FILTER_LOWPASS,
 			FX_TYPE_FILTER_HIGHPASS,
 			FX_TYPE_FILTER_BANDPASS,
-			FX_TYPE_REVERB_SEND,
+			FX_TYPE_DELAY_SEND,
 			FX_TYPE_PANNING,
 			FX_TYPE_R4,
 			FX_TYPE_R5,

@@ -52,7 +52,7 @@ const char performanceFxesLabels[performanceFxesCount][22] =
 	"Low-pass cutoff",
 	"High-Pass cutoff",
 	"Band-pass cutoff",
-	"Reverb send",
+	"Delay send",
 	"Sample position",
 	"Sample end",
 	"Sample playback",

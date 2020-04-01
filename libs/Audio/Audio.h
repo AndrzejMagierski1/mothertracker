@@ -113,4 +113,5 @@
 #include "play_sd_wav_float.h"
 #include "play_sd_wav_24bit.h"
 #include "effect_bitDepth.h"
+#include "effect_shortDelay.h"
 #endif
