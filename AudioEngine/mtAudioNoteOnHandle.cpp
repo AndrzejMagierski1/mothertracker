@@ -7,7 +7,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
-	engine.clearReverb();
+//	engine.clearDelay();
 
 	endFx(lastSeqFx[0],0);
 	endFx(lastSeqFx[1],1);
@@ -351,13 +351,13 @@ void playerEngine::handleNoteOnPanning()
 
 void playerEngine::handleNoteOnReverbSend()
 {
-	if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 	{
-		mixerReverb.gain(nChannel,mtProject.instrument[currentInstrument_idx].reverbSend/100.0);
+		modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 	}
 	else
 	{
-		mixerReverb.gain(nChannel,AMP_MUTED);
+		modDelaySend(AMP_MUTED);
 	}
 }
 
@@ -638,7 +638,7 @@ void playerEngine::handleFxNoteOnPanning()
 
 void playerEngine::handleFxNoteOnReverbSend()
 {
-	if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
@@ -647,16 +647,16 @@ void playerEngine::handleFxNoteOnReverbSend()
 		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend])
 			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]))
 		{
-			mixerReverb.gain(nChannel,currentSeqModValues.reverbSend/100.0);
+			modDelaySend(currentSeqModValues.delaySend);
 		}
 		else
 		{
-			mixerReverb.gain(nChannel,mtProject.instrument[currentInstrument_idx].reverbSend/100.0);
+			modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 		}
 	}
 	else
 	{
-		mixerReverb.gain(nChannel,AMP_MUTED);
+		modDelaySend(AMP_MUTED);
 	}
 }
 

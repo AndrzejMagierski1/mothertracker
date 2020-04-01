@@ -150,7 +150,7 @@ public:
 	void showFilterType();
 	void showFilterCutOff();
 	void showFilterResonance();
-	void showParamsReverbSend();
+	void showParamsDelaySend();
 
 	void showParamsGlide();
 

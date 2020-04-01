@@ -458,7 +458,7 @@ void cInstrumentEditor::showInstrumentParams()
 	display.setControlText(label[4], "Filter Type");
 	display.setControlText(label[5], "Cutoff");
 	display.setControlText(label[6], "Resonance");
-	display.setControlText(label[7], "Rev. Send");
+	display.setControlText(label[7], "Delay Send");
 
 	display.setControlText2(label[0], "");
 	display.setControlText2(label[1], "");
@@ -477,7 +477,7 @@ void cInstrumentEditor::showInstrumentParams()
 	showFilterType();
 	showFilterCutOff();
 	showFilterResonance();
-	showParamsReverbSend();
+	showParamsDelaySend();
 
 //-------------------------------------
 
@@ -933,13 +933,13 @@ void cInstrumentEditor::showFilterResonance()
 	display.refreshControl(barControl[6]);
 }
 
-void cInstrumentEditor::showParamsReverbSend()
+void cInstrumentEditor::showParamsDelaySend()
 {
-	sprintf(revSendVal,"%d",editorInstrument->reverbSend);
+	sprintf(revSendVal,"%d",editorInstrument->delaySend);
 	display.setControlText2(label[7], revSendVal);
 	display.refreshControl(label[7]);
 
-	display.setControlValue(barControl[7], editorInstrument->reverbSend);
+	display.setControlValue(barControl[7], editorInstrument->delaySend);
 	display.refreshControl(barControl[7]);
 }
 

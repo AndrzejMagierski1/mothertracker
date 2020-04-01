@@ -912,7 +912,7 @@ void Sequencer::play(void)
 {
 	songTimer.start();
 	engine.endAllFx();
-	engine.clearReverb();
+	engine.clearDelay();
 
 	reset_actual_pos();
 
