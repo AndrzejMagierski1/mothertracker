@@ -314,7 +314,7 @@ public:
 	uint8_t getRollType(uint8_t value);
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
-	uint8_t getInstrumentVelo(uint8_t);
+
 
 	inline uint16_t rollValToPeriod(int8_t rollType);
 	inline uint16_t stutterValToPeriod(int8_t rollType);
@@ -674,6 +674,7 @@ public:
 	uint8_t getInstrumentFromOrder(int8_t value);
 	uint8_t changeInstrumentInSpecificOrder(int8_t actualValue,
 											int16_t delta);
+	uint8_t getInstrumentVelo(uint8_t);
 
 	void setSelectionFxType(uint8_t index, int16_t value);
 	void setSelectionFxValueByPad(uint8_t index, int16_t value);
