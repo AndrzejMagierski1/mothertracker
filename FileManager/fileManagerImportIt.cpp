@@ -41,6 +41,8 @@ uint16_t MsgLgth;
 uint32_t MessageOffset;
 uint8_t oldImpulseInstrumentFormat;
 
+uint8_t sampleNumber = 0;
+
 const uint8_t FLAGS__STEREO = 0b00000001;
 const uint8_t FLAGS__USE_INSTRUMENTS = 0b00000100;
 const uint8_t SPECIAL__SONG_MESSAGE = 0b00000001;
@@ -50,6 +52,12 @@ const uint8_t SPECIAL__SONG_MESSAGE = 0b00000001;
 uint8_t processedPattern = 0;
 uint8_t processedInstrument = 0;
 uint8_t processedSample = 0;
+
+uint8_t waveWriteFlag = 0;
+uint32_t saveLength = 0;
+int16_t *waveSrcPtr;
+int16_t *sample_ptr = sdram_sampleBank;
+uint32_t bSampleOffset = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
@@ -63,6 +71,13 @@ void cFileManager::importItFile_Init()
 	processedPattern = 0;
 	processedInstrument = 0;
 	processedSample = 0;
+
+	sampleNumber = 0;
+
+	waveWriteFlag = 0;
+	saveLength = 0;
+	sample_ptr = sdram_sampleBank;
+	bSampleOffset = 0;
 
 	itFile_sampleDest_ptr = sdram_sampleBank;
 
@@ -152,6 +167,9 @@ void cFileManager::importItFile_ProcessHeader()
 
 void cFileManager::importItFile_ProcessSong()
 {
+
+	mtProject.values.globalTempo = constrain(IT, 10.0f, 400.0f);
+
 	uint8_t byteBuffer[OrdNum];
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
@@ -305,7 +323,7 @@ void cFileManager::importItFile_ProcessOffsets()
 	moveToNextOperationStep();
 
 }
-uint8_t sampleNumber = 0;
+
 void cFileManager::importItFile_ProcessInstruments()
 {
 	strInstrument *instr = &mtProject.instrument[processedInstrument];
@@ -609,6 +627,7 @@ void cFileManager::importItFile_InitPattern()
 		{
 			moveToNextOperationStep();
 			moveToNextOperationStep();
+			processedInstrument = 0;
 		}
 		return;
 
@@ -645,6 +664,7 @@ void cFileManager::importItFile_InitPattern()
 		if (processedPattern >= PatNum)
 		{
 			moveToNextOperationStep();
+			processedInstrument = 0;
 		}
 	}
 	else if (loadStatus >= fileTransferError)
@@ -838,6 +858,120 @@ void cFileManager::importItFile_savePattern()
 		throwError(2);
 	}
 }
+
+void cFileManager::importItFile_writeWaves()
+{
+
+	strInstrument *instr = &mtProject.instrument[processedSample];
+
+	if (!waveWriteFlag && instr->isActive)
+	{
+		waveWriteFlag = 1;
+		saveLength = instr->sample.length * 2;
+
+		if (saveLength > 1)
+		{
+
+			char currentFilename[PATCH_SIZE];
+			sprintf(currentFilename, cWorkspaceSamplesFilesFormat,
+					processedSample + 1);
+
+			if (SD.exists(currentFilename)) SD.remove(currentFilename);
+			wavfile = SD.open(currentFilename, SD_FILE_WRITE);
+
+			// todo: to jest chyba bez sensu
+			wavfile.write(currentFilename, sizeof(strWavFileHeader));
+
+			waveSrcPtr = instr->sample.address;
+		}
+		else
+		{
+			waveWriteFlag = 0;
+		}
+
+	}
+
+	if (saveLength > 1)
+	{
+		if (saveLength > 2048)
+		{
+			wavfile.write(waveSrcPtr, 2048);
+
+			waveSrcPtr += 1024;
+			saveLength -= 2048;
+		}
+		else
+		{
+			waveWriteFlag = 0;
+
+			wavfile.write(waveSrcPtr,
+							saveLength);
+
+			saveLength = 0;
+
+			// uzupełnienie headera
+			strWavFileHeader header;
+
+			header.chunkId = 0x46464952; 							// "RIFF"
+			header.chunkSize = instr->sample.length * 2 + 36;
+			header.format = 0x45564157;								// "WAVE"
+			header.subchunk1Id = 0x20746d66;						// "fmt "
+			header.subchunk1Size = 16;
+			header.AudioFormat = 1;
+			header.numChannels = 1;
+			header.sampleRate = 44100;
+			header.bitsPerSample = 16;
+			header.byteRate = header.sampleRate * header.numChannels * (header.bitsPerSample / 8);
+			header.blockAlign = header.numChannels * (header.bitsPerSample / 8);
+			header.subchunk2Id = 0x61746164;						// "data"
+			header.subchunk2Size = instr->sample.length * 2;
+
+			wavfile.seek(0);
+			wavfile.write(&header, sizeof(header));
+			wavfile.close();
+
+			// tu warunek na zmianę kroków
+//			currentOperationStep--;
+
+			//*************
+
+			bSampleOffset += instr->sample.length * 2;
+			sample_ptr += instr->sample.length;
+
+			processedSample++;
+			if (processedSample > INSTRUMENTS_MAX || processedSample > InsNum)
+			{
+				moveToNextOperationStep();
+			}
+
+		}
+	}
+	else
+	{
+
+		bSampleOffset += instr->sample.length * 2;
+		sample_ptr += instr->sample.length;
+
+		processedSample++;
+		if (processedSample > INSTRUMENTS_MAX || processedSample > InsNum)
+		{
+			moveToNextOperationStep();
+		}
+	}
+
+}
+
+void cFileManager::importItFile_finish()
+{
+	setProjectStructChanged();
+
+	importModFileAfterNewProject = 0;
+
+	status = fmLoadEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
 /*
  *
  *

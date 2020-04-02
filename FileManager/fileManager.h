@@ -593,6 +593,8 @@ private:
 	void importItFile_ProcessPattern(uint32_t patternOffset,
 										uint16_t length,
 										uint16_t rows);
+	void importItFile_writeWaves();
+	void importItFile_finish();
 
 
 	void importItFile_setPattern(uint8_t index, uint8_t length);
