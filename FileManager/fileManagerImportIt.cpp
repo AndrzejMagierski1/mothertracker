@@ -168,6 +168,19 @@ void cFileManager::importItFile_ProcessSong()
 		{
 			Serial.println(a);
 		}
+
+		for (uint8_t a = 0; (a < SONG_MAX) && a < OrdNum; a++)
+		{
+			mtProject.song.playlist[a] = byteBuffer[a];
+
+			if (mtProject.song.playlist[a] == 255)
+			mtProject.song.playlist[a] = 0;
+			else
+			{
+				mtProject.song.playlist[a]++;
+			}
+		}
+
 		moveToNextOperationStep();
 	}
 
@@ -270,24 +283,24 @@ uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 void cFileManager::importItFile_ProcessOffsets()
 {
 
-	for (uint8_t a = 0; a < InsNum; a++)
-	{
-		Serial.printf("offset instr %d: %08X\n", a,
-						getInstrumentOffset(a));
-	}
-
-	for (uint8_t a = 0; a < SmpNum; a++)
-	{
-
-		Serial.printf("offset sample %d: %08X\n", a,
-						getSampleOffset(a));
-	}
-	for (uint8_t a = 0; a < PatNum; a++)
-	{
-
-		Serial.printf("offset pattern %d: %08X\n", a,
-						getPatternOffset(a));
-	}
+//	for (uint8_t a = 0; a < InsNum; a++)
+//	{
+//		Serial.printf("offset instr %d: %08X\n", a,
+//						getInstrumentOffset(a));
+//	}
+//
+//	for (uint8_t a = 0; a < SmpNum; a++)
+//	{
+//
+//		Serial.printf("offset sample %d: %08X\n", a,
+//						getSampleOffset(a));
+//	}
+//	for (uint8_t a = 0; a < PatNum; a++)
+//	{
+//
+//		Serial.printf("offset pattern %d: %08X\n", a,
+//						getPatternOffset(a));
+//	}
 
 	moveToNextOperationStep();
 
@@ -771,12 +784,12 @@ void cFileManager::importItFile_setStep(uint8_t step,
 
 	if (step > Sequencer::MAXSTEP) return;
 	if (track > Sequencer::MAXTRACK) return;
-	if (instrument > INSTRUMENTS_MAX) return;
+	if (instrument > INSTRUMENTS_MAX || instrument == 0) return;
 
 	Sequencer::strPattern::strTrack::strStep *pattStep = &sequencer.getActualPattern()->track[track].step[step];
 
 	pattStep->note = note;
-	pattStep->instrument = instrument;
+	pattStep->instrument = instrument - 1;
 
 }
 
