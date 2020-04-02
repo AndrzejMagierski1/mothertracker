@@ -595,6 +595,19 @@ private:
 										uint16_t rows);
 
 
+	void importItFile_setPattern(uint8_t index, uint8_t length);
+	void importItFile_setStep(uint8_t step,
+						uint8_t track,
+						uint8_t note,
+						uint8_t instrument,
+						uint8_t fx,
+						uint8_t fxVal);
+	void importItFile_savePattern();
+
+
+
+
+
 
 	uint32_t getInstrumentOffset(uint8_t index);
 	uint32_t getSampleOffset(uint8_t index);

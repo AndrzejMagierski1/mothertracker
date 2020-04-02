@@ -13,6 +13,8 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
+extern Sequencer::strPattern fileManagerPatternBuffer;
+
 extern int16_t sdram_sampleBank[4 * 1024 * 1024];
 int16_t *itFile_sampleDest_ptr = sdram_sampleBank;
 
@@ -618,9 +620,13 @@ void cFileManager::importItFile_InitPattern()
 						length,
 						rows);
 
+		importItFile_setPattern(processedPattern + 1, rows - 1);
+
 		importItFile_ProcessPattern(patternOffset,
 									length,
 									rows);
+
+		importItFile_savePattern();
 
 		processedPattern++;
 		if (processedPattern >= PatNum)
@@ -638,6 +644,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 												uint16_t length,
 												uint16_t rows)
 {
+	if (length > 512) return;
 	uint8_t byteBuffer[length];
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
 														impFileData.path,
@@ -661,6 +668,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 		uint8_t volume = 0;
 		uint8_t command = 0;
 		uint8_t commandValue = 0;
+		uint8_t row = 0;
 
 		while (byteIndex < length)
 		{
@@ -670,65 +678,78 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 			if (channelvariable == 0)
 			{
 				Serial.println("end of row");
-			}
-
-			channel = (channelvariable - 1) & 63;
-
-			if (channelvariable & 128)
-			{
-				maskvariable = byteBuffer[byteIndex++];
-				previousmaskvariable[channel] = maskvariable;
+				row++;
 			}
 			else
 			{
-				maskvariable = previousmaskvariable[channel];
-			}
 
-			if (maskvariable & 1)
-			{
-				note = byteBuffer[byteIndex++];
-				lastNote[channel] = note;
-			}
-			if (maskvariable & 2)
-			{
-				instrument = byteBuffer[byteIndex++];
-				lastInstrument[channel] = instrument;
-			}
-			if (maskvariable & 4)
-			{
-				volume = byteBuffer[byteIndex++];
-				lastVolume[channel] = volume;
-			}
-			if (maskvariable & 8)
-			{
-				command = byteBuffer[byteIndex++];
-				commandValue = byteBuffer[byteIndex++];
+				channel = (channelvariable - 1) & 63;
 
-				lastCommand[channel] = command;
-				lastCommandValue[channel] = commandValue;
-			}
-			if (maskvariable & 16)
-			{
-				note = lastNote[channel];
-			}
-			if (maskvariable & 32)
-			{
-				instrument = lastInstrument[channel];
-			}
-			if (maskvariable & 64)
-			{
-				volume = lastVolume[channel];
-			}
-			if (maskvariable & 128)
-			{
-				command = lastCommand[channel];
-				commandValue = lastCommandValue[channel];
-			}
+				if (channelvariable & 128)
+				{
+					maskvariable = byteBuffer[byteIndex++];
+					previousmaskvariable[channel] = maskvariable;
+				}
+				else
+				{
+					maskvariable = previousmaskvariable[channel];
+				}
 
-			Serial.printf("chan: %d, note: %d, ins: %d\n",
-							channel,
-							note,
-							instrument);
+				if (maskvariable & 1)
+				{
+					note = byteBuffer[byteIndex++];
+					lastNote[channel] = note;
+				}
+				if (maskvariable & 2)
+				{
+					instrument = byteBuffer[byteIndex++];
+					lastInstrument[channel] = instrument;
+				}
+				if (maskvariable & 4)
+				{
+					volume = byteBuffer[byteIndex++];
+					lastVolume[channel] = volume;
+				}
+				if (maskvariable & 8)
+				{
+					command = byteBuffer[byteIndex++];
+					commandValue = byteBuffer[byteIndex++];
+
+					lastCommand[channel] = command;
+					lastCommandValue[channel] = commandValue;
+				}
+				if (maskvariable & 16)
+				{
+					note = lastNote[channel];
+				}
+				if (maskvariable & 32)
+				{
+					instrument = lastInstrument[channel];
+				}
+				if (maskvariable & 64)
+				{
+					volume = lastVolume[channel];
+				}
+				if (maskvariable & 128)
+				{
+					command = lastCommand[channel];
+					commandValue = lastCommandValue[channel];
+				}
+
+				Serial.printf("row: %d, chan: %d, note: %d, ins: %d\n",
+								row,
+								channel,
+								note,
+								instrument);
+
+				importItFile_setStep(row,
+										channel,
+										note,
+										instrument,
+										0,
+										0);
+
+			}
 
 		}
 
@@ -738,6 +759,71 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 		throwError(1);
 	}
 
+}
+
+void cFileManager::importItFile_setStep(uint8_t step,
+										uint8_t track,
+										uint8_t note,
+										uint8_t instrument,
+										uint8_t fx,
+										uint8_t fxVal)
+{
+
+	if (step > Sequencer::MAXSTEP) return;
+	if (track > Sequencer::MAXTRACK) return;
+	if (instrument > INSTRUMENTS_MAX) return;
+
+	Sequencer::strPattern::strTrack::strStep *pattStep = &sequencer.getActualPattern()->track[track].step[step];
+
+	pattStep->note = note;
+	pattStep->instrument = instrument;
+
+}
+
+void cFileManager::importItFile_setPattern(uint8_t index, uint8_t length)
+{
+	Sequencer::strPattern *patt = sequencer.getActualPattern();
+	length = constrain(length, 0, Sequencer::MAXSTEP);
+
+	sequencer.clearPattern(patt);
+	mtProject.values.actualPattern = index;
+	for (uint8_t a = 0; a <= Sequencer::MAXTRACK; a++)
+	{
+		patt->track[a].length = length;
+	}
+
+}
+
+void cFileManager::importItFile_savePattern()
+{
+
+	Sequencer::strPattern *patt = sequencer.getActualPattern();
+
+	updatePatternBitmask(mtProject.values.actualPattern - 1, (uint8_t*) patt);
+
+	if (!writePatternToFileStruct(sequencer.getPatternToSaveToFile(),
+									(uint8_t*) &fileManagerPatternBuffer))
+	{
+		throwError(0);
+	}
+
+	char patternToSave[PATCH_SIZE];
+	sprintf(patternToSave, cWorkspacePatternFileFormat,
+			mtProject.values.actualPattern);
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile(
+			(uint8_t*) &fileManagerPatternBuffer, patternToSave,
+			sizeof(Sequencer::strPattern));
+
+	if (saveStatus == fileTransferEnd)
+	{
+
+	}
+	else
+	{
+		// todo ogarnąć indexy err
+		throwError(2);
+	}
 }
 /*
  *
