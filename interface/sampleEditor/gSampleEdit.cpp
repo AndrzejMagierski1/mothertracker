@@ -2,18 +2,7 @@
 #include "mtSampleEditorEngine.h"
 #include "core/interfacePopups.h"
 
-char * const effectNamesLabels[editorEffectMax] =
-{
-		(char*)"Crop",
-		(char*)"Reverse",
-		(char*)"Amplifier",
-		(char*)"Delay",
-		(char*)"Bitcrusher",
-		(char*)"Chorus",
-		(char*)"Flanger",
-		(char*)"Limiter",
-		(char*)"Compressor"
-};
+
 
 static uint32_t popupLabelColors[] =
 {
@@ -373,7 +362,7 @@ void cSampleEditor::showEffectParamsScreen()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Sample Editor 2/2");
+	display.setControlText(titleLabel, paramsScreenLabel);
 	display.refreshControl(titleLabel);
 
 	showInstrumentName();
