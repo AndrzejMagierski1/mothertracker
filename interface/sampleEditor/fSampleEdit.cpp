@@ -32,7 +32,6 @@ static uint16_t paramsScreenFramePlaces[6][4] =
 };
 
 
-
 //************************************************************************** ACTION FUNCTIONS DECLARATIONS
 static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
@@ -649,6 +648,9 @@ void cSampleEditor::prepareDisplayDataParamsScreen()
 {
 
 	selectedPlace[effectParamsScreen] = 0;
+
+	sprintf(paramsScreenLabel,"Sample Editor %s 2/2", effectNamesLabels[currentEffectIdx]);
+
 	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
 	{
 		reloadParamiterValueText(i);

@@ -6,7 +6,18 @@
 #include "mtStructs.h"
 #include "mtSampleEditorEngine.h"
 
-
+char * const effectNamesLabels[editorEffectMax] =
+{
+		(char*)"Crop",
+		(char*)"Reverse",
+		(char*)"Amplifier",
+		(char*)"Delay",
+		(char*)"Bitcrusher",
+		(char*)"Chorus",
+		(char*)"Flanger",
+		(char*)"Limiter",
+		(char*)"Compressor"
+};
 
 class cSampleEditor: public cModuleBase
 {
@@ -238,6 +249,7 @@ public:
 	char startPointText[11];
 	char endPointText[11];
 	char zoomText[7];
+	char paramsScreenLabel[40];
 
 //params screen
 	char paramiterValueLabel[6][11];

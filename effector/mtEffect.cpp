@@ -93,7 +93,7 @@ void mtEffect::clearIsLoadedData()
 {
 	processing.isLoadedData = false;
 	loading.preloadPoints.a = 0;
-	loading.preloadPoints.b = 65536;
+	loading.preloadPoints.b = 65535;
 }
 //***********
 //***********APPLY

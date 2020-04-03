@@ -313,7 +313,7 @@ AudioStream * AudioStream::first_update = NULL;
 
 void software_isr(void) // AudioStream::update_all()
 {
-	elapsedMicros apoloniuszTajmer = 0;
+//	elapsedMicros apoloniuszTajmer = 0;
 	AudioStream *p;
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA;
