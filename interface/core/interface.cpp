@@ -188,7 +188,7 @@ void cInterface::doStartTasks()
 
 	// dzialania z uzyciem odczytanych wartosci z configu
 	mtPadBoard.setPadNotes(	mtConfig.values.padBoardScale,
-							mtConfig.values.padBoardNoteOffset+1,
+							mtConfig.values.padBoardNoteOffset,
 							mtConfig.values.padBoardRootNote);
 
 
