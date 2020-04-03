@@ -605,6 +605,13 @@ private:
 						uint8_t fx,
 						uint8_t fxVal);
 	void importItFile_savePattern();
+	void importItFile_initPatternBuffer(uint32_t pattLength,
+								   uint32_t patternOffset);
+
+	uint8_t importItFile_getNextPatternByte();
+
+
+
 
 
 
