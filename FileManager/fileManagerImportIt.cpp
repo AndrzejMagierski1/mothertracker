@@ -58,6 +58,7 @@ uint32_t saveLength = 0;
 int16_t *waveSrcPtr;
 int16_t *sample_ptr = sdram_sampleBank;
 uint32_t bSampleOffset = 0;
+const uint8_t debugMod = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
@@ -133,21 +134,24 @@ void cFileManager::importItFile_ProcessHeader()
 		MessageOffset = readUint(&byteBuffer[0x38], 4);
 		oldImpulseInstrumentFormat = Cmwt < 0x200;
 
-		Serial.println(PHiligt);
-		Serial.printf("OrdNum = %d\n", OrdNum);
-		Serial.printf("InsNum = %d\n", InsNum);
-		Serial.printf("SmpNum = %d\n", SmpNum);
-		Serial.printf("PatNum = %d\n", PatNum);
-		Serial.printf("Cwt = %d\n", Cwt);
-		Serial.printf("Cmwt = 0h%04X\n", Cwt);
+		if (debugMod)
+		{
+			Serial.println(PHiligt);
+			Serial.printf("OrdNum = %d\n", OrdNum);
+			Serial.printf("InsNum = %d\n", InsNum);
+			Serial.printf("SmpNum = %d\n", SmpNum);
+			Serial.printf("PatNum = %d\n", PatNum);
+			Serial.printf("Cwt = %d\n", Cwt);
+			Serial.printf("Cmwt = 0h%04X\n", Cwt);
 
-		Serial.println(
-				oldImpulseInstrumentFormat ? "old impulse format" : "new impulse format");
-		Serial.println();
+			Serial.println(
+					oldImpulseInstrumentFormat ? "old impulse format" : "new impulse format");
+			Serial.println();
 
-		Serial.println(Special, BIN);
-		Serial.printf("MsgLgth = %d\n", MsgLgth);
-		Serial.printf("MessageOffset = %d\n", MessageOffset);
+			Serial.println(Special, BIN);
+			Serial.printf("MsgLgth = %d\n", MsgLgth);
+			Serial.printf("MessageOffset = %d\n", MessageOffset);
+		}
 
 		if (oldImpulseInstrumentFormat)
 		{
@@ -351,11 +355,14 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	instr->volume = map(GbV, 0, 128, 0, 100);
 
-	Serial.printf("Insstrument: %d, NoS: %d, smp no: %d, GbV %d\n",
-					processedInstrument,
-					getFileVariable(fileOffset, 0x1e, 1),
-					sampleNumber,
-					GbV);
+	if (debugMod)
+	{
+		Serial.printf("Insstrument: %d, NoS: %d, smp no: %d, GbV %d\n",
+						processedInstrument,
+						getFileVariable(fileOffset, 0x1e, 1),
+						sampleNumber,
+						GbV);
+	}
 
 	// pobieranie nazwy
 	char nameBuffer[26];
@@ -370,7 +377,7 @@ void cFileManager::importItFile_ProcessInstruments()
 		if (nameBuffer[0] != 0)
 		{
 			strcpy(instr->sample.file_name, nameBuffer);
-			Serial.println(instr->sample.file_name);
+			if (debugMod) Serial.println(instr->sample.file_name);
 		}
 		else
 		{
@@ -451,24 +458,26 @@ void cFileManager::importItFile_OpenSample()
 		bool isPingPong = (Flg & 0b01000000);
 		bool isPingPongSustain = (Flg & 0b10000000);
 
-		Serial.printf(
-				"flags: %s %s %s %s %s %s %s \n",
-				isHeader ? "header" : "no header",
-				is16or8bit ? "16bit" : "8bit",
-				isStereo ? "stereo" : "mono",
-				isCompression ? "compressed" : "no compress",
-				isLoop ? "ude loop" : "no loop",
-				isPingPong ? "ping pong" : "forward",
-				isPingPongSustain ? "ping pong sutain" : "forward sustain");
+		if (debugMod)
+			Serial.printf(
+					"flags: %s %s %s %s %s %s %s \n",
+					isHeader ? "header" : "no header",
+					is16or8bit ? "16bit" : "8bit",
+					isStereo ? "stereo" : "mono",
+					isCompression ? "compressed" : "no compress",
+					isLoop ? "ude loop" : "no loop",
+					isPingPong ? "ping pong" : "forward",
+					isPingPongSustain ? "ping pong sutain" : "forward sustain");
 
-		Serial.printf(
-				"length: %d, loopBegin: %d, loopEnd %d, C5Speed: %d, SmpPoint %d\n",
-				length,
-				loopBegin,
-				loopEnd,
-				C5Speed,
-				SmpPoint
-				);
+		if (debugMod)
+			Serial.printf(
+					"length: %d, loopBegin: %d, loopEnd %d, C5Speed: %d, SmpPoint %d\n",
+					length,
+					loopBegin,
+					loopEnd,
+					C5Speed,
+					SmpPoint
+					);
 
 		if (sampleNumber > 0 && length > 0) // 0 == no sample
 		{
@@ -511,22 +520,40 @@ void cFileManager::importItFile_OpenSample()
 				instr->loopPoint2 = MAX_16BIT - 1;
 			}
 
-			Serial.printf(
-							"loopPoint1: %d, loopPoint2 %d\n",
-							instr->loopPoint1,
-							instr->loopPoint2
-							);
+			if (debugMod) Serial.printf(
+										"loopPoint1: %d, loopPoint2 %d\n",
+										instr->loopPoint1,
+										instr->loopPoint2
+										);
 
 			// kopiujemy dane sampli:
 			if (is16or8bit)
 			{
-				loadStatus = fileTransfer.loadFileToMemory(
-						impFileData.path,
-						(uint8_t*) itFile_sampleDest_ptr,
-						instr->sample.length * 2, // memo
-						SmpPoint, // offset
-						fileWholeOnce
-						);
+				uint32_t totalToRead = instr->sample.length;
+				if ((mtProject.used_memory + instr->sample.length * 2) > sizeof(sdram_sampleBank))
+				{
+					moveToNextOperationStep();
+					return;
+				}
+//				uint8_t buff[512] { 0 };
+
+				uint16_t *tempPtr = (uint16_t*) itFile_sampleDest_ptr;
+				while (totalToRead)
+				{
+					uint32_t bytesToRead =
+							totalToRead >= 512 ? 512 : totalToRead;
+
+					loadStatus = fileTransfer.loadFileToMemory(
+							impFileData.path,
+							(uint8_t*) tempPtr,
+							bytesToRead, // memo
+							SmpPoint + (instr->sample.length - totalToRead), // offset
+							fileWholeOnce
+							);
+
+					totalToRead -= bytesToRead;
+
+				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
 
@@ -537,6 +564,11 @@ void cFileManager::importItFile_OpenSample()
 			else // 8bit
 			{
 				uint32_t totalToRead = instr->sample.length;
+				if ((mtProject.used_memory + instr->sample.length * 2) > sizeof(sdram_sampleBank))
+				{
+					moveToNextOperationStep();
+					return;
+				}
 				uint8_t buff[512] { 0 };
 
 				uint16_t *tempPtr = (uint16_t*) itFile_sampleDest_ptr;
@@ -585,7 +617,7 @@ void cFileManager::importItFile_OpenSample()
 			instr->sample.length = 0;
 		}
 
-		Serial.println();
+		if (debugMod) Serial.println();
 
 		processedInstrument++;
 		// jesli skonczyly sie instrumenty to 2 kroki dalej
@@ -614,10 +646,10 @@ void cFileManager::importItFile_InitPattern()
 
 	if (patternOffset == 0)
 	{
-		Serial.printf("patt %d, len: %d, rows: %d\n",
-						processedPattern,
-						0,
-						0);
+		if (debugMod) Serial.printf("patt %d, len: %d, rows: %d\n",
+									processedPattern,
+									0,
+									0);
 		/*
 		 Note that if the (long) offset to a pattern = 0, then the
 		 pattern is assumed to be a 64 row empty pattern.
@@ -647,7 +679,7 @@ void cFileManager::importItFile_InitPattern()
 		uint16_t length = readUint(&byteBuffer[0], 2);
 		uint16_t rows = readUint(&byteBuffer[2], 2);
 
-		Serial.printf("patt %d, len: %d, rows: %d\n",
+		if (debugMod) Serial.printf("patt %d, len: %d, rows: %d\n",
 						processedPattern,
 						length,
 						rows);
@@ -703,6 +735,7 @@ uint8_t cFileManager::importItFile_getNextPatternByte()
 			if (loadStatus >= fileTransferError)
 			{
 				throwError(1);
+				return 0;
 			}
 
 			buffPos = 0;
@@ -791,6 +824,11 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 		{
 
 			channel = (channelvariable - 1) & 63;
+			if (channel >= 64)
+			{
+				throwError(1);
+				return;
+			}
 
 			if (channelvariable & 128)
 			{
