@@ -1022,7 +1022,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	env->enable = 1;
 	env->amount = lfo->amount;
 
-	if(rate > 19) rate = 19;
+	if(rate > 23) rate = 23;
 
 	float lfoFrequency = (sequencer.getActualTempo()/15.0);
 

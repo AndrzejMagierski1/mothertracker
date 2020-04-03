@@ -7,6 +7,7 @@
 #include "fileManager.h"
 #include "debugLog.h"
 #include "core/interfacePopups.h"
+#include "core/songTimer.h"
 
 cSampleEditor sampleEditor;
 
@@ -94,6 +95,7 @@ void cSampleEditor::start(uint32_t options)
 	}
 
 	engine.blockDelayRefresh();
+	songTimer.hide();
 
 	currentEffect=sampleEditorEffect[currentEffectIdx];
 	currentEffect->undo.isEnable = false;
@@ -284,6 +286,7 @@ void cSampleEditor::stop()
 {
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
+	songTimer.show();
 }
 
 void cSampleEditor::setCommonFunctions()
