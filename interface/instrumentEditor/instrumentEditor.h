@@ -268,8 +268,12 @@ public:
 		&lfoShapeLabels[3][0]
 	};
 
-	const char * lfoSpeedNamesAmp[20] =
+	const char * lfoSpeedNamesAmp[24] =
 	{
+		&lfoSpeedLabels[1][0],
+		&lfoSpeedLabels[2][0],
+		&lfoSpeedLabels[3][0],
+		&lfoSpeedLabels[4][0],
 		&lfoSpeedLabels[5][0],
 		&lfoSpeedLabels[6][0],
 		&lfoSpeedLabels[7][0],

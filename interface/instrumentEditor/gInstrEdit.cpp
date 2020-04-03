@@ -286,7 +286,7 @@ void cInstrumentEditor::showInstrumentEnv()
 	if(selectedEnvelope == 0 )
 	{
 		lfoSpeedList.data = (char**)lfoSpeedNamesAmp;
-		lfoSpeedList.length = 20;
+		lfoSpeedList.length = 24;
 	}
 	else
 	{
@@ -772,7 +772,7 @@ void cInstrumentEditor::showLfoShape()
 void cInstrumentEditor::showLfoSpeed()
 {
 	uint8_t selectedLabel = (selectedEnvelope == 0) ?
-			editorInstrument->lfo[selectedEnvelope].speed + 5 : editorInstrument->lfo[selectedEnvelope].speed;
+			editorInstrument->lfo[selectedEnvelope].speed + 1 : editorInstrument->lfo[selectedEnvelope].speed;
 	display.setControlText2(label[4], lfoSpeedLabels[selectedLabel]);
 	display.refreshControl(label[4]);
 

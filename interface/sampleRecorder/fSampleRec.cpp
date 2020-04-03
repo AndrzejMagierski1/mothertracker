@@ -12,7 +12,7 @@
 #include "sdCardDetect.h"
 #include "mtRandomNameGenerator.h"
 #include "mtGainLevelLogarithmicTab.h"
-
+#include "core/songTimer.h"
 
 constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic
 
@@ -234,7 +234,7 @@ void cSampleRecorder::start(uint32_t options)
 		setDefaultScreenFunct();
 		return;
 	}
-
+	songTimer.hide();
 	engine.blockDelayRefresh();
 	moduleRefresh = 1;
 	dontTurnOffRadio = 0;
@@ -323,6 +323,8 @@ void cSampleRecorder::stop()
 	moduleRefresh = 0;
 	keyboardManager.deinit();
 	//hideRDS();
+
+	songTimer.show();
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
 }

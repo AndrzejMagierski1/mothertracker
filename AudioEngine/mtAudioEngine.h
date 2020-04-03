@@ -15,8 +15,12 @@
 
 typedef Sequencer::strFxConsts fx_t;
 
-const float tempoSyncRatesAmp[20] =
+const float tempoSyncRatesAmp[24] =
 {
+	24,
+	16,
+	12,
+	8,
 	6,
 	4,
 	3,
