@@ -1112,10 +1112,10 @@ static  uint8_t functActionRecord()
 	SR->currentScreen = SR->screenTypeRecord;
 	SR->cropCounter = 0;
 	SR->showDefaultScreen();
-	recorder.startRecording(sdram_effectsBank);
+	recorder.startRecording(sdram_ptrEffectsBank);
 	GP.spectrumResetZoom(0, 0, &SR->zoom);
 	SR->spectrumTimerConstrains = 100;
-	SR->params.address = sdram_effectsBank;
+	SR->params.address = sdram_ptrEffectsBank;
 	return 1;
 }
 

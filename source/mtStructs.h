@@ -34,7 +34,9 @@ const uint8_t MAX_8BIT = 						255;
 const float MAX_WAVE_FLOAT =					1.0;
 const float MIN_WAVE_FLOAT =					-1.0;
 
-const uint32_t SAMPLE_MEMORY_MAX =      		(15*512*1024); // 7,5 MB
+const uint32_t SOUND_MEMORY_TOTAL =      		(15*1024*1024); // 15 MB
+const uint32_t SAMPLE_MEMORY_SIZE = 			(45*256*1024); // 11,25 MB
+const uint32_t REC_EDIT_MEM_OFFEST =      		(15*512*1024);  // 7,5 MB
 
 const uint8_t INSTRUMENTS_MAX =        			47;
 //const uint8_t SAMPLES_MAX =            			31;
@@ -535,7 +537,7 @@ struct strMtProject
 	strMtValues values;
 
 	// dynamiczne
-	uint32_t max_memory = SAMPLE_MEMORY_MAX;
+	uint32_t max_memory = SAMPLE_MEMORY_SIZE;
 	uint32_t used_memory;
 
 };

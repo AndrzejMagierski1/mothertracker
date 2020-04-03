@@ -13,10 +13,12 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
-int16_t *modFile_sample_ptr = sdram_sampleBank;
+int16_t *modFile_sample_ptr = sdram_ptrSampleBank;
 uint32_t byteSampleOffset = 0;
 
 void setFx(Sequencer::strPattern::strTrack::strStep *step,
@@ -35,8 +37,8 @@ void cFileManager::importModFileInit()
 
 	modFilePatterns_max = 1;
 
-	modFile_sample_ptr = sdram_sampleBank;
-	memset(sdram_sampleBank,0,sizeof(sdram_sampleBank));
+	modFile_sample_ptr = sdram_ptrSampleBank;
+	memset(sdram_ptrSampleBank, 0, SAMPLE_MEMORY_SIZE);
 
 	// wew
 	char byteBuffer[4];

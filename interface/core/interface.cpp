@@ -39,8 +39,12 @@ strMtProject mtProject;
 strInterfaceGlobals interfaceGlobals;
 
 
-__NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
-__NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
+__NOINIT(EXTERNAL_RAM) int16_t sdram_soundMemory[SOUND_MEMORY_TOTAL/2];
+
+int16_t* sdram_ptrSampleBank = sdram_soundMemory;
+int16_t* sdram_ptrEffectsBank = sdram_soundMemory+(REC_EDIT_MEM_OFFEST/2);
+int16_t* sdram_ptrDelayMemory = sdram_soundMemory+(SAMPLE_MEMORY_SIZE/2);
+
 __NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32640]; // 32768
 //__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer2[32768];
 
@@ -188,7 +192,7 @@ void cInterface::doStartTasks()
 
 	// dzialania z uzyciem odczytanych wartosci z configu
 	mtPadBoard.setPadNotes(	mtConfig.values.padBoardScale,
-							mtConfig.values.padBoardNoteOffset+1,
+							mtConfig.values.padBoardNoteOffset,
 							mtConfig.values.padBoardRootNote);
 
 

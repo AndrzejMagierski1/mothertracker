@@ -38,8 +38,8 @@ private:
 };
 
 extern Recorder recorder;
-extern int16_t sdram_effectsBank[15*256*1024];
-extern int16_t sdram_sampleBank[15*256*1024];
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
 
 
 #endif /* SOURCE_MTRECORDER_H_ */
