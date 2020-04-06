@@ -23,28 +23,57 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 			uint8_t,
 			uint8_t, uint8_t);
 
-void cFileManager::importModFileInit()
+enImportModMode cFileManager::checkImportFileType()
 {
+
+	char lowCase[255];
+	strcpy(lowCase, impFileData.filename);
+	for (uint16_t a = 0; a < 255; a++)
+	{
+		lowCase[a] = tolower(lowCase[a]);
+		if (lowCase[a] == 0) break;
+	}
+
+	if (strstr(lowCase, ".mod\0") != NULL)
+	{
+		return importModFiletype_mod;
+	}
+	else if (strstr(lowCase, ".it\0") != NULL)
+	{
+		return importModFiletype_it;
+	}
+
+	return importModFiletype_notSupported;
+
+}
+
+void cFileManager::importModFile_Init()
+{
+
+	importModFileType = checkImportFileType();
+	if (importModFileType != importModFiletype_mod)
+		return;
+
 	// wart wspólne
 	byteSampleOffset = 0;
-	modFilePatterns_actualIndex = 0;
-	modFileInstruments_actualIndex = 0;
-	modFile_sample_actualIndex = 0;
+	modFileData.patternsActualIndex = 0;
+	modFileData.instrumentsActualIndex = 0;
+	modFileData.sampleActualIndex = 0;
 
-	modSample_waveWriteFlag = 0;
+	modFileData.waveWriteFlag = 0;
 
-	modFilePatterns_max = 1;
+	modFileData.patternsMax = 1;
 
 	modFile_sample_ptr = sdram_sampleBank;
-	memset(sdram_sampleBank,0,sizeof(sdram_sampleBank));
+	memset(sdram_sampleBank, 0, sizeof(sdram_sampleBank));
 
 	// wew
 	char byteBuffer[4];
 
-	sprintf(modFilePath, "%.10s/%.200s", cModsPath, modToImportFilename);
+	sprintf(impFileData.path, "%.10s/%.200s", cModsPath, impFileData.filename);
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-														modFilePath,
+														impFileData.path,
 														(uint8_t*) byteBuffer,
 														4,
 														1080,
@@ -56,14 +85,14 @@ void cFileManager::importModFileInit()
 
 		if (strstr(byteBuffer, "M.K.") != NULL)
 		{
-			modFileInstrumentsCount = 31;
-			modFileChannelsCount = 4;
+			modFileData.instrumentsCount = 31;
+			modFileData.channelsCount = 4;
 			moveToNextOperationStep();
 		}
 		else
 		{
-			modFileInstrumentsCount = 15;
-			modFileChannelsCount = 4;
+			modFileData.instrumentsCount = 15;
+			modFileData.channelsCount = 4;
 			moveToNextOperationStep();
 //			throwError(2);
 		}
@@ -78,16 +107,16 @@ void cFileManager::importModFileInit()
 void cFileManager::importModFile_GetInstrumentData()
 {
 
-	char byteBuffer[modSampleInfoSize];
+	char byteBuffer[modFileData.sampleInfoSize];
 	uint8_t buffOffset = 0;
 
-	sprintf(modFilePath, "%.10s/%.200s", cModsPath, modToImportFilename);
+	sprintf(impFileData.path, "%.10s/%.200s", cModsPath, impFileData.filename);
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-														modFilePath,
-														(uint8_t*) byteBuffer,
-														modSampleInfoSize, // memo
-			20 + modFileInstruments_actualIndex * modSampleInfoSize, // offset
+			impFileData.path,
+			(uint8_t*) byteBuffer,
+			modFileData.sampleInfoSize, // memo
+			20 + modFileData.instrumentsActualIndex * modFileData.sampleInfoSize, // offset
 			fileWholeOnce); // fileDivIntoParts
 
 	if (loadStatus == fileTransferEnd)
@@ -132,10 +161,10 @@ void cFileManager::importModFile_GetInstrumentData()
 //	moveToNextOperationStep();
 }
 
-void cFileManager::importMod_SaveInstrument()
+void cFileManager::importModFile_SaveInstrument()
 {
 
-	strInstrument * instr = &mtProject.instrument[modFileInstruments_actualIndex];
+	strInstrument *instr = &mtProject.instrument[modFileData.instrumentsActualIndex];
 	setDefaultActiveInstrument(instr);
 
 	instr->isActive = 1;
@@ -187,10 +216,10 @@ void cFileManager::importMod_SaveInstrument()
 //	instr->volume = 100;
 //	instr->volume = 50;
 
-	if (saveInstrument(modFileInstruments_actualIndex))
+	if (saveInstrument(modFileData.instrumentsActualIndex))
 	{
-		modFileInstruments_actualIndex++;
-		if (modFileInstruments_actualIndex >= modFileInstrumentsCount)
+		modFileData.instrumentsActualIndex++;
+		if (modFileData.instrumentsActualIndex >= modFileData.instrumentsCount)
 		{
 			moveToNextOperationStep();
 		}
@@ -205,27 +234,27 @@ void cFileManager::importMod_SaveInstrument()
 void cFileManager::importModFile_SongInit()
 {
 
-	char byteBuffer[modSongInfoSize];
+	char byteBuffer[modFileData.songInfoSize];
 //	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-														modFilePath,
-														(uint8_t*) byteBuffer,
-														modSongInfoSize, // memo
-			20 + modFileInstrumentsCount * modSampleInfoSize, // offset
+			impFileData.path,
+			(uint8_t*) byteBuffer,
+			modFileData.songInfoSize, // memo
+			20 + modFileData.instrumentsCount * modFileData.sampleInfoSize, // offset
 			fileWholeOnce
 			);
 
 	if (loadStatus == fileTransferEnd)
 	{
 
-		memcpy(&modSong, &byteBuffer, modSongInfoSize);
+		memcpy(&modSong, &byteBuffer, modFileData.songInfoSize);
 
 		for (uint8_t a = 0; a < 128; a++)
 		{
-			if (modSong.playlist[a] > modFilePatterns_max)
+			if (modSong.playlist[a] > modFileData.patternsMax)
 			{
-				modFilePatterns_max = modSong.playlist[a];
+				modFileData.patternsMax = modSong.playlist[a];
 			}
 		}
 
@@ -240,21 +269,21 @@ void cFileManager::importModFile_SongInit()
 void cFileManager::importModFile_Patterns()
 {
 
-	char byteBuffer[modPatternSize];
+	char byteBuffer[modFileData.patternSize];
 //	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-			modFilePath,
+			impFileData.path,
 			(uint8_t*) byteBuffer,
-			modPatternSize, // memo
-			20 + modFileInstrumentsCount * modSampleInfoSize + modSongInfoSize + modPatternSize * modFilePatterns_actualIndex, // offset
+			modFileData.patternSize, // memo
+			20 + modFileData.instrumentsCount * modFileData.sampleInfoSize + modFileData.songInfoSize + modFileData.patternSize * modFileData.patternsActualIndex, // offset
 			fileWholeOnce
 			);
 	Sequencer::strPattern *patt = sequencer.getActualPattern();
 
 	sequencer.clearPattern(patt);
 
-	mtProject.values.actualPattern = modFilePatterns_actualIndex + 1;
+	mtProject.values.actualPattern = modFileData.patternsActualIndex + 1;
 
 	// przepisuję playlistę
 	for (uint8_t a = 0; a < 128; a++)
@@ -282,7 +311,7 @@ void cFileManager::importModFile_Patterns()
 		*((uint8_t*) &chData + 1) = byteBuffer[cell * 4 + 2];
 		*((uint8_t*) &chData + 0) = byteBuffer[cell * 4 + 3];
 
-		uint8_t modInstr = ((chData >> 12) & 0x0000000f);
+		uint8_t modInstr = ((chData >> 12) & 0x0000000f) | ((chData >> 24) & 0xf0);
 		modInstr = constrain(modInstr, 0, INSTRUMENTS_MAX);
 
 		uint16_t period = (chData >> 16) & 0xfff;
@@ -322,7 +351,7 @@ void cFileManager::importModFile_Patterns()
 
 	}
 
-	updatePatternBitmask(mtProject.values.actualPattern-1,(uint8_t*) patt);
+	updatePatternBitmask(mtProject.values.actualPattern - 1, (uint8_t*) patt);
 
 	if (!writePatternToFileStruct(sequencer.getPatternToSaveToFile(),
 									(uint8_t*) &fileManagerPatternBuffer))
@@ -341,13 +370,13 @@ void cFileManager::importModFile_Patterns()
 	if (saveStatus == fileTransferEnd)
 	{
 		sequencer.saveToFileDone();
-		if (modFilePatterns_actualIndex >= modFilePatterns_max)
+		if (modFileData.patternsActualIndex >= modFileData.patternsMax)
 		{
 			moveToNextOperationStep();
 		}
 		else
 		{
-			modFilePatterns_actualIndex++;
+			modFileData.patternsActualIndex++;
 		}
 
 	}
@@ -452,22 +481,22 @@ void setFx(Sequencer::strPattern::strTrack::strStep *step,
 }
 
 // pobieramy wave z mod
-void cFileManager::importModFileWaves_ImportWave()
+void cFileManager::importModFile_ImportWave()
 {
 
 //	mtProject.used_memory
 
-	strInstrument * instr = &mtProject.instrument[modFile_sample_actualIndex];
+	strInstrument *instr = &mtProject.instrument[modFileData.sampleActualIndex];
 
 	//sdram_sampleBank
-//	char byteBuffer[modPatternSize];
+//	char byteBuffer[modFileData.modPatternSize];
 	//	uint8_t buffOffset = 0;
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(
-			modFilePath,
+			impFileData.path,
 			(uint8_t*) modFile_sample_ptr,
 			instr->sample.length * 2, // memo
-			20 + modFileInstrumentsCount * modSampleInfoSize + modSongInfoSize + modPatternSize * (modFilePatterns_max + 1) + byteSampleOffset, // offset
+			20 + modFileData.instrumentsCount * modFileData.sampleInfoSize + modFileData.songInfoSize + modFileData.patternSize * (modFileData.patternsMax + 1) + byteSampleOffset, // offset
 			fileWholeOnce
 			);
 
@@ -475,7 +504,7 @@ void cFileManager::importModFileWaves_ImportWave()
 	if (loadStatus == fileTransferEnd)
 	{
 		mtProject.used_memory += instr->sample.length * 2;
-		if (modFile_sample_actualIndex >= modFileInstrumentsCount)
+		if (modFileData.sampleActualIndex >= modFileData.instrumentsCount)
 		{
 			// 2 do przodu
 			moveToNextOperationStep();
@@ -498,21 +527,21 @@ void cFileManager::importModFileWaves_ImportWave()
 }
 
 // zapisujemy do pliku
-void cFileManager::importModFileWaves_WriteWave()
+void cFileManager::importModFile_WriteWave()
 {
 
-	strInstrument * instr = &mtProject.instrument[modFile_sample_actualIndex];
+	strInstrument *instr = &mtProject.instrument[modFileData.sampleActualIndex];
 
-	if (!modSample_waveWriteFlag)
+	if (!modFileData.waveWriteFlag)
 	{
-		modSample_waveWriteFlag = 1;
-		modImport_saveLength = instr->sample.length * 2;
-		if (modImport_saveLength > 1)
+		modFileData.waveWriteFlag = 1;
+		modFileData.modImport_saveLength = instr->sample.length * 2;
+		if (modFileData.modImport_saveLength > 1)
 		{
 
 			char currentFilename[PATCH_SIZE];
 			sprintf(currentFilename, cWorkspaceSamplesFilesFormat,
-					modFile_sample_actualIndex + 1);
+					modFileData.sampleActualIndex + 1);
 
 			if (SD.exists(currentFilename)) SD.remove(currentFilename);
 			wavfile = SD.open(currentFilename, SD_FILE_WRITE);
@@ -520,31 +549,32 @@ void cFileManager::importModFileWaves_WriteWave()
 			// todo: to jest chyba bez sensu
 			wavfile.write(currentFilename, sizeof(strWavFileHeader));
 
-			modSample_waveSrcPtr = instr->sample.address;
+			modFileData.waveSrcPtr = instr->sample.address;
 		}
 		else
 		{
-			modSample_waveWriteFlag = 0;
+			modFileData.waveWriteFlag = 0;
 		}
 
 	}
 
-	if (modImport_saveLength > 1)
+	if (modFileData.modImport_saveLength > 1)
 	{
-		if (modImport_saveLength > 2048)
+		if (modFileData.modImport_saveLength > 2048)
 		{
-			wavfile.write(modSample_waveSrcPtr, 2048);
+			wavfile.write(modFileData.waveSrcPtr, 2048);
 
-			modSample_waveSrcPtr += 1024;
-			modImport_saveLength -= 2048;
+			modFileData.waveSrcPtr += 1024;
+			modFileData.modImport_saveLength -= 2048;
 
 		}
 		else
 		{
-			modSample_waveWriteFlag = 0;
+			modFileData.waveWriteFlag = 0;
 
-			wavfile.write(modSample_waveSrcPtr, modImport_saveLength);
-			modImport_saveLength = 0;
+			wavfile.write(modFileData.waveSrcPtr,
+							modFileData.modImport_saveLength);
+			modFileData.modImport_saveLength = 0;
 
 			// uzupełnienie headera
 			strWavFileHeader header;
@@ -572,7 +602,7 @@ void cFileManager::importModFileWaves_WriteWave()
 
 			byteSampleOffset += instr->sample.length * 2;
 			modFile_sample_ptr += instr->sample.length;
-			modFile_sample_actualIndex++;
+			modFileData.sampleActualIndex++;
 		}
 	}
 	else
@@ -581,7 +611,7 @@ void cFileManager::importModFileWaves_WriteWave()
 
 		byteSampleOffset += instr->sample.length * 2;
 		modFile_sample_ptr += instr->sample.length;
-		modFile_sample_actualIndex++;
+		modFileData.sampleActualIndex++;
 	}
 
 	// dokonczyc
@@ -591,7 +621,7 @@ void cFileManager::importModFileWaves_WriteWave()
 	 */
 
 }
-void cFileManager::importModFileFinish()
+void cFileManager::importModFile_Finish()
 {
 
 	setProjectStructChanged();
@@ -604,7 +634,7 @@ void cFileManager::importModFileFinish()
 
 }
 
-void cFileManager::importModFileError()
+void cFileManager::importModFile_Error()
 {
 	importModFileAfterNewProject = 0;
 
