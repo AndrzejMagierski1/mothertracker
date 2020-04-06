@@ -58,7 +58,7 @@ uint32_t saveLength = 0;
 int16_t *waveSrcPtr;
 int16_t *sample_ptr = sdram_sampleBank;
 uint32_t bSampleOffset = 0;
-const uint8_t debugMod = 0;
+const uint8_t debugMod = 1;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
@@ -529,7 +529,7 @@ void cFileManager::importItFile_OpenSample()
 			// kopiujemy dane sampli:
 			if (is16or8bit)
 			{
-				uint32_t totalToRead = instr->sample.length;
+				uint32_t totalToRead = instr->sample.length*2;
 				if ((mtProject.used_memory + instr->sample.length * 2) > sizeof(sdram_sampleBank))
 				{
 					moveToNextOperationStep();
@@ -537,27 +537,28 @@ void cFileManager::importItFile_OpenSample()
 				}
 //				uint8_t buff[512] { 0 };
 
-				uint16_t *tempPtr = (uint16_t*) itFile_sampleDest_ptr;
+				uint8_t *tempPtr = (uint8_t*) itFile_sampleDest_ptr;
 				while (totalToRead)
 				{
 					uint32_t bytesToRead =
-							totalToRead >= 512 ? 512 : totalToRead;
+							totalToRead >= 2048 ? 2048 : totalToRead;
 
 					loadStatus = fileTransfer.loadFileToMemory(
 							impFileData.path,
 							(uint8_t*) tempPtr,
 							bytesToRead, // memo
-							SmpPoint + (instr->sample.length - totalToRead), // offset
+							SmpPoint + (instr->sample.length*2 - totalToRead), // offset
 							fileWholeOnce
 							);
 
 					totalToRead -= bytesToRead;
+					tempPtr+=bytesToRead;
 
 				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
 
-				itFile_sampleDest_ptr += instr->sample.length;
+				itFile_sampleDest_ptr += instr->sample.length*2;
 
 				mtProject.used_memory += instr->sample.length * 2;
 			}
