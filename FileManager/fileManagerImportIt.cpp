@@ -58,7 +58,7 @@ uint32_t saveLength = 0;
 int16_t *waveSrcPtr;
 int16_t *sample_ptr = sdram_sampleBank;
 uint32_t bSampleOffset = 0;
-const uint8_t debugMod = 1;
+const uint8_t debugMod = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
