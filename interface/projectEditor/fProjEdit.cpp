@@ -683,7 +683,7 @@ static uint8_t functSaveAsOverwriteNo()
 //open
 static uint8_t functOpenProjectConfirm()
 {
-	if(PE->projectsList[PE->selectedProject] == nullptr || PE->projectsList[PE->selectedProject][0] == '0') return 1;
+	if(PE->projectsList[PE->selectedProject] == nullptr || PE->projectsList[PE->selectedProject][0] == 0) return 1;
 
 	if(sequencer.isPlay())
 	{
@@ -703,7 +703,7 @@ static uint8_t functOpenProjectConfirm()
 }
 static uint8_t functImportModConfirm()
 {
-	if(PE->modsList[PE->selectedMod] == nullptr || PE->modsList[PE->selectedMod][0] == '0') return 1;
+	if(PE->modsList[PE->selectedMod] == nullptr || PE->modsList[PE->selectedMod][0] == 0) return 1;
 
 
 	if(sequencer.isPlay())

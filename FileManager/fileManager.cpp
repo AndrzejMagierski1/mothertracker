@@ -88,19 +88,52 @@ void cFileManager::updateLoadProjectFromWorkspace() // fmLoadWorkspaceProject - 
 
 void cFileManager::updateImportModFile()
 {
-	switch (currentOperationStep)
+	switch (importModFileType)
 	{
-	case 0:		importModFileInit();							break;
-	case 1:		importModFile_GetInstrumentData();				break;
-	case 2:		importMod_SaveInstrument();						break;
-	case 3:		importModFile_SongInit();						break;
-	case 4:		importModFile_Patterns();						break;
-	case 5:		importModFileWaves_ImportWave();				break;
-	case 6:		importModFileWaves_WriteWave();					break;
-	case 7:		importModFileFinish();							break;
+	case importModFiletype_mod:
+
+		switch (currentOperationStep)
+		{
+		case 0:			importModFile_Init();				break;
+		case 1:			importModFile_GetInstrumentData();	break;
+		case 2:			importModFile_SaveInstrument();		break;
+		case 3:			importModFile_SongInit();			break;
+		case 4:			importModFile_Patterns();			break;
+		case 5:			importModFile_ImportWave();			break;
+		case 6:			importModFile_WriteWave();			break;
+		case 7:			importModFile_Finish();				break;
+		default:
+			importModFile_Error();
+			stopOperationWithError(fmImportModError);
+			break;
+		}
+		break;
+
+	case importModFiletype_it:
+		switch (currentOperationStep)
+		{
+
+		case 0:			importItFile_Init();				break;
+		case 1:			importItFile_ProcessHeader();		break;
+		case 2:			importItFile_ProcessSong();			break;
+		case 3:			importItFile_ProcessOffsets();		break;
+
+		case 4:			importItFile_ProcessInstruments();	break;
+		case 5:			importItFile_OpenSample();			break;
+		case 6:			importItFile_InitPattern();			break;
+		case 7:			importItFile_writeWaves();			break;
+		case 8:			importItFile_finish();				break;
+		default:
+//			importModFile_Error();
+			stopOperationWithError(fmImportModError);
+			break;
+		}
+
+		break;
+
 	default:
-		importModFileError();
-		stopOperationWithError(fmImportModError);		break;
+		stopOperationWithError(fmImportModError);
+		break;
 	}
 
 }
@@ -298,6 +331,10 @@ void cFileManager::autoSaveProjectToWorkspace()
 void cFileManager::moveToNextOperationStep()
 {
 	currentOperationStep++;
+}
+void cFileManager::moveToPrevOperationStep()
+{
+	currentOperationStep--;
 }
 
 
@@ -785,14 +822,14 @@ bool cFileManager::importModAfterLoadNewProject(uint8_t index)
 	if (modsList[index] == nullptr) return false;
 	//pobranie nazwy otwieranego projektu tu
 
-	strcpy(modToImportFilename, modsList[index]);
+	strcpy(impFileData.filename, modsList[index]);
 
 	char modName[20] { 0 };
 	for (uint8_t a = 0; a < sizeof(modName); a++)
 	{
-		if (modToImportFilename[a] != '.')
+		if (impFileData.filename[a] != '.')
 		{
-			modName[a] = modToImportFilename[a];
+			modName[a] = impFileData.filename[a];
 		}
 		else
 		{

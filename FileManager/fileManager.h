@@ -105,6 +105,14 @@ enum fileManagerOperation
 };
 
 
+enum enImportModMode
+{
+	importModFiletype_notSupported,
+	importModFiletype_mod,
+	importModFiletype_it,
+};
+
+
 struct strProjectFile;
 struct strInstrumentFile;
 class SdDir;
@@ -244,6 +252,7 @@ private:
 	void report(const char* text, uint8_t value = 0);
 	void report(const char* text, const char* text2);
 	void moveToNextOperationStep();
+	void moveToPrevOperationStep();
 	void skipNextOperationStep();
 	void calcTotalMemoryToTransfer();
 	void calcActualMemoryTransfered();
@@ -473,61 +482,59 @@ private:
 	uint32_t importFromSampleEditorLength;
     
 
-
+	enImportModMode  checkImportFileType();
 
     
 	/// IMPORT MOD
 
-	void importModFileInit();
+	void importModFile_Init();
 	void importModFile_GetInstrumentData();
-	void importMod_SaveInstrument();
+	void importModFile_SaveInstrument();
 
 	void importModFile_SongInit();
 	void importModFile_Patterns();
-	void importModFileWaves_ImportWave();
-	void importModFileWaves_WriteWave();
-	void importModFileFinish();
-	void importModFileError();
-
+	void importModFile_ImportWave();
+	void importModFile_WriteWave();
+	void importModFile_Finish();
+	void importModFile_Error();
 
 	int8_t periodToNote(uint16_t period);
 	void printNote(uint8_t note);
 
 	bool importModFileAfterNewProject = 0;
-
-	char modToImportFilename[255];	// tylko nazwa
-	char modFilePath[255];			// cala sciezka
-
-	uint8_t modFileInstrumentsCount = 31;
-	uint8_t modFileInstruments_actualIndex = 0;
-	uint8_t modFileChannelsCount = 4;
-
-	uint8_t modFilePatterns_max = 1;
-	uint8_t modFilePatterns_actualIndex = 0;
-
-
-	/*
-	 * 'M.K', '4CHN',
-	'6CHN','8CHN','FLT4','FLT8.
-	 */
-
-
-
-	const uint8_t modSampleInfoSize = 30;
-	const uint8_t modSongInfoSize = 1 + 1 + 128 + 4;
-	const uint16_t modPatternSize = 1024;
 	static const uint8_t modSampleNameSize = 22;
 
-	uint8_t modFile_sample_actualIndex = 0;
-//	int16_t *modFile_sample_ptr = sdram_sampleBank;
 
-	uint8_t modSample_waveWriteFlag = 0;
-	int16_t *modSample_waveSrcPtr;
+	uint8_t importModFileType = importModFiletype_mod;
 
-	uint32_t modImport_saveLength = 0;
+	struct strImportFileDataCommon
+	{
+		char filename[255];	// tylko nazwa
+		char path[255];			// cala sciezka
 
-//	SdFile modImport_wav;
+	} impFileData;
 
+	struct strImportModFile
+	{
+		uint8_t instrumentsCount = 31;
+		uint8_t instrumentsActualIndex = 0;
+		uint8_t channelsCount = 4;
+
+		uint8_t patternsMax = 1;
+		uint8_t patternsActualIndex = 0;
+
+		const uint8_t sampleInfoSize = 30;
+		const uint8_t songInfoSize = 1 + 1 + 128 + 4;
+
+		const uint16_t patternSize = 1024;
+
+		uint8_t sampleActualIndex = 0;
+		uint8_t waveWriteFlag = 0;
+		int16_t *waveSrcPtr;
+
+		uint32_t modImport_saveLength = 0;
+
+	} modFileData;
 
 	struct strModFileData
 	{
@@ -573,7 +580,10 @@ private:
 		uint16_t repeatLengthInWords = 0;
 
 	} modSampleData;
-
+	/*
+	 * 'M.K', '4CHN',
+	 '6CHN','8CHN','FLT4','FLT8.
+	 */
 
 	struct strModSong
 	{
@@ -583,12 +593,57 @@ private:
 		uint8_t theFourLetters[4] { 0 };
 
 	} modSong;
-
 	/// IMPORT MOD KONIEC
-//patern undo
+
+	// import IT
+	void importItFile_Init();
+	void importItFile_ProcessHeader();
+	void importItFile_ProcessSong();
+	void importItFile_ProcessOffsets();
+
+	void importItFile_ProcessInstruments();
+	void importItFile_OpenSample();
+	void importItFile_InitPattern();
+	void importItFile_ProcessPattern(uint32_t patternOffset,
+										uint16_t length,
+										uint16_t rows);
+	void importItFile_writeWaves();
+	void importItFile_finish();
+
+
+	void importItFile_setPattern(uint8_t index, uint8_t length);
+	void importItFile_setStep(uint8_t step,
+						uint8_t track,
+						uint8_t note,
+						uint8_t instrument,
+						uint8_t fx,
+						uint8_t fxVal);
+	void importItFile_savePattern();
+	void importItFile_initPatternBuffer(uint32_t pattLength,
+								   uint32_t patternOffset);
+
+	uint8_t importItFile_getNextPatternByte();
 
 
 
+
+
+
+
+
+
+	uint32_t getInstrumentOffset(uint8_t index);
+	uint32_t getSampleOffset(uint8_t index);
+	uint32_t getPatternOffset(uint8_t index);
+	uint32_t getFileVariable(uint32_t subFileOffset,
+								uint32_t offset,
+								uint8_t varSize);
+
+
+
+
+
+	// import IT koniec
 	//song
 
 

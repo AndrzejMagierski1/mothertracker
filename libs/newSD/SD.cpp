@@ -610,7 +610,8 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 				if (lowCase[a] == 0) break;
 			}
 
-			if (strstr(lowCase, ".mod\0") == NULL) continue;
+			if (strstr(lowCase, ".mod\0") == NULL &&
+					strstr(lowCase, ".it\0") == NULL) continue;
 			break;
 		}
 
