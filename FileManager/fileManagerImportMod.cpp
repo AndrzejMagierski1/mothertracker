@@ -13,7 +13,7 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+extern int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 int16_t *modFile_sample_ptr = sdram_sampleBank;

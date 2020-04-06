@@ -15,7 +15,7 @@
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
-extern int16_t sdram_sampleBank[4 * 1024 * 1024];
+extern int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
 int16_t *itFile_sampleDest_ptr = sdram_sampleBank;
 
 // elementy pliku IT
