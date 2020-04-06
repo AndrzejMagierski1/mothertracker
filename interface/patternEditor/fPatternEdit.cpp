@@ -3107,32 +3107,30 @@ void cPatternEditor::changePatternViewMode(uint8_t param)
 static uint8_t functSwitchModule(uint8_t button)
 {
 //	if(tactButtons.isButtonPressed(interfaceButtonShift) && PTE->editMode == 1)
-	if(PTE->editMode == 1)
-	{
-		Sequencer::strPattern* seq = sequencer.getPatternToUI();
-		Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
-				step[PTE->trackerPattern.actualStep];
 
-		if (actualStep->note >= 0)
-		{
-			mtProject.values.lastUsedNote = actualStep->note;
-			mtProject.values.lastUsedInstrument = constrain(
-					actualStep->instrument,
-					0,
-					INSTRUMENTS_MAX+16);
-		}
-		/*
-		// fx znacza cos tylko w paternie wiec po co je zmieniac prxzyz wychodzeniu do innych modolow
-		if (actualStep->fx[0].type > 0)
-		{
-			mtProject.values.lastUsedFx = actualStep->fx[0].type;
-		}
-		else if (actualStep->fx[1].type > 0)
-		{
-			mtProject.values.lastUsedFx = actualStep->fx[1].type;
-		}
-		*/
+	Sequencer::strPattern *seq = sequencer.getPatternToUI();
+	Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
+			step[PTE->trackerPattern.actualStep];
+
+	if (actualStep->note >= 0)
+	{
+		mtProject.values.lastUsedNote = actualStep->note;
+		mtProject.values.lastUsedInstrument = constrain(
+														actualStep->instrument,
+														0,
+														INSTRUMENTS_MAX + 16);
 	}
+	/*
+	 // fx znacza cos tylko w paternie wiec po co je zmieniac prxzyz wychodzeniu do innych modolow
+	 if (actualStep->fx[0].type > 0)
+	 {
+	 mtProject.values.lastUsedFx = actualStep->fx[0].type;
+	 }
+	 else if (actualStep->fx[1].type > 0)
+	 {
+	 mtProject.values.lastUsedFx = actualStep->fx[1].type;
+	 }
+	 */
 
 	PTE->eventFunct(eventSwitchModule,PTE,&button,0);
 
