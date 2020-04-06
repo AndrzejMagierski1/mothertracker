@@ -862,7 +862,7 @@ void Sequencer::setSelectionNote(int16_t value)
 	}
 
 	if (/*step->note >= 0
-			&&*/ !isRec()
+	 &&*/!isRec()
 			&& !isPlay())
 	{
 //					blinkNote(step->instrument,
@@ -1325,7 +1325,7 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		return 24;
 
 	case fx.FX_TYPE_VOLUME_LFO:
-		return 19;
+		return 23;
 
 	default:
 		return 100;
@@ -1429,8 +1429,12 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 	}
 }
 
-const char lfoAmpLabels[20][4] =
+const char lfoAmpLabels[24][4] =
 		{
+				" 24",
+				" 16",
+				" 12",
+				"  8",
 				"  6",
 				"  4",
 				"  3",
