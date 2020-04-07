@@ -1045,7 +1045,8 @@ void changeParamsVolume(int16_t value)
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		instrumentPlayer[i].setStatusBytes(VOLUME_MASK);
+//		if(instrumentPlayer[i].currentInstrument_idx == mtProject.values.lastUsedInstrument)
+		   instrumentPlayer[i].setStatusBytes(VOLUME_MASK);
 	}
 
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);

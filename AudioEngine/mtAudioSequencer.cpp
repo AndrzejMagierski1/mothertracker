@@ -1200,19 +1200,21 @@ float playerEngine::getMostSignificantAmount()
 uint8_t playerEngine::getMostSignificantVolume()
 {
 	uint8_t localVol = 0;
-
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+	if(muteState == MUTE_DISABLE)
 	{
-		localVol = currentPerformanceValues.volume;
-	}
-	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]) ||
-		(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]))
-	{
-		localVol = currentSeqModValues.volume;
-	}
-	else
-	{
-		localVol = mtProject.instrument[currentInstrument_idx].volume;
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+		{
+			localVol = currentPerformanceValues.volume;
+		}
+		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]) ||
+			(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]))
+		{
+			localVol = currentSeqModValues.volume;
+		}
+		else
+		{
+			localVol = mtProject.instrument[currentInstrument_idx].volume;
+		}
 	}
 
 	return localVol;
@@ -1232,8 +1234,8 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 
 		uint8_t localVol = getMostSignificantVolume();
 
-		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * env->amount);
-		else ampPtr->gain(AMP_MUTED);
+		ampPtr->gain( ampLogValues[localVol] * env->amount);
+
 	}
 	else
 	{
@@ -1368,8 +1370,7 @@ void playerEngine::setFxVolume()
 	{
 		float localAmount = getMostSignificantAmount();
 
-		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
-		else ampPtr->gain(AMP_MUTED);
+		ampPtr->gain( ampLogValues[getMostSignificantVolume()] * localAmount);
 	}
 }
 void playerEngine::clearFxVolume()
@@ -1381,9 +1382,9 @@ void playerEngine::clearFxVolume()
 	else
 	{
 		float localAmount = getMostSignificantAmount();
+		uint8_t localVolume = getMostSignificantVolume();
 
-		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
-		else ampPtr->gain(AMP_MUTED);
+		ampPtr->gain( ampLogValues[localVolume] * localAmount);
 	}
 }
 //PANNING

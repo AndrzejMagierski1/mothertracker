@@ -102,31 +102,21 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	seqFx(fx1_id,fx1_val,0);
 	seqFx(fx2_id,fx2_val,1);
-//*******
-	status = playMemPtr->play(instr_idx,note);
-//******* start env
-	envelopeAmpPtr->noteOn();
 
-	if((mtProject.instrument[instr_idx].envelope[envAmp].enable)
-	|| (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
-	|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp])
-	|| (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp]) )
+	for(uint8_t i = 0 ; i < ACTIVE_ENVELOPES; i++)
 	{
-		setSyncParamsAmpLFO();
-	}
-
-	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
-	{
-		if((mtProject.instrument[instr_idx].envelope[i].enable)
-		|| (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[i]])
-		|| (trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[i]])
-		|| (trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[i]]))
+		if(isActiveEnvelope(i))
 		{
-			envelopePtr[i]->start();
+			if(i == 0 ) envelopeAmpPtr->noteOn();
+			else envelopePtr[i]->start();
 			setSyncParamsLFO(i);
 		}
 	}
 //*******
+
+//*******
+	status = playMemPtr->play(instr_idx,note);
+//******* start env
 	__enable_irq();
 	AudioInterrupts();
 	return status;
@@ -297,32 +287,10 @@ void playerEngine::handleNoteOnFilter()
 
 void playerEngine::handleNoteOnGain()
 {
-	float localAmount = 0.0f;
+	float localAmount = getMostSignificantAmount();
+	uint8_t localVolume = getMostSignificantVolume();
 
-	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-		}
-		else
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-		}
-	}
-	else
-	{
-		localAmount = 1.0f;
-	}
-
-	if(muteState == MUTE_DISABLE)
-	{
-		ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
-	}
-	else
-	{
-		ampPtr->gain(AMP_MUTED);
-	}
+	ampPtr->gain(localAmount * ampLogValues[localVolume]);
 }
 
 void playerEngine::handleNoteOnPanning()
@@ -525,49 +493,19 @@ void playerEngine::handleFxNoteOnFilter()
 
 void playerEngine::handleFxNoteOnGain()
 {
-	float localAmount = 0.0f;
+	float localAmount = getMostSignificantAmount();
 
-	if( ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable) && (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)) ||
-		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
 	{
-		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+		changeVolumePerformanceMode(performanceMod.volume);
 	}
 	else
 	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable))
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-		}
-		else
-		{
-			localAmount = 1.0f;
-		}
 
+		ampPtr->gain( ampLogValues[getMostSignificantVolume()] * localAmount);
 	}
 
-
-	if(muteState == MUTE_DISABLE)
-	{
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
-		{
-			changeVolumePerformanceMode(performanceMod.volume);
-		}
-		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
-				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume])
-		{
-			ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
-		}
-		else
-		{
-			ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
-		}
-	}
-	else
-	{
-		ampPtr->gain(AMP_MUTED);
-	}
 }
 
 void playerEngine::handleFxNoteOnPanning()
