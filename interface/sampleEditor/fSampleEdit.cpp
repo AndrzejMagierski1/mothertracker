@@ -252,25 +252,28 @@ void cSampleEditor::update()
 	}
 
 
-
-
-
 	uint8_t fileManagerStatus = newFileManager.getStatus();
 
 	if(fileManagerStatus == fmImportSampleFromSampleEditorEnd)
 	{
-		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 		if(reloadOnEndSaveing)
 		{
+			FM->unblockAllInputs();
 			reloadOnEndSaveing = false;
 			mtProject.values.lastUsedInstrument = afterReloadInstrumentIdx;
 			start(0);
 		}
 		else
 		{
-			SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
+			newFileManager.reloadSamplesFromWorkspace(true);
 		}
+	}
+	else if(fileManagerStatus == fmReloadSamplesEnd)
+	{
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+		SE->eventFunct(eventSwitchModule,SE,&SE->moduleToChange,0);
 	}
 	else if(fileManagerStatus >=  fmError)
 	{
@@ -283,6 +286,7 @@ void cSampleEditor::update()
 
 void cSampleEditor::stop()
 {
+	moduleRefresh = 0;
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
 }

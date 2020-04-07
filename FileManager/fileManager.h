@@ -176,7 +176,7 @@ public:
 
 	bool importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t length, uint8_t instrumentSlot);
 
-	bool reloadSamplesFromWorkspace(uint8_t instrumentSlotFrom);
+	bool reloadSamplesFromWorkspace(bool onlyCommonPartOfMemory = false);
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();

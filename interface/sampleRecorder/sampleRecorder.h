@@ -146,7 +146,8 @@ public:
 	hControl bgLabel;
 
 //*********************************************
-	uint8_t dontTurnOffRadio = 0;
+	uint8_t dontTurnOffRadio;
+	uint8_t wasSampleMemoryOverwritten;
 
 	uint8_t selectedPlace = 0;
 	uint8_t currentScreen = 0;
@@ -238,6 +239,7 @@ uint8_t firstPeakFlag = 0;
 uint32_t firstPeakPlace;
 strUndoCrop undo[undoCount];
 uint8_t cropCounter = 0;
+
 
 //----------------------------------
 // bar

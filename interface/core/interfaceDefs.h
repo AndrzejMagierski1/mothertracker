@@ -220,6 +220,9 @@ const char fileManagerPopupText[][30] =
 
 
 		"Importing mod file",
+
+
+		"Loading Samples",
 };
 //-------------------------------------------------------------
 

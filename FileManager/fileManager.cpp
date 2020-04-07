@@ -769,7 +769,7 @@ void cFileManager::reloadSamplesInit()
 	//lastActiveInstrument = 0;
 
 	//mtProject.instruments_count = 0;
-	mtProject.used_memory = 0;
+	mtProject.used_memory = (uint8_t*)mtProject.instrument[currentSample].sample.address-(uint8_t*)sdram_ptrSampleBank;
 
 	//if(status == fmLoadingProjectfromWorkspace) calcTotalMemoryToTransfer();
 
@@ -778,12 +778,12 @@ void cFileManager::reloadSamplesInit()
 
 void cFileManager::reloadSamplesFinish()
 {
-	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	if(currentSample < INSTRUMENTS_COUNT-1)
 	{
-		currentInstrument++;
+		//currentInstrument++;
 		currentSample++;
 
-		currentOperationStep = 3; //xxx najwazniejsze !
+		currentOperationStep = 1; //xxx najwazniejsze !
 		return;
 	}
 
@@ -1083,14 +1083,38 @@ bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t 
 	return true;
 }
 
-bool cFileManager::reloadSamplesFromWorkspace(uint8_t instrumentSlotFrom)
+bool cFileManager::reloadSamplesFromWorkspace(bool onlyCommonPartOfMemory)
 {
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
-	currentInstrument = instrumentSlotFrom;
-	currentSample = instrumentSlotFrom;
+	if(onlyCommonPartOfMemory)
+	{
+		currentSample = 255;
+		// tylko nadpisane przez recorder/edytor
+		for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+		{
+			if(mtProject.instrument[i].isActive
+				&& mtProject.instrument[i].sample.address+mtProject.instrument[i].sample.length >= sdram_ptrEffectsBank)
+			{
+				currentSample = i; //i>0 ? i-1 : 0;
+				break;
+			}
+		}
 
+		if(currentSample == 255)
+		{
+			currentSample = 0;
+			status = fmReloadSamplesEnd;
+			return false;
+		}
+	}
+	else
+	{
+		// wsyzsktie sample
+		//currentInstrument = 0;
+		currentSample = 0;
+	}
 
 	status = fmReloadingSamples;
 	currentOperationStep = 0;

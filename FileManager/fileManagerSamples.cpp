@@ -65,7 +65,7 @@ void cFileManager::startSampleLoad()
 	}
 	else
 	{
-		uint8_t activeBefore = currentInstrument-1;
+		uint8_t activeBefore = currentSample-1;
 
 		while(mtProject.instrument[activeBefore].isActive == 0)
 		{

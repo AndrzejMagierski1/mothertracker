@@ -38,7 +38,7 @@ public:
 	void activateModule(hModule module, uint32_t options);
 	void deactivateModule(hModule module);
 	void switchModuleByButton(hModule module, uint8_t button, uint8_t options);
-	void switchModuleToPrevious(hModule module);
+	void switchModuleToPrevious(hModule module, uint8_t options);
 	int8_t getButtonIndex(uint8_t button);
 	void toggleActiveModule(uint8_t state);
 
