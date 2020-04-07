@@ -3,7 +3,10 @@
 #include "Arduino.h"
 #include "AudioStream.h"
 
-extern int16_t sdram_effectsBank[(15*512*1024)/2];
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
+extern int16_t* sdram_ptrDelayMemory;
+
 constexpr uint8_t MAX_SHORT_DELAY_VOICES = 12;
 constexpr uint16_t MAX_SHORT_DELAY_TIME = 3500;
 
@@ -29,7 +32,7 @@ public:
   void unblockUpdate();
 
 private:
-  int16_t * const startDelayLine = sdram_effectsBank;
+  int16_t * const startDelayLine = sdram_ptrDelayMemory;
   audio_block_t *inputQueueArray[1];
   int16_t * currentTail;
   uint8_t delayVoicesNumber;

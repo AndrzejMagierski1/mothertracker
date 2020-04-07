@@ -39,8 +39,12 @@ strMtProject mtProject;
 strInterfaceGlobals interfaceGlobals;
 
 
-__NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
-__NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
+__NOINIT(EXTERNAL_RAM) int16_t sdram_soundMemory[SOUND_MEMORY_TOTAL/2];
+
+int16_t* sdram_ptrSampleBank = sdram_soundMemory;
+int16_t* sdram_ptrEffectsBank = sdram_soundMemory+(REC_EDIT_MEM_OFFEST/2);
+int16_t* sdram_ptrDelayMemory = sdram_soundMemory+(SAMPLE_MEMORY_SIZE/2);
+
 __NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32640]; // 32768
 //__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer2[32768];
 
@@ -336,15 +340,18 @@ void cInterface::switchModuleByButton(hModule module, uint8_t button, uint8_t op
 	activateModule(modules[modulesButtons[index][1]], localOptions );
 }
 
-void cInterface::switchModuleToPrevious(hModule module)
+void cInterface::switchModuleToPrevious(hModule module, uint8_t options)
 {
 	if(previousModule == module) return;
 
 	hModule prevModule = previousModule;
 	uint32_t prevModuleOptions = previousModuleOptions;
 
+	uint8_t localOptions = options > 0 ? options : prevModuleOptions;
+
+
 	deactivateModule(module);
-	activateModule(prevModule, prevModuleOptions);
+	activateModule(prevModule, localOptions);
 }
 
 int8_t cInterface::getButtonIndex(uint8_t button)
@@ -410,8 +417,8 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		}
 		case eventSwitchToPreviousModule:
 		{
-			// param1 = uchwyt do modułu, param2 = index przycisku
-			mtInterface.switchModuleToPrevious((hModule)param1);
+			// param1 = uchwyt do modułu, param2 = opcje startwe
+			mtInterface.switchModuleToPrevious((hModule)param1, *((uint8_t*)param2));
 			break;
 		}
 		case eventActivateGameModule:

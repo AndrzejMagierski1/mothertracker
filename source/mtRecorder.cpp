@@ -35,7 +35,7 @@ uint8_t Recorder::update()
 			currentAddress += 128;
 			recByteSaved += 256;
 		}
-		if(recByteSaved >= SAMPLE_MEMORY_MAX)
+		if(recByteSaved >= SAMPLE_MEMORY_SIZE-256)
 		{
 			queue.end();
 			mode = recorderModeStop;

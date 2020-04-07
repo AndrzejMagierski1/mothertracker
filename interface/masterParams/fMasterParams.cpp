@@ -68,6 +68,7 @@ void changeLimiterTreshold(int16_t value);
 void changeBitDepth(int16_t value);
 
 
+
 void cMasterParams::update()
 {
 	if(displayType == display_t::mixer)
@@ -85,13 +86,15 @@ void cMasterParams::update()
 
 }
 
+// parametr options - przycisk modulu z ktorego nastapilo wejscie do mastera
 void cMasterParams::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
 	displayType = display_t::masterValues;
 
-	mode = options;
+	sourceModuleButton = options;
+	//mode = options;
 	exitOnButtonRelease = 0;
 //--------------------------------------------------------------------
 
@@ -145,14 +148,6 @@ void cMasterParams::turnOffPerformanceMode()
 
 	engine.performanceModeEndAll();
 
-}
-
-void cMasterParams::turnOffRadio()
-{
-	audioShield.headphoneSourceSelect(0);
-	radio.clearRDS();
-	radio.resetSeekCallback();
-	engine.setHeadphonesVolume(mtProject.values.volume);
 }
 
 void cMasterParams::setMasterScreenFunct()
@@ -357,7 +352,7 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	MP->turnOffRadio();
+	if(MP->sourceModuleButton == interfaceButtonSampleRec) 	return 1;
 
 	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
@@ -467,9 +462,17 @@ static  uint8_t functSelectLimiterTreshold(uint8_t state)
 static uint8_t functSwitchModule(uint8_t button)
 {
 	if(button != interfaceButtonPerformance) MP->turnOffPerformanceMode();
-	if(button != interfaceButtonSampleRec) MP->turnOffRadio();
+	//if(button != interfaceButtonSampleRec) MP->turnOffRadio();
 
-	MP->eventFunct(eventSwitchModule,MP,&button,0);
+	if(MP->sourceModuleButton == interfaceButtonSampleRec)
+	{
+		MP->eventFunct(eventSwitchModule,MP, &MP->sourceModuleButton, &button);
+	}
+	else
+	{
+		MP->eventFunct(eventSwitchModule,MP,&button,0);
+	}
+
 
 	return 1;
 }
@@ -701,7 +704,14 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
-		if(MP->exitOnButtonRelease) MP->eventFunct(eventSwitchToPreviousModule,MP,0,0);
+		if(MP->sourceModuleButton == interfaceButtonSampleRec)
+		{
+			if(MP->exitOnButtonRelease) MP->eventFunct(eventSwitchToPreviousModule, MP, &MP->sourceModuleButton, 0);
+		}
+		else
+		{
+			if(MP->exitOnButtonRelease) MP->eventFunct(eventSwitchToPreviousModule, MP, 0, 0);
+		}
 	}
 
 	return 1;

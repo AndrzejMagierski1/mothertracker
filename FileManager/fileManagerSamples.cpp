@@ -9,8 +9,8 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-extern int16_t sdram_effectsBank[4*1024*1024];
-extern int16_t sdram_sampleBank[4*1024*1024];
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
 
 
 #define READ_WRITE_BUFOR_SIZE 32640
@@ -57,7 +57,7 @@ void cFileManager::startSampleLoad()
 {
 	sampleInProgress = 1;
 
-	mtProject.instrument[0].sample.address = sdram_sampleBank;
+	mtProject.instrument[0].sample.address = sdram_ptrSampleBank;
 
 	if(currentSample == 0)
 	{
@@ -65,7 +65,7 @@ void cFileManager::startSampleLoad()
 	}
 	else
 	{
-		uint8_t activeBefore = currentInstrument-1;
+		uint8_t activeBefore = currentSample-1;
 
 		while(mtProject.instrument[activeBefore].isActive == 0)
 		{
@@ -230,7 +230,7 @@ void cFileManager::moveSampleMemory()
 	{
 		if(currentInstrument == 0)
 		{
-			memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			memory_offset = (uint8_t*)sdram_ptrSampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 		}
 		else
 		{
@@ -245,7 +245,7 @@ void cFileManager::moveSampleMemory()
 			if(activeBefore < 0)
 			{
 				// brak aktywnego poprzedzajacego skasowany
-				memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+				memory_offset = (uint8_t*)sdram_ptrSampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 			}
 			else
 			{
@@ -285,10 +285,10 @@ void cFileManager::moveSampleMemory()
 
 void cFileManager::moveMemory(uint8_t* memoryStart, uint8_t* memoryEnd, int32_t memoryOffset)
 {
-	char message[100];
-	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
-	debugLog.addLine(message);
-	debugLog.forceRefresh();
+//	char message[100];
+//	sprintf(message, "Move memory from %d to %d by %d", memoryStart-((uint8_t*)sdram_sampleBank), memoryEnd-((uint8_t*)sdram_sampleBank), memoryOffset);
+//	debugLog.addLine(message);
+//	debugLog.forceRefresh();
 
 
 	volatile int32_t memory_size = memoryEnd-memoryStart;
@@ -529,7 +529,7 @@ uint32_t cFileManager::getFileSizePlus(const char *filename)
 
 uint32_t cFileManager::getActualSampleMemoryLoaded()
 {
-	return ((uint8_t*)ptrSampleMemory-(uint8_t*)sdram_sampleBank)
+	return ((uint8_t*)ptrSampleMemory-(uint8_t*)sdram_ptrSampleBank)
 			+ (fileTransfer.getTransferStep() == 1 ? fileTransfer.getBytesComplited() : 0);
 }
 

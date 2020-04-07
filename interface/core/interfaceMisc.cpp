@@ -275,6 +275,7 @@ void cInterface::commonThingsUpdate()
 				case fmSavingImportingRecordedSound	: text_index = 19;	break;
 				case fmImportingSampleFromSampleEditor:text_index = 20;	break;
                 case fmImportingMod   				: text_index = 21;	break;
+                case fmReloadingSamples   			: text_index = 22;	break;
 				default: text_index = 0; break;
 				
 				}

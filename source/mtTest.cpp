@@ -361,7 +361,7 @@ void cTest::runAudioTest()
 		}
 
 		testTimer = 0;
-		recorder.startRecording(sdram_effectsBank);
+		recorder.startRecording(sdram_ptrEffectsBank);
 		testPhase = 2;
 	}
 	else if(testPhase == 2 || testPhase == 5)
@@ -391,7 +391,7 @@ void cTest::runAudioTest()
 		}
 
 		testTimer = 0;
-		recorder.startRecording(sdram_effectsBank+200000);
+		recorder.startRecording(sdram_ptrEffectsBank+200000);
 		testPhase = 5;
 	}
 
@@ -399,7 +399,7 @@ void cTest::runAudioTest()
 	{
 		//sequencer.stop();
 		instrumentPlayer[0].noteOff();
-		instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 70000, mtSampleTypeWaveFile);
+		instrumentPlayer[0].noteOnforPrev(sdram_ptrEffectsBank, 70000, mtSampleTypeWaveFile);
 		testTimer = 0;
 		testPhase = 8;
 	}
@@ -408,7 +408,7 @@ void cTest::runAudioTest()
 		if(testTimer > 1600)
 		{
 			instrumentPlayer[0].noteOff();
-			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 70000, mtSampleTypeWaveFile);
+			instrumentPlayer[0].noteOnforPrev(sdram_ptrEffectsBank, 70000, mtSampleTypeWaveFile);
 			testTimer = 0;
 		}
 	}
@@ -416,7 +416,7 @@ void cTest::runAudioTest()
 	{
 		//sequencer.stop();
 		instrumentPlayer[0].noteOff();
-		instrumentPlayer[0].noteOnforPrev(sdram_effectsBank+200000, 70000, mtSampleTypeWaveFile);
+		instrumentPlayer[0].noteOnforPrev(sdram_ptrEffectsBank+200000, 70000, mtSampleTypeWaveFile);
 		testTimer = 0;
 		testPhase = 10;
 	}
@@ -425,7 +425,7 @@ void cTest::runAudioTest()
 		if(testTimer > 1600)
 		{
 			instrumentPlayer[0].noteOff();
-			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank+200000, 70000, mtSampleTypeWaveFile);
+			instrumentPlayer[0].noteOnforPrev(sdram_ptrEffectsBank+200000, 70000, mtSampleTypeWaveFile);
 			testTimer = 0;
 		}
 	}

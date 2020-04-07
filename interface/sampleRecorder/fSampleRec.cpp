@@ -12,7 +12,11 @@
 #include "sdCardDetect.h"
 #include "mtRandomNameGenerator.h"
 #include "mtGainLevelLogarithmicTab.h"
+
 #include "core/songTimer.h"
+
+#include "debugLog.h"
+
 
 constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic
 
@@ -90,6 +94,8 @@ static void modEndPoint(int16_t value);
 void seek_callback(void);
 
 
+void turnOffRecorder();
+
 
 
 void cSampleRecorder::update()
@@ -165,26 +171,45 @@ void cSampleRecorder::update()
 
 	if(managerStatus == fmSaveRecordedSoundEnd)
 	{
-		//saveProgress = recorder.getSaveProgress();
-		//showSaveHorizontalBar();
-		hideSaveHorizontalBar();
+		interfaceGlobals.refreshFileExplorer = true; // odwiez liste plikow w sample laderze
+		newFileManager.clearStatus();
+
 		currentScreen = screenTypeConfig;
 		showDefaultScreen();
-		if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
-		else audioShield.headphoneSourceSelect(1);
 
+		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
+		{
+			newFileManager.reloadSamplesFromWorkspace(true);
+		}
+		else
+		{
+			if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+			else audioShield.headphoneSourceSelect(1);
+
+			FM->unblockAllInputs();
+		}
+	}
+	else if(managerStatus == fmReloadSamplesEnd)
+	{
 		FM->unblockAllInputs();
 
 		newFileManager.clearStatus();
 
-		interfaceGlobals.refreshFileExplorer = true; // odwiez liste plikow w sample laderze
-
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
-			SR->forceSwitchModule = 1;
 			uint8_t button = interfaceButtonSampleLoad;
 			SR->eventFunct(eventSwitchModule, SR, &button, &SR->firstFreeInstrumentSlotFound);
 		}
+		else
+		{
+			SR->eventFunct(eventSwitchModule, SR, &SR->moduleToSwitch, 0);
+		}
+	}
+	else if(managerStatus >=  fmError)
+	{
+		debugLog.addLine("Opretion Error");
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
 	}
 
 
@@ -234,14 +259,22 @@ void cSampleRecorder::start(uint32_t options)
 		setDefaultScreenFunct();
 		return;
 	}
-	songTimer.hide();
-	engine.blockDelayRefresh();
+
+
 	moduleRefresh = 1;
 	dontTurnOffRadio = 0;
-//--------------------------------------------------------------------
 
-	currentScreen = cSampleRecorder::screenTypeConfig;
-	FM->setPadsGlobal(functPads);
+	if(options == 0)
+	{
+		wasSampleMemoryOverwritten = 0;
+
+		saveOrSaveloadFlag = cSampleRecorder::saveTypeNormal;
+		currentScreen = cSampleRecorder::screenTypeConfig;
+	}
+
+
+	songTimer.hide();
+	engine.blockDelayRefresh();
 
 	keyboardManager.init(keyboardControl, editName);
 
@@ -290,12 +323,14 @@ void cSampleRecorder::start(uint32_t options)
 		recorderConfig.radioFreq = radio.getRadioBottomBase();
 		radioFreqBarVal = 0;
 	}
+
 	radio.setFrequency(recorderConfig.radioFreq);
 
 	if((recorderConfig.source == sourceTypeRadio) && (currentScreen == screenTypeConfig))
 	{
 		showRadio();
 	}
+
 	if(currentScreen == screenType::screenTypeConfig)
 	{
 		if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
@@ -305,7 +340,13 @@ void cSampleRecorder::start(uint32_t options)
 
 	engine.setHeadphonesVolume(mtProject.values.volume * 0.85);
 
-	mtPadBoard.configureInstrumentPlayer(8);
+	//mtPadBoard.configureInstrumentPlayer(8);
+
+	if(options > 0 && options != interfaceButtonSampleRec)
+	{
+		functSwitchModule(options);
+	}
+
 }
 
 
@@ -364,6 +405,7 @@ void cSampleRecorder::setDefaultScreenFunct()
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setPadsGlobal(functPads);
 }
 
 //==============================================================================================================
@@ -943,9 +985,9 @@ static  uint8_t functActionButton7()
 		}
 		else if(SR->changesLostSource == cSampleRecorder::enChangesLostSource::switchModuleFunct)
 		{
-
+			SR->FM->blockAllInputs();
+			newFileManager.reloadSamplesFromWorkspace(true);
 			SR->selectionWindowFlag = 0;
-			SR->eventFunct(eventSwitchModule,SR,&SR->moduleToSwitch,0);
 			return 1;
 		}
 
@@ -1113,11 +1155,12 @@ static  uint8_t functActionRecord()
 	SR->firstPeakFlag = 1;
 	SR->currentScreen = SR->screenTypeRecord;
 	SR->cropCounter = 0;
+	SR->wasSampleMemoryOverwritten = 1;
 	SR->showDefaultScreen();
-	recorder.startRecording(sdram_effectsBank);
+	recorder.startRecording(sdram_ptrEffectsBank);
 	GP.spectrumResetZoom(0, 0, &SR->zoom);
 	SR->spectrumTimerConstrains = 100;
-	SR->params.address = sdram_effectsBank;
+	SR->params.address = sdram_ptrEffectsBank;
 	return 1;
 }
 
@@ -1742,21 +1785,40 @@ static uint8_t functSwitchModule(uint8_t button)
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
 	if(button == interfaceButtonSampleRec ) return 1;
 
+
+	SR->moduleToSwitch = button;
+
+
+	// do mastera mozna zawsze
+	if(button == interfaceButtonMaster)
+	{
+		SR->dontTurnOffRadio = 1;
+		uint8_t option = interfaceButtonSampleRec;
+		SR->eventFunct(eventSwitchModule, SR, &button, &option);
+		return 1;
+	}
+
+	// jesli ekran nagrania to popup
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
 		SR->selectionWindowFlag = 1;
 		SR->changesLostSource = cSampleRecorder::enChangesLostSource::switchModuleFunct;
-		SR->moduleToSwitch = button;
+		//SR->moduleToSwitch = button;
 		SR->showSelectionWindow();
 		return 1;
 	}
 
 
-	if(button == interfaceButtonMaster) SR->dontTurnOffRadio = 1;
-
-
-
-    SR->eventFunct(eventSwitchModule,SR,&button,0);
+	// przeladowac pamiec czy nie
+	if(SR->wasSampleMemoryOverwritten == 0)
+	{
+		SR->eventFunct(eventSwitchModule, SR, &button, 0);
+	}
+	else
+	{
+		SR->FM->blockAllInputs();
+		newFileManager.reloadSamplesFromWorkspace(true);
+	}
 
 	return 1;
 }
@@ -1768,6 +1830,7 @@ void cSampleRecorder::calcRadioFreqBarVal()
 	float radioBottomFreq = radio.getRadioBottomBase();
 	radioFreqBarVal = ((recorderConfig.radioFreq - radioBottomFreq) * 100) / (MAX_RADIO_FREQ_MHZ - radioBottomFreq);
 }
+
 void cSampleRecorder::calcLevelBarVal()
 {
 	if(rms.available())
@@ -2239,4 +2302,17 @@ void cSampleRecorder::cancelMultiFrame()
 	SR->frameData.multiSelActiveNum = 0;
 }
 ///////////////////////////////////////////////////////////////////////////
+
+
+void turnOffRecorder()
+{
+
+
+	audioShield.headphoneSourceSelect(0);
+	radio.clearRDS();
+	radio.resetSeekCallback();
+	engine.setHeadphonesVolume(mtProject.values.volume);
+}
+
+
 

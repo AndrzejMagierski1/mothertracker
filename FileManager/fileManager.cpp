@@ -12,7 +12,9 @@
 #include "fileManager.h"
 #include "fileTransfer.h"
 
-extern int16_t sdram_sampleBank[4*1024*1024];
+
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
 
 cFileManager newFileManager;
 
@@ -55,10 +57,12 @@ void cFileManager::update()
 	case fmExportSound: 				updateExportSound();					break;
 	case fmSaveRecordedSound: 			updateSaveRecordedSound();				break;
 
-	case fmImportSampleFromSampleEditor:updateImportSampleFromSampleEditor(); break;
+	case fmImportSampleFromSampleEditor:updateImportSampleFromSampleEditor(); 	break;
 
 
-	case fmImportModFile:				updateImportModFile(); 			break;
+	case fmImportModFile:				updateImportModFile(); 					break;
+
+	case fmReloadSamples:				updateReloadSamples(); 					break;
 
 	default: break;
 	}
@@ -316,6 +320,17 @@ void cFileManager::updateImportSampleFromSampleEditor() //  //fmImportSampleFrom
 }
 
 
+void cFileManager::updateReloadSamples() //  //
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	reloadSamplesInit(); 											break;
+		case 1:		loadSamplesFromWorkspace();										break; // samples
+		case 2:		reloadSamplesFinish();											break;
+		default:	stopOperationWithError(fmReloadSamplesError); 	break;
+	}
+}
+
 
 void cFileManager::autoSaveProjectToWorkspace()
 {
@@ -366,7 +381,7 @@ void cFileManager::loadProjectFromWorkspaceInit()
 
 	//todo to tu nie dziala bo ladowanie instrumentow nadpisuje to
 	mtProject.instrument[0].sample.length = 0;
-	mtProject.instrument[0].sample.address = sdram_sampleBank;
+	mtProject.instrument[0].sample.address = sdram_ptrSampleBank;
 	//lastActiveInstrument = 0;
 
 	mtProject.instruments_count = 0;
@@ -779,6 +794,44 @@ void cFileManager::importSampleFromSampleEditorFinish()
 }
 
 
+//----------------------------------------------------------------------------------------
+void cFileManager::reloadSamplesInit()
+{
+	//currentInstrument = 0;
+	//currentSample = 0;
+
+	//todo to tu nie dziala bo ladowanie instrumentow nadpisuje to
+	//mtProject.instrument[0].sample.length = 0;
+	mtProject.instrument[0].sample.address = sdram_ptrSampleBank;
+	//lastActiveInstrument = 0;
+
+	//mtProject.instruments_count = 0;
+	mtProject.used_memory = (uint8_t*)mtProject.instrument[currentSample].sample.address-(uint8_t*)sdram_ptrSampleBank;
+
+	//if(status == fmLoadingProjectfromWorkspace) calcTotalMemoryToTransfer();
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::reloadSamplesFinish()
+{
+	if(currentSample < INSTRUMENTS_COUNT-1)
+	{
+		//currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 1; //xxx najwazniejsze !
+		return;
+	}
+
+
+
+	status = fmReloadSamplesEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+
 //====================================================================================
 //====================================================================================
 //====================================================================================
@@ -1067,6 +1120,44 @@ bool cFileManager::importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t 
 	return true;
 }
 
+bool cFileManager::reloadSamplesFromWorkspace(bool onlyCommonPartOfMemory)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	if(onlyCommonPartOfMemory)
+	{
+		currentSample = 255;
+		// tylko nadpisane przez recorder/edytor
+		for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+		{
+			if(mtProject.instrument[i].isActive
+				&& mtProject.instrument[i].sample.address+mtProject.instrument[i].sample.length >= sdram_ptrEffectsBank)
+			{
+				currentSample = i; //i>0 ? i-1 : 0;
+				break;
+			}
+		}
+
+		if(currentSample == 255)
+		{
+			currentSample = 0;
+			status = fmReloadSamplesEnd;
+			return false;
+		}
+	}
+	else
+	{
+		// wsyzsktie sample
+		//currentInstrument = 0;
+		currentSample = 0;
+	}
+
+	status = fmReloadingSamples;
+	currentOperationStep = 0;
+	currentOperation = fmReloadSamples;
+	return true;
+}
 
 //-----------------------------------------------------------------------------------------------------
 //-------------------------------------   FLAGI ZMIAN   -----------------------------------------------

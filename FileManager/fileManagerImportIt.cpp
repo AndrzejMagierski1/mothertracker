@@ -15,8 +15,10 @@
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
-extern int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
-int16_t *itFile_sampleDest_ptr = sdram_sampleBank;
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
+
+int16_t *itFile_sampleDest_ptr = sdram_ptrSampleBank;
 
 // elementy pliku IT
 uint16_t OrdNum;
@@ -56,7 +58,7 @@ uint8_t processedSample = 0;
 uint8_t waveWriteFlag = 0;
 uint32_t saveLength = 0;
 int16_t *waveSrcPtr;
-int16_t *sample_ptr = sdram_sampleBank;
+int16_t *sample_ptr = sdram_ptrSampleBank;
 uint32_t bSampleOffset = 0;
 const uint8_t debugMod = 0;
 
@@ -77,10 +79,10 @@ void cFileManager::importItFile_Init()
 
 	waveWriteFlag = 0;
 	saveLength = 0;
-	sample_ptr = sdram_sampleBank;
+	sample_ptr = sdram_ptrSampleBank;
 	bSampleOffset = 0;
 
-	itFile_sampleDest_ptr = sdram_sampleBank;
+	itFile_sampleDest_ptr = sdram_ptrSampleBank;
 
 	moveToNextOperationStep();
 }
@@ -530,7 +532,7 @@ void cFileManager::importItFile_OpenSample()
 			if (is16or8bit)
 			{
 				uint32_t totalToRead = instr->sample.length*2;
-				if ((mtProject.used_memory + instr->sample.length * 2) > sizeof(sdram_sampleBank))
+				if ((mtProject.used_memory + instr->sample.length * 2) > SAMPLE_MEMORY_SIZE)
 				{
 					moveToNextOperationStep();
 					return;
@@ -565,7 +567,7 @@ void cFileManager::importItFile_OpenSample()
 			else // 8bit
 			{
 				uint32_t totalToRead = instr->sample.length;
-				if ((mtProject.used_memory + instr->sample.length * 2) > sizeof(sdram_sampleBank))
+				if ((mtProject.used_memory + instr->sample.length * 2) > SAMPLE_MEMORY_SIZE)
 				{
 					moveToNextOperationStep();
 					return;

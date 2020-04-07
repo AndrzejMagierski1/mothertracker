@@ -7,8 +7,9 @@ class mtDataCopyier;
 extern mtDataCopyier globalDataCopyier;
 
 constexpr uint32_t SAMPLE_EFFECTOR_LENGTH_MAX =  (15*128*1024);
-extern int16_t sdram_effectsBank[15*256*1024];
 
+extern int16_t* sdram_ptrSampleBank;
+extern int16_t* sdram_ptrEffectsBank;
 
 class mtEffect
 {
@@ -129,13 +130,13 @@ protected:
 
 
 	strMemoryAreaWithSelection processed =
-	{ .area = { sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
-	  .selection = { sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
+	{ .area = { sdram_ptrEffectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
+	  .selection = { sdram_ptrEffectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
 	};
 
 	strMemoryAreaWithSelection confirmed =
-	{ .area = { sdram_effectsBank, 0},
-	  .selection = { sdram_effectsBank, 0},
+	{ .area = { sdram_ptrEffectsBank, 0},
+	  .selection = { sdram_ptrEffectsBank, 0},
 	};
 
 private:

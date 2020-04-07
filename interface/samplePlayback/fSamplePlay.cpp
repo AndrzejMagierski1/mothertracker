@@ -423,7 +423,7 @@ void cSamplePlayback::start(uint32_t options)
 	}
 
 
-	mtPadBoard.configureInstrumentPlayer(8);
+	//mtPadBoard.configureInstrumentPlayer(8);
 	listPlayMode();
 
 
