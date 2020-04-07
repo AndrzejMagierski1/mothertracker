@@ -12,31 +12,7 @@ void handle_chatBot(void)
 		incomingString = Serial.readString();
 		incomingString.toLowerCase();
 
-		if (incomingString.indexOf("debug") >= 0)
-		{
-			Serial.print("debug..");
-
-			if (incomingString.indexOf("midi") >= 0)
-			{
-
-			}
-		}
-		else if (incomingString.indexOf("play") >= 0)
-		{
-			sequencer.play();
-			Serial.println("OK");
-		}
-		else if (incomingString.indexOf("stop") >= 0)
-		{
-			sequencer.stop();
-			Serial.println("OK");
-		}
-		else if (incomingString.indexOf("pause") >= 0)
-		{
-			sequencer.pause();
-			Serial.println("OK");
-		}
-		else if (incomingString.indexOf("siema") >= 0)
+		if (incomingString.indexOf("siema") >= 0)
 		{
 			Serial.println("hej!");
 		}
