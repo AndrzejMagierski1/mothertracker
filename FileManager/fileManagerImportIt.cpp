@@ -13,9 +13,11 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
+const uint8_t debugMod = 0;
+
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
-extern int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
+extern int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX / 2];
 int16_t *itFile_sampleDest_ptr = sdram_sampleBank;
 
 // elementy pliku IT
@@ -58,7 +60,6 @@ uint32_t saveLength = 0;
 int16_t *waveSrcPtr;
 int16_t *sample_ptr = sdram_sampleBank;
 uint32_t bSampleOffset = 0;
-const uint8_t debugMod = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
@@ -236,7 +237,7 @@ uint32_t cFileManager::getInstrumentOffset(uint8_t index)
 
 uint32_t cFileManager::getSampleOffset(uint8_t index)
 {
-	if (index >= PatNum) return 0;
+	if (index >= SmpNum) return 0;
 
 	uint8_t byteBuffer[4];
 
@@ -305,24 +306,27 @@ uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 void cFileManager::importItFile_ProcessOffsets()
 {
 
-//	for (uint8_t a = 0; a < InsNum; a++)
-//	{
-//		Serial.printf("offset instr %d: %08X\n", a,
-//						getInstrumentOffset(a));
-//	}
-//
-//	for (uint8_t a = 0; a < SmpNum; a++)
-//	{
-//
-//		Serial.printf("offset sample %d: %08X\n", a,
-//						getSampleOffset(a));
-//	}
-//	for (uint8_t a = 0; a < PatNum; a++)
-//	{
-//
-//		Serial.printf("offset pattern %d: %08X\n", a,
-//						getPatternOffset(a));
-//	}
+	if (debugMod)
+	{
+		for (uint8_t a = 0; a < InsNum; a++)
+		{
+			Serial.printf("offset instr %d: %08X\n", a,
+							getInstrumentOffset(a));
+		}
+
+		for (uint8_t a = 0; a < SmpNum; a++)
+		{
+
+			Serial.printf("offset sample %d: %08X\n", a,
+							getSampleOffset(a));
+		}
+		for (uint8_t a = 0; a < PatNum; a++)
+		{
+
+			Serial.printf("offset pattern %d: %08X\n", a,
+							getPatternOffset(a));
+		}
+	}
 
 	moveToNextOperationStep();
 
@@ -449,6 +453,7 @@ void cFileManager::importItFile_OpenSample()
 		uint32_t loopEnd = readUint(&sampleHeader[0x38], 4);
 		uint32_t C5Speed = readUint(&sampleHeader[0x3c], 4);
 		uint32_t SmpPoint = readUint(&sampleHeader[0x48], 4); //'Long' Offset of sample in file.
+		uint32_t Cvt = readUint(&sampleHeader[0x2e], 1);
 
 		bool isHeader = (Flg & 0b00000001);
 		bool is16or8bit = (Flg & 0b00000010);
@@ -457,12 +462,22 @@ void cFileManager::importItFile_OpenSample()
 		bool isLoop = (Flg & 0b00010000);
 		bool isPingPong = (Flg & 0b01000000);
 		bool isPingPongSustain = (Flg & 0b10000000);
+		bool isSigned = Cvt & 0b00000001;
+		bool isPCM = Cvt & 0b00000100;
+		bool isHiLo = Cvt & 0b00000010;
+		bool isPTMLoad = Cvt & 0b00001000;
+		bool isTX12Bit = Cvt & 0b00010000;
 
 		if (debugMod)
 			Serial.printf(
-					"flags: %s %s %s %s %s %s %s \n",
+					"flags: %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s \n",
 					isHeader ? "header" : "no header",
 					is16or8bit ? "16bit" : "8bit",
+					isSigned ? "signed" : "unsign",
+					isPCM ? "delta" : "PCM",
+					isHiLo ? "HiLo" : "LoHi",
+					isPTMLoad ? "PTM" : "no PTM",
+					isTX12Bit ? "12bittxwave" : "no 12bit",
 					isStereo ? "stereo" : "mono",
 					isCompression ? "compressed" : "no compress",
 					isLoop ? "ude loop" : "no loop",
@@ -529,7 +544,7 @@ void cFileManager::importItFile_OpenSample()
 			// kopiujemy dane sampli:
 			if (is16or8bit)
 			{
-				uint32_t totalToRead = instr->sample.length*2;
+				uint32_t totalToRead = instr->sample.length * 2;
 				if ((mtProject.used_memory + instr->sample.length * 2) > sizeof(sdram_sampleBank))
 				{
 					moveToNextOperationStep();
@@ -547,18 +562,18 @@ void cFileManager::importItFile_OpenSample()
 							impFileData.path,
 							(uint8_t*) tempPtr,
 							bytesToRead, // memo
-							SmpPoint + (instr->sample.length*2 - totalToRead), // offset
+							SmpPoint + (instr->sample.length * 2 - totalToRead), // offset
 							fileWholeOnce
 							);
 
 					totalToRead -= bytesToRead;
-					tempPtr+=bytesToRead;
+					tempPtr += bytesToRead;
 
 				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
 
-				itFile_sampleDest_ptr += instr->sample.length*2;
+				itFile_sampleDest_ptr += instr->sample.length * 2;
 
 				mtProject.used_memory += instr->sample.length * 2;
 			}
@@ -681,9 +696,9 @@ void cFileManager::importItFile_InitPattern()
 		uint16_t rows = readUint(&byteBuffer[2], 2);
 
 		if (debugMod) Serial.printf("patt %d, len: %d, rows: %d\n",
-						processedPattern,
-						length,
-						rows);
+									processedPattern,
+									length,
+									rows);
 
 		importItFile_setPattern(processedPattern + 1, rows - 1);
 
