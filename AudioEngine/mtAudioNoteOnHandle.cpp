@@ -59,17 +59,13 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	handleInitFxNoteOnAllEnvelopes();
 
-	handleFxNoteOnFilter((fx1_id == fx_t::FX_TYPE_PANNING)  ||  (fx2_id == fx_t::FX_TYPE_PANNING));
+	handleFxNoteOnFilter();
 
-	if(velocity < 0) handleFxNoteOnGain();
-	else
-	{
-		if ((!isFxVelocity(fx1_id)) && (!isFxVelocity(fx2_id))) handleFxNoteOnGain();
-	}
+	handleFxNoteOnGain();
 
-	if((fx1_id != fx_t::FX_TYPE_PANNING) && (fx2_id != fx_t::FX_TYPE_PANNING)) handleFxNoteOnPanning();
+	handleFxNoteOnPanning();
 
-	if((fx1_id != fx_t::FX_TYPE_DELAY_SEND) && (fx2_id != fx_t::FX_TYPE_DELAY_SEND)) handleFxNoteOnDelaySend();
+	handleFxNoteOnDelaySend();
 
 //********* obsluga performance parametrow obslugiwanych w play_memory
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
@@ -477,54 +473,53 @@ void playerEngine::handleInitFxNoteOnAllEnvelopes()
 
 void playerEngine::handleFxNoteOnFilter()
 {
-//***** resonance
+	//***** resonance
 	if(mtProject.instrument[currentInstrument_idx].filterEnable)
 	{
 		filterPtr->resonance(mtProject.instrument[currentInstrument_idx].resonance + RESONANCE_OFFSET);
 	}
-//*****
-//***** cutoff + enable
-	if(!isCutoffFx)
+	//*****
+	//***** cutoff + enable
+
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
 	{
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
-		{
-			changeCutoffPerformanceMode(performanceMod.cutoff); // włączenie filtra jest w środku
-		}
-		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
-			|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff]))
+		changeCutoffPerformanceMode(performanceMod.cutoff); // włączenie filtra jest w środku
+	}
+	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
+		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff]))
+	{
+		filterConnect();
+		if(!isActiveEnvelope(envCutoff)) modCutoff(currentSeqModValues.filterCutoff);
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].filterEnable)
 		{
 			filterConnect();
-			if(!isActiveEnvelope(envCutoff)) modCutoff(currentSeqModValues.filterCutoff);
+			if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 		}
-		else
-		{
-			if(mtProject.instrument[currentInstrument_idx].filterEnable)
-			{
-				filterConnect();
-				if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
-			}
-			else if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
-		}
+		else if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+	}
 	//*****
 	//***** filter type
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType])
-		{
-			changeFilterTypePerformanceMode(performanceMod.filterType);
-		}
-		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType])
-			|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterType]))
-		{
-			changeFilterType(currentSeqModValues.filterType);
-		}
-		else
-		{
-			if(mtProject.instrument[currentInstrument_idx].filterEnable)
-			{
-				changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
-			}
-		}
-		//*****
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType])
+	{
+		changeFilterTypePerformanceMode(performanceMod.filterType);
 	}
+	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType])
+		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterType]))
+	{
+		changeFilterType(currentSeqModValues.filterType);
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].filterEnable)
+		{
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+		}
+	}
+	//*****
+
 
 }
 

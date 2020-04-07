@@ -541,6 +541,7 @@ private:
 	void initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv * env);
 	void setSyncParamsLFO(uint8_t type);
 	void setSyncParamsAmpLFO();
+	bool isActiveEnvelope(uint8_t type);
 
 //**********************NOTE ON/OFF HANDLERS
 //*****note on fx
@@ -551,7 +552,7 @@ private:
 	void handleFxNoteOnFilter();
 	void handleFxNoteOnGain();
 	void handleFxNoteOnPanning();
-	void handleFxNoteOnReverbSend();
+	void handleFxNoteOnDelaySend();
 //*****note on
 	void handleInitNoteOnEnvelope(uint8_t n);
 	void handleInitNoteOnAmpEnvelope();
