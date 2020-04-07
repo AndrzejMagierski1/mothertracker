@@ -1241,6 +1241,13 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 	}
 }
 
+bool playerEngine::isActiveEnvelope(uint8_t type)
+{
+	return ((mtProject.instrument[currentInstrument_idx].envelope[type].enable) ||
+			  (trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[type]]) ||
+			  (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[type]]) ||
+			  (trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[type]]));
+}
 
 void playerEngine::setSyncParamsLFO(uint8_t type)
 {
@@ -1399,6 +1406,7 @@ void playerEngine::clearFxPanning()
 	}
 	else
 	{
+
 		modPanning(mtProject.instrument[currentInstrument_idx].panning);
 	}
 }
@@ -1597,7 +1605,7 @@ void playerEngine::setFxCutoff()
 	}
 	else
 	{
-		filterPtr->setCutoff(currentSeqModValues.filterCutoff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(currentSeqModValues.filterCutoff);
 		filterConnect();
 	}
 }
@@ -1618,7 +1626,7 @@ void playerEngine::clearFxCutoff()
 			else localCutoff += currentEnvelopeModification[envCutoff];
 		}
 
-		filterPtr->setCutoff(localCutoff);
+		if(!isActiveEnvelope(envCutoff))  modCutoff(localCutoff);
 
 		if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 		else filterConnect();

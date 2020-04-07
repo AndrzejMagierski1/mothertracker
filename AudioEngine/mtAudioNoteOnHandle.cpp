@@ -59,13 +59,17 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	handleInitFxNoteOnAllEnvelopes();
 
-	handleFxNoteOnFilter();
+	handleFxNoteOnFilter((fx1_id == fx_t::FX_TYPE_PANNING)  ||  (fx2_id == fx_t::FX_TYPE_PANNING));
 
-	handleFxNoteOnGain();
+	if(velocity < 0) handleFxNoteOnGain();
+	else
+	{
+		if ((!isFxVelocity(fx1_id)) && (!isFxVelocity(fx2_id))) handleFxNoteOnGain();
+	}
 
-	handleFxNoteOnPanning();
+	if((fx1_id != fx_t::FX_TYPE_PANNING) && (fx2_id != fx_t::FX_TYPE_PANNING)) handleFxNoteOnPanning();
 
-	handleFxNoteOnReverbSend();
+	if((fx1_id != fx_t::FX_TYPE_DELAY_SEND) && (fx2_id != fx_t::FX_TYPE_DELAY_SEND)) handleFxNoteOnDelaySend();
 
 //********* obsluga performance parametrow obslugiwanych w play_memory
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
@@ -285,7 +289,7 @@ void playerEngine::handleNoteOnFilter()
 	{
 		filterConnect();
 		filterPtr->resonance(mtProject.instrument[currentInstrument_idx].resonance + RESONANCE_OFFSET);
-		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 
 		changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
 	}
@@ -327,26 +331,8 @@ void playerEngine::handleNoteOnGain()
 
 void playerEngine::handleNoteOnPanning()
 {
-	float gainL = 0, gainR = 0;
 
-	if(mtProject.instrument[currentInstrument_idx].panning < 50)
-	{
-		gainR = (mtProject.instrument[currentInstrument_idx].panning) / 50.0;
-		gainL = 1.0;
-	}
-	else if(mtProject.instrument[currentInstrument_idx].panning > 50)
-	{
-		gainR = 1.0;
-		gainL = (100 - mtProject.instrument[currentInstrument_idx].panning)/50.0;
-	}
-	else if(mtProject.instrument[currentInstrument_idx].panning == 50)
-	{
-		gainL = 1.0; gainR = 1.0;
-	}
-
-	mixerL.gain(nChannel,gainL);
-	mixerR.gain(nChannel,gainR);
-
+	if(!isActiveEnvelope(envPan)) modPanning(mtProject.instrument[currentInstrument_idx].panning);
 }
 
 void playerEngine::handleNoteOnReverbSend()
@@ -498,44 +484,48 @@ void playerEngine::handleFxNoteOnFilter()
 	}
 //*****
 //***** cutoff + enable
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
+	if(!isCutoffFx)
 	{
-		changeCutoffPerformanceMode(performanceMod.cutoff); // włączenie filtra jest w środku
-	}
-	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
-		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff]))
-	{
-		filterConnect();
-		filterPtr->setCutoff(currentSeqModValues.filterCutoff);
-	}
-	else
-	{
-		if(mtProject.instrument[currentInstrument_idx].filterEnable)
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
+		{
+			changeCutoffPerformanceMode(performanceMod.cutoff); // włączenie filtra jest w środku
+		}
+		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
+			|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff]))
 		{
 			filterConnect();
-			filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			if(!isActiveEnvelope(envCutoff)) modCutoff(currentSeqModValues.filterCutoff);
 		}
-		else if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
-	}
-//*****
-//***** filter type
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType])
-	{
-		changeFilterTypePerformanceMode(performanceMod.filterType);
-	}
-	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType])
-		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterType]))
-	{
-		changeFilterType(currentSeqModValues.filterType);
-	}
-	else
-	{
-		if(mtProject.instrument[currentInstrument_idx].filterEnable)
+		else
 		{
-			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(mtProject.instrument[currentInstrument_idx].filterEnable)
+			{
+				filterConnect();
+				if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			}
+			else if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 		}
+	//*****
+	//***** filter type
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType])
+		{
+			changeFilterTypePerformanceMode(performanceMod.filterType);
+		}
+		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType])
+			|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterType]))
+		{
+			changeFilterType(currentSeqModValues.filterType);
+		}
+		else
+		{
+			if(mtProject.instrument[currentInstrument_idx].filterEnable)
+			{
+				changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			}
+		}
+		//*****
 	}
-//*****
+
 }
 
 void playerEngine::handleFxNoteOnGain()
@@ -596,47 +586,15 @@ void playerEngine::handleFxNoteOnPanning()
 	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::panning]) ||
 		(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::panning]))
 	{
-		if(currentSeqModValues.panning < 50)
-		{
-			gainR = (currentSeqModValues.panning ) / 50.0;
-			gainL = 1.0;
-		}
-		else if(currentSeqModValues.panning > 50)
-		{
-			gainR = 1.0;
-			gainL = ( 100 - currentSeqModValues.panning) / 50.0;
-		}
-		else if(currentSeqModValues.panning == 50)
-		{
-			gainL = 1.0; gainR = 1.0;
-		}
-
-		mixerL.gain(nChannel,gainL);
-		mixerR.gain(nChannel,gainR);
+		if(!isActiveEnvelope(envPan)) modPanning(currentSeqModValues.panning);
 	}
 	else
 	{
-		if(mtProject.instrument[currentInstrument_idx].panning < 50)
-		{
-			gainR = (mtProject.instrument[currentInstrument_idx].panning) / 50.0;
-			gainL = 1.0;
-		}
-		else if(mtProject.instrument[currentInstrument_idx].panning > 50)
-		{
-			gainR = 1.0;
-			gainL = (100 - mtProject.instrument[currentInstrument_idx].panning)/50.0;
-		}
-		else if(mtProject.instrument[currentInstrument_idx].panning == 50)
-		{
-			gainL = 1.0; gainR = 1.0;
-		}
-
-		mixerL.gain(nChannel,gainL);
-		mixerR.gain(nChannel,gainR);
+		if(!isActiveEnvelope(envPan)) modPanning(mtProject.instrument[currentInstrument_idx].panning);
 	}
 }
 
-void playerEngine::handleFxNoteOnReverbSend()
+void playerEngine::handleFxNoteOnDelaySend()
 {
 	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 	{

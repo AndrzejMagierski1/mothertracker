@@ -276,10 +276,8 @@ void playerEngine::handleUpdateRefreshCutoff()
 	if(statusBytes & CUTOFF_MASK)
 	{
 		statusBytes &= (~CUTOFF_MASK);
-		if((!mtProject.instrument[currentInstrument_idx].envelope[envCutoff].enable)
-		&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff])
-		&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
-		&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
+
+		if(!isActiveEnvelope(envCutoff))
 		{
 			currentEnvelopeModification[envCutoff] = 0;
 		}

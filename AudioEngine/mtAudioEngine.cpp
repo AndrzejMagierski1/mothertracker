@@ -440,10 +440,7 @@ void playerEngine :: modLP2(uint16_t value)
 
 void playerEngine :: modCutoff(float value)
 {
-	if(mtProject.instrument[currentInstrument_idx].filterEnable)
-	{
-		filterPtr->setCutoff(value);
-	}
+	filterPtr->setCutoff(value);
 }
 void playerEngine :: modResonance(float value)
 {
@@ -664,7 +661,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		filterConnect();
 		changeFilterType(mtProject.instrument[instr_idx].filterType);
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
-		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[instr_idx].cutOff);
 	}
 	else if(!mtProject.instrument[instr_idx].filterEnable) filterDisconnect();
 
@@ -729,23 +726,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
-	if(mtProject.instrument[instr_idx].panning < 50)
-	{
-		gainR=(0+mtProject.instrument[instr_idx].panning)/50.0;
-		gainL=1.0;
-	}
-	else if(mtProject.instrument[instr_idx].panning > 50)
-	{
-		gainR=1.0;
-		gainL=(100-mtProject.instrument[instr_idx].panning)/50.0;
-	}
-	else if(mtProject.instrument[instr_idx].panning == 50)
-	{
-		gainL=1.0; gainR=1.0;
-	}
-
-	mixerL.gain(nChannel,gainL);
-	mixerR.gain(nChannel,gainR);
+	if(!isActiveEnvelope(envPan)) modPanning(mtProject.instrument[instr_idx].panning);
 
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
@@ -785,8 +766,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	filterDisconnect();
 	ampPtr->gain(ampLogValues[50]);
 
-	mixerL.gain(nChannel,1.0);
-	mixerR.gain(nChannel,1.0);
+	modPanning(50);
 	modDelaySend(AMP_MUTED);
 	/*======================================================================================================*/
 	limiter[0].setAttack(300);
@@ -819,9 +799,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	filterDisconnect();
 	ampPtr->gain(ampLogValues[50]);
 //	engine.clearDelay();
-
-	mixerL.gain(nChannel,1.0);
-	mixerR.gain(nChannel,1.0);
+	modPanning(50);
 	modDelaySend(AMP_MUTED);
 	/*======================================================================================================*/
 	limiter[0].setAttack(300);
