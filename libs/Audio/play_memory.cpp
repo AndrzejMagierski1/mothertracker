@@ -319,7 +319,7 @@ void AudioPlayMemory::update(void)
 								case granularLoopForward:
 									//**************************************************************************
 									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
-									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
+									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
 									iPitchCounter += castPitchControl;
 									fPitchCounter += pitchFraction;
 									if (fPitchCounter >= 1.0f)
@@ -338,7 +338,7 @@ void AudioPlayMemory::update(void)
 								case granularLoopBackward:
 									//**************************************************************************
 									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
-									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
+									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
 									if (!loopBackwardFlag)
 									{
 										iPitchCounter += castPitchControl;
@@ -376,7 +376,7 @@ void AudioPlayMemory::update(void)
 								case granularLoopPingPong:
 									//**************************************************************************
 									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex] ;
-									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
+									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
 									if (!loopBackwardFlag)
 									{
 										iPitchCounter += castPitchControl;
