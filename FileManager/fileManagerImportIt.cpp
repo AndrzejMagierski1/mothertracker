@@ -25,9 +25,9 @@ int16_t *itFile_sampleDest_ptr = sdram_ptrSampleBank;
 // elementy pliku IT
 uint16_t OrdNum;
 
-uint16_t InsNum=100;
-uint16_t SmpNum=100;
-uint16_t PatNum=100;
+uint16_t InsNum = 100;
+uint16_t SmpNum = 100;
+uint16_t PatNum = 100;
 
 uint16_t Cwt;
 uint16_t Cmwt;
@@ -577,6 +577,25 @@ void cFileManager::importItFile_LoadSamples()
 
 				}
 
+				if (C5Speed == 44100)
+				{
+				}
+				else
+				{
+					float noteTune = 12 * log2((float) C5Speed / (float) 44100);
+
+					instr->tune = constrain(noteTune,
+											-24,
+											24);
+					instr->fineTune = constrain(
+							(noteTune - ((int8_t ) noteTune)) * 100,
+							-100,
+							100);
+					if (debugMod) Serial.printf("tune= %d, fine= %d\n",
+												instr->tune,
+												instr->fineTune);
+				}
+
 				instr->sample.address = itFile_sampleDest_ptr;
 
 				itFile_sampleDest_ptr += instr->sample.length * 2;
@@ -616,6 +635,25 @@ void cFileManager::importItFile_LoadSamples()
 
 					totalToRead -= bytesToRead;
 
+				}
+
+				if (C5Speed == 22050)
+				{
+				}
+				else
+				{
+					float noteTune = 12 * log2((float) C5Speed / (float) 22050);
+
+					instr->tune = constrain(noteTune,
+											-24,
+											24);
+					instr->fineTune = constrain(
+							(noteTune - ((int8_t ) noteTune)) * 100,
+							-100,
+							100);
+					if (debugMod) Serial.printf("tune= %d, fine= %d\n",
+												instr->tune,
+												instr->fineTune);
 				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
