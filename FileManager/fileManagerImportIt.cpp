@@ -17,8 +17,8 @@ const uint8_t debugMod = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
-extern int16_t* sdram_ptrSampleBank;
-extern int16_t* sdram_ptrEffectsBank;
+extern int16_t *sdram_ptrSampleBank;
+extern int16_t *sdram_ptrEffectsBank;
 
 int16_t *itFile_sampleDest_ptr = sdram_ptrSampleBank;
 
@@ -546,7 +546,7 @@ void cFileManager::importItFile_OpenSample()
 			// kopiujemy dane sampli:
 			if (is16or8bit)
 			{
-				uint32_t totalToRead = instr->sample.length*2;
+				uint32_t totalToRead = instr->sample.length * 2;
 				if ((mtProject.used_memory + instr->sample.length * 2) > SAMPLE_MEMORY_SIZE)
 				{
 					moveToNextOperationStep();
@@ -605,11 +605,7 @@ void cFileManager::importItFile_OpenSample()
 
 					for (uint16_t s = 0; s < bytesToRead; s++)
 					{
-						*tempPtr = map(buff[s],
-										0,
-										MAX_8BIT,
-										0,
-										MAX_16BIT);
+						*tempPtr = buff[s] << 8;
 
 						tempPtr++;
 					}
@@ -909,6 +905,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 			importItFile_setStep(row,
 									channel,
 									note,
+									volume,
 									instrument,
 									0,
 									0);
@@ -926,6 +923,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 void cFileManager::importItFile_setStep(uint8_t step,
 										uint8_t track,
 										uint8_t note,
+										uint8_t volume,
 										uint8_t instrument,
 										uint8_t fx,
 										uint8_t fxVal)
