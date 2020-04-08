@@ -25,9 +25,9 @@ int16_t *itFile_sampleDest_ptr = sdram_ptrSampleBank;
 // elementy pliku IT
 uint16_t OrdNum;
 
-uint16_t InsNum;
-uint16_t SmpNum;
-uint16_t PatNum;
+uint16_t InsNum=100;
+uint16_t SmpNum=100;
+uint16_t PatNum=100;
 
 uint16_t Cwt;
 uint16_t Cmwt;
@@ -75,6 +75,10 @@ void cFileManager::importItFile_Init()
 	processedPattern = 0;
 	processedInstrument = 0;
 	processedSample = 0;
+
+	InsNum = 100;
+	SmpNum = 100;
+	PatNum = 100;
 
 	sampleNumber = 0;
 
@@ -416,7 +420,7 @@ void cFileManager::importItFile_ProcessInstruments()
 
 }
 
-void cFileManager::importItFile_OpenSample()
+void cFileManager::importItFile_LoadSamples()
 {
 	strInstrument *instr = &mtProject.instrument[processedInstrument];
 
@@ -653,7 +657,7 @@ void cFileManager::importItFile_OpenSample()
 
 }
 
-void cFileManager::importItFile_InitPattern()
+void cFileManager::importItFile_ProcessPatterns()
 {
 
 	uint32_t patternOffset = getPatternOffset(processedPattern);
@@ -986,7 +990,7 @@ void cFileManager::importItFile_savePattern()
 	}
 }
 
-void cFileManager::importItFile_writeWaves()
+void cFileManager::importItFile_WriteWaves()
 {
 
 	strInstrument *instr = &mtProject.instrument[processedSample];
@@ -1088,7 +1092,7 @@ void cFileManager::importItFile_writeWaves()
 
 }
 
-void cFileManager::importItFile_finish()
+void cFileManager::importItFile_Finish()
 {
 	setProjectStructChanged();
 
@@ -1097,6 +1101,29 @@ void cFileManager::importItFile_finish()
 	status = fmLoadEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
+}
+
+float cFileManager::importItFile_getProgress()
+{
+	uint16_t
+	totalSteps = (InsNum > INSTRUMENTS_COUNT ? INSTRUMENTS_COUNT : InsNum)
+			+ (SmpNum > INSTRUMENTS_COUNT ? INSTRUMENTS_COUNT : SmpNum)
+			+ PatNum
+			+ (InsNum > INSTRUMENTS_COUNT ? INSTRUMENTS_COUNT : InsNum);
+	uint16_t actualStep = 0;
+
+	if (currentOperationStep < 7)
+	{
+		actualStep = processedInstrument + processedPattern + processedSample;
+	}
+	else
+	{
+		actualStep = SmpNum + InsNum + PatNum + processedSample - 1;
+	}
+
+	float retVal = ((float) actualStep / (float) totalSteps) * 100.0;
+	retVal = constrain(retVal, 0.0, 100.0);
+	return retVal;
 }
 
 /*

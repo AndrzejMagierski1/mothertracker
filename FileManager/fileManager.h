@@ -212,6 +212,8 @@ public:
 	void undoPattern();
 	void redoPattern();
 
+	float importMod_getProgress();
+
 	//-------------------------------------------------
 	// globalne
 	char* getCurrentProjectName() { return currentProjectName; }
@@ -609,13 +611,13 @@ private:
 	void importItFile_ProcessOffsets();
 
 	void importItFile_ProcessInstruments();
-	void importItFile_OpenSample();
-	void importItFile_InitPattern();
+	void importItFile_LoadSamples();
+	void importItFile_ProcessPatterns();
 	void importItFile_ProcessPattern(uint32_t patternOffset,
 										uint16_t length,
 										uint16_t rows);
-	void importItFile_writeWaves();
-	void importItFile_finish();
+	void importItFile_WriteWaves();
+	void importItFile_Finish();
 
 
 	void importItFile_setPattern(uint8_t index, uint8_t length);
@@ -631,6 +633,9 @@ private:
 								   uint32_t patternOffset);
 
 	uint8_t importItFile_getNextPatternByte();
+
+	float importItFile_getProgress();
+
 
 
 
