@@ -804,7 +804,11 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 
 	switch(mtProject.instrument[instrIdx].playMode)
 	{
-		case playModeSingleShot: playSingleShot(instrIdx, note); return 1;
+		case playModeSingleShot: 		playSingleShot(instrIdx, note); 		return 1;
+		case playModeLoopForward:		playLoopForward(instrIdx, note); 		return 1;
+		case playModeLoopBackward:		playLoopBackward(instrIdx, note); 		return 1;
+		case playModePingpong:			playLoopPingpong(instrIdx, note); 		return 1;
+		case playModeSlice:				playSlice(instrIdx,note);				return 1;
 		default: break;
 	}
 
@@ -1989,6 +1993,7 @@ void AudioPlayMemory::constrainCurrentTune(uint8_t note)
 	}
 }
 
+//note + tune
 void AudioPlayMemory::setStartPitch(uint8_t note)
 {
 	if((lastNote >= 0) && (currentGlide != 0)) pitchControl = (float)notes[lastNote + currentTune];
