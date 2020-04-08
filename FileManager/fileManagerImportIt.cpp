@@ -523,16 +523,16 @@ void cFileManager::importItFile_OpenSample()
 			{
 				if (isPingPongSustain)
 				{
-					instr->playMode = loopPingPong;
+					instr->playMode = playModePingpong;
 				}
 				else
 				{
-					instr->playMode = loopForward;
+					instr->playMode = playModeLoopForward;
 				}
 			}
 			else
 			{
-				instr->playMode = singleShot;
+				instr->playMode = playModeSingleShot;
 				instr->loopPoint1 = 1;
 				instr->loopPoint2 = MAX_16BIT - 1;
 			}

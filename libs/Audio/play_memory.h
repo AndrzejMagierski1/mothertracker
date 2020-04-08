@@ -241,10 +241,20 @@ public:
 private:
 
 //  PLAY OBSUGA OGÓLNA
-	void setStartParamiters();
+	void refreshStartParamiters();
+	void constrainCurrentTune(uint8_t note);
+	void setStartPitch(uint8_t note);
+	void applyFinetuneOnPitch(uint8_t note);
+	void calculateGlidePitch(uint8_t note);
 //	PLAY Z PODZIALEM NA TRYBY
-//	void playSingleShot(uint8_t instrIdx, int8_t note);
-
+	void playSingleShot(uint8_t instrIdx, int8_t note);
+	void playLoopForward(uint8_t instrIdx, int8_t note);
+	void playLoopBackward(uint8_t instrIdx, int8_t note);
+	void playLoopPingpong(uint8_t instrIdx, int8_t note);
+	void playSlice(uint8_t instrIdx, int8_t note);
+	void playBeatSlice(uint8_t instrIdx, int8_t note);
+	void playGranular(uint8_t instrIdx, int8_t note);
+	void playWavetable(uint8_t instrIdx, int8_t note);
 
 
 
@@ -256,10 +266,10 @@ private:
 	volatile int16_t *next;
 	volatile uint32_t length;
 	volatile uint8_t playing;
-	uint8_t playMode;
+	uint8_t currentPlayMode;
 	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
 	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
-	volatile int16_t * startAddress;
+	volatile int16_t * currentStartAddress;
 
 	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
 	{
@@ -267,7 +277,7 @@ private:
 		uint32_t end=0;
 		uint32_t loop1=0;
 		uint32_t loop2=0;
-	} samplePoints;
+	} pointsInSamples;
 
 	struct strSampleConstrains								// określają granice dla licznika pitcha
 	{
@@ -278,9 +288,9 @@ private:
 
 		uint32_t glide;
 
-	} sampleConstrains;
+	} constrainsInSamples;
 
-	volatile uint32_t startLen;
+	volatile uint32_t currentSampleLength;
 	int16_t  lastSample = 0;
 	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
 
@@ -290,7 +300,7 @@ private:
 	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch
 	float fPitchCounter;									// Licznik probek uwzgledniajacy pitch - akumulacja zmienno przecinkowa
 	uint32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
-	uint16_t glide;
+	uint16_t currentGlide;
 	uint32_t glideCounter;									// licznik glide'a w czasie
 	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
 	float fineTuneControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)

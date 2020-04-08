@@ -776,7 +776,7 @@ static  uint8_t functSelectLoop1(uint8_t state)
 
 	if(state == UINT8_MAX || state == buttonPress)
 	{
-		if((SP->editorInstrument->playMode == singleShot) || (SP->editorInstrument->playMode == playModeSlice)) return 1;
+		if((SP->editorInstrument->playMode == playModeSingleShot) || (SP->editorInstrument->playMode == playModeSlice)) return 1;
 
 		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 3)
 		{
@@ -855,7 +855,7 @@ static  uint8_t functSelectLoop2(uint8_t state)
 
 	if(state == UINT8_MAX || state == buttonPress)
 	{
-		if(SP->editorInstrument->playMode == singleShot) return 1;
+		if(SP->editorInstrument->playMode == playModeSingleShot) return 1;
 
 		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 4)
 		{
@@ -1115,7 +1115,7 @@ static  uint8_t functLeft()
 			break;
 		case 1: functSelectStart(UINT8_MAX);		break;
 		case 2:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->editorInstrument->playMode == playModeSingleShot)
 			{
 				SP->selectedPlace = 1;
 				functSelectStart(UINT8_MAX);
@@ -1126,7 +1126,7 @@ static  uint8_t functLeft()
 			}
 			break;
 		case 3:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->editorInstrument->playMode == playModeSingleShot)
 			{
 				SP->selectedPlace = 1;
 				functSelectStart(UINT8_MAX);
@@ -1181,7 +1181,7 @@ static  uint8_t functRight()
 	{
 		case 1: functSelectStart(UINT8_MAX);		break;
 		case 2:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->editorInstrument->playMode == playModeSingleShot)
 			{
 				SP->selectedPlace = 4;
 				functSelectEnd(UINT8_MAX);
@@ -1204,7 +1204,7 @@ static  uint8_t functRight()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode == singleShot)
+				if(SP->editorInstrument->playMode == playModeSingleShot)
 				{
 					SP->selectedPlace = 4;
 					functSelectEnd(UINT8_MAX);
@@ -1543,10 +1543,10 @@ static void changePlayModeSelection(int16_t value)
 	}
 
 
-	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeSlice) && (value > 0 )) )
+	if(((SP->editorInstrument->playMode == playModeSingleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeSlice) && (value > 0 )) )
 	{
 		SP->hideLoopPoints();
-		if(SP->editorInstrument->playMode == singleShot) SP->refreshPoints = 1;
+		if(SP->editorInstrument->playMode == playModeSingleShot) SP->refreshPoints = 1;
 	}
 	else
 	{
@@ -1609,7 +1609,7 @@ static void modStartPoint(int16_t value)
 		SP->editorInstrument->startPoint = SP->editorInstrument->endPoint - 2;
 	}
 
-	if( (SP->editorInstrument->playMode != singleShot) && (SP->editorInstrument->playMode != playModeWavetable) )
+	if( (SP->editorInstrument->playMode != playModeSingleShot) && (SP->editorInstrument->playMode != playModeWavetable) )
 	{
 		if(SP->editorInstrument->startPoint >= SP->editorInstrument->loopPoint1)
 		{
@@ -1675,7 +1675,7 @@ static void modEndPoint(int16_t value)
 		SP->editorInstrument->endPoint = SP->editorInstrument->startPoint + 2;
 	}
 
-	if(SP->editorInstrument->playMode != singleShot)
+	if(SP->editorInstrument->playMode != playModeSingleShot)
 	{
 		if(SP->editorInstrument->endPoint < SP->editorInstrument->loopPoint2)
 		{

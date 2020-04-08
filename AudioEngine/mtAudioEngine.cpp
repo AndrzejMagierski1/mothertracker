@@ -492,7 +492,7 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 //	if(sp != NOT_MOD_POINTS ) trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 1;
 
 
-	if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
+	if(mtProject.instrument[currentInstrument_idx].playMode != playModeSingleShot)
 	{
 		if(startPoint < SAMPLE_POINT_POS_MIN) startPoint = SAMPLE_POINT_POS_MIN;
 		else if(startPoint > SAMPLE_POINT_POS_MAX) startPoint = SAMPLE_POINT_POS_MAX;
@@ -1095,7 +1095,7 @@ void playerEngine::printLog(SdFile * log)
 		log->printf("slice n: %d\n", mtProject.instrument[currentInstrument_idx].selectedSlice);
 		log->printf("slice val: %d\n",  mtProject.instrument[currentInstrument_idx].slices[mtProject.instrument[currentInstrument_idx].selectedSlice]);
 	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode == singleShot)
+	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeSingleShot)
 	{
 		log->printf("SP: %d\n", mtProject.instrument[currentInstrument_idx].startPoint);
 		log->printf("EP: %d\n",  mtProject.instrument[currentInstrument_idx].endPoint);

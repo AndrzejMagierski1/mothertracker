@@ -29,30 +29,30 @@ void AudioPlayMemory::update(void)
 		in = (int16_t*)next;
 
 
-		if (playMode == playModeWavetable)
+		if (currentPlayMode == playModeWavetable)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
 
-		castPitchControl = (int32_t) ((reverseDirectionFlag && (playMode != playModeWavetable)) ?  -pitchControl : pitchControl);
+		castPitchControl = (int32_t) ((reverseDirectionFlag && (currentPlayMode != playModeWavetable)) ?  -pitchControl : pitchControl);
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			bool waveCondition = (length > iPitchCounter) && (playMode != playModeWavetable);
-			bool wavetableCondition = (length > (iPitchCounter + waveTablePosition)) && (playMode == playModeWavetable);
+			bool waveCondition = (length > iPitchCounter) && (currentPlayMode != playModeWavetable);
+			bool wavetableCondition = (length > (iPitchCounter + waveTablePosition)) && (currentPlayMode == playModeWavetable);
 
 			if ( waveCondition || wavetableCondition )
 			{
 				//*********************************** GLIDE HANDLE
 
-				if (sampleConstrains.glide)
+				if (constrainsInSamples.glide)
 				{
-					if (glideCounter <= sampleConstrains.glide)
+					if (glideCounter <= constrainsInSamples.glide)
 					{
 						pitchControl += glideControl;
-						castPitchControl = (int32_t) ( (reverseDirectionFlag && (playMode != playModeWavetable)) ?  -pitchControl : pitchControl);
+						castPitchControl = (int32_t) ( (reverseDirectionFlag && (currentPlayMode != playModeWavetable)) ?  -pitchControl : pitchControl);
 						pitchFraction = pitchControl - (int32_t)pitchControl;
 						glideCounter++;
 					}
@@ -68,12 +68,12 @@ void AudioPlayMemory::update(void)
 					uint8_t volIndex = 0;
 					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
 					{
-						if(playMode == playModeGranular) volIndex = map(iPitchCounter,sampleConstrains.loopPoint1,sampleConstrains.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+						if(currentPlayMode == playModeGranular) volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
 
 						if(iPitchCounter <= length)
 						{
 							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
-							float granMult = playMode == playModeGranular ? granularEnvelopeTab[volIndex] : 1.0f;
+							float granMult = currentPlayMode == playModeGranular ? granularEnvelopeTab[volIndex] : 1.0f;
 							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j * granMult ) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ) ) )/(SMOOTHING_SIZE - 1));
 						}
 						else
@@ -96,7 +96,7 @@ void AudioPlayMemory::update(void)
 
 						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 
-						if(playMode == playModeWavetable)
+						if(currentPlayMode == playModeWavetable)
 						{
 							if (iPitchCounter >= wavetableWindowSize)
 							{
@@ -105,7 +105,7 @@ void AudioPlayMemory::update(void)
 						}
 						else
 						{
-							switch (playMode)
+							switch (currentPlayMode)
 							{
 								case playModeGranular:
 								{
@@ -114,19 +114,19 @@ void AudioPlayMemory::update(void)
 										case granularLoopForward:
 											if(reverseDirectionFlag)
 											{
-												if ((iPitchCounter <= sampleConstrains.loopPoint1))
+												if ((iPitchCounter <= constrainsInSamples.loopPoint1))
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint2;
+													iPitchCounter = constrainsInSamples.loopPoint2;
 													fPitchCounter = 0;
 												}
 											}
 											else
 											{
-												if ((iPitchCounter >= sampleConstrains.loopPoint2))
+												if ((iPitchCounter >= constrainsInSamples.loopPoint2))
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint1;
+													iPitchCounter = constrainsInSamples.loopPoint1;
 													fPitchCounter = 0;
 												}
 											}
@@ -135,33 +135,33 @@ void AudioPlayMemory::update(void)
 										case granularLoopBackward:
 											if(reverseDirectionFlag)
 											{
-												if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint1;
+													iPitchCounter = constrainsInSamples.loopPoint1;
 													loopBackwardFlag = 1;
 													fPitchCounter = 0;
 												}
-												if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint1;
+													iPitchCounter = constrainsInSamples.loopPoint1;
 													fPitchCounter = 0;
 												}
 											}
 											else
 											{
-												if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint2;
+													iPitchCounter = constrainsInSamples.loopPoint2;
 													loopBackwardFlag = 1;
 													fPitchCounter = 0;
 												}
-												if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint2;
+													iPitchCounter = constrainsInSamples.loopPoint2;
 													fPitchCounter = 0;
 												}
 											}
@@ -170,34 +170,34 @@ void AudioPlayMemory::update(void)
 										case granularLoopPingPong:
 											if(reverseDirectionFlag)
 											{
-												if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint1;
+													iPitchCounter = constrainsInSamples.loopPoint1;
 													loopBackwardFlag = 1;
 													fPitchCounter = 0;
 												}
-												if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint2;
+													iPitchCounter = constrainsInSamples.loopPoint2;
 													loopBackwardFlag = 0;
 													fPitchCounter = 0;
 												}
 											}
 											else
 											{
-												if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint2;
+													iPitchCounter = constrainsInSamples.loopPoint2;
 													loopBackwardFlag = 1;
 													fPitchCounter = 0;
 												}
-												if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 												{
 													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = sampleConstrains.loopPoint1;
+													iPitchCounter = constrainsInSamples.loopPoint1;
 													loopBackwardFlag = 0;
 													fPitchCounter = 0;
 												}
@@ -207,82 +207,82 @@ void AudioPlayMemory::update(void)
 									}
 									break;
 								}
-								case loopForward:
+								case playModeLoopForward:
 									if(reverseDirectionFlag)
 									{
-										if ((iPitchCounter <= sampleConstrains.loopPoint1))
+										if ((iPitchCounter <= constrainsInSamples.loopPoint1))
 										{
-											iPitchCounter = sampleConstrains.loopPoint2;
+											iPitchCounter = constrainsInSamples.loopPoint2;
 											fPitchCounter = 0;
 										}
 									}
 									else
 									{
-										if ((iPitchCounter >= sampleConstrains.loopPoint2))
+										if ((iPitchCounter >= constrainsInSamples.loopPoint2))
 										{
-											iPitchCounter = sampleConstrains.loopPoint1;
+											iPitchCounter = constrainsInSamples.loopPoint1;
 											fPitchCounter = 0;
 										}
 									}
 
 									break;
-								case loopBackward:
+								case playModeLoopBackward:
 									if(reverseDirectionFlag)
 									{
-										if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 										{
-											iPitchCounter = sampleConstrains.loopPoint1;
+											iPitchCounter = constrainsInSamples.loopPoint1;
 											loopBackwardFlag = 1;
 											fPitchCounter = 0;
 										}
-										if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 										{
-											iPitchCounter = sampleConstrains.loopPoint1;
+											iPitchCounter = constrainsInSamples.loopPoint1;
 											fPitchCounter = 0;
 										}
 									}
 									else
 									{
-										if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 										{
-											iPitchCounter = sampleConstrains.loopPoint2;
+											iPitchCounter = constrainsInSamples.loopPoint2;
 											loopBackwardFlag = 1;
 											fPitchCounter = 0;
 										}
-										if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 										{
-											iPitchCounter = sampleConstrains.loopPoint2;
+											iPitchCounter = constrainsInSamples.loopPoint2;
 											fPitchCounter = 0;
 										}
 									}
 									break;
-								case loopPingPong:
+								case playModePingpong:
 									if(reverseDirectionFlag)
 									{
-										if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 										{
-											iPitchCounter = sampleConstrains.loopPoint1;
+											iPitchCounter = constrainsInSamples.loopPoint1;
 											loopBackwardFlag = 1;
 											fPitchCounter = 0;
 										}
-										if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 										{
-											iPitchCounter = sampleConstrains.loopPoint2;
+											iPitchCounter = constrainsInSamples.loopPoint2;
 											loopBackwardFlag = 0;
 											fPitchCounter = 0;
 										}
 									}
 									else
 									{
-										if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 										{
-											iPitchCounter = sampleConstrains.loopPoint2;
+											iPitchCounter = constrainsInSamples.loopPoint2;
 											loopBackwardFlag = 1;
 											fPitchCounter = 0;
 										}
-										if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 										{
-											iPitchCounter = sampleConstrains.loopPoint1;
+											iPitchCounter = constrainsInSamples.loopPoint1;
 											loopBackwardFlag = 0;
 											fPitchCounter = 0;
 										}
@@ -294,11 +294,11 @@ void AudioPlayMemory::update(void)
 							}
 						}
 					}
-					if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
+					if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
 					{
 						iPitchCounter = length;
 					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (playMode != playModeWavetable)))
+					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (currentPlayMode != playModeWavetable)))
 					{
 						iPitchCounter = 0;
 					}
@@ -308,14 +308,14 @@ void AudioPlayMemory::update(void)
 				//***********************************************
 
 //*************************************************************************************** poczatek przetwarzania pitchCountera
-				if (playMode != playModeWavetable)
+				if (currentPlayMode != playModeWavetable)
 				{
-					switch (playMode)
+					switch (currentPlayMode)
 					{
 					case playModeGranular:
 						//****************************************************************************************************************************
 						{
-							uint8_t volIndex = map(iPitchCounter,sampleConstrains.loopPoint1,sampleConstrains.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+							uint8_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
 
 							switch(granularLoopType)
 							{
@@ -435,7 +435,7 @@ void AudioPlayMemory::update(void)
 						}
 						//****************************************************************************************************************************
 						break;
-					case singleShot:
+					case playModeSingleShot:
 						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
@@ -453,7 +453,7 @@ void AudioPlayMemory::update(void)
 						}
 						//****************************************************************************************************************************
 						break;
-					case loopForward:
+					case playModeLoopForward:
 						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
@@ -471,7 +471,7 @@ void AudioPlayMemory::update(void)
 						}
 						//****************************************************************************************************************************
 						break;
-					case loopBackward:
+					case playModeLoopBackward:
 						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
@@ -508,7 +508,7 @@ void AudioPlayMemory::update(void)
 						}
 						//****************************************************************************************************************************
 						break;
-					case loopPingPong:
+					case playModePingpong:
 						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
@@ -551,7 +551,7 @@ void AudioPlayMemory::update(void)
 
 					if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 //*************************************************************************************** warunki pointow
-					switch (playMode)
+					switch (currentPlayMode)
 					{
 					case playModeGranular:
 					{
@@ -560,19 +560,19 @@ void AudioPlayMemory::update(void)
 							case granularLoopForward:
 								if(reverseDirectionFlag)
 								{
-									if ((iPitchCounter <= sampleConstrains.loopPoint1))
+									if ((iPitchCounter <= constrainsInSamples.loopPoint1))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint2;
+										iPitchCounter = constrainsInSamples.loopPoint2;
 										fPitchCounter = 0;
 									}
 								}
 								else
 								{
-									if ((iPitchCounter >= sampleConstrains.loopPoint2))
+									if ((iPitchCounter >= constrainsInSamples.loopPoint2))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1;
 										fPitchCounter = 0;
 									}
 								}
@@ -581,33 +581,33 @@ void AudioPlayMemory::update(void)
 							case granularLoopBackward:
 								if(reverseDirectionFlag)
 								{
-									if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1;
 										loopBackwardFlag = 1;
 										fPitchCounter = 0;
 									}
-									if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1;
 										fPitchCounter = 0;
 									}
 								}
 								else
 								{
-									if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint2;
+										iPitchCounter = constrainsInSamples.loopPoint2;
 										loopBackwardFlag = 1;
 										fPitchCounter = 0;
 									}
-									if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint2;
+										iPitchCounter = constrainsInSamples.loopPoint2;
 										fPitchCounter = 0;
 									}
 								}
@@ -616,34 +616,34 @@ void AudioPlayMemory::update(void)
 							case granularLoopPingPong:
 								if(reverseDirectionFlag)
 								{
-									if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1;
 										loopBackwardFlag = 1;
 										fPitchCounter = 0;
 									}
-									if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint2;
+										iPitchCounter = constrainsInSamples.loopPoint2;
 										loopBackwardFlag = 0;
 										fPitchCounter = 0;
 									}
 								}
 								else
 								{
-									if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint2;
+										iPitchCounter = constrainsInSamples.loopPoint2;
 										loopBackwardFlag = 1;
 										fPitchCounter = 0;
 									}
-									if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = sampleConstrains.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1;
 										loopBackwardFlag = 0;
 										fPitchCounter = 0;
 									}
@@ -653,82 +653,82 @@ void AudioPlayMemory::update(void)
 						}
 						break;
 					}
-					case loopForward:
+					case playModeLoopForward:
 						if(reverseDirectionFlag)
 						{
-							if ((iPitchCounter <= sampleConstrains.loopPoint1))
+							if ((iPitchCounter <= constrainsInSamples.loopPoint1))
 							{
-								iPitchCounter = sampleConstrains.loopPoint2;
+								iPitchCounter = constrainsInSamples.loopPoint2;
 								fPitchCounter = 0;
 							}
 						}
 						else
 						{
-							if ((iPitchCounter >= sampleConstrains.loopPoint2))
+							if ((iPitchCounter >= constrainsInSamples.loopPoint2))
 							{
-								iPitchCounter = sampleConstrains.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1;
 								fPitchCounter = 0;
 							}
 						}
 
 						break;
-					case loopBackward:
+					case playModeLoopBackward:
 						if(reverseDirectionFlag)
 						{
-							if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 							{
-								iPitchCounter = sampleConstrains.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1;
 								loopBackwardFlag = 1;
 								fPitchCounter = 0;
 							}
-							if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 							{
-								iPitchCounter = sampleConstrains.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1;
 								fPitchCounter = 0;
 							}
 						}
 						else
 						{
-							if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 							{
-								iPitchCounter = sampleConstrains.loopPoint2;
+								iPitchCounter = constrainsInSamples.loopPoint2;
 								loopBackwardFlag = 1;
 								fPitchCounter = 0;
 							}
-							if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 							{
-								iPitchCounter = sampleConstrains.loopPoint2;
+								iPitchCounter = constrainsInSamples.loopPoint2;
 								fPitchCounter = 0;
 							}
 						}
 						break;
-					case loopPingPong:
+					case playModePingpong:
 						if(reverseDirectionFlag)
 						{
-							if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 							{
-								iPitchCounter = sampleConstrains.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1;
 								loopBackwardFlag = 1;
 								fPitchCounter = 0;
 							}
-							if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 							{
-								iPitchCounter = sampleConstrains.loopPoint2;
+								iPitchCounter = constrainsInSamples.loopPoint2;
 								loopBackwardFlag = 0;
 								fPitchCounter = 0;
 							}
 						}
 						else
 						{
-							if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
 							{
-								iPitchCounter = sampleConstrains.loopPoint2;
+								iPitchCounter = constrainsInSamples.loopPoint2;
 								loopBackwardFlag = 1;
 								fPitchCounter = 0;
 							}
-							if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
 							{
-								iPitchCounter = sampleConstrains.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1;
 								loopBackwardFlag = 0;
 								fPitchCounter = 0;
 							}
@@ -758,11 +758,11 @@ void AudioPlayMemory::update(void)
 				}
 			//*************************************************************************************** koniec warunków pointow
 			//*************************************************************************************** warunki pętli
-				if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
+				if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
 				{
 					iPitchCounter = length;
 				}
-				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (playMode != playModeWavetable)))
+				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (currentPlayMode != playModeWavetable)))
 				{
 					iPitchCounter = 0;
 				}
@@ -775,7 +775,7 @@ void AudioPlayMemory::update(void)
 			}
 
 		}
-		next = startAddress + samplePoints.start;
+		next = currentStartAddress + pointsInSamples.start;
 
 		transmit(block);
 	}
@@ -793,14 +793,22 @@ void AudioPlayMemory::printLog(SdFile * log)
 	log->printf("float pitch counter: %05f \n", fPitchCounter);
 	log->printf("addr: %x \n", (uint32_t)next);
 	log->printf("length: %d \n", length);
-	log->printf("addr z instr %x \n", (uint32_t)startAddress);
-	log->printf("start point in samples : %d \n", samplePoints.start);
+	log->printf("addr z instr %x \n", (uint32_t)currentStartAddress);
+	log->printf("start point in samples : %d \n", pointsInSamples.start);
 	log->printf("IsPlaying?: %d\n", playing);
 
 }
 //**************************************************************************************PLAY
 uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 {
+
+	switch(mtProject.instrument[instrIdx].playMode)
+	{
+		case playModeSingleShot: playSingleShot(instrIdx, note); return 1;
+		default: break;
+	}
+
+
 	__disable_irq();
 	AudioNoInterrupts();
 
@@ -869,17 +877,17 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
-	glide= glideForceFlag ? forcedGlide : mtProject.instrument[instrIdx].glide;
+	currentGlide= glideForceFlag ? forcedGlide : mtProject.instrument[instrIdx].glide;
 
 	currentTune = tuneForceFlag ? forcedTune : mtProject.instrument[instrIdx].tune;
 
 	currentFineTune = fineTuneForceFlag ? forcedFineTune : mtProject.instrument[instrIdx].fineTune;
 
-	startAddress = mtProject.instrument[instrIdx].sample.address;
+	currentStartAddress = mtProject.instrument[instrIdx].sample.address;
 
-	playMode=mtProject.instrument[instrIdx].playMode;
+	currentPlayMode = mtProject.instrument[instrIdx].playMode;
 
-	startLen=mtProject.instrument[instrIdx].sample.length;
+	currentSampleLength = mtProject.instrument[instrIdx].sample.length;
 
 
 
@@ -894,7 +902,7 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(playMode == playModeWavetable)
+	if(currentPlayMode == playModeWavetable)
 	{
 		switch(mtProject.instrument[instrIdx].sample.wavetable_window_size)
 		{
@@ -909,16 +917,16 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 		}
 	}
 
-	if(lastNote>=0 && glide != 0 ) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+	if(lastNote>=0 && currentGlide != 0 ) pitchControl = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (currentPlayMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
 		if(pointsForceFlag)
 		{
 			startPoint=forcedStartPoint;
 			endPoint=forcedEndPoint;
-			if(playMode != singleShot) //loopMode
+			if(currentPlayMode != playModeSingleShot) //loopMode
 			{
 				loopPoint1=forcedLoopPoint1;
 				loopPoint2=forcedLoopPoint2;
@@ -928,7 +936,7 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 		{
 			startPoint=mtProject.instrument[instrIdx].startPoint;
 			endPoint=mtProject.instrument[instrIdx].endPoint;
-			if(playMode != singleShot) //loopMode
+			if(currentPlayMode != playModeSingleShot) //loopMode
 			{
 				loopPoint1=mtProject.instrument[instrIdx].loopPoint1;
 				loopPoint2=mtProject.instrument[instrIdx].loopPoint2;
@@ -941,22 +949,22 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 		wavetableWindowSize = mtProject.instrument[instrIdx].sample.wavetable_window_size;
 		currentWindow = wavetableWindowForceFlag ? forcedWavetableWindow : mtProject.instrument[instrIdx].wavetableCurrentWindow;
 
-		sampleConstrains.endPoint=wavetableWindowSize*mtProject.instrument[instrIdx].sample.wavetableWindowNumber; // nie ma znaczenia
-		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
-		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
-		sampleConstrains.loopLength=wavetableWindowSize;
+		constrainsInSamples.endPoint=wavetableWindowSize*mtProject.instrument[instrIdx].sample.wavetableWindowNumber; // nie ma znaczenia
+		constrainsInSamples.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		constrainsInSamples.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		constrainsInSamples.loopLength=wavetableWindowSize;
 
-		samplePoints.start = 0;
+		pointsInSamples.start = 0;
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		if(playMode == singleShot)
+		if(currentPlayMode == playModeSingleShot)
 		{
 			if (startPoint >= endPoint) return badStartPoint;
 		}
-		else if((playMode != playModeSlice) && (playMode != playModeGranular))
+		else if((currentPlayMode != playModeSlice) && (currentPlayMode != playModeGranular))
 		{
 			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) )
 			{
@@ -986,8 +994,8 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 	{
 		if((note + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[note + currentTune + 1] : (float)wt_notes[note + currentTune + 1];
-			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[note + currentTune + 1] : (float)wt_notes[note + currentTune + 1];
+			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
 
 			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -997,8 +1005,8 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 	{
 		if((note + currentTune - 1) >= MIN_NOTE)
 		{
-			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[note + currentTune - 1] : (float)wt_notes[note + currentTune - 1];
-			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[note + currentTune - 1] : (float)wt_notes[note + currentTune - 1];
+			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
 
 			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1007,78 +1015,78 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 
 	pitchControl+=fineTuneControl;
 
-	if(glide)
+	if(currentGlide)
 	{
-		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
+		constrainsInSamples.glide=(uint32_t)((float)currentGlide*44.1);
 
-		float localPitch1 = (playMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
-		float localPitch2 = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-		if((lastNote>=0) && (lastNote != note)) glideControl=(localPitch1 - localPitch2 )/sampleConstrains.glide;
+		float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+		float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+		if((lastNote>=0) && (lastNote != note)) glideControl=(localPitch1 - localPitch2 )/constrainsInSamples.glide;
 		else glideControl=0;
 	}
 	else
 	{
-		sampleConstrains.glide=0;
+		constrainsInSamples.glide=0;
 		glideControl=0;
 	}
 
 
 	lastNote=note;
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		if(playMode == playModeGranular)
+		if(currentPlayMode == playModeGranular)
 		{
-			samplePoints.start = (uint32_t)((float)startGranular*((float)startLen/MAX_16BIT));
-			samplePoints.end = (uint32_t)((float)endGranular*((float)startLen/MAX_16BIT));
+			pointsInSamples.start = (uint32_t)((float)startGranular*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.end = (uint32_t)((float)endGranular*((float)currentSampleLength/MAX_16BIT));
 
-			samplePoints.loop1 = (uint32_t)((float)loopPoint1Granular*((float)startLen/MAX_16BIT));
-			samplePoints.loop2 = (uint32_t)((float)loopPoint2Granular*((float)startLen/MAX_16BIT));
+			pointsInSamples.loop1 = (uint32_t)((float)loopPoint1Granular*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.loop2 = (uint32_t)((float)loopPoint2Granular*((float)currentSampleLength/MAX_16BIT));
 
-			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+			constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+			constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+			constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
 		}
-		else if(playMode  == playModeSlice)
+		else if(currentPlayMode  == playModeSlice)
 		{
-			samplePoints.start= (uint32_t)((float)startSlice*((float)startLen/MAX_16BIT));
-			samplePoints.end= (uint32_t)((float)endSlice*((float)startLen/MAX_16BIT));
+			pointsInSamples.start= (uint32_t)((float)startSlice*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.end= (uint32_t)((float)endSlice*((float)currentSampleLength/MAX_16BIT));
 
-			samplePoints.loop1 = 0;
-			samplePoints.loop2 = 0;
+			pointsInSamples.loop1 = 0;
+			pointsInSamples.loop2 = 0;
 		}
 		else
 		{
-			samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-			samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+			pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.end= (uint32_t)((float)endPoint*((float)currentSampleLength/MAX_16BIT));
 
-			if(playMode != singleShot)
+			if(currentPlayMode != playModeSingleShot)
 			{
-				samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
-				samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+				pointsInSamples.loop1= (uint32_t)((float)loopPoint1*((float)currentSampleLength/MAX_16BIT));
+				pointsInSamples.loop2= (uint32_t)((float)loopPoint2*((float)currentSampleLength/MAX_16BIT));
 			}
 			else
 			{
-				samplePoints.loop1 = 0;
-				samplePoints.loop2 = 0;
+				pointsInSamples.loop1 = 0;
+				pointsInSamples.loop2 = 0;
 			}
 
-			if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen))
+			if((pointsInSamples.start >= currentSampleLength) || (pointsInSamples.loop1>currentSampleLength) || (pointsInSamples.loop2>currentSampleLength) || (pointsInSamples.end>currentSampleLength))
 			{
 				__enable_irq();
 				AudioInterrupts();
 				return pointsBeyondFile; // wskazniki za plikiem
 			}
 
-			if((playMode != singleShot) && (playMode != playModeSlice))
+			if((currentPlayMode != playModeSingleShot) && (currentPlayMode != playModeSlice))
 			{
-				sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-				sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-				sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+				constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+				constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+				constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
 			}
 		}
 
 
-		sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+		constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
 	}
 
 
@@ -1086,16 +1094,16 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
 
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		next = startAddress + samplePoints.start;
-		length =startLen-samplePoints.start;
-		iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
+		next = currentStartAddress + pointsInSamples.start;
+		length =currentSampleLength-pointsInSamples.start;
+		iPitchCounter = reverseDirectionFlag ? constrainsInSamples.endPoint - 1 : 0;
 	}
 	else
 	{
-		next = startAddress;
-		length =startLen;
+		next = currentStartAddress;
+		length =currentSampleLength;
 		iPitchCounter = 0;
 	}
 
@@ -1149,13 +1157,13 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
-	glide=mtProject.instrument[instr_idx].glide;
+	currentGlide=mtProject.instrument[instr_idx].glide;
 	currentTune=mtProject.instrument[instr_idx].tune;
-	startAddress = mtProject.instrument[instr_idx].sample.address;
+	currentStartAddress = mtProject.instrument[instr_idx].sample.address;
 
-	playMode=mtProject.instrument[instr_idx].playMode;
+	currentPlayMode=mtProject.instrument[instr_idx].playMode;
 
-	startLen=mtProject.instrument[instr_idx].sample.length;
+	currentSampleLength=mtProject.instrument[instr_idx].sample.length;
 
 	if( (n + currentTune) > (MAX_NOTE-1))
 	{
@@ -1167,7 +1175,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		if((lastNote>=0) && (lastNote<n)) currentTune=MIN_NOTE-lastNote;
 		else currentTune=MIN_NOTE-n;
 	}
-	if(playMode == playModeWavetable)
+	if(currentPlayMode == playModeWavetable)
 	{
 		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
 		{
@@ -1183,19 +1191,19 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	}
 
 
-	if(lastNote>=0 && glide != 0 ) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
+	if(lastNote>=0 && currentGlide != 0 ) pitchControl = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (currentPlayMode != playModeWavetable) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
 
 
 
 
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
 		startPoint=mtProject.instrument[instr_idx].startPoint;
 		endPoint=mtProject.instrument[instr_idx].endPoint;
-		if(playMode != singleShot) //loopMode
+		if(currentPlayMode != playModeSingleShot) //loopMode
 		{
 			loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
 			loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
@@ -1206,22 +1214,22 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
-		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
-		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
-		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
-		sampleConstrains.loopLength=wavetableWindowSize;
-		samplePoints.start = 0;
+		constrainsInSamples.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		constrainsInSamples.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		constrainsInSamples.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		constrainsInSamples.loopLength=wavetableWindowSize;
+		pointsInSamples.start = 0;
 
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		if(playMode == singleShot)
+		if(currentPlayMode == playModeSingleShot)
 		{
 			if (startPoint >= endPoint) return badStartPoint;
 		}
-		else if((playMode != playModeSlice) && (playMode != playModeGranular))
+		else if((currentPlayMode != playModeSlice) && (currentPlayMode != playModeGranular))
 		{
 			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
 			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
@@ -1238,8 +1246,8 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		if((n + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
-			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
+			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
 
 			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1249,8 +1257,8 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		if((n + currentTune - 1) >= MIN_NOTE)
 		{
-			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
-			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
+			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
 
 			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1259,82 +1267,82 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 	pitchControl+=fineTuneControl;
 
-	if(glide)
+	if(currentGlide)
 	{
-		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
+		constrainsInSamples.glide=(uint32_t)((float)currentGlide*44.1);
 
-		float localPitch1 = (playMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
-		float localPitch2 = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-		if((lastNote>=0) && (lastNote != n)) glideControl=(localPitch1 - localPitch2 )/sampleConstrains.glide;
+		float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+		float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+		if((lastNote>=0) && (lastNote != n)) glideControl=(localPitch1 - localPitch2 )/constrainsInSamples.glide;
 		else glideControl=0;
 	}
 	else
 	{
-		sampleConstrains.glide=0;
+		constrainsInSamples.glide=0;
 		glideControl=0;
 	}
 
 
 
 
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		if(playMode == playModeGranular)
+		if(currentPlayMode == playModeGranular)
 		{
-			samplePoints.start = (uint32_t)((float)startGranular*((float)startLen/MAX_16BIT));
-			samplePoints.end = (uint32_t)((float)endGranular*((float)startLen/MAX_16BIT));
+			pointsInSamples.start = (uint32_t)((float)startGranular*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.end = (uint32_t)((float)endGranular*((float)currentSampleLength/MAX_16BIT));
 
-			samplePoints.loop1 = (uint32_t)((float)loopPoint1Granular*((float)startLen/MAX_16BIT));
-			samplePoints.loop2 = (uint32_t)((float)loopPoint2Granular*((float)startLen/MAX_16BIT));
+			pointsInSamples.loop1 = (uint32_t)((float)loopPoint1Granular*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.loop2 = (uint32_t)((float)loopPoint2Granular*((float)currentSampleLength/MAX_16BIT));
 
-			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+			constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+			constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+			constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
 		}
-		else if(playMode == playModeSlice)
+		else if(currentPlayMode == playModeSlice)
 		{
-			samplePoints.start= (uint32_t)((float)startSlice*((float)startLen/MAX_16BIT));
-			samplePoints.end= (uint32_t)((float)endSlice*((float)startLen/MAX_16BIT));
-			samplePoints.loop1 = 0;
-			samplePoints.loop2 = 0;
+			pointsInSamples.start= (uint32_t)((float)startSlice*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.end= (uint32_t)((float)endSlice*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.loop1 = 0;
+			pointsInSamples.loop2 = 0;
 		}
 		else
 		{
-			samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-			samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-			if(playMode != singleShot)
+			pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
+			pointsInSamples.end= (uint32_t)((float)endPoint*((float)currentSampleLength/MAX_16BIT));
+			if(currentPlayMode != playModeSingleShot)
 			{
-				samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
-				samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+				pointsInSamples.loop1= (uint32_t)((float)loopPoint1*((float)currentSampleLength/MAX_16BIT));
+				pointsInSamples.loop2= (uint32_t)((float)loopPoint2*((float)currentSampleLength/MAX_16BIT));
 			}
 
-			if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+			if((pointsInSamples.start >= currentSampleLength) || (pointsInSamples.loop1>currentSampleLength) || (pointsInSamples.loop2>currentSampleLength) || (pointsInSamples.end>currentSampleLength)) return pointsBeyondFile; // wskazniki za plikiem
 
-			if((playMode != singleShot) && (playMode != playModeSlice))
+			if((currentPlayMode != playModeSingleShot) && (currentPlayMode != playModeSlice))
 			{
-				sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-				sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-				sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+				constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+				constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+				constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
 			}
 		}
 
 
-		sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+		constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
 	}
 
 
 
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		next = data+samplePoints.start;
-		length =startLen-samplePoints.start;
+		next = data+pointsInSamples.start;
+		length =currentSampleLength-pointsInSamples.start;
 	}
 	else
 	{
 		next = data;
-		length =startLen;
+		length =currentSampleLength;
 	}
 
 	playing = 1;
@@ -1356,14 +1364,14 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	fPitchCounter=0;
 	glideCounter=0;
 
-	glide=0;
+	currentGlide=0;
 	currentTune=0;
 	lastNote=-1;
 
-	playMode=singleShot;
+	currentPlayMode=playModeSingleShot;
 
-	startLen=len;
-	startAddress = addr;
+	currentSampleLength=len;
+	currentStartAddress = addr;
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
 		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
@@ -1375,7 +1383,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(playMode == playModeWavetable)
+	if(currentPlayMode == playModeWavetable)
 	{
 		switch(mtProject.instrument[currentInstrIdx].sample.wavetable_window_size)
 		{
@@ -1389,22 +1397,22 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 			default: break;
 		}
 	}
-	if(lastNote >= 0) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+	if(lastNote >= 0) pitchControl = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (currentPlayMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
 
 	int16_t * data = addr;
 
-	if(playMode == playModeWavetable)
+	if(currentPlayMode == playModeWavetable)
 	{
 		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
 		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
 		else currentWindow=0;
-		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
-		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
-		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
-		sampleConstrains.loopLength=wavetableWindowSize;
-		samplePoints.start = 0;
+		constrainsInSamples.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		constrainsInSamples.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		constrainsInSamples.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		constrainsInSamples.loopLength=wavetableWindowSize;
+		pointsInSamples.start = 0;
 	}
 
 
@@ -1416,19 +1424,19 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	fineTuneControl=0;
 
 
-	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+	pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
+	pointsInSamples.end= (uint32_t)((float)endPoint*((float)currentSampleLength/MAX_16BIT));
+	constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
 
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		next = data+samplePoints.start;
-		length =startLen-samplePoints.start;
+		next = data+pointsInSamples.start;
+		length =currentSampleLength-pointsInSamples.start;
 	}
 	else
 	{
 		next = data;
-		length =startLen;
+		length =currentSampleLength;
 	}
 
 	playing = 1;
@@ -1449,12 +1457,12 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	fPitchCounter=0;
 	glideCounter=0;
 
-	glide=0;
+	currentGlide=0;
 	currentTune=0;
 	lastNote=-1;
-	startAddress = addr;
-	playMode=singleShot;
-	startLen=len;
+	currentStartAddress = addr;
+	currentPlayMode=playModeSingleShot;
+	currentSampleLength=len;
 
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
@@ -1482,8 +1490,8 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 		}
 	}
 
-	if(lastNote>=0) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+	if(lastNote>=0) pitchControl = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (currentPlayMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
 
 	int16_t * data = addr;
@@ -1493,31 +1501,31 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	endPoint=MAX_16BIT;
 	currentFineTune=0;
 	fineTuneControl=0;
-	if(playMode == playModeWavetable)
+	if(currentPlayMode == playModeWavetable)
 	{
 		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
 		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
 		else currentWindow=0;
-		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
-		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
-		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
-		sampleConstrains.loopLength=wavetableWindowSize;
-		samplePoints.start = 0;
+		constrainsInSamples.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		constrainsInSamples.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		constrainsInSamples.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		constrainsInSamples.loopLength=wavetableWindowSize;
+		pointsInSamples.start = 0;
 	}
 
-	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+	pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
+	pointsInSamples.end= (uint32_t)((float)endPoint*((float)currentSampleLength/MAX_16BIT));
+	constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
 
-	if(playMode != playModeWavetable)
+	if(currentPlayMode != playModeWavetable)
 	{
-		next = data+samplePoints.start;
-		length =startLen-samplePoints.start;
+		next = data+pointsInSamples.start;
+		length =currentSampleLength-pointsInSamples.start;
 	}
 	else
 	{
 		next = data;
-		length =startLen;
+		length =currentSampleLength;
 	}
 
 	playing = 1;
@@ -1551,39 +1559,39 @@ void AudioPlayMemory::setWavetableWindow(int16_t value)
 
 void AudioPlayMemory::setLP1(uint16_t value) // w audio engine zadba zeby zapodac odpowiednia wartosc gdy force
 {
-	if (!((playMode == loopForward) || (playMode == loopBackward) || (playMode == loopPingPong))) return;
+	if (!((currentPlayMode == playModeLoopForward) || (currentPlayMode == playModeLoopBackward) || (currentPlayMode == playModePingpong))) return;
 
-	uint32_t lastSamplePointsLoop1 = samplePoints.loop1;
-	samplePoints.loop1 = (uint32_t)((float)value*((float)startLen/MAX_16BIT));
+	uint32_t lastSamplePointsLoop1 = pointsInSamples.loop1;
+	pointsInSamples.loop1 = (uint32_t)((float)value*((float)currentSampleLength/MAX_16BIT));
 
-	if ((samplePoints.loop1 < samplePoints.start)||(samplePoints.loop1 > samplePoints.loop2) || (samplePoints.loop1 > samplePoints.end))
+	if ((pointsInSamples.loop1 < pointsInSamples.start)||(pointsInSamples.loop1 > pointsInSamples.loop2) || (pointsInSamples.loop1 > pointsInSamples.end))
 	{
-		samplePoints.loop1 = lastSamplePointsLoop1;
+		pointsInSamples.loop1 = lastSamplePointsLoop1;
 		return;
 	}
 
-	sampleConstrains.loopPoint1 = samplePoints.loop1 - samplePoints.start;
-	sampleConstrains.loopLength = samplePoints.loop2 - samplePoints.loop1;
+	constrainsInSamples.loopPoint1 = pointsInSamples.loop1 - pointsInSamples.start;
+	constrainsInSamples.loopLength = pointsInSamples.loop2 - pointsInSamples.loop1;
 
 
 //	next = mtProject.instrument[currentInstr_idx].sample.address + samplePoints.start;
 }
 void AudioPlayMemory::setLP2(uint16_t value) // w audio engine zadba zeby zapodac odpowiednia wartosc gdy force
 {
-	if (!((playMode == loopForward) || (playMode == loopBackward) || (playMode == loopPingPong))) return;
+	if (!((currentPlayMode == playModeLoopForward) || (currentPlayMode == playModeLoopBackward) || (currentPlayMode == playModePingpong))) return;
 
-	uint32_t lastSamplePointsLoop2 = samplePoints.loop2;
+	uint32_t lastSamplePointsLoop2 = pointsInSamples.loop2;
 
-	samplePoints.loop2 = (uint32_t)((float)value*((float)startLen/MAX_16BIT));
+	pointsInSamples.loop2 = (uint32_t)((float)value*((float)currentSampleLength/MAX_16BIT));
 
-	if ((samplePoints.loop2 < samplePoints.start)||(samplePoints.loop2 < samplePoints.loop1) || (samplePoints.loop1 > samplePoints.end))
+	if ((pointsInSamples.loop2 < pointsInSamples.start)||(pointsInSamples.loop2 < pointsInSamples.loop1) || (pointsInSamples.loop1 > pointsInSamples.end))
 	{
-		samplePoints.loop2 = lastSamplePointsLoop2;
+		pointsInSamples.loop2 = lastSamplePointsLoop2;
 		return;
 	}
 
-	sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+	constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+	constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
 
 //	int16_t * lastNext = next;
 //	next = mtProject.instrument[currentInstr_idx].sample.address + samplePoints.start;
@@ -1597,7 +1605,7 @@ void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr
 	uint32_t localSampleConstrainsGlide = (uint32_t)(value*44.1);
 	float localGlideControl = ((float)notes[currentNote + mtProject.instrument[instr_idx].tune] - (float)notes[lastNote + mtProject.instrument[instr_idx].tune] )/localSampleConstrainsGlide;
 	AudioNoInterrupts();
-	sampleConstrains.glide = localSampleConstrainsGlide;
+	constrainsInSamples.glide = localSampleConstrainsGlide;
 	if((lastNote>=0) && (lastNote != currentNote)) glideControl= localGlideControl;
 	else glideControl=0;
 	AudioInterrupts();
@@ -1661,18 +1669,18 @@ void AudioPlayMemory::refreshGranularPosition()
 	uint16_t endGranular = (granularUpConstrain < MAX_16BIT) ? (uint16_t)granularUpConstrain : MAX_16BIT;
 	uint16_t loopPoint2Granular = endGranular - 1;
 
-	samplePoints.start = (uint32_t)((float)startGranular*((float)startLen/MAX_16BIT));
-	samplePoints.end = (uint32_t)((float)endGranular*((float)startLen/MAX_16BIT));
+	pointsInSamples.start = (uint32_t)((float)startGranular*((float)currentSampleLength/MAX_16BIT));
+	pointsInSamples.end = (uint32_t)((float)endGranular*((float)currentSampleLength/MAX_16BIT));
 
-	samplePoints.loop1 = (uint32_t)((float)loopPoint1Granular*((float)startLen/MAX_16BIT));
-	samplePoints.loop2 = (uint32_t)((float)loopPoint2Granular*((float)startLen/MAX_16BIT));
+	pointsInSamples.loop1 = (uint32_t)((float)loopPoint1Granular*((float)currentSampleLength/MAX_16BIT));
+	pointsInSamples.loop2 = (uint32_t)((float)loopPoint2Granular*((float)currentSampleLength/MAX_16BIT));
 
-	length =startLen-samplePoints.start;
+	length =currentSampleLength-pointsInSamples.start;
 
-	sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-	sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
-	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+	constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+	constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+	constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
+	constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
 
 
 	granularPositionRefreshFlag = 0;
@@ -1879,7 +1887,7 @@ void AudioPlayMemory::clearReverse()
 
 uint16_t AudioPlayMemory::getPosition()
 {
-	return  (uint16_t)(65535 * ((samplePoints.start + iPitchCounter)/(float)startLen));
+	return  (uint16_t)(65535 * ((pointsInSamples.start + iPitchCounter)/(float)currentSampleLength));
 }
 
 void AudioPlayMemory::setForcedSlice(uint8_t value)
@@ -1909,11 +1917,11 @@ void AudioPlayMemory::clean(void)
 		pitchControl = 1;
 		iPitchCounter = 0;
 		fPitchCounter = 0;
-		playMode = 0;
+		currentPlayMode = 0;
 		playing=0;
 		loopBackwardFlag = 0;
 		lastNote = -1;
-		glide=0;
+		currentGlide=0;
 		glideCounter=0;
 		glideControl=0;
 		fineTuneControl=0;
@@ -1928,24 +1936,24 @@ void AudioPlayMemory::clean(void)
 		currentInstrIdx=0;
 		currentFineTune=0;
 
-		samplePoints.start=0;
-		samplePoints.end=0;
-		samplePoints.loop1=0;
-		samplePoints.loop2=0;
+		pointsInSamples.start=0;
+		pointsInSamples.end=0;
+		pointsInSamples.loop1=0;
+		pointsInSamples.loop2=0;
 
-		sampleConstrains.loopLength=0;
-		sampleConstrains.loopPoint1=0;
-		sampleConstrains.loopPoint2=0;
-		sampleConstrains.endPoint=0;
+		constrainsInSamples.loopLength=0;
+		constrainsInSamples.loopPoint1=0;
+		constrainsInSamples.loopPoint2=0;
+		constrainsInSamples.endPoint=0;
 
-		sampleConstrains.glide=0;
+		constrainsInSamples.glide=0;
 
-		startLen=0;
+		currentSampleLength=0;
 	}
 
 }
 //PLAY OBSÓGA OGÓLNA
-void AudioPlayMemory::setStartParamiters()
+void AudioPlayMemory::refreshStartParamiters()
 {
 	if(playing == 1) needSmoothingFlag = 1;
 	playing = 0;
@@ -1953,5 +1961,131 @@ void AudioPlayMemory::setStartParamiters()
 	iPitchCounter = 0;
 	fPitchCounter = 0;
 	glideCounter = 0;
+
+	currentGlide = glideForceFlag ? forcedGlide : mtProject.instrument[currentInstrIdx].glide;
+
+	currentTune = tuneForceFlag ? forcedTune : mtProject.instrument[currentInstrIdx].tune;
+
+	currentFineTune = fineTuneForceFlag ? forcedFineTune : mtProject.instrument[currentInstrIdx].fineTune;
+
+	currentStartAddress = mtProject.instrument[currentInstrIdx].sample.address;
+
+	currentPlayMode = mtProject.instrument[currentInstrIdx].playMode;
+
+	currentSampleLength = mtProject.instrument[currentInstrIdx].sample.length;
+}
+
+void AudioPlayMemory::constrainCurrentTune(uint8_t note)
+{
+	if((note + currentTune) > (MAX_NOTE - 1))
+	{
+		if(lastNote > note) currentTune = (MAX_NOTE - 1) - lastNote;
+		else currentTune = (MAX_NOTE - 1) - note;
+	}
+	else if((note + currentTune) < MIN_NOTE)
+	{
+		if((lastNote >= 0) && (lastNote < note)) currentTune = MIN_NOTE - lastNote;
+		else currentTune = MIN_NOTE - note;
+	}
+}
+
+void AudioPlayMemory::setStartPitch(uint8_t note)
+{
+	if((lastNote >= 0) && (currentGlide != 0)) pitchControl = (float)notes[lastNote + currentTune];
+	else pitchControl = (float)notes[note+ currentTune];
+}
+void AudioPlayMemory::applyFinetuneOnPitch(uint8_t note)
+{
+	if(currentPlayMode == playModeWavetable)
+	{
+		if(currentFineTune >= 0)
+		{
+			if( (note + currentTune + 1) <= (MAX_NOTE-1))
+			{
+				float localPitch1 = (float)wt_notes[note + currentTune + 1];
+				float localPitch2 = (float)wt_notes[note + currentTune];
+
+				fineTuneControl = currentFineTune * ((localPitch1 - localPitch2) / MAX_INSTRUMENT_FINETUNE );
+			}
+			else fineTuneControl = 0;
+		}
+		else
+		{
+			if((note + currentTune - 1) >= MIN_NOTE)
+			{
+				float localPitch1 = (float)wt_notes[note + currentTune - 1];
+				float localPitch2 = (float)wt_notes[note + currentTune];
+
+				fineTuneControl = (-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+			}
+			else fineTuneControl = 0;
+		}
+
+		pitchControl += fineTuneControl;
+	}
+	else
+	{
+		if(currentFineTune >= 0)
+		{
+			if( (note + currentTune + 1) <= (MAX_NOTE-1))
+			{
+				float localPitch1 = (float)notes[note + currentTune + 1];
+				float localPitch2 = (float)notes[note + currentTune];
+
+				fineTuneControl = currentFineTune * ((localPitch1 - localPitch2) / MAX_INSTRUMENT_FINETUNE );
+			}
+			else fineTuneControl = 0;
+		}
+		else
+		{
+			if((note + currentTune - 1) >= MIN_NOTE)
+			{
+				float localPitch1 = (float)notes[note + currentTune - 1];
+				float localPitch2 = (float)notes[note + currentTune];
+
+				fineTuneControl = (-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+			}
+			else fineTuneControl = 0;
+		}
+
+		pitchControl += fineTuneControl;
+	}
+}
+void AudioPlayMemory::calculateGlidePitch(uint8_t note)
+{
+	if(currentPlayMode == playModeWavetable)
+	{
+		if(currentGlide)
+		{
+			constrainsInSamples.glide = (uint32_t)((float)currentGlide * 44.1);
+
+			float localPitch1 = (float)wt_notes[note + currentTune];
+			float localPitch2 = (float)wt_notes[lastNote + currentTune];
+			if((lastNote >= 0) && (lastNote != note)) glideControl = (localPitch1 - localPitch2 ) / constrainsInSamples.glide;
+			else glideControl = 0;
+		}
+		else
+		{
+			constrainsInSamples.glide = 0;
+			glideControl = 0;
+		}
+	}
+	else
+	{
+		if(currentGlide)
+		{
+			constrainsInSamples.glide = (uint32_t)((float)currentGlide * 44.1);
+
+			float localPitch1 = (float)notes[note + currentTune];
+			float localPitch2 = (float)notes[lastNote + currentTune];
+			if((lastNote >= 0) && (lastNote != note)) glideControl = (localPitch1 - localPitch2 ) / constrainsInSamples.glide;
+			else glideControl = 0;
+		}
+		else
+		{
+			constrainsInSamples.glide = 0;
+			glideControl=0;
+		}
+	}
 }
 

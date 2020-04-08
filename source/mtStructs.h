@@ -223,10 +223,10 @@ enum memoryPlayStatus
 
 enum instrumentPlayMode
 {
-	singleShot=0,
-	loopForward,
-	loopBackward,
-	loopPingPong,
+	playModeSingleShot = 0,
+	playModeLoopForward,
+	playModeLoopBackward,
+	playModePingpong,
 	playModeSlice,
 	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 	playModeGranular,

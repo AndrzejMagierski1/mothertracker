@@ -118,7 +118,7 @@ void playerEngine::changePointsPerformanceMode(int32_t spValue, int32_t epValue)
 	if(spValue != 0 ) 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] = 1;
 
 
-	if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
+	if(mtProject.instrument[currentInstrument_idx].playMode != playModeSingleShot)
 	{
 		startPoint+=spValue;
 		if(startPoint < SAMPLE_POINT_POS_MIN) startPoint = SAMPLE_POINT_POS_MIN;
