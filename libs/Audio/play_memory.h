@@ -164,7 +164,6 @@ class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-
 	void printLog(SdFile * log);
 	uint8_t play(uint8_t instr_idx,int8_t note); 										// dla sequencer'a
 	uint8_t playForPrev(uint8_t instr_idx,int8_t n); 									// dla padboard'a - po indeksie instrumentu
@@ -241,6 +240,15 @@ public:
 	void setCurrentInstrIdx(uint8_t n);
 private:
 
+//  PLAY OBSUGA OGÓLNA
+	void setStartParamiters();
+//	PLAY Z PODZIALEM NA TRYBY
+//	void playSingleShot(uint8_t instrIdx, int8_t note);
+
+
+
+
+
 	void refreshGranularPosition();
 
 	//********** Zarządzanie
@@ -251,7 +259,6 @@ private:
 	uint8_t playMode;
 	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
 	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
-	uint8_t sampleType;
 	volatile int16_t * startAddress;
 
 	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
@@ -277,7 +284,7 @@ private:
 	int16_t  lastSample = 0;
 	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
 
-	uint8_t currentInstr_idx;
+	uint8_t currentInstrIdx;
 	//*******
 	//********* Pitch
 	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch

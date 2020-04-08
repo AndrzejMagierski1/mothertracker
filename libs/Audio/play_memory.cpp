@@ -29,19 +29,19 @@ void AudioPlayMemory::update(void)
 		in = (int16_t*)next;
 
 
-		if (sampleType == mtSampleTypeWavetable)
+		if (playMode == playModeWavetable)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
 
-		castPitchControl = (int32_t) ((reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)) ?  -pitchControl : pitchControl);
+		castPitchControl = (int32_t) ((reverseDirectionFlag && (playMode != playModeWavetable)) ?  -pitchControl : pitchControl);
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			bool waveCondition = (length > iPitchCounter) && (sampleType == mtSampleTypeWaveFile);
-			bool wavetableCondition = (length > (iPitchCounter + waveTablePosition)) && (sampleType == mtSampleTypeWavetable);
+			bool waveCondition = (length > iPitchCounter) && (playMode != playModeWavetable);
+			bool wavetableCondition = (length > (iPitchCounter + waveTablePosition)) && (playMode == playModeWavetable);
 
 			if ( waveCondition || wavetableCondition )
 			{
@@ -52,7 +52,7 @@ void AudioPlayMemory::update(void)
 					if (glideCounter <= sampleConstrains.glide)
 					{
 						pitchControl += glideControl;
-						castPitchControl = (int32_t) ( (reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)) ?  -pitchControl : pitchControl);
+						castPitchControl = (int32_t) ( (reverseDirectionFlag && (playMode != playModeWavetable)) ?  -pitchControl : pitchControl);
 						pitchFraction = pitchControl - (int32_t)pitchControl;
 						glideCounter++;
 					}
@@ -96,7 +96,7 @@ void AudioPlayMemory::update(void)
 
 						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 
-						if(sampleType == mtSampleTypeWavetable)
+						if(playMode == playModeWavetable)
 						{
 							if (iPitchCounter >= wavetableWindowSize)
 							{
@@ -298,7 +298,7 @@ void AudioPlayMemory::update(void)
 					{
 						iPitchCounter = length;
 					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)))
+					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (playMode != playModeWavetable)))
 					{
 						iPitchCounter = 0;
 					}
@@ -308,7 +308,7 @@ void AudioPlayMemory::update(void)
 				//***********************************************
 
 //*************************************************************************************** poczatek przetwarzania pitchCountera
-				if (sampleType != mtSampleTypeWavetable)
+				if (playMode != playModeWavetable)
 				{
 					switch (playMode)
 					{
@@ -762,7 +762,7 @@ void AudioPlayMemory::update(void)
 				{
 					iPitchCounter = length;
 				}
-				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)))
+				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (playMode != playModeWavetable)))
 				{
 					iPitchCounter = 0;
 				}
@@ -788,7 +788,7 @@ void AudioPlayMemory::printLog(SdFile * log)
 	log->println("*************Parametry Silnika ");
 	log->printf("pitch counter: %d ", iPitchCounter);
 	if(iPitchCounter > length) log->print("counter poza length ");
-	if( (next + iPitchCounter) > (mtProject.instrument[currentInstr_idx].sample.address + mtProject.instrument[currentInstr_idx].sample.length) ) log->print("counter poza plikiem ");
+	if( (next + iPitchCounter) > (mtProject.instrument[currentInstrIdx].sample.address + mtProject.instrument[currentInstrIdx].sample.length) ) log->print("counter poza plikiem ");
 	log->println("");
 	log->printf("float pitch counter: %05f \n", fPitchCounter);
 	log->printf("addr: %x \n", (uint32_t)next);
@@ -799,7 +799,7 @@ void AudioPlayMemory::printLog(SdFile * log)
 
 }
 //**************************************************************************************PLAY
-uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
+uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 {
 	__disable_irq();
 	AudioNoInterrupts();
@@ -808,22 +808,22 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 	uint16_t startSlice = 0, endSlice = 0;
 	uint16_t startGranular = 0, loopPoint1Granular = 0, loopPoint2Granular = 0, endGranular = 0;
-	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[instr_idx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[instr_idx].sample.length;
+	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[instrIdx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[instrIdx].sample.length;
 
 
 	if(sliceForcedFlag)
 	{
-		startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[forcedSlice] : 0;
+		startSlice = (mtProject.instrument[instrIdx].sliceNumber > 0) ? mtProject.instrument[instrIdx].slices[forcedSlice] : 0;
 		endSlice =
-			((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != forcedSlice) ) ?
-			mtProject.instrument[instr_idx].slices[forcedSlice + 1] : MAX_16BIT;
+			((mtProject.instrument[instrIdx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instrIdx].sliceNumber - 1) != forcedSlice) ) ?
+			mtProject.instrument[instrIdx].slices[forcedSlice + 1] : MAX_16BIT;
 	}
 	else
 	{
-		startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice] : 0;
+		startSlice = (mtProject.instrument[instrIdx].sliceNumber > 0) ? mtProject.instrument[instrIdx].slices[mtProject.instrument[instrIdx].selectedSlice] : 0;
 		endSlice =
-			((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != mtProject.instrument[instr_idx].selectedSlice) ) ?
-			mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice + 1] : MAX_16BIT;
+			((mtProject.instrument[instrIdx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instrIdx].sliceNumber - 1) != mtProject.instrument[instrIdx].selectedSlice) ) ?
+			mtProject.instrument[instrIdx].slices[mtProject.instrument[instrIdx].selectedSlice + 1] : MAX_16BIT;
 	}
 	//************* granular
 	int32_t granularDownConstrain = 0;
@@ -835,8 +835,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	else
 	{
-		granularDownConstrain = mtProject.instrument[instr_idx].granular.currentPosition - (granularLength/2);
-		granularUpConstrain = mtProject.instrument[instr_idx].granular.currentPosition + (granularLength/2);
+		granularDownConstrain = mtProject.instrument[instrIdx].granular.currentPosition - (granularLength/2);
+		granularUpConstrain = mtProject.instrument[instrIdx].granular.currentPosition + (granularLength/2);
 	}
 
 	startGranular = (granularDownConstrain > 0) ? (uint16_t) granularDownConstrain : 0;
@@ -844,9 +844,9 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	endGranular = (granularUpConstrain < MAX_16BIT) ? (uint16_t)granularUpConstrain : MAX_16BIT;
 	loopPoint2Granular = endGranular - 1;
 
-	granularLoopType = mtProject.instrument[instr_idx].granular.type;
-	currentGranularPosition = granularForcedFlag ? forcedGranularPosition : mtProject.instrument[instr_idx].granular.currentPosition;
-	switch(mtProject.instrument[instr_idx].granular.shape)
+	granularLoopType = mtProject.instrument[instrIdx].granular.type;
+	currentGranularPosition = granularForcedFlag ? forcedGranularPosition : mtProject.instrument[instrIdx].granular.currentPosition;
+	switch(mtProject.instrument[instrIdx].granular.shape)
 	{
 		case granularShapeSquare: 		granularEnvelopeTab = squareTab; 	break;
 		case granularShapeGauss: 		granularEnvelopeTab = gaussTab; 	break;
@@ -856,7 +856,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 //******************
 
-	if(instr_idx > INSTRUMENTS_MAX) instr_idx = INSTRUMENTS_MAX;
+	if(instrIdx > INSTRUMENTS_MAX) instrIdx = INSTRUMENTS_MAX;
 	if(note > MAX_NOTE) note = MAX_NOTE;
 
 	if(playing == 1) needSmoothingFlag = 1;
@@ -865,15 +865,23 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	iPitchCounter = 0;
 	fPitchCounter=0;
 	glideCounter=0;
-	currentInstr_idx=instr_idx;
+	currentInstrIdx=instrIdx;
 
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
-	glide= glideForceFlag ? forcedGlide : mtProject.instrument[instr_idx].glide;
+	glide= glideForceFlag ? forcedGlide : mtProject.instrument[instrIdx].glide;
 
-	currentTune = tuneForceFlag ? forcedTune : mtProject.instrument[instr_idx].tune;
+	currentTune = tuneForceFlag ? forcedTune : mtProject.instrument[instrIdx].tune;
 
-	sampleType = mtProject.instrument[instr_idx].sample.type;
+	currentFineTune = fineTuneForceFlag ? forcedFineTune : mtProject.instrument[instrIdx].fineTune;
+
+	startAddress = mtProject.instrument[instrIdx].sample.address;
+
+	playMode=mtProject.instrument[instrIdx].playMode;
+
+	startLen=mtProject.instrument[instrIdx].sample.length;
+
+
 
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
@@ -886,9 +894,9 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
+	if(playMode == playModeWavetable)
 	{
-		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
+		switch(mtProject.instrument[instrIdx].sample.wavetable_window_size)
 		{
 			case 32: 	wt_notes = wt32Note; 	break;
 			case 64: 	wt_notes = wt64Note; 	break;
@@ -901,19 +909,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		}
 	}
 
-	if(lastNote>=0 && glide != 0 ) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+	if(lastNote>=0 && glide != 0 ) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
-	int16_t * data = mtProject.instrument[instr_idx].sample.address;
-	startAddress = mtProject.instrument[instr_idx].sample.address;
-
-	playMode=mtProject.instrument[instr_idx].playMode;
-
-	startLen=mtProject.instrument[instr_idx].sample.length;
-
-
-
-	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		if(pointsForceFlag)
 		{
@@ -927,22 +926,22 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		}
 		else
 		{
-			startPoint=mtProject.instrument[instr_idx].startPoint;
-			endPoint=mtProject.instrument[instr_idx].endPoint;
+			startPoint=mtProject.instrument[instrIdx].startPoint;
+			endPoint=mtProject.instrument[instrIdx].endPoint;
 			if(playMode != singleShot) //loopMode
 			{
-				loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
-				loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
+				loopPoint1=mtProject.instrument[instrIdx].loopPoint1;
+				loopPoint2=mtProject.instrument[instrIdx].loopPoint2;
 			}
 		}
 	}
 	else
 	{
 
-		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
-		currentWindow = wavetableWindowForceFlag ? forcedWavetableWindow : mtProject.instrument[instr_idx].wavetableCurrentWindow;
+		wavetableWindowSize = mtProject.instrument[instrIdx].sample.wavetable_window_size;
+		currentWindow = wavetableWindowForceFlag ? forcedWavetableWindow : mtProject.instrument[instrIdx].wavetableCurrentWindow;
 
-		sampleConstrains.endPoint=wavetableWindowSize*mtProject.instrument[instr_idx].sample.wavetableWindowNumber; // nie ma znaczenia
+		sampleConstrains.endPoint=wavetableWindowSize*mtProject.instrument[instrIdx].sample.wavetableWindowNumber; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
 		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
 		sampleConstrains.loopLength=wavetableWindowSize;
@@ -951,7 +950,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		if(playMode == singleShot)
 		{
@@ -983,15 +982,12 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	/*=========================================================================================================================*/
 	/*====================================================PRZELICZENIA=========================================================*/
 
-	if(!fineTuneForceFlag) currentFineTune=mtProject.instrument[instr_idx].fineTune;
-	else currentFineTune = forcedFineTune;
-
 	if(currentFineTune >= 0)
 	{
 		if((note + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune + 1] : (float)wt_notes[note + currentTune + 1];
-			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[note + currentTune + 1] : (float)wt_notes[note + currentTune + 1];
+			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
 
 			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1001,8 +997,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		if((note + currentTune - 1) >= MIN_NOTE)
 		{
-			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune - 1] : (float)wt_notes[note + currentTune - 1];
-			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[note + currentTune - 1] : (float)wt_notes[note + currentTune - 1];
+			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
 
 			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1015,8 +1011,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
 
-		float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
-		float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+		float localPitch1 = (playMode != playModeWavetable) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+		float localPitch2 = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
 		if((lastNote>=0) && (lastNote != note)) glideControl=(localPitch1 - localPitch2 )/sampleConstrains.glide;
 		else glideControl=0;
 	}
@@ -1028,7 +1024,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 
 	lastNote=note;
-	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		if(playMode == playModeGranular)
 		{
@@ -1090,18 +1086,17 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
 
-	if(sampleType != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
-		next = data+samplePoints.start;
+		next = startAddress + samplePoints.start;
 		length =startLen-samplePoints.start;
 		iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
 	}
 	else
 	{
-		next = data;
+		next = startAddress;
 		length =startLen;
 		iPitchCounter = 0;
-
 	}
 
 	playing = 1;
@@ -1149,13 +1144,18 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	currentInstr_idx=instr_idx;
+	currentInstrIdx=instr_idx;
 	lastNote= - 1;
 
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
 	glide=mtProject.instrument[instr_idx].glide;
 	currentTune=mtProject.instrument[instr_idx].tune;
+	startAddress = mtProject.instrument[instr_idx].sample.address;
+
+	playMode=mtProject.instrument[instr_idx].playMode;
+
+	startLen=mtProject.instrument[instr_idx].sample.length;
 
 	if( (n + currentTune) > (MAX_NOTE-1))
 	{
@@ -1167,7 +1167,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		if((lastNote>=0) && (lastNote<n)) currentTune=MIN_NOTE-lastNote;
 		else currentTune=MIN_NOTE-n;
 	}
-	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
+	if(playMode == playModeWavetable)
 	{
 		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
 		{
@@ -1182,21 +1182,16 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		}
 	}
 
-	sampleType = mtProject.instrument[instr_idx].sample.type;
 
-	if(lastNote>=0 && glide != 0 ) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
+	if(lastNote>=0 && glide != 0 ) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
-	startAddress = mtProject.instrument[instr_idx].sample.address;
-
-	playMode=mtProject.instrument[instr_idx].playMode;
-
-	startLen=mtProject.instrument[instr_idx].sample.length;
 
 
 
-	if(sampleType != mtSampleTypeWavetable)
+
+	if(playMode != playModeWavetable)
 	{
 		startPoint=mtProject.instrument[instr_idx].startPoint;
 		endPoint=mtProject.instrument[instr_idx].endPoint;
@@ -1220,7 +1215,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(sampleType != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		if(playMode == singleShot)
 		{
@@ -1243,8 +1238,8 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		if((n + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
-			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
+			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
 
 			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1254,8 +1249,8 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		if((n + currentTune - 1) >= MIN_NOTE)
 		{
-			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
-			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+			float localPitch1 = (playMode != playModeWavetable) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
+			float localPitch2 = (playMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
 
 			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1268,8 +1263,8 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
 
-		float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
-		float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+		float localPitch1 = (playMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+		float localPitch2 = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
 		if((lastNote>=0) && (lastNote != n)) glideControl=(localPitch1 - localPitch2 )/sampleConstrains.glide;
 		else glideControl=0;
 	}
@@ -1282,7 +1277,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 
 
-	if(sampleType != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		if(playMode == playModeGranular)
 		{
@@ -1331,7 +1326,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
-	if(sampleType != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		next = data+samplePoints.start;
 		length =startLen-samplePoints.start;
@@ -1364,7 +1359,11 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	glide=0;
 	currentTune=0;
 	lastNote=-1;
-	sampleType = type;
+
+	playMode=singleShot;
+
+	startLen=len;
+	startAddress = addr;
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
 		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
@@ -1376,9 +1375,9 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(type == mtSampleTypeWavetable)
+	if(playMode == playModeWavetable)
 	{
-		switch(mtProject.instrument[currentInstr_idx].sample.wavetable_window_size)
+		switch(mtProject.instrument[currentInstrIdx].sample.wavetable_window_size)
 		{
 			case 32: 	wt_notes = wt32Note; 	break;
 			case 64: 	wt_notes = wt64Note; 	break;
@@ -1390,14 +1389,13 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 			default: break;
 		}
 	}
-	if(lastNote >= 0) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+	if(lastNote >= 0) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
 
 	int16_t * data = addr;
-	startAddress = addr;
 
-	if(sampleType == mtSampleTypeWavetable)
+	if(playMode == playModeWavetable)
 	{
 		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
 		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
@@ -1410,9 +1408,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	}
 
 
-	playMode=singleShot;
 
-	startLen=len;
 
 	startPoint=0;
 	endPoint=MAX_16BIT;
@@ -1424,7 +1420,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
-	if(sampleType != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		next = data+samplePoints.start;
 		length =startLen-samplePoints.start;
@@ -1456,7 +1452,10 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	glide=0;
 	currentTune=0;
 	lastNote=-1;
-	sampleType = type;
+	startAddress = addr;
+	playMode=singleShot;
+	startLen=len;
+
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
 		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
@@ -1470,7 +1469,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 
 	if(type == mtSampleTypeWavetable)
 	{
-		switch(mtProject.instrument[currentInstr_idx].sample.wavetable_window_size)
+		switch(mtProject.instrument[currentInstrIdx].sample.wavetable_window_size)
 		{
 			case 32: 	wt_notes = wt32Note; 	break;
 			case 64: 	wt_notes = wt64Note; 	break;
@@ -1483,22 +1482,18 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 		}
 	}
 
-	if(lastNote>=0) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+	if(lastNote>=0) pitchControl = (playMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (playMode != playModeWavetable) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
 
 	int16_t * data = addr;
-	startAddress = addr;
 
-	playMode=singleShot;
-
-	startLen=len;
 
 	startPoint=0;
 	endPoint=MAX_16BIT;
 	currentFineTune=0;
 	fineTuneControl=0;
-	if(sampleType == mtSampleTypeWavetable)
+	if(playMode == playModeWavetable)
 	{
 		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
 		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
@@ -1514,7 +1509,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
-	if(sampleType != mtSampleTypeWavetable)
+	if(playMode != playModeWavetable)
 	{
 		next = data+samplePoints.start;
 		length =startLen-samplePoints.start;
@@ -1546,9 +1541,9 @@ void AudioPlayMemory::stop(void)
 
 void AudioPlayMemory::setWavetableWindow(int16_t value)
 {
-	if(mtProject.instrument[currentInstr_idx].sample.type != mtSampleTypeWavetable) return;
+	if(mtProject.instrument[currentInstrIdx].playMode != playModeWavetable) return;
 
-	if((uint32_t) value >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) currentWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber - 1;
+	if((uint32_t) value >= mtProject.instrument[currentInstrIdx].sample.wavetableWindowNumber) currentWindow = mtProject.instrument[currentInstrIdx].sample.wavetableWindowNumber - 1;
 	else if(value < 0) currentWindow = 0;
 	else currentWindow=value;
 }
@@ -1613,14 +1608,14 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	float localPitchControl = pitchControl;
 	float localFineTuneControl = fineTuneControl;
 	localPitchControl-=localFineTuneControl;
-	uint8_t localSampleType = mtProject.instrument[currentInstr_idx].sample.type;
+	uint8_t localPlayMode = mtProject.instrument[currentInstrIdx].playMode;
 
 	if(value >= 0)
 	{
 		if((currentNote + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			float localPitch1 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune + 1] : (float)wt_notes[currentNote + currentTune + 1];
-			float localPitch2 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
+			float localPitch1 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune + 1] : (float)wt_notes[currentNote + currentTune + 1];
+			float localPitch2 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
 
 			localFineTuneControl= value * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1630,8 +1625,8 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	{
 		if((currentNote + currentTune - 1) >= MIN_NOTE)
 		{
-			float localPitch1 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune - 1] : (float)wt_notes[currentNote + currentTune - 1];
-			float localPitch2 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
+			float localPitch1 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune - 1] : (float)wt_notes[currentNote + currentTune - 1];
+			float localPitch2 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
 
 			localFineTuneControl= (0-value) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -1650,13 +1645,13 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 void AudioPlayMemory::refreshGranularPosition()
 {
 
-	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular)
+	if(mtProject.instrument[currentInstrIdx].playMode != playModeGranular)
 	{
 		granularPositionRefreshFlag = 0;
 		return;
 	}
 
-	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[currentInstr_idx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[currentInstr_idx].sample.length;
+	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[currentInstrIdx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[currentInstrIdx].sample.length;
 	int32_t granularDownConstrain = currentGranularPosition - (granularLength/2);
 	int32_t granularUpConstrain = currentGranularPosition  + (granularLength/2);
 
@@ -1686,7 +1681,7 @@ void AudioPlayMemory::refreshGranularPosition()
 
 void AudioPlayMemory::setGranularPosition(uint16_t val)
 {
-	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular) return;
+	if(mtProject.instrument[currentInstrIdx].playMode != playModeGranular) return;
 
 	currentGranularPosition = val;
 
@@ -1745,13 +1740,13 @@ void AudioPlayMemory::setGranularPosition(uint16_t val)
 }
 void AudioPlayMemory::setGranularGrainLength()
 {
-	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular) return;
+	if(mtProject.instrument[currentInstrIdx].playMode != playModeGranular) return;
 
 	granularPositionRefreshFlag = 1;
 }
 void AudioPlayMemory::setGranularWave(uint8_t type)
 {
-	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular) return;
+	if(mtProject.instrument[currentInstrIdx].playMode != playModeGranular) return;
 	switch(type)
 	{
 		case granularShapeSquare: 		granularEnvelopeTab = squareTab; 	break;
@@ -1762,7 +1757,7 @@ void AudioPlayMemory::setGranularWave(uint8_t type)
 }
 void AudioPlayMemory::setGranularLoopMode(uint8_t type)
 {
-	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular) return;
+	if(mtProject.instrument[currentInstrIdx].playMode != playModeGranular) return;
 	granularLoopType = type;
 }
 
@@ -1771,10 +1766,11 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 	if( (currentNote + value) > (MAX_NOTE-1)) value=(MAX_NOTE-1)-currentNote;
 	if( (currentNote + value) < MIN_NOTE) value=MIN_NOTE-currentNote;
 
-	uint8_t localSampleType = mtProject.instrument[currentInstr_idx].sample.type;
+	uint8_t localPlaymode = mtProject.instrument[currentInstrIdx].playMode;
+
 	float localPitchControl = pitchControl;
-	localPitchControl -= (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote+currentTune] : (float)wt_notes[currentNote+currentTune];
-	localPitchControl += (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote+value] : (float)wt_notes[currentNote+value];
+	localPitchControl -= (localPlaymode != playModeWavetable) ? (float)notes[currentNote+currentTune] : (float)wt_notes[currentNote+currentTune];
+	localPitchControl += (localPlaymode != playModeWavetable) ? (float)notes[currentNote+value] : (float)wt_notes[currentNote+value];
 	AudioNoInterrupts();
 	pitchControl = localPitchControl;
 	currentTune=value;
@@ -1833,13 +1829,13 @@ void AudioPlayMemory::setForcedFineTune(int8_t value)
 void AudioPlayMemory::setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep)
 {
 	if(sp != -1) forcedStartPoint = sp;
-	else forcedStartPoint = mtProject.instrument[currentInstr_idx].startPoint;
+	else forcedStartPoint = mtProject.instrument[currentInstrIdx].startPoint;
 	if(lp1 != -1) forcedLoopPoint1 = lp1;
-	else forcedLoopPoint1 = mtProject.instrument[currentInstr_idx].loopPoint1;
+	else forcedLoopPoint1 = mtProject.instrument[currentInstrIdx].loopPoint1;
 	if(lp2 != -1) forcedLoopPoint2 = lp2;
-	else forcedLoopPoint2 = mtProject.instrument[currentInstr_idx].loopPoint2;
+	else forcedLoopPoint2 = mtProject.instrument[currentInstrIdx].loopPoint2;
 	if(ep != -1) forcedEndPoint = ep;
-	else forcedEndPoint = mtProject.instrument[currentInstr_idx].endPoint;
+	else forcedEndPoint = mtProject.instrument[currentInstrIdx].endPoint;
 }
 
 void AudioPlayMemory::setWavetableWindowFlag()
@@ -1852,7 +1848,7 @@ void AudioPlayMemory::clearWavetableWindowFlag()
 }
 void AudioPlayMemory::setForcedWavetableWindow(uint32_t val)
 {
-	if(val >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber -1;
+	if(val >= mtProject.instrument[currentInstrIdx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstrIdx].sample.wavetableWindowNumber -1;
 	else forcedWavetableWindow=val;
 }
 
@@ -1888,8 +1884,8 @@ uint16_t AudioPlayMemory::getPosition()
 
 void AudioPlayMemory::setForcedSlice(uint8_t value)
 {
-	if(mtProject.instrument[currentInstr_idx].sliceNumber == 0) forcedSlice = 0;
-	else if(value > mtProject.instrument[currentInstr_idx].sliceNumber - 1) forcedSlice = mtProject.instrument[currentInstr_idx].sliceNumber - 1;
+	if(mtProject.instrument[currentInstrIdx].sliceNumber == 0) forcedSlice = 0;
+	else if(value > mtProject.instrument[currentInstrIdx].sliceNumber - 1) forcedSlice = mtProject.instrument[currentInstrIdx].sliceNumber - 1;
 	else forcedSlice = value;
 }
 void AudioPlayMemory::setSliceForcedFlag()
@@ -1902,7 +1898,7 @@ void AudioPlayMemory::clearSliceForcedFlag()
 }
 void AudioPlayMemory::setCurrentInstrIdx(uint8_t n)
 {
-	currentInstr_idx = n;
+	currentInstrIdx = n;
 }
 void AudioPlayMemory::clean(void)
 {
@@ -1929,7 +1925,7 @@ void AudioPlayMemory::clean(void)
 //	    wavetablePWM=0;
 //	    wavetableFlip=0;
 //	    wavetableQuantize=0;
-		currentInstr_idx=0;
+		currentInstrIdx=0;
 		currentFineTune=0;
 
 		samplePoints.start=0;
@@ -1947,5 +1943,15 @@ void AudioPlayMemory::clean(void)
 		startLen=0;
 	}
 
+}
+//PLAY OBSÓGA OGÓLNA
+void AudioPlayMemory::setStartParamiters()
+{
+	if(playing == 1) needSmoothingFlag = 1;
+	playing = 0;
+	loopBackwardFlag = 0;
+	iPitchCounter = 0;
+	fPitchCounter = 0;
+	glideCounter = 0;
 }
 
