@@ -225,12 +225,11 @@ void playerEngine::handleUpdateRefreshVolume()
 	{
 		statusBytes &= (~VOLUME_MASK);
 
-		if(muteState == 0)
-		{
-			uint8_t volume = getMostSignificantVolume();
-			float localAmount = getMostSignificantAmount();
-			ampPtr->gain( ampLogValues[volume] * localAmount );
-		}
+		uint8_t volume = getMostSignificantVolume();
+		float localAmount = getMostSignificantAmount();
+
+		ampPtr->gain( ampLogValues[volume] * localAmount );
+
 	}
 }
 void playerEngine::handleUpdateRefreshPanning()
@@ -238,10 +237,8 @@ void playerEngine::handleUpdateRefreshPanning()
 	if(statusBytes & PANNING_MASK)
 	{
 		statusBytes &= (~PANNING_MASK);
-		if((!mtProject.instrument[currentInstrument_idx].envelope[envPan].enable)
-		&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning])
-	    &&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning])
-		&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
+
+		if(!isActiveEnvelope(envPan))
 		{
 			currentEnvelopeModification[envPan] = 0;
 		}
@@ -276,10 +273,8 @@ void playerEngine::handleUpdateRefreshCutoff()
 	if(statusBytes & CUTOFF_MASK)
 	{
 		statusBytes &= (~CUTOFF_MASK);
-		if((!mtProject.instrument[currentInstrument_idx].envelope[envCutoff].enable)
-		&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff])
-		&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
-		&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
+
+		if(!isActiveEnvelope(envCutoff))
 		{
 			currentEnvelopeModification[envCutoff] = 0;
 		}

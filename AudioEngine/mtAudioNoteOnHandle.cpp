@@ -65,7 +65,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	handleFxNoteOnPanning();
 
-	handleFxNoteOnReverbSend();
+	handleFxNoteOnDelaySend();
 
 //********* obsluga performance parametrow obslugiwanych w play_memory
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
@@ -102,31 +102,21 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	seqFx(fx1_id,fx1_val,0);
 	seqFx(fx2_id,fx2_val,1);
-//*******
-	status = playMemPtr->play(instr_idx,note);
-//******* start env
-	envelopeAmpPtr->noteOn();
 
-	if((mtProject.instrument[instr_idx].envelope[envAmp].enable)
-	|| (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
-	|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp])
-	|| (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp]) )
+	for(uint8_t i = 0 ; i < ACTIVE_ENVELOPES; i++)
 	{
-		setSyncParamsAmpLFO();
-	}
-
-	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
-	{
-		if((mtProject.instrument[instr_idx].envelope[i].enable)
-		|| (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[i]])
-		|| (trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[i]])
-		|| (trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[i]]))
+		if(isActiveEnvelope(i))
 		{
-			envelopePtr[i]->start();
+			if(i == 0 ) envelopeAmpPtr->noteOn();
+			else envelopePtr[i]->start();
 			setSyncParamsLFO(i);
 		}
 	}
 //*******
+
+//*******
+	status = playMemPtr->play(instr_idx,note);
+//******* start env
 	__enable_irq();
 	AudioInterrupts();
 	return status;
@@ -285,7 +275,7 @@ void playerEngine::handleNoteOnFilter()
 	{
 		filterConnect();
 		filterPtr->resonance(mtProject.instrument[currentInstrument_idx].resonance + RESONANCE_OFFSET);
-		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 
 		changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
 	}
@@ -297,56 +287,16 @@ void playerEngine::handleNoteOnFilter()
 
 void playerEngine::handleNoteOnGain()
 {
-	float localAmount = 0.0f;
+	float localAmount = getMostSignificantAmount();
+	uint8_t localVolume = getMostSignificantVolume();
 
-	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-		}
-		else
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-		}
-	}
-	else
-	{
-		localAmount = 1.0f;
-	}
-
-	if(muteState == MUTE_DISABLE)
-	{
-		ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
-	}
-	else
-	{
-		ampPtr->gain(AMP_MUTED);
-	}
+	ampPtr->gain(localAmount * ampLogValues[localVolume]);
 }
 
 void playerEngine::handleNoteOnPanning()
 {
-	float gainL = 0, gainR = 0;
 
-	if(mtProject.instrument[currentInstrument_idx].panning < 50)
-	{
-		gainR = (mtProject.instrument[currentInstrument_idx].panning) / 50.0;
-		gainL = 1.0;
-	}
-	else if(mtProject.instrument[currentInstrument_idx].panning > 50)
-	{
-		gainR = 1.0;
-		gainL = (100 - mtProject.instrument[currentInstrument_idx].panning)/50.0;
-	}
-	else if(mtProject.instrument[currentInstrument_idx].panning == 50)
-	{
-		gainL = 1.0; gainR = 1.0;
-	}
-
-	mixerL.gain(nChannel,gainL);
-	mixerR.gain(nChannel,gainR);
-
+	if(!isActiveEnvelope(envPan)) modPanning(mtProject.instrument[currentInstrument_idx].panning);
 }
 
 void playerEngine::handleNoteOnReverbSend()
@@ -491,13 +441,14 @@ void playerEngine::handleInitFxNoteOnAllEnvelopes()
 
 void playerEngine::handleFxNoteOnFilter()
 {
-//***** resonance
+	//***** resonance
 	if(mtProject.instrument[currentInstrument_idx].filterEnable)
 	{
 		filterPtr->resonance(mtProject.instrument[currentInstrument_idx].resonance + RESONANCE_OFFSET);
 	}
-//*****
-//***** cutoff + enable
+	//*****
+	//***** cutoff + enable
+
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
 	{
 		changeCutoffPerformanceMode(performanceMod.cutoff); // włączenie filtra jest w środku
@@ -506,19 +457,19 @@ void playerEngine::handleFxNoteOnFilter()
 		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff]))
 	{
 		filterConnect();
-		filterPtr->setCutoff(currentSeqModValues.filterCutoff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(currentSeqModValues.filterCutoff);
 	}
 	else
 	{
 		if(mtProject.instrument[currentInstrument_idx].filterEnable)
 		{
 			filterConnect();
-			filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 		}
 		else if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 	}
-//*****
-//***** filter type
+	//*****
+	//***** filter type
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType])
 	{
 		changeFilterTypePerformanceMode(performanceMod.filterType);
@@ -535,54 +486,26 @@ void playerEngine::handleFxNoteOnFilter()
 			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
 		}
 	}
-//*****
+	//*****
+
+
 }
 
 void playerEngine::handleFxNoteOnGain()
 {
-	float localAmount = 0.0f;
+	float localAmount = getMostSignificantAmount();
 
-	if( ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable) && (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)) ||
-		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
 	{
-		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+		changeVolumePerformanceMode(performanceMod.volume);
 	}
 	else
 	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable))
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-		}
-		else
-		{
-			localAmount = 1.0f;
-		}
 
+		ampPtr->gain( ampLogValues[getMostSignificantVolume()] * localAmount);
 	}
 
-
-	if(muteState == MUTE_DISABLE)
-	{
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
-		{
-			changeVolumePerformanceMode(performanceMod.volume);
-		}
-		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
-				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume])
-		{
-			ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
-		}
-		else
-		{
-			ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
-		}
-	}
-	else
-	{
-		ampPtr->gain(AMP_MUTED);
-	}
 }
 
 void playerEngine::handleFxNoteOnPanning()
@@ -596,47 +519,15 @@ void playerEngine::handleFxNoteOnPanning()
 	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::panning]) ||
 		(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::panning]))
 	{
-		if(currentSeqModValues.panning < 50)
-		{
-			gainR = (currentSeqModValues.panning ) / 50.0;
-			gainL = 1.0;
-		}
-		else if(currentSeqModValues.panning > 50)
-		{
-			gainR = 1.0;
-			gainL = ( 100 - currentSeqModValues.panning) / 50.0;
-		}
-		else if(currentSeqModValues.panning == 50)
-		{
-			gainL = 1.0; gainR = 1.0;
-		}
-
-		mixerL.gain(nChannel,gainL);
-		mixerR.gain(nChannel,gainR);
+		if(!isActiveEnvelope(envPan)) modPanning(currentSeqModValues.panning);
 	}
 	else
 	{
-		if(mtProject.instrument[currentInstrument_idx].panning < 50)
-		{
-			gainR = (mtProject.instrument[currentInstrument_idx].panning) / 50.0;
-			gainL = 1.0;
-		}
-		else if(mtProject.instrument[currentInstrument_idx].panning > 50)
-		{
-			gainR = 1.0;
-			gainL = (100 - mtProject.instrument[currentInstrument_idx].panning)/50.0;
-		}
-		else if(mtProject.instrument[currentInstrument_idx].panning == 50)
-		{
-			gainL = 1.0; gainR = 1.0;
-		}
-
-		mixerL.gain(nChannel,gainL);
-		mixerR.gain(nChannel,gainR);
+		if(!isActiveEnvelope(envPan)) modPanning(mtProject.instrument[currentInstrument_idx].panning);
 	}
 }
 
-void playerEngine::handleFxNoteOnReverbSend()
+void playerEngine::handleFxNoteOnDelaySend()
 {
 	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 	{

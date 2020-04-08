@@ -5,51 +5,11 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] != 1) && (value == 0)) return;
 
-	uint8_t volume;
+	uint8_t volume = getMostSignificantVolume();
+	float localAmount = getMostSignificantAmount();
 
-	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
-	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]) volume = currentSeqModValues.volume;
-	else volume = mtProject.instrument[currentInstrument_idx].volume;
+	ampPtr->gain(ampLogValues[volume] * localAmount);
 
-	performanceMod.volume = value;
-	if(volume + value > MAX_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MAX_INSTRUMENT_VOLUME;
-	else if(volume + value < MIN_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MIN_INSTRUMENT_VOLUME;
-	else currentPerformanceValues.volume = volume + value;
-
-	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
-
-	float localAmount = 0.0f;
-
-	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
-	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-	   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
-	{
-		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-	}
-	else
-	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-			{
-				localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-			}
-			else
-			{
-				localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-			}
-		}
-		else
-		{
-			localAmount = 1.0f;
-		}
-
-	}
-
-	if(muteState == MUTE_DISABLE)
-	{
-		ampPtr->gain(ampLogValues[currentPerformanceValues.volume] * localAmount);
-	}
 
 }
 void playerEngine ::changePanningPerformanceMode(int8_t value)
@@ -70,24 +30,8 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning] = 1;
 
-	float gainL=0,gainR=0;
-	if(currentPerformanceValues.panning < 50)
-	{
-		gainR=(0 + currentPerformanceValues.panning)/50.0;
-		gainL=1.0;
-	}
-	else if(currentPerformanceValues.panning > 50)
-	{
-		gainR=1.0;
-		gainL=(100 - currentPerformanceValues.panning)/50.0;
-	}
-	else if(currentPerformanceValues.panning == 50)
-	{
-		gainL=1.0; gainR=1.0;
-	}
+	if(!isActiveEnvelope(envPan)) modPanning(currentPerformanceValues.panning);
 
-	mixerL.gain(nChannel,gainL);
-	mixerR.gain(nChannel,gainR);
 }
 void playerEngine ::changeTunePerformanceMode(int8_t value)
 {
@@ -270,7 +214,7 @@ void playerEngine ::changeCutoffPerformanceMode(int8_t value) // przed ta funkcj
 	currentPerformanceValues.filterEnable = 1;
 	filterConnect();
 
-	filterPtr->setCutoff(currentPerformanceValues.filterCutoff);
+	if(!isActiveEnvelope(envCutoff))  modCutoff(currentPerformanceValues.filterCutoff);
 
 }
 void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
@@ -541,38 +485,10 @@ void playerEngine::endVolumePerformanceMode()
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 0;
 
-	if(muteState == MUTE_DISABLE)
-	{
-		float localAmount = 0.0f;
+	float localAmount = getMostSignificantAmount();
+	uint8_t localVolume = getMostSignificantVolume();
+	ampPtr->gain(ampLogValues[localVolume] * localAmount);
 
-		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
-		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-		}
-		else
-		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-			{
-				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-				{
-					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-				}
-				else
-				{
-					localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-				}
-			}
-			else
-			{
-				localAmount = 1.0f;
-			}
-
-		}
-
-		ampPtr->gain(ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
-	}
 }
 void playerEngine::endPanningPerformanceMode()
 {
@@ -584,25 +500,8 @@ void playerEngine::endPanningPerformanceMode()
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning] = 0;
 
+	if(!isActiveEnvelope(envPan))	modPanning(panning);
 
-	float gainL=0,gainR=0;
-	if(panning < 50)
-	{
-		gainR=(0 + panning)/50.0;
-		gainL=1.0;
-	}
-	else if(panning> 50)
-	{
-		gainR=1.0;
-		gainL=(100 - panning)/50.0;
-	}
-	else if(panning == 50)
-	{
-		gainL=1.0; gainR=1.0;
-	}
-
-	mixerL.gain(nChannel,gainL);
-	mixerR.gain(nChannel,gainR);
 }
 void playerEngine::endTunePerformanceMode()
 {
@@ -690,11 +589,11 @@ void playerEngine::endCutoffPerformanceMode()
 	   !trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff])
 	{
 		if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
-		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 	}
 	else
 	{
-		filterPtr->setCutoff(currentSeqModValues.filterCutoff);
+		if(!isActiveEnvelope(envCutoff)) modCutoff(currentSeqModValues.filterCutoff);
 	}
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff] = 0;
