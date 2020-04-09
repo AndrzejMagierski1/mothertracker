@@ -1108,8 +1108,6 @@ void playerEngine::printLog(SdFile * log)
 		log->printf("LP2: %d\n",  mtProject.instrument[currentInstrument_idx].loopPoint2);
 	}
 
-	playMemPtr->printLog(log);
-
 }
 
 

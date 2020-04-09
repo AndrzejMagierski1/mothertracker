@@ -230,7 +230,7 @@ enum instrumentPlayMode
 	playModeSlice,
 	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 	playModeGranular,
-
+	playModeBeatSlice,
 	playModeCount
 };
 

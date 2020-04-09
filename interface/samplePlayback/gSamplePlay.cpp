@@ -454,7 +454,7 @@ void cSamplePlayback::showPlayModeList()
 {
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
-	playModeList.linesCount = 8;
+	playModeList.linesCount = 9;
 	playModeList.data = playModeNames;
 
 	display.setControlData(playModeListControl,  &playModeList);

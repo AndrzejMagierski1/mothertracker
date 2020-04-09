@@ -2,802 +2,27 @@
 #include "Audio.h"
 #include "utility/dspinst.h"
 
-constexpr uint8_t SMOOTHING_SIZE = 100;
+
 
 //**************************************************************************************UPDATE START
 
 void AudioPlayMemory::update(void)
 {
-
-	audio_block_t *block= nullptr;
-	int16_t *in = nullptr;
-	int16_t *out = nullptr;
-	int32_t castPitchControl;
-	float pitchFraction;
-
-	block = allocate();
-	if (!block) return;
-
-	if (!playing)
+	switch(currentPlayMode)
 	{
-		release(block);
-		return;
+		case playModeSingleShot: 		updateSingleShot(); 		return;
+		case playModeLoopForward:		updateLoopForward(); 		return;
+		case playModeLoopBackward:		updateLoopBackward(); 		return;
+		case playModePingpong:			updateLoopPingpong(); 		return;
+		case playModeSlice:				updateSlice();				return;
+		case playModeBeatSlice:			updateBeatSlice();			return;
+		case playModeGranular:			updateGranular();			return;
+		case playModeWavetable:			updateWavetable();			return;
+		default: break;
 	}
-	else if (playing == 1)
-	{
-		out = block->data;
-		in = (int16_t*)next;
-
-
-		if (currentPlayMode == playModeWavetable)
-		{
-			waveTablePosition = wavetableWindowSize * currentWindow;
-		}
-
-		castPitchControl = (int32_t) ((reverseDirectionFlag && (currentPlayMode != playModeWavetable)) ?  -pitchControl : pitchControl);
-		pitchFraction = pitchControl - (int32_t)pitchControl;
-
-
-		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
-		{
-			bool waveCondition = (length > iPitchCounter) && (currentPlayMode != playModeWavetable);
-			bool wavetableCondition = (length > (iPitchCounter + waveTablePosition)) && (currentPlayMode == playModeWavetable);
-
-			if ( waveCondition || wavetableCondition )
-			{
-				//*********************************** GLIDE HANDLE
-
-				if (constrainsInSamples.glide)
-				{
-					if (glideCounter <= constrainsInSamples.glide)
-					{
-						pitchControl += glideControl;
-						castPitchControl = (int32_t) ( (reverseDirectionFlag && (currentPlayMode != playModeWavetable)) ?  -pitchControl : pitchControl);
-						pitchFraction = pitchControl - (int32_t)pitchControl;
-						glideCounter++;
-					}
-
-				}
-				//***********************************************
-				//*********************************** SMOOTHING HANDLE
-				// needSmoothingFlag ustawiana jest na play gdy jest aktywne odtwarzanie, więc iPitchCounter się zeruje, ale na wysokim pitchu i bardzo krotkich loopach
-				// moga zostac przekroczone wartosci graniczne - trzeba je obsluzyc
-				if(needSmoothingFlag && (i == 0))
-				{
-					needSmoothingFlag = 0;
-					uint8_t volIndex = 0;
-					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
-					{
-						if(currentPlayMode == playModeGranular) volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
-
-						if(iPitchCounter <= length)
-						{
-							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
-							float granMult = currentPlayMode == playModeGranular ? granularEnvelopeTab[volIndex] : 1.0f;
-							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j * granMult ) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ) ) )/(SMOOTHING_SIZE - 1));
-						}
-						else
-						{
-							*out++ = 0;
-						}
-
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-
-						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-
-						if(currentPlayMode == playModeWavetable)
-						{
-							if (iPitchCounter >= wavetableWindowSize)
-							{
-								iPitchCounter -= wavetableWindowSize;
-							}
-						}
-						else
-						{
-							switch (currentPlayMode)
-							{
-								case playModeGranular:
-								{
-									switch(granularLoopType)
-									{
-										case granularLoopForward:
-											if(reverseDirectionFlag)
-											{
-												if ((iPitchCounter <= constrainsInSamples.loopPoint1))
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint2;
-													fPitchCounter = 0;
-												}
-											}
-											else
-											{
-												if ((iPitchCounter >= constrainsInSamples.loopPoint2))
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint1;
-													fPitchCounter = 0;
-												}
-											}
-										break;
-
-										case granularLoopBackward:
-											if(reverseDirectionFlag)
-											{
-												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint1;
-													loopBackwardFlag = 1;
-													fPitchCounter = 0;
-												}
-												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint1;
-													fPitchCounter = 0;
-												}
-											}
-											else
-											{
-												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint2;
-													loopBackwardFlag = 1;
-													fPitchCounter = 0;
-												}
-												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint2;
-													fPitchCounter = 0;
-												}
-											}
-										break;
-
-										case granularLoopPingPong:
-											if(reverseDirectionFlag)
-											{
-												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint1;
-													loopBackwardFlag = 1;
-													fPitchCounter = 0;
-												}
-												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint2;
-													loopBackwardFlag = 0;
-													fPitchCounter = 0;
-												}
-											}
-											else
-											{
-												if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint2;
-													loopBackwardFlag = 1;
-													fPitchCounter = 0;
-												}
-												if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-												{
-													if(granularPositionRefreshFlag) refreshGranularPosition();
-													iPitchCounter = constrainsInSamples.loopPoint1;
-													loopBackwardFlag = 0;
-													fPitchCounter = 0;
-												}
-											}
-										break;
-										default: break;
-									}
-									break;
-								}
-								case playModeLoopForward:
-									if(reverseDirectionFlag)
-									{
-										if ((iPitchCounter <= constrainsInSamples.loopPoint1))
-										{
-											iPitchCounter = constrainsInSamples.loopPoint2;
-											fPitchCounter = 0;
-										}
-									}
-									else
-									{
-										if ((iPitchCounter >= constrainsInSamples.loopPoint2))
-										{
-											iPitchCounter = constrainsInSamples.loopPoint1;
-											fPitchCounter = 0;
-										}
-									}
-
-									break;
-								case playModeLoopBackward:
-									if(reverseDirectionFlag)
-									{
-										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-										{
-											iPitchCounter = constrainsInSamples.loopPoint1;
-											loopBackwardFlag = 1;
-											fPitchCounter = 0;
-										}
-										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-										{
-											iPitchCounter = constrainsInSamples.loopPoint1;
-											fPitchCounter = 0;
-										}
-									}
-									else
-									{
-										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-										{
-											iPitchCounter = constrainsInSamples.loopPoint2;
-											loopBackwardFlag = 1;
-											fPitchCounter = 0;
-										}
-										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-										{
-											iPitchCounter = constrainsInSamples.loopPoint2;
-											fPitchCounter = 0;
-										}
-									}
-									break;
-								case playModePingpong:
-									if(reverseDirectionFlag)
-									{
-										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-										{
-											iPitchCounter = constrainsInSamples.loopPoint1;
-											loopBackwardFlag = 1;
-											fPitchCounter = 0;
-										}
-										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-										{
-											iPitchCounter = constrainsInSamples.loopPoint2;
-											loopBackwardFlag = 0;
-											fPitchCounter = 0;
-										}
-									}
-									else
-									{
-										if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-										{
-											iPitchCounter = constrainsInSamples.loopPoint2;
-											loopBackwardFlag = 1;
-											fPitchCounter = 0;
-										}
-										if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-										{
-											iPitchCounter = constrainsInSamples.loopPoint1;
-											loopBackwardFlag = 0;
-											fPitchCounter = 0;
-										}
-									}
-
-									break;
-								default:
-									break;
-							}
-						}
-					}
-					if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-					{
-						iPitchCounter = length;
-					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (currentPlayMode != playModeWavetable)))
-					{
-						iPitchCounter = 0;
-					}
-					i = SMOOTHING_SIZE;
-
-				}
-				//***********************************************
-
-//*************************************************************************************** poczatek przetwarzania pitchCountera
-				if (currentPlayMode != playModeWavetable)
-				{
-					switch (currentPlayMode)
-					{
-					case playModeGranular:
-						//****************************************************************************************************************************
-						{
-							uint8_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
-
-							switch(granularLoopType)
-							{
-								case granularLoopForward:
-									//**************************************************************************
-									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
-									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
-									iPitchCounter += castPitchControl;
-									fPitchCounter += pitchFraction;
-									if (fPitchCounter >= 1.0f)
-									{
-										fPitchCounter -= 1.0f;
-										iPitchCounter++;
-									}
-									else if(fPitchCounter <= -1.0f)
-									{
-										fPitchCounter += 1.0f;
-										iPitchCounter--;
-									}
-									//**************************************************************************
-								break;
-
-								case granularLoopBackward:
-									//**************************************************************************
-									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
-									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
-									if (!loopBackwardFlag)
-									{
-										iPitchCounter += castPitchControl;
-										fPitchCounter += pitchFraction;
-										if (fPitchCounter >= 1.0f)
-										{
-											fPitchCounter -= 1.0f;
-											iPitchCounter++;
-										}
-										else if(fPitchCounter <= -1.0f)
-										{
-											fPitchCounter += 1.0f;
-											iPitchCounter--;
-										}
-									}
-									else
-									{
-										iPitchCounter -= castPitchControl;
-
-										fPitchCounter -= pitchFraction;
-										if (fPitchCounter <= -1.0f)
-										{
-											fPitchCounter += 1.0f;
-											iPitchCounter--;
-										}
-										else if (fPitchCounter >= 1.0f)
-										{
-											fPitchCounter -= 1.0f;
-											iPitchCounter++;
-										}
-									}
-									//**************************************************************************
-								break;
-
-								case granularLoopPingPong:
-									//**************************************************************************
-									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex] ;
-									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
-									if (!loopBackwardFlag)
-									{
-										iPitchCounter += castPitchControl;
-										fPitchCounter += pitchFraction;
-										if (fPitchCounter >= 1.0f)
-										{
-											fPitchCounter -= 1.0f;
-											iPitchCounter++;
-										}
-										else if(fPitchCounter <= -1.0f)
-										{
-											fPitchCounter += 1.0f;
-											iPitchCounter--;
-										}
-									}
-									else
-									{
-										iPitchCounter -= castPitchControl;
-										fPitchCounter -= pitchFraction;
-										if (fPitchCounter <= -1.0f)
-										{
-											fPitchCounter += 1.0f;
-											iPitchCounter--;
-										}
-										else if (fPitchCounter >= 1.0f)
-										{
-											fPitchCounter -= 1.0f;
-											iPitchCounter++;
-										}
-									}
-									//**************************************************************************
-								break;
-								default: break;
-							}
-						}
-						//****************************************************************************************************************************
-						break;
-					case playModeSlice:
-						//****************************************************************************************************************************
-						*out++ = *(in + iPitchCounter);
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-						//****************************************************************************************************************************
-						break;
-					case playModeSingleShot:
-						//****************************************************************************************************************************
-						*out++ = *(in + iPitchCounter);
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-						//****************************************************************************************************************************
-						break;
-					case playModeLoopForward:
-						//****************************************************************************************************************************
-						*out++ = *(in + iPitchCounter);
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-						//****************************************************************************************************************************
-						break;
-					case playModeLoopBackward:
-						//****************************************************************************************************************************
-						*out++ = *(in + iPitchCounter);
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
-						if (!loopBackwardFlag)
-						{
-							iPitchCounter += castPitchControl;
-							fPitchCounter += pitchFraction;
-							if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-							else if(fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-						}
-						else
-						{
-							iPitchCounter -= castPitchControl;
-
-							fPitchCounter -= pitchFraction;
-							if (fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-							else if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-						}
-						//****************************************************************************************************************************
-						break;
-					case playModePingpong:
-						//****************************************************************************************************************************
-						*out++ = *(in + iPitchCounter);
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
-						if (!loopBackwardFlag)
-						{
-							iPitchCounter += castPitchControl;
-							fPitchCounter += pitchFraction;
-							if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-							else if(fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-						}
-						else
-						{
-							iPitchCounter -= castPitchControl;
-
-							fPitchCounter -= pitchFraction;
-							if (fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-							else if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-						}
-						//****************************************************************************************************************************
-						break;
-					default: break;
-					}
-//*************************************************************************************** koniec przetwarzania pitchCountera
-
-					if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-//*************************************************************************************** warunki pointow
-					switch (currentPlayMode)
-					{
-					case playModeGranular:
-					{
-						switch(granularLoopType)
-						{
-							case granularLoopForward:
-								if(reverseDirectionFlag)
-								{
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										fPitchCounter = 0;
-									}
-								}
-								else
-								{
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										fPitchCounter = 0;
-									}
-								}
-							break;
-
-							case granularLoopBackward:
-								if(reverseDirectionFlag)
-								{
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										fPitchCounter = 0;
-									}
-								}
-								else
-								{
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										fPitchCounter = 0;
-									}
-								}
-							break;
-
-							case granularLoopPingPong:
-								if(reverseDirectionFlag)
-								{
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										loopBackwardFlag = 0;
-										fPitchCounter = 0;
-									}
-								}
-								else
-								{
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										loopBackwardFlag = 0;
-										fPitchCounter = 0;
-									}
-								}
-							break;
-							default: break;
-						}
-						break;
-					}
-					case playModeLoopForward:
-						if(reverseDirectionFlag)
-						{
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1))
-							{
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								fPitchCounter = 0;
-							}
-						}
-						else
-						{
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2))
-							{
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								fPitchCounter = 0;
-							}
-						}
-
-						break;
-					case playModeLoopBackward:
-						if(reverseDirectionFlag)
-						{
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-							{
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-							{
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								fPitchCounter = 0;
-							}
-						}
-						else
-						{
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-							{
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-							{
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								fPitchCounter = 0;
-							}
-						}
-						break;
-					case playModePingpong:
-						if(reverseDirectionFlag)
-						{
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-							{
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-							{
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								loopBackwardFlag = 0;
-								fPitchCounter = 0;
-							}
-						}
-						else
-						{
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-							{
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-							{
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								loopBackwardFlag = 0;
-								fPitchCounter = 0;
-							}
-						}
-
-						break;
-					default:
-						break;
-					}
-				}
-				else
-				{
-					*out++ = *(in + (uint32_t) iPitchCounter + waveTablePosition);
-					if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + (uint32_t) iPitchCounter + waveTablePosition);
-					iPitchCounter += castPitchControl;
-					fPitchCounter += pitchFraction;
-					if (fPitchCounter >= 1.0f)
-					{
-						fPitchCounter -= 1.0f;
-						iPitchCounter++;
-					}
-
-					if (iPitchCounter >= wavetableWindowSize)
-					{
-						iPitchCounter -= wavetableWindowSize;
-					}
-				}
-			//*************************************************************************************** koniec warunków pointow
-			//*************************************************************************************** warunki pętli
-				if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-				{
-					iPitchCounter = length;
-				}
-				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (currentPlayMode != playModeWavetable)))
-				{
-					iPitchCounter = 0;
-				}
-			//*************************************************************************************** warunki pętli
-			}
-			else
-			{
-				*out++ = 0;
-				playing = 0;
-			}
-
-		}
-		next = currentStartAddress + pointsInSamples.start;
-
-		transmit(block);
-	}
-	release(block);
 }
 
 //**************************************************************************************UPDATE END
-void AudioPlayMemory::printLog(SdFile * log)
-{
-	log->println("*************Parametry Silnika ");
-	log->printf("pitch counter: %d ", iPitchCounter);
-	if(iPitchCounter > length) log->print("counter poza length ");
-	if( (next + iPitchCounter) > (mtProject.instrument[currentInstrIdx].sample.address + mtProject.instrument[currentInstrIdx].sample.length) ) log->print("counter poza plikiem ");
-	log->println("");
-	log->printf("float pitch counter: %05f \n", fPitchCounter);
-	log->printf("addr: %x \n", (uint32_t)next);
-	log->printf("length: %d \n", length);
-	log->printf("addr z instr %x \n", (uint32_t)currentStartAddress);
-	log->printf("start point in samples : %d \n", pointsInSamples.start);
-	log->printf("IsPlaying?: %d\n", playing);
-
-}
 //**************************************************************************************PLAY
 uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 {
@@ -808,6 +33,7 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 		case playModeLoopBackward:		playLoopBackward(instrIdx, note); 		return 1;
 		case playModePingpong:			playLoopPingpong(instrIdx, note); 		return 1;
 		case playModeSlice:				playSlice(instrIdx,note);				return 1;
+		case playModeBeatSlice:			playBeatSlice(instrIdx,note);			return 1;
 		case playModeGranular:			playGranular(instrIdx, note);			return 1;
 		case playModeWavetable:			playWavetable(instrIdx, note);			return 1;
 		default: break;
@@ -816,240 +42,254 @@ uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 
 uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 {
-	__disable_irq();
-	/*========================================================INIT=============================================================*/
-	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
-	uint16_t startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice] : 0;
-	uint16_t endSlice =
-		((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != mtProject.instrument[instr_idx].selectedSlice) ) ?
-		mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice + 1] : MAX_16BIT;
-	uint16_t startGranular = 0, loopPoint1Granular = 0, loopPoint2Granular = 0, endGranular = 0;
-	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[instr_idx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[instr_idx].sample.length;
+//	__disable_irq();
+//
+//	uint8_t localSlice;
+//	if(n < mtProject.values.padBoardRootNote) localSlice = 0;
+//	else if(n > (mtProject.values.padBoardRootNote + mtProject.instrument[instr_idx].sliceNumber - 1 ) ) localSlice = mtProject.instrument[instr_idx].sliceNumber - 1;
+//	else localSlice = n - mtProject.values.padBoardRootNote;
+//
+//	n = 60; // zerowy pitch
+//
+//	/*========================================================INIT=============================================================*/
+//	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+//	uint16_t startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice] : 0;
+//	uint16_t endSlice =
+//		((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != mtProject.instrument[instr_idx].selectedSlice) ) ?
+//		mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice + 1] : MAX_16BIT;
+//	uint16_t startGranular = 0, loopPoint1Granular = 0, loopPoint2Granular = 0, endGranular = 0;
+//	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[instr_idx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[instr_idx].sample.length;
+//
+//	//************* granular
+//	int32_t granularDownConstrain = mtProject.instrument[instr_idx].granular.currentPosition - (granularLength/2);;
+//	int32_t granularUpConstrain = mtProject.instrument[instr_idx].granular.currentPosition + (granularLength/2);
+//
+//	startGranular = (granularDownConstrain > 0) ? (uint16_t) granularDownConstrain : 0;
+//	loopPoint1Granular = startGranular + 1;
+//	endGranular = (granularUpConstrain < MAX_16BIT) ? (uint16_t)granularUpConstrain : MAX_16BIT;
+//	loopPoint2Granular = endGranular - 1;
+//
+//	granularLoopType = mtProject.instrument[instr_idx].granular.type;
+//	currentGranularPosition = mtProject.instrument[instr_idx].granular.currentPosition;
+//	switch(mtProject.instrument[instr_idx].granular.shape)
+//	{
+//		case granularShapeSquare: 		granularEnvelopeTab = squareTab; 	break;
+//		case granularShapeGauss: 		granularEnvelopeTab = gaussTab; 	break;
+//		case granularShapeTriangle: 	granularEnvelopeTab = triangleTab; 	break;
+//		default: break;
+//	}
+//	//******************
+//
+//
+//	if(playing == 1) needSmoothingFlag = 1;
+//	playing = 0;
+//	loopBackwardFlag=0;
+//	iPitchCounter=0;
+//	fPitchCounter=0;
+//	glideCounter=0;
+//	currentInstrIdx=instr_idx;
+//	lastNote= - 1;
+//
+//	/*=========================================================================================================================*/
+//	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
+//	currentGlide=mtProject.instrument[instr_idx].glide;
+//	currentTune=mtProject.instrument[instr_idx].tune;
+//	currentStartAddress = mtProject.instrument[instr_idx].sample.address;
+//
+//	currentPlayMode=mtProject.instrument[instr_idx].playMode;
+//
+//	currentSampleLength=mtProject.instrument[instr_idx].sample.length;
+//
+//	if( (n + currentTune) > (MAX_NOTE-1))
+//	{
+//		if(lastNote>n) currentTune=(MAX_NOTE-1)-lastNote;
+//		else currentTune=(MAX_NOTE-1)-n;
+//	}
+//	if( (n + currentTune) < MIN_NOTE)
+//	{
+//		if((lastNote>=0) && (lastNote<n)) currentTune=MIN_NOTE-lastNote;
+//		else currentTune=MIN_NOTE-n;
+//	}
+//	if(currentPlayMode == playModeWavetable)
+//	{
+//		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
+//		{
+//			case 32: 	wt_notes = wt32Note; 	break;
+//			case 64: 	wt_notes = wt64Note; 	break;
+//			case 128:	wt_notes = wt128Note; 	break;
+//			case 256:	wt_notes = wt256Note; 	break;
+//			case 512: 	wt_notes = wt512Note; 	break;
+//			case 1024: 	wt_notes = wt1024Note; 	break;
+//			case 2048: 	wt_notes = wt2048Note; 	break;
+//			default: break;
+//		}
+//	}
+//
+//
+//	if(lastNote>=0 && currentGlide != 0 ) pitchControl = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+//	else pitchControl =  (currentPlayMode != playModeWavetable) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
+//
+//	int16_t * data = mtProject.instrument[instr_idx].sample.address;
+//
+//
+//
+//
+//	if(currentPlayMode != playModeWavetable)
+//	{
+//		startPoint=mtProject.instrument[instr_idx].startPoint;
+//		endPoint=mtProject.instrument[instr_idx].endPoint;
+//		if(currentPlayMode != playModeSingleShot) //loopMode
+//		{
+//			loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
+//			loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
+//		}
+//
+//	}
+//	else
+//	{
+//		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
+//		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
+//		constrainsInSamples.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+//		constrainsInSamples.loopPoint1=0; //currentWindow*wavetableWindowSize;
+//		constrainsInSamples.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+//		constrainsInSamples.loopLength=wavetableWindowSize;
+//		pointsInSamples.start = 0;
+//
+//	}
+//	/*=========================================================================================================================*/
+//	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
+//	if(currentPlayMode != playModeWavetable)
+//	{
+//		if(currentPlayMode == playModeSingleShot)
+//		{
+//			if (startPoint >= endPoint) return badStartPoint;
+//		}
+//		else if((currentPlayMode != playModeSlice) && (currentPlayMode != playModeGranular))
+//		{
+//			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+//			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+//			if (loopPoint2 > endPoint) return badLoopPoint2;
+//		}
+//	}
+//
+//	/*=========================================================================================================================*/
+//	/*====================================================PRZELICZENIA=========================================================*/
+//	currentFineTune=mtProject.instrument[instr_idx].fineTune;
+//
+//
+//	if(currentFineTune >= 0)
+//	{
+//		if((n + currentTune + 1) <= (MAX_NOTE-1))
+//		{
+//			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
+//			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+//
+//			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+//		}
+//		else fineTuneControl=0;
+//	}
+//	else
+//	{
+//		if((n + currentTune - 1) >= MIN_NOTE)
+//		{
+//			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
+//			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+//
+//			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+//		}
+//		else fineTuneControl=0;
+//	}
+//
+//	pitchControl+=fineTuneControl;
+//
+//	if(currentGlide)
+//	{
+//		constrainsInSamples.glide=(uint32_t)((float)currentGlide*44.1);
+//
+//		float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+//		float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+//		if((lastNote>=0) && (lastNote != n)) glideControl=(localPitch1 - localPitch2 )/constrainsInSamples.glide;
+//		else glideControl=0;
+//	}
+//	else
+//	{
+//		constrainsInSamples.glide=0;
+//		glideControl=0;
+//	}
+//
+//
+//
+//
+//	if(currentPlayMode != playModeWavetable)
+//	{
+//		if(currentPlayMode == playModeGranular)
+//		{
+//			pointsInSamples.start = (uint32_t)((float)startGranular*((float)currentSampleLength/MAX_16BIT));
+//			pointsInSamples.end = (uint32_t)((float)endGranular*((float)currentSampleLength/MAX_16BIT));
+//
+//			pointsInSamples.loop1 = (uint32_t)((float)loopPoint1Granular*((float)currentSampleLength/MAX_16BIT));
+//			pointsInSamples.loop2 = (uint32_t)((float)loopPoint2Granular*((float)currentSampleLength/MAX_16BIT));
+//
+//			constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+//			constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+//			constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
+//		}
+//		else if(currentPlayMode == playModeSlice)
+//		{
+//			pointsInSamples.start= (uint32_t)((float)startSlice*((float)currentSampleLength/MAX_16BIT));
+//			pointsInSamples.end= (uint32_t)((float)endSlice*((float)currentSampleLength/MAX_16BIT));
+//			pointsInSamples.loop1 = 0;
+//			pointsInSamples.loop2 = 0;
+//		}
+//		else
+//		{
+//			pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
+//			pointsInSamples.end= (uint32_t)((float)endPoint*((float)currentSampleLength/MAX_16BIT));
+//			if(currentPlayMode != playModeSingleShot)
+//			{
+//				pointsInSamples.loop1= (uint32_t)((float)loopPoint1*((float)currentSampleLength/MAX_16BIT));
+//				pointsInSamples.loop2= (uint32_t)((float)loopPoint2*((float)currentSampleLength/MAX_16BIT));
+//			}
+//
+//			if((pointsInSamples.start >= currentSampleLength) || (pointsInSamples.loop1>currentSampleLength) || (pointsInSamples.loop2>currentSampleLength) || (pointsInSamples.end>currentSampleLength)) return pointsBeyondFile; // wskazniki za plikiem
+//
+//			if((currentPlayMode != playModeSingleShot) && (currentPlayMode != playModeSlice))
+//			{
+//				constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
+//				constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
+//				constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
+//			}
+//		}
+//
+//
+//		constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
+//	}
+//
+//
+//
+///*===========================================================================================================================*/
+///*============================================PRZEKAZANIE PARAMETROW=========================================================*/
+//	if(currentPlayMode != playModeWavetable)
+//	{
+//		next = data+pointsInSamples.start;
+//		length =currentSampleLength-pointsInSamples.start;
+//	}
+//	else
+//	{
+//		next = data;
+//		length =currentSampleLength;
+//	}
+//
+//	playing = 1;
+//
+//	return successInit;
+//	__enable_irq();
+	//todo: clear forced flag dla wszystkich flag?
 
-	//************* granular
-	int32_t granularDownConstrain = mtProject.instrument[instr_idx].granular.currentPosition - (granularLength/2);;
-	int32_t granularUpConstrain = mtProject.instrument[instr_idx].granular.currentPosition + (granularLength/2);
+	play(instr_idx,n);
 
-	startGranular = (granularDownConstrain > 0) ? (uint16_t) granularDownConstrain : 0;
-	loopPoint1Granular = startGranular + 1;
-	endGranular = (granularUpConstrain < MAX_16BIT) ? (uint16_t)granularUpConstrain : MAX_16BIT;
-	loopPoint2Granular = endGranular - 1;
-
-	granularLoopType = mtProject.instrument[instr_idx].granular.type;
-	currentGranularPosition = mtProject.instrument[instr_idx].granular.currentPosition;
-	switch(mtProject.instrument[instr_idx].granular.shape)
-	{
-		case granularShapeSquare: 		granularEnvelopeTab = squareTab; 	break;
-		case granularShapeGauss: 		granularEnvelopeTab = gaussTab; 	break;
-		case granularShapeTriangle: 	granularEnvelopeTab = triangleTab; 	break;
-		default: break;
-	}
-	//******************
-
-
-	if(playing == 1) needSmoothingFlag = 1;
-	playing = 0;
-	loopBackwardFlag=0;
-	iPitchCounter=0;
-	fPitchCounter=0;
-	glideCounter=0;
-	currentInstrIdx=instr_idx;
-	lastNote= - 1;
-
-	/*=========================================================================================================================*/
-	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
-	currentGlide=mtProject.instrument[instr_idx].glide;
-	currentTune=mtProject.instrument[instr_idx].tune;
-	currentStartAddress = mtProject.instrument[instr_idx].sample.address;
-
-	currentPlayMode=mtProject.instrument[instr_idx].playMode;
-
-	currentSampleLength=mtProject.instrument[instr_idx].sample.length;
-
-	if( (n + currentTune) > (MAX_NOTE-1))
-	{
-		if(lastNote>n) currentTune=(MAX_NOTE-1)-lastNote;
-		else currentTune=(MAX_NOTE-1)-n;
-	}
-	if( (n + currentTune) < MIN_NOTE)
-	{
-		if((lastNote>=0) && (lastNote<n)) currentTune=MIN_NOTE-lastNote;
-		else currentTune=MIN_NOTE-n;
-	}
-	if(currentPlayMode == playModeWavetable)
-	{
-		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
-		{
-			case 32: 	wt_notes = wt32Note; 	break;
-			case 64: 	wt_notes = wt64Note; 	break;
-			case 128:	wt_notes = wt128Note; 	break;
-			case 256:	wt_notes = wt256Note; 	break;
-			case 512: 	wt_notes = wt512Note; 	break;
-			case 1024: 	wt_notes = wt1024Note; 	break;
-			case 2048: 	wt_notes = wt2048Note; 	break;
-			default: break;
-		}
-	}
-
-
-	if(lastNote>=0 && currentGlide != 0 ) pitchControl = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-	else pitchControl =  (currentPlayMode != playModeWavetable) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
-
-	int16_t * data = mtProject.instrument[instr_idx].sample.address;
-
-
-
-
-	if(currentPlayMode != playModeWavetable)
-	{
-		startPoint=mtProject.instrument[instr_idx].startPoint;
-		endPoint=mtProject.instrument[instr_idx].endPoint;
-		if(currentPlayMode != playModeSingleShot) //loopMode
-		{
-			loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
-			loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
-		}
-
-	}
-	else
-	{
-		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
-		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
-		constrainsInSamples.endPoint=wavetableWindowSize*256; // nie ma znaczenia
-		constrainsInSamples.loopPoint1=0; //currentWindow*wavetableWindowSize;
-		constrainsInSamples.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
-		constrainsInSamples.loopLength=wavetableWindowSize;
-		pointsInSamples.start = 0;
-
-	}
-	/*=========================================================================================================================*/
-	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(currentPlayMode != playModeWavetable)
-	{
-		if(currentPlayMode == playModeSingleShot)
-		{
-			if (startPoint >= endPoint) return badStartPoint;
-		}
-		else if((currentPlayMode != playModeSlice) && (currentPlayMode != playModeGranular))
-		{
-			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
-			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
-			if (loopPoint2 > endPoint) return badLoopPoint2;
-		}
-	}
-
-	/*=========================================================================================================================*/
-	/*====================================================PRZELICZENIA=========================================================*/
-	currentFineTune=mtProject.instrument[instr_idx].fineTune;
-
-
-	if(currentFineTune >= 0)
-	{
-		if((n + currentTune + 1) <= (MAX_NOTE-1))
-		{
-			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
-			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
-
-			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
-		}
-		else fineTuneControl=0;
-	}
-	else
-	{
-		if((n + currentTune - 1) >= MIN_NOTE)
-		{
-			float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
-			float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
-
-			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
-		}
-		else fineTuneControl=0;
-	}
-
-	pitchControl+=fineTuneControl;
-
-	if(currentGlide)
-	{
-		constrainsInSamples.glide=(uint32_t)((float)currentGlide*44.1);
-
-		float localPitch1 = (currentPlayMode != playModeWavetable) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
-		float localPitch2 = (currentPlayMode != playModeWavetable) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
-		if((lastNote>=0) && (lastNote != n)) glideControl=(localPitch1 - localPitch2 )/constrainsInSamples.glide;
-		else glideControl=0;
-	}
-	else
-	{
-		constrainsInSamples.glide=0;
-		glideControl=0;
-	}
-
-
-
-
-	if(currentPlayMode != playModeWavetable)
-	{
-		if(currentPlayMode == playModeGranular)
-		{
-			pointsInSamples.start = (uint32_t)((float)startGranular*((float)currentSampleLength/MAX_16BIT));
-			pointsInSamples.end = (uint32_t)((float)endGranular*((float)currentSampleLength/MAX_16BIT));
-
-			pointsInSamples.loop1 = (uint32_t)((float)loopPoint1Granular*((float)currentSampleLength/MAX_16BIT));
-			pointsInSamples.loop2 = (uint32_t)((float)loopPoint2Granular*((float)currentSampleLength/MAX_16BIT));
-
-			constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
-			constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
-			constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
-		}
-		else if(currentPlayMode == playModeSlice)
-		{
-			pointsInSamples.start= (uint32_t)((float)startSlice*((float)currentSampleLength/MAX_16BIT));
-			pointsInSamples.end= (uint32_t)((float)endSlice*((float)currentSampleLength/MAX_16BIT));
-			pointsInSamples.loop1 = 0;
-			pointsInSamples.loop2 = 0;
-		}
-		else
-		{
-			pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
-			pointsInSamples.end= (uint32_t)((float)endPoint*((float)currentSampleLength/MAX_16BIT));
-			if(currentPlayMode != playModeSingleShot)
-			{
-				pointsInSamples.loop1= (uint32_t)((float)loopPoint1*((float)currentSampleLength/MAX_16BIT));
-				pointsInSamples.loop2= (uint32_t)((float)loopPoint2*((float)currentSampleLength/MAX_16BIT));
-			}
-
-			if((pointsInSamples.start >= currentSampleLength) || (pointsInSamples.loop1>currentSampleLength) || (pointsInSamples.loop2>currentSampleLength) || (pointsInSamples.end>currentSampleLength)) return pointsBeyondFile; // wskazniki za plikiem
-
-			if((currentPlayMode != playModeSingleShot) && (currentPlayMode != playModeSlice))
-			{
-				constrainsInSamples.loopPoint1=pointsInSamples.loop1-pointsInSamples.start;
-				constrainsInSamples.loopPoint2=pointsInSamples.loop2-pointsInSamples.start;
-				constrainsInSamples.loopLength=pointsInSamples.loop2-pointsInSamples.loop1;
-			}
-		}
-
-
-		constrainsInSamples.endPoint=pointsInSamples.end- pointsInSamples.start;
-	}
-
-
-
-/*===========================================================================================================================*/
-/*============================================PRZEKAZANIE PARAMETROW=========================================================*/
-	if(currentPlayMode != playModeWavetable)
-	{
-		next = data+pointsInSamples.start;
-		length =currentSampleLength-pointsInSamples.start;
-	}
-	else
-	{
-		next = data;
-		length =currentSampleLength;
-	}
-
-	playing = 1;
-
-	return successInit;
-	__enable_irq();
+	lastNote = -1;
+	return 1;
 
 }
 

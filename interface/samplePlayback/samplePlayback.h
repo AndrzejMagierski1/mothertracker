@@ -22,7 +22,8 @@ const char playModeFunctLabels[playModeCount][15]=
 		"Pingpong Loop",
 		"Slice",
 		"Wavetable",
-		"Granular"
+		"Granular",
+		"Beat Slice"
 };
 
 constexpr uint8_t MAX_WAVETABLE_WINDOWS_COUNTER = 11;
