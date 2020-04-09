@@ -253,7 +253,7 @@ void cSamplePlayback::showDefaultScreen()
 		display.setControlShow(progressCursor);
 		display.refreshControl(progressCursor);
 
-		if(editorInstrument->playMode == playModeSlice)
+		if((editorInstrument->playMode == playModeSlice) || (editorInstrument->playMode == playModeBeatSlice))
 		{
 			display.setControlText(label[0], "Slice");
 			display.setControlText(label[1], "Adjust");

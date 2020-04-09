@@ -333,7 +333,8 @@ void playerEngine::changePositionPerformanceMode(int16_t value)
 	{
 		changeWavetableWindowPerformanceMode(value);
 	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode != playModeSlice)
+	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
+			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
 	{
 		changeStartPointPerformanceMode(map(value,-100,100,-MAX_16BIT,MAX_16BIT));
 	}

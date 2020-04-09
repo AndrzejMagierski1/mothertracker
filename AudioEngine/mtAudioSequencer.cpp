@@ -241,7 +241,8 @@ void playerEngine::fxPosition(uint8_t fx_val, uint8_t fx_n)
 	{
 		fxPositionGranular(fx_val, fx_n);
 	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode != playModeSlice )
+	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
+			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
 	{
 		fxPositionStartPoint(fx_val, fx_n);
 	}
@@ -766,7 +767,8 @@ void playerEngine::endFxPosition(uint8_t fx_n)
 	{
 		endFxPositionGranular(fx_n);
 	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode != playModeSlice )
+	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
+			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
 	{
 		endFxPositionStartPoint(fx_n);
 	}
