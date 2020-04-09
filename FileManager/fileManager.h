@@ -491,10 +491,22 @@ private:
 	uint32_t importFromSampleEditorLength;
     
 
-	enImportModMode  checkImportFileType();
+	/// IMPORT .MOD .IT etc
 
+	enImportModMode  checkImportFileType();
     
-	/// IMPORT MOD
+	bool importModFileAfterNewProject = 0;
+
+	uint8_t importModFileType = importModFiletype_mod;
+
+	struct strImportFileDataCommon
+	{
+		char filename[255];	// tylko nazwa
+		char path[255];			// cala sciezka
+
+	} impFileData;
+
+	/// IMPORT .MOD
 
 	void importModFile_Init();
 	void importModFile_GetInstrumentData();
@@ -510,98 +522,7 @@ private:
 	int8_t periodToNote(uint16_t period);
 	void printNote(uint8_t note);
 
-	bool importModFileAfterNewProject = 0;
-	static const uint8_t modSampleNameSize = 22;
 
-
-	uint8_t importModFileType = importModFiletype_mod;
-
-	struct strImportFileDataCommon
-	{
-		char filename[255];	// tylko nazwa
-		char path[255];			// cala sciezka
-
-	} impFileData;
-
-	struct strImportModFile
-	{
-		uint8_t instrumentsCount = 31;
-		uint8_t instrumentsActualIndex = 0;
-		uint8_t channelsCount = 4;
-
-		uint8_t patternsMax = 1;
-		uint8_t patternsActualIndex = 0;
-
-		const uint8_t sampleInfoSize = 30;
-		const uint8_t songInfoSize = 1 + 1 + 128 + 4;
-
-		const uint16_t patternSize = 1024;
-
-		uint8_t sampleActualIndex = 0;
-		uint8_t waveWriteFlag = 0;
-		int16_t *waveSrcPtr;
-
-		uint32_t modImport_saveLength = 0;
-
-	} modFileData;
-
-	struct strModFileData
-	{
-
-		char sampleName[modSampleNameSize];
-		uint16_t sampleLengthInWords = 0;
-		uint8_t finetune = 0;
-
-		/*
-		 *  Value:  Finetune:
-		 0        0
-		 1       +1
-		 2       +2
-		 3       +3
-		 4       +4
-		 5       +5
-		 6       +6
-		 7       +7
-		 8       -8
-		 9       -7
-		 A       -6
-		 B       -5
-		 C       -4
-		 D       -3
-		 E       -2
-		 F       -1
-
-		 */
-
-		//Range is $00-$40, or 0-64 decimal.
-		uint8_t volume = 0;
-
-		/*
-		 Repeat point for sample 1. Stored as number of words offset
-		 from start of sample. Multiply by two to get offset in bytes.
-		 */
-		uint16_t repeatPointInWords = 0;
-
-		/*
-		 Repeat Length for sample 1. Stored as number of words in
-		 loop. Multiply by two to get replen in bytes.
-		 */
-		uint16_t repeatLengthInWords = 0;
-
-	} modSampleData;
-	/*
-	 * 'M.K', '4CHN',
-	 '6CHN','8CHN','FLT4','FLT8.
-	 */
-
-	struct strModSong
-	{
-		uint8_t length = 0;
-		uint8_t oldByte = 127;
-		uint8_t playlist[128] { 0 };
-		uint8_t theFourLetters[4] { 0 };
-
-	} modSong;
 	/// IMPORT MOD KONIEC
 
 	// import IT
@@ -619,31 +540,21 @@ private:
 	void importItFile_WriteWaves();
 	void importItFile_Finish();
 
-
 	void importItFile_setPattern(uint8_t index, uint8_t length);
 	void importItFile_setStep(uint8_t step,
-						uint8_t track,
-						uint8_t note,
-						uint8_t volume,
-						uint8_t instrument,
-						uint8_t fx,
-						uint8_t fxVal);
+								uint8_t track,
+								uint8_t note,
+								uint8_t volume,
+								uint8_t instrument,
+								uint8_t fx,
+								uint8_t fxVal);
 	void importItFile_savePattern();
 	void importItFile_initPatternBuffer(uint32_t pattLength,
-								   uint32_t patternOffset);
+										uint32_t patternOffset);
 
 	uint8_t importItFile_getNextPatternByte();
 
 	float importItFile_getProgress();
-
-
-
-
-
-
-
-
-
 
 	uint32_t getInstrumentOffset(uint8_t index);
 	uint32_t getSampleOffset(uint8_t index);
@@ -651,10 +562,6 @@ private:
 	uint32_t getFileVariable(uint32_t subFileOffset,
 								uint32_t offset,
 								uint8_t varSize);
-
-
-
-
 
 	// import IT koniec
 	//song

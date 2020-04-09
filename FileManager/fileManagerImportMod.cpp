@@ -13,14 +13,94 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-
-extern int16_t* sdram_ptrSampleBank;
-extern int16_t* sdram_ptrEffectsBank;
-
+extern int16_t *sdram_ptrSampleBank;
+extern int16_t *sdram_ptrEffectsBank;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 int16_t *modFile_sample_ptr = sdram_ptrSampleBank;
 uint32_t byteSampleOffset = 0;
+
+static const uint8_t modSampleNameSize = 22;
+
+struct strImportModFile
+{
+	uint8_t instrumentsCount = 31;
+	uint8_t instrumentsActualIndex = 0;
+	uint8_t channelsCount = 4;
+
+	uint8_t patternsMax = 1;
+	uint8_t patternsActualIndex = 0;
+
+	const uint8_t sampleInfoSize = 30;
+	const uint8_t songInfoSize = 1 + 1 + 128 + 4;
+
+	const uint16_t patternSize = 1024;
+
+	uint8_t sampleActualIndex = 0;
+	uint8_t waveWriteFlag = 0;
+	int16_t *waveSrcPtr;
+
+	uint32_t modImport_saveLength = 0;
+
+} modFileData;
+
+struct strModFileData
+{
+
+	char sampleName[modSampleNameSize];
+	uint16_t sampleLengthInWords = 0;
+	uint8_t finetune = 0;
+
+	/*
+	 *  Value:  Finetune:
+	 0        0
+	 1       +1
+	 2       +2
+	 3       +3
+	 4       +4
+	 5       +5
+	 6       +6
+	 7       +7
+	 8       -8
+	 9       -7
+	 A       -6
+	 B       -5
+	 C       -4
+	 D       -3
+	 E       -2
+	 F       -1
+
+	 */
+
+	//Range is $00-$40, or 0-64 decimal.
+	uint8_t volume = 0;
+
+	/*
+	 Repeat point for sample 1. Stored as number of words offset
+	 from start of sample. Multiply by two to get offset in bytes.
+	 */
+	uint16_t repeatPointInWords = 0;
+
+	/*
+	 Repeat Length for sample 1. Stored as number of words in
+	 loop. Multiply by two to get replen in bytes.
+	 */
+	uint16_t repeatLengthInWords = 0;
+
+} modSampleData;
+/*
+ * 'M.K', '4CHN',
+ '6CHN','8CHN','FLT4','FLT8.
+ */
+
+struct strModSong
+{
+	uint8_t length = 0;
+	uint8_t oldByte = 127;
+	uint8_t playlist[128] { 0 };
+	uint8_t theFourLetters[4] { 0 };
+
+} modSong;
 
 void setFx(Sequencer::strPattern::strTrack::strStep *step,
 			uint8_t,
@@ -67,10 +147,8 @@ void cFileManager::importModFile_Init()
 
 	modFileData.patternsMax = 1;
 
-
 	modFile_sample_ptr = sdram_ptrSampleBank;
 	memset(sdram_ptrSampleBank, 0, SAMPLE_MEMORY_SIZE);
-
 
 	// wew
 	char byteBuffer[4];
