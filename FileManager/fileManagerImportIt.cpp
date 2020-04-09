@@ -857,6 +857,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 //	if (bytesInPatternLeft > 0)
 //	{
 //		uint16_t byteIndex = 0;
+
 	uint8_t channel = 0;
 	uint8_t maskvariable = 0;
 	uint8_t note = 0;
@@ -938,11 +939,13 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 				commandValue = lastCommandValue[channel];
 			}
 
-//			Serial.printf("row: %d, chan: %d, note: %d, ins: %d\n",
+//			Serial.printf("row: %d, chan: %d, note: %d, ins: %d, command: %d val: %d\n",
 //							row,
 //							channel,
 //							note,
-//							instrument);
+//							instrument,
+//							command,
+//							commandValue);
 
 			importItFile_setStep(row,
 									channel,
@@ -951,6 +954,8 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 									instrument,
 									0,
 									0);
+
+			volume = 0;
 
 		}
 
@@ -977,8 +982,35 @@ void cFileManager::importItFile_setStep(uint8_t step,
 
 	Sequencer::strPattern::strTrack::strStep *pattStep = &sequencer.getActualPattern()->track[track].step[step];
 
+//	if (volume > 0) Serial.printf("volume: %d\n", volume);
 	pattStep->note = note;
 	pattStep->instrument = instrument - 1;
+
+	// Volume ranges from 0->64
+	if (volume > 0 && volume <= 64)
+	{
+		pattStep->fx[0].type = sequencer.fx.FX_TYPE_VELOCITY;
+		pattStep->fx[0].value = map(volume, 0, 64, 0, 100);
+	}
+	// Panning ranges from 0->64, mapped onto 128->192
+	else if (volume > 128 && volume <= 192)
+	{
+		uint8_t panning = volume - 128;
+
+		pattStep->fx[0].type = sequencer.fx.FX_TYPE_PANNING;
+		pattStep->fx[0].value = map(panning, 0, 64, 0, 100);
+	}
+	/*
+	 // Prepare for the following also:
+	 //  65->74 = Fine volume up
+	 //  75->84 = Fine volume down
+	 //  85->94 = Volume slide up
+	 //  95->104 = Volume slide down
+	 //  105->114 = Pitch Slide down
+	 //  115->124 = Pitch Slide up
+	 //  193->202 = Portamento to
+	 //  203->212 = Vibrato
+	 */
 
 }
 
