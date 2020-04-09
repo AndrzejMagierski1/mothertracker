@@ -346,7 +346,7 @@ void cInterface::processFileManagerPopupProgress(uint8_t status)
 	case fmSavingRecordedSound				: 		break;
 	case fmSavingImportingRecordedSound		: 		break;
 	case fmImportingSampleFromSampleEditor	:		break;
-    case fmImportingMod   					: 		break;
+    case fmImportingMod   					: 		progress = newFileManager.importMod_getProgress(); break;
 	default									: 		break;
 
 	}
