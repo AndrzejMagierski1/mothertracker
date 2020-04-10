@@ -25,6 +25,7 @@ enum fileManagerStatus
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
 	fmImportingMod,
+	fmExportingMod,
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
@@ -58,6 +59,7 @@ enum fileManagerStatus
 	fmError,
 	fmLoadError,
 	fmImportModError,
+	fmExportModError,
 	fmSaveError,
 	fmCopyError,
 	fmBrowseSamplesError,
@@ -101,7 +103,8 @@ enum fileManagerOperation
 	fmImportSampleFromSampleEditor, // 15
 
 
-	fmImportModFile,			//13
+	fmImportModFile,			//
+	fmExportModFile,			//
 
 	fmReloadSamples,
 };
@@ -214,6 +217,8 @@ public:
 
 	float importMod_getProgress();
 
+	uint8_t exportItFile();
+
 	//-------------------------------------------------
 	// globalne
 	char* getCurrentProjectName() { return currentProjectName; }
@@ -266,6 +271,7 @@ private:
 	// glowne update / workspace ------------------------------------
 	void updateLoadProjectFromWorkspace();
 	void updateImportModFile();
+	void updateExportModFile();
 	void updateSaveProjectToWorkspace();
 	void updateCopyProjectsToWorkspace();
 	void updateCopyWorkspaceToProjects();
@@ -564,7 +570,118 @@ private:
 								uint8_t varSize);
 
 	// import IT koniec
-	//song
+
+
+	// EXPORT MOD
+	void exportItFile_Init();
+	void exportItFile_InitHeader();
+	void exportItFile_Finish();
+	void exportItFile_Error();
+
+	/*
+	 *      0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+	      ┌───┬───┬───┬───┬───────────────────────────────────────────────┐
+	0000: │'I'│'M'│'P'│'M'│ Song Name, max 26 characters, includes NULL   │
+	      ├───┴───┴───┴───┴───────────────────────────────────────┬───────┤
+	0010: │.......................................................│PHiligt│
+	      ├───────┬───────┬───────┬───────┬───────┬───────┬───────┼───────┤
+	0020: │OrdNum │InsNum │SmpNum │PatNum │ Cwt/v │ Cmwt  │ Flags │Special│
+	      ├───┬───┼───┬───┼───┬───┼───────┼───────┴───────┼───────┴───────┤
+	0030: │GV │MV │IS │IT │Sep│PWD│MsgLgth│Message Offset │   Reserved    │
+	      ├───┴───┴───┴───┴───┴───┴───────┴───────────────┴───────────────┤
+	0040: │ Chnl Pan (64 bytes)...........................................│
+	      ├───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┤
+
+	      ├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
+	0080: │ Chnl Vol (64 bytes)...........................................│
+	      ├───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┤
+
+	      ├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
+	00C0: │ Orders, Length = OrdNum                                       │
+	      ├───────────────────────────────────────────────────────────────┤
+	xxxx: │ 'Long' Offset of instruments, Length = InsNum*4 (1)           │
+	      ├───────────────────────────────────────────────────────────────┤
+	xxxx: │ 'Long' Offset of samples headers, Length = SmpNum*4 (2)       │
+	      ├───────────────────────────────────────────────────────────────┤
+	xxxx: │ 'Long' Offset of patterns, Length = PatNum*4 (3)              │
+	      └───────────────────────────────────────────────────────────────┘
+
+	      (1) Offset = 00C0h+OrdNum
+      (2) Offset = 00C0h+OrdNum+InsNum*4
+      (3) Offset = 00C0h+OrdNum+InsNum*4+SmpNum*4
+
+        Note that if the (long) offset to a pattern = 0, then the
+        pattern is assumed to be a 64 row empty pattern.
+
+      PHiliht = Pattern row hilight information. Only relevant for pattern
+                editing situations.
+
+      Cwt:      Created with tracker.
+                 Impulse Tracker y.xx = 0yxxh
+      Cmwt:     Compatible with tracker with version greater than value.
+                 (ie. format version)
+      OrdNum:   Number of orders in song.
+      InsNum:   Number of instruments in song
+      SmpNum:   Number of samples in song
+      PatNum:   Number of patterns in song
+      Flags:    Bit 0: On = Stereo, Off = Mono
+                Bit 1: Vol0MixOptimizations - If on, no mixing occurs if
+                       the volume at mixing time is 0 (redundant v1.04+)
+                Bit 2: On = Use instruments, Off = Use samples.
+                Bit 3: On = Linear slides, Off = Amiga slides.
+                Bit 4: On = Old Effects, Off = IT Effects
+                        Differences:
+                       - Vibrato is updated EVERY frame in IT mode, whereas
+                          it is updated every non-row frame in other formats.
+                          Also, it is two times deeper with Old Effects ON
+                       - Command Oxx will set the sample offset to the END
+                         of a sample instead of ignoring the command under
+                         old effects mode.
+                       - (More to come, probably)
+                Bit 5: On = Link Effect G's memory with Effect E/F. Also
+                            Gxx with an instrument present will cause the
+                            envelopes to be retriggered. If you change a
+                            sample on a row with Gxx, it'll adjust the
+                            frequency of the current note according to:
+
+                              NewFrequency = OldFrequency * NewC5 / OldC5;
+                Bit 6: Use MIDI pitch controller, Pitch depth given by PWD
+                Bit 7: Request embedded MIDI configuration
+                       (Coded this way to permit cross-version saving)
+
+      Special:  Bit 0: On = song message attached.
+                       Song message:
+                        Stored at offset given by "Message Offset" field.
+                        Length = MsgLgth.
+                        NewLine = 0Dh (13 dec)
+                        EndOfMsg = 0
+
+                       Note: v1.04+ of IT may have song messages of up to
+                             8000 bytes included.
+                Bit 1: Reserved
+                Bit 2: Reserved
+                Bit 3: MIDI configuration embedded
+                Bit 4-15: Reserved
+
+      GV:       Global volume. (0->128) All volumes are adjusted by this
+      MV:       Mix volume (0->128) During mixing, this value controls
+                the magnitude of the wave being mixed.
+      IS:       Initial Speed of song.
+      IT:       Initial Tempo of song
+      Sep:      Panning separation between channels (0->128, 128 is max sep.)
+      PWD:      Pitch wheel depth for MIDI controllers
+      Chnl Vol: Volume for each channel. Ranges from 0->64
+      Chnl Pan: Each byte contains a panning value for a channel. Ranges from
+                 0 (absolute left) to 64 (absolute right). 32 = central pan,
+                 100 = Surround sound.
+                 +128 = disabled channel (notes will not be played, but note
+                                          that effects in muted channels are
+                                          still processed)
+      Orders:   This is the order in which the patterns are played.
+                 Valid values are from 0->199.
+                 255 = "---", End of song marker
+                 254 = "+++", Skip to next order
+	 */
 
 
 	// debug Log
