@@ -307,7 +307,7 @@ void cInterfacePopups::showFxesPopup()
 
 	instrList.start = selectedActualItem;
 	instrList.linesCount = 15;
-	instrList.length = FX_COUNT;
+	instrList.length = FX_COUNT-FX_COUNT_HIDDEN_FXes;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
 	display.setControlPosition(popupListControl, 600, 30);

@@ -17,17 +17,17 @@ const uint8_t debugMod = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
-extern int16_t* sdram_ptrSampleBank;
-extern int16_t* sdram_ptrEffectsBank;
+extern int16_t *sdram_ptrSampleBank;
+extern int16_t *sdram_ptrEffectsBank;
 
 int16_t *itFile_sampleDest_ptr = sdram_ptrSampleBank;
 
 // elementy pliku IT
 uint16_t OrdNum;
 
-uint16_t InsNum;
-uint16_t SmpNum;
-uint16_t PatNum;
+uint16_t InsNum = 100;
+uint16_t SmpNum = 100;
+uint16_t PatNum = 100;
 
 uint16_t Cwt;
 uint16_t Cmwt;
@@ -75,6 +75,10 @@ void cFileManager::importItFile_Init()
 	processedPattern = 0;
 	processedInstrument = 0;
 	processedSample = 0;
+
+	InsNum = 100;
+	SmpNum = 100;
+	PatNum = 100;
 
 	sampleNumber = 0;
 
@@ -416,7 +420,7 @@ void cFileManager::importItFile_ProcessInstruments()
 
 }
 
-void cFileManager::importItFile_OpenSample()
+void cFileManager::importItFile_LoadSamples()
 {
 	strInstrument *instr = &mtProject.instrument[processedInstrument];
 
@@ -546,7 +550,7 @@ void cFileManager::importItFile_OpenSample()
 			// kopiujemy dane sampli:
 			if (is16or8bit)
 			{
-				uint32_t totalToRead = instr->sample.length*2;
+				uint32_t totalToRead = instr->sample.length * 2;
 				if ((mtProject.used_memory + instr->sample.length * 2) > SAMPLE_MEMORY_SIZE)
 				{
 					moveToNextOperationStep();
@@ -571,6 +575,25 @@ void cFileManager::importItFile_OpenSample()
 					totalToRead -= bytesToRead;
 					tempPtr += bytesToRead;
 
+				}
+
+				if (C5Speed == 44100)
+				{
+				}
+				else
+				{
+					float noteTune = 12 * log2((float) C5Speed / (float) 44100);
+
+					instr->tune = constrain(noteTune,
+											-24,
+											24);
+					instr->fineTune = constrain(
+							(noteTune - ((int8_t ) noteTune)) * 100,
+							-100,
+							100);
+					if (debugMod) Serial.printf("tune= %d, fine= %d\n",
+												instr->tune,
+												instr->fineTune);
 				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
@@ -605,17 +628,32 @@ void cFileManager::importItFile_OpenSample()
 
 					for (uint16_t s = 0; s < bytesToRead; s++)
 					{
-						*tempPtr = map(buff[s],
-										0,
-										MAX_8BIT,
-										0,
-										MAX_16BIT);
+						*tempPtr = buff[s] << 8;
 
 						tempPtr++;
 					}
 
 					totalToRead -= bytesToRead;
 
+				}
+
+				if (C5Speed == 22050)
+				{
+				}
+				else
+				{
+					float noteTune = 12 * log2((float) C5Speed / (float) 22050);
+
+					instr->tune = constrain(noteTune,
+											-24,
+											24);
+					instr->fineTune = constrain(
+							(noteTune - ((int8_t ) noteTune)) * 100,
+							-100,
+							100);
+					if (debugMod) Serial.printf("tune= %d, fine= %d\n",
+												instr->tune,
+												instr->fineTune);
 				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
@@ -657,7 +695,7 @@ void cFileManager::importItFile_OpenSample()
 
 }
 
-void cFileManager::importItFile_InitPattern()
+void cFileManager::importItFile_ProcessPatterns()
 {
 
 	uint32_t patternOffset = getPatternOffset(processedPattern);
@@ -819,6 +857,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 //	if (bytesInPatternLeft > 0)
 //	{
 //		uint16_t byteIndex = 0;
+
 	uint8_t channel = 0;
 	uint8_t maskvariable = 0;
 	uint8_t note = 0;
@@ -900,18 +939,23 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 				commandValue = lastCommandValue[channel];
 			}
 
-//			Serial.printf("row: %d, chan: %d, note: %d, ins: %d\n",
+//			Serial.printf("row: %d, chan: %d, note: %d, ins: %d, command: %d val: %d\n",
 //							row,
 //							channel,
 //							note,
-//							instrument);
+//							instrument,
+//							command,
+//							commandValue);
 
 			importItFile_setStep(row,
 									channel,
 									note,
+									volume,
 									instrument,
 									0,
 									0);
+
+			volume = 0;
 
 		}
 
@@ -926,6 +970,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 void cFileManager::importItFile_setStep(uint8_t step,
 										uint8_t track,
 										uint8_t note,
+										uint8_t volume,
 										uint8_t instrument,
 										uint8_t fx,
 										uint8_t fxVal)
@@ -937,8 +982,35 @@ void cFileManager::importItFile_setStep(uint8_t step,
 
 	Sequencer::strPattern::strTrack::strStep *pattStep = &sequencer.getActualPattern()->track[track].step[step];
 
+//	if (volume > 0) Serial.printf("volume: %d\n", volume);
 	pattStep->note = note;
 	pattStep->instrument = instrument - 1;
+
+	// Volume ranges from 0->64
+	if (volume > 0 && volume <= 64)
+	{
+		pattStep->fx[0].type = sequencer.fx.FX_TYPE_VELOCITY;
+		pattStep->fx[0].value = map(volume, 0, 64, 0, 100);
+	}
+	// Panning ranges from 0->64, mapped onto 128->192
+	else if (volume > 128 && volume <= 192)
+	{
+		uint8_t panning = volume - 128;
+
+		pattStep->fx[0].type = sequencer.fx.FX_TYPE_PANNING;
+		pattStep->fx[0].value = map(panning, 0, 64, 0, 100);
+	}
+	/*
+	 // Prepare for the following also:
+	 //  65->74 = Fine volume up
+	 //  75->84 = Fine volume down
+	 //  85->94 = Volume slide up
+	 //  95->104 = Volume slide down
+	 //  105->114 = Pitch Slide down
+	 //  115->124 = Pitch Slide up
+	 //  193->202 = Portamento to
+	 //  203->212 = Vibrato
+	 */
 
 }
 
@@ -988,7 +1060,7 @@ void cFileManager::importItFile_savePattern()
 	}
 }
 
-void cFileManager::importItFile_writeWaves()
+void cFileManager::importItFile_WriteWaves()
 {
 
 	strInstrument *instr = &mtProject.instrument[processedSample];
@@ -1090,7 +1162,7 @@ void cFileManager::importItFile_writeWaves()
 
 }
 
-void cFileManager::importItFile_finish()
+void cFileManager::importItFile_Finish()
 {
 	setProjectStructChanged();
 
@@ -1099,6 +1171,29 @@ void cFileManager::importItFile_finish()
 	status = fmLoadEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
+}
+
+float cFileManager::importItFile_getProgress()
+{
+	uint16_t
+	totalSteps = (InsNum > INSTRUMENTS_COUNT ? INSTRUMENTS_COUNT : InsNum)
+			+ (SmpNum > INSTRUMENTS_COUNT ? INSTRUMENTS_COUNT : SmpNum)
+			+ PatNum
+			+ (InsNum > INSTRUMENTS_COUNT ? INSTRUMENTS_COUNT : InsNum);
+	uint16_t actualStep = 0;
+
+	if (currentOperationStep < 7)
+	{
+		actualStep = processedInstrument + processedPattern + processedSample;
+	}
+	else
+	{
+		actualStep = SmpNum + InsNum + PatNum + processedSample - 1;
+	}
+
+	float retVal = ((float) actualStep / (float) totalSteps) * 100.0;
+	retVal = constrain(retVal, 0.0, 100.0);
+	return retVal;
 }
 
 /*

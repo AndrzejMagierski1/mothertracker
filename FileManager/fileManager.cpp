@@ -114,6 +114,8 @@ void cFileManager::updateImportModFile()
 		break;
 
 	case importModFiletype_it:
+
+//		Serial.printf("progress: %.2f\n", importItFile_getProgress());
 		switch (currentOperationStep)
 		{
 
@@ -123,10 +125,10 @@ void cFileManager::updateImportModFile()
 		case 3:			importItFile_ProcessOffsets();		break;
 
 		case 4:			importItFile_ProcessInstruments();	break;
-		case 5:			importItFile_OpenSample();			break;
-		case 6:			importItFile_InitPattern();			break;
-		case 7:			importItFile_writeWaves();			break;
-		case 8:			importItFile_finish();				break;
+		case 5:			importItFile_LoadSamples();			break;
+		case 6:			importItFile_ProcessPatterns();		break;
+		case 7:			importItFile_WriteWaves();			break;
+		case 8:			importItFile_Finish();				break;
 		default:
 //			importModFile_Error();
 			stopOperationWithError(fmImportModError);
@@ -140,6 +142,24 @@ void cFileManager::updateImportModFile()
 		break;
 	}
 
+}
+float cFileManager::importMod_getProgress()
+{
+	float retVal = 0;
+	switch (importModFileType)
+	{
+	case importModFiletype_mod:
+		retVal = ((float) currentOperationStep / 7) * 100;
+		break;
+
+	case importModFiletype_it:
+		retVal = importItFile_getProgress();
+		break;
+	default:
+		break;
+	}
+
+	return retVal;
 }
 
 void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
@@ -429,6 +449,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 
 	if (importModFileAfterNewProject)
 	{
+		importModFileAfterNewProject=0;
 		status = fmImportingMod;
 		currentOperationStep = 0;
 		currentOperation = fmImportModFile;
