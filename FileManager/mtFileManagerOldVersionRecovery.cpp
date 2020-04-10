@@ -2,14 +2,19 @@
 #include "fileManagerDefs.h"
 
 static void recoveryProjectVersion1();
+static void recoveryInstrumentVersion1();
 
 mtVersionRecovery versionRecovery;
 
-
+//***************************************************************PROJECT
 //przepisanie funkcji do wskaznika
 mtVersionRecovery::mtVersionRecovery()
 {
+	//PROJECT
 	recoveryProjectFunction[0] = recoveryProjectVersion1;
+
+	//INSTRUMENT
+	recoveryInstrumentFunction[0] = recoveryInstrumentVersion1;
 }
 //zwraca wskaznik do aktywnego odczytanego projektu
 strMtProjectRemote * mtVersionRecovery::getReadedProject()
@@ -50,4 +55,30 @@ static void recoveryProjectVersion1()
 	memcpy(receivedProject->projectName,(uint8_t *)(((uint32_t)&tmp.projectName) - 4) , PROJECT_NAME_SIZE );
 	// shift 4 zostal dobrany metoda prob i bledow, teoretycznie dodano 1 byte ale prawdopdobnie kompilator to ulozyl w jakis inny sposob
 
+}
+//*************************************************************************INSTRUMENT
+
+strInstrumentFile * mtVersionRecovery::getReadedInstrument()
+{
+	return receivedInstrument;
+}
+
+void mtVersionRecovery::translateinstrument(uint8_t firstVersion, uint8_t lastVersion, strInstrumentFile* currentInstrument)
+{
+	receivedInstrument = currentInstrument; // odebrany projekt
+
+	for(uint8_t i = firstVersion; i < lastVersion; i++ ) // wykonanie odpowiedniej ilosci etapow translacji
+	{
+		recoveryInstrumentFunction[i-1](); //wywolanie wskaznika funkcyjnego - obslugujacego dany etap
+	}
+}
+
+static void recoveryInstrumentVersion1()
+{
+	strInstrumentFile * receivedInstrument = versionRecovery.getReadedInstrument(); //wskaznik do instrumentu odczytanego z pliku
+
+	if(receivedInstrument->instrumentDataAndHeader.instrument.playMode > 4)
+	{
+		receivedInstrument->instrumentDataAndHeader.instrument.playMode++;
+	}
 }

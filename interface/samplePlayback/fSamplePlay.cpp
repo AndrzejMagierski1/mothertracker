@@ -626,27 +626,29 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 
 		padsBacklight.setFrontLayer(1,20, pad);
-		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
-		{
-			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
-
-			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
-			if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
-
-			SP->showSlicesAdjustValue();
-			SP->showSlicesSelectValue();
-			SP->refreshSlicePoints = 1;
-			if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
-			else if(SP->editorInstrument->playMode == playModeBeatSlice) mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1); //todo: rozkminic jak ma byc
-		}
-		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+//		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
+//		{
+//			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
+//
+//			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+//			if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+//
+//			SP->showSlicesAdjustValue();
+//			SP->showSlicesSelectValue();
+//			SP->refreshSlicePoints = 1;
+//			if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
+//			else if(SP->editorInstrument->playMode == playModeBeatSlice) mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1); //todo: rozkminic jak ma byc
+//		}
+//		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 
 	}
 	else if(state == 0)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		if(SP->editorInstrument->playMode == playModeSlice)  mtPadBoard.stopInstrument(pad + 48);
-		else mtPadBoard.stopInstrument(pad);
+//		if(SP->editorInstrument->playMode == playModeSlice)  mtPadBoard.stopInstrument(pad + 48);
+//		else mtPadBoard.stopInstrument(pad);
+		mtPadBoard.stopInstrument(pad);
 		if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 		{
 			if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))

@@ -11,8 +11,8 @@
 
 #include "fileTransfer.h"
 #include "fileManager.h"
-
-
+#include "debugLog.h"
+#include "mtFileManagerOldVersionRecovery.h"
 //SDK_ALIGN(uint8_t g_bufferRead[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
 //          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
 
@@ -253,7 +253,23 @@ bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strIn
 	uint32_t checkCRC = crcCalc.crc32((uint8_t*)&instrumentFile->instrumentDataAndHeader,
 									  sizeof(strInstrumentFile::strInstrumentDataAndHeader));
 
-	if(checkCRC == ((strInstrumentFile*)instrumentFile)->crc)
+	if(instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[0] < INSTRUMENT_FILE_VERSION)
+	{
+		debugLog.addLine("older version of instrument file opened");
+
+		versionRecovery.translateinstrument(instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[0], INSTRUMENT_FILE_VERSION, instrumentFile);
+
+	}
+	else if(instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[0] > PROJECT_FILE_VERSION)
+	{
+		//debugLog.setMaxLineCount(2);
+		debugLog.addLine("newer version of instrument file opened");
+		//todo: informacja do interfejsu zeby wyswietlic popup
+	}
+
+
+//	if(checkCRC == ((strInstrumentFile*)instrumentFile)->crc)
+	if(1)
 	{
 		memcpy(instrument, &instrumentFile->instrumentDataAndHeader.instrument, sizeof(strInstrument));
 
