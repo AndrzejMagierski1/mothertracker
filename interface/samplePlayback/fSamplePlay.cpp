@@ -215,7 +215,7 @@ void cSamplePlayback::update()
 	lastAutoSlice = currentAutoSlice;
 	if(refreshSlicePoints)
 	{
-		if(editorInstrument->playMode == playModeSlice) processSlicePoints();
+		if((editorInstrument->playMode == playModeSlice) || (editorInstrument->playMode == playModeBeatSlice) ) processSlicePoints();
 
 		display.refreshControl(slicePointsControl);
 
@@ -254,11 +254,11 @@ void cSamplePlayback::update()
 		calcPlayProgressValue();
 		if(isPlayingSample)
 		{
-			if(SP->editorInstrument->playMode != playModeSlice)	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice))	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
 		}
 		else
 		{
-			if(SP->editorInstrument->playMode != playModeSlice) hidePreviewValue();
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
 			mtPadBoard.clearVoice(0);
 		}
 		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
@@ -269,7 +269,7 @@ void cSamplePlayback::update()
 			playProgressInSpectrum = 0;
 			isPlayingSample = 0;
 			refreshSpectrumProgress = 1;
-			if(SP->editorInstrument->playMode != playModeSlice) hidePreviewValue();
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
 			mtPadBoard.clearVoice(0);
 		}
 		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
@@ -280,7 +280,7 @@ void cSamplePlayback::update()
 			playProgressInSpectrum = 0;
 			isPlayingSample = 0;
 			refreshSpectrumProgress = 1;
-			if(SP->editorInstrument->playMode != playModeSlice) hidePreviewValue();
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
 			mtPadBoard.clearVoice(0);
 		}
 	}
@@ -376,12 +376,9 @@ void cSamplePlayback::start(uint32_t options)
 			}
 		}
 
-		if(SP->editorInstrument->playMode == playModeSlice)
+		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 		{
-			if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
-			{
-				SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
-			}
+			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 			processSlicePoints();
 		}
 		//--------------------------------------------------------------------
@@ -629,27 +626,29 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 
 		padsBacklight.setFrontLayer(1,20, pad);
-		if(SP->editorInstrument->playMode == playModeSlice)
-		{
-			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
-			if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
-			{
-				SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
-				if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
-			}
-			SP->showSlicesAdjustValue();
-			SP->showSlicesSelectValue();
-			SP->refreshSlicePoints = 1;
-			mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
-		}
-		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+//		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
+//		{
+//			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
+//
+//			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+//			if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+//
+//			SP->showSlicesAdjustValue();
+//			SP->showSlicesSelectValue();
+//			SP->refreshSlicePoints = 1;
+//			if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
+//			else if(SP->editorInstrument->playMode == playModeBeatSlice) mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1); //todo: rozkminic jak ma byc
+//		}
+//		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 
 	}
 	else if(state == 0)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.stopInstrument(pad + 48);
-		else mtPadBoard.stopInstrument(pad);
+//		if(SP->editorInstrument->playMode == playModeSlice)  mtPadBoard.stopInstrument(pad + 48);
+//		else mtPadBoard.stopInstrument(pad);
+		mtPadBoard.stopInstrument(pad);
 		if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 		{
 			if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
@@ -660,7 +659,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 					SP->playProgressInSpectrum = 0;
 					SP->isPlayingSample = 0;
 					SP->refreshSpectrumProgress = 1;
-					if(SP->editorInstrument->playMode != playModeSlice) SP->hidePreviewValue();
+					if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) SP->hidePreviewValue();
 				}
 			}
 		}
@@ -693,7 +692,8 @@ static  uint8_t functSelectStart(uint8_t state)
 		}
 	}
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular))
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeSlice) &&
+	   (SP->editorInstrument->playMode != playModeBeatSlice) && (SP->editorInstrument->playMode != playModeGranular))
 	{
 		if(state == UINT8_MAX || state == buttonPress) // called from inside of this module
 		{
@@ -745,7 +745,7 @@ static  uint8_t functSelectStart(uint8_t state)
 
 		SP->refreshPoints = 1;
 	}
-	else if((SP->loadedInstrumentType == mtSampleTypeWavetable) || ((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice)))
+	else if((SP->loadedInstrumentType == mtSampleTypeWavetable) || ((SP->editorInstrument->playMode == playModeBeatSlice) || (SP->editorInstrument->playMode == playModeSlice)))
 	{
 		SP->selectedPlace = 1;
 	}
@@ -759,7 +759,7 @@ static  uint8_t functSelectLoop1(uint8_t state)
 {
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+	if((SP->editorInstrument->playMode == playModeBeatSlice) || (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == buttonPress) functAddSlice();
 	}
@@ -776,7 +776,8 @@ static  uint8_t functSelectLoop1(uint8_t state)
 
 	if(state == UINT8_MAX || state == buttonPress)
 	{
-		if((SP->editorInstrument->playMode == singleShot) || (SP->editorInstrument->playMode == playModeSlice)) return 1;
+		if((SP->editorInstrument->playMode == playModeSingleShot) || (SP->editorInstrument->playMode == playModeSlice) ||
+		   (SP->editorInstrument->playMode == playModeBeatSlice)) return 1;
 
 		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 3)
 		{
@@ -804,7 +805,7 @@ static  uint8_t functSelectLoop1(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
-		if(SP->editorInstrument->playMode == playModeSlice) return 1;
+		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice)) return 1;
 		if(SP->frameData.multiSelActiveNum)
 		{
 			SP->points.selected &= ~selectLoop1;
@@ -833,7 +834,7 @@ static  uint8_t functSelectLoop1(uint8_t state)
 
 static  uint8_t functSelectLoop2(uint8_t state)
 {
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+	if((SP->editorInstrument->playMode == playModeBeatSlice) || (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == buttonPress) functRemoveSlice();
 		return 1;
@@ -855,7 +856,7 @@ static  uint8_t functSelectLoop2(uint8_t state)
 
 	if(state == UINT8_MAX || state == buttonPress)
 	{
-		if(SP->editorInstrument->playMode == singleShot) return 1;
+		if(SP->editorInstrument->playMode == playModeSingleShot) return 1;
 
 		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 4)
 		{
@@ -924,7 +925,7 @@ static  uint8_t functSelectEnd(uint8_t state)
 		return 1;
 
 	}
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 	{
 		if(state == buttonPress) functAutoSlice();
 		return 1;
@@ -995,7 +996,7 @@ static  uint8_t functSelectZoom()
 	{
 		return 1;
 	}
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+	if((SP->editorInstrument->playMode == playModeBeatSlice) ||  (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(SP->autoSlicePopupVisible)
 		{
@@ -1059,7 +1060,7 @@ static  uint8_t functEncoder(int16_t value)
 		switch(SP->selectedPlace)
 		{
 		case 0:
-			if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice)) modSliceSelect(value);
+			if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice) ) modSliceSelect(value);
 			break;
 		case 1:
 			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
@@ -1068,7 +1069,7 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode == playModeSlice) modSliceAdjust(value);
+				if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice)) modSliceAdjust(value);
 				else if(SP->editorInstrument->playMode == playModeGranular) modGranularPosition(value);
 				else modStartPoint(value);
 			}
@@ -1080,7 +1081,8 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(value);
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice) &&
+				   (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(value);
 				else if(SP->editorInstrument->playMode == playModeGranular) modGranularLength(value);
 			}
 			break;
@@ -1111,11 +1113,11 @@ static  uint8_t functLeft()
 	switch(SP->selectedPlace)
 	{
 		case 0:
-			if( (SP->loadedInstrumentType != mtSampleTypeWaveFile) || (SP->editorInstrument->playMode != playModeSlice)) SP->selectedPlace = 1;
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) SP->selectedPlace = 1;
 			break;
 		case 1: functSelectStart(UINT8_MAX);		break;
 		case 2:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->editorInstrument->playMode == playModeSingleShot)
 			{
 				SP->selectedPlace = 1;
 				functSelectStart(UINT8_MAX);
@@ -1126,7 +1128,7 @@ static  uint8_t functLeft()
 			}
 			break;
 		case 3:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->editorInstrument->playMode == playModeSingleShot)
 			{
 				SP->selectedPlace = 1;
 				functSelectStart(UINT8_MAX);
@@ -1137,7 +1139,7 @@ static  uint8_t functLeft()
 			}
 			break;
 		case 4:
-			if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice)) SP->selectedPlace = 1;
+			if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice)) SP->selectedPlace = 1;
 			else functSelectEnd(UINT8_MAX);
 
 			break;
@@ -1181,12 +1183,12 @@ static  uint8_t functRight()
 	{
 		case 1: functSelectStart(UINT8_MAX);		break;
 		case 2:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->editorInstrument->playMode == playModeSingleShot)
 			{
 				SP->selectedPlace = 4;
 				functSelectEnd(UINT8_MAX);
 			}
-			else if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+			else if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 			{
 				SP->selectedPlace = 5;
 				functSelectZoom();
@@ -1204,12 +1206,12 @@ static  uint8_t functRight()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode == singleShot)
+				if(SP->editorInstrument->playMode == playModeSingleShot)
 				{
 					SP->selectedPlace = 4;
 					functSelectEnd(UINT8_MAX);
 				}
-				else if(SP->editorInstrument->playMode == playModeSlice)
+				else if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 				{
 					SP->selectedPlace = 6;
 				}
@@ -1253,7 +1255,7 @@ static  uint8_t functUp()
 		switch(SP->selectedPlace)
 		{
 		case 0:
-			if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice)) modSliceSelect(1);
+			if((SP->editorInstrument->playMode == playModeBeatSlice) || (SP->editorInstrument->playMode == playModeSlice)) modSliceSelect(1);
 			break;
 		case 1:
 			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
@@ -1262,7 +1264,7 @@ static  uint8_t functUp()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode == playModeSlice) modSliceAdjust(1);
+				if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice)) modSliceAdjust(1);
 				else if(SP->editorInstrument->playMode == playModeGranular) modGranularPosition(1);
 				else modStartPoint(1);
 			}
@@ -1274,12 +1276,14 @@ static  uint8_t functUp()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(1);
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)
+				&& (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(1);
 				else if(SP->editorInstrument->playMode == playModeGranular) modGranularLength(1);
 			}
 			break;
 		case 3:
-			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint2(1);
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice) &&
+			   (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint2(1);
 			else modGranularShape(1);
 		break;
 		case 4:
@@ -1307,7 +1311,7 @@ static  uint8_t functDown()
 		switch(SP->selectedPlace)
 		{
 		case 0:
-			if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice)) modSliceSelect(-1);
+			if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice)) modSliceSelect(-1);
 			break;
 		case 1:
 			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
@@ -1316,7 +1320,7 @@ static  uint8_t functDown()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode == playModeSlice) modSliceAdjust(-1);
+				if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice)) modSliceAdjust(-1);
 				else if(SP->editorInstrument->playMode == playModeGranular) modGranularPosition(-1);
 				else modStartPoint(-1);
 			}
@@ -1328,7 +1332,8 @@ static  uint8_t functDown()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(-1);
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice) &&
+				   (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(-1);
 				else if(SP->editorInstrument->playMode == playModeGranular) modGranularLength(-1);
 			}
 			break;
@@ -1398,7 +1403,7 @@ static uint8_t functSwitchModule(uint8_t button)
 static 	uint8_t functPreview(uint8_t state)
 {
 	if(SP->autoSlicePopupVisible) return 1;
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+	if((SP->editorInstrument->playMode == playModeBeatSlice) || (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == 1) SP->selectedPlace = 0;
 		SP->activateLabelsBorder();
@@ -1451,7 +1456,7 @@ static 	uint8_t functPreview(uint8_t state)
 					SP->playProgressInSpectrum = 0;
 					SP->isPlayingSample = 0;
 					SP->refreshSpectrumProgress = 1;
-					if(SP->editorInstrument->playMode != playModeSlice) SP->hidePreviewValue();
+					if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) SP->hidePreviewValue();
 				}
 			}
 		}
@@ -1543,10 +1548,10 @@ static void changePlayModeSelection(int16_t value)
 	}
 
 
-	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeSlice) && (value > 0 )) )
+	if(((SP->editorInstrument->playMode == playModeSingleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeSlice) && (value > 0 )) )
 	{
 		SP->hideLoopPoints();
-		if(SP->editorInstrument->playMode == singleShot) SP->refreshPoints = 1;
+		if(SP->editorInstrument->playMode == playModeSingleShot) SP->refreshPoints = 1;
 	}
 	else
 	{
@@ -1574,12 +1579,11 @@ static void changePlayModeSelection(int16_t value)
 		SP->refreshPoints = 1;
 	}
 
-	if(SP->editorInstrument->playMode == playModeSlice)
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 	{
-		if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
-		{
-			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
-		}
+
+		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+
 		SP->refreshSlicePoints = 1;
 	}
 
@@ -1609,7 +1613,7 @@ static void modStartPoint(int16_t value)
 		SP->editorInstrument->startPoint = SP->editorInstrument->endPoint - 2;
 	}
 
-	if( (SP->editorInstrument->playMode != singleShot) && (SP->editorInstrument->playMode != playModeWavetable) )
+	if( (SP->editorInstrument->playMode != playModeSingleShot) && (SP->editorInstrument->playMode != playModeWavetable) )
 	{
 		if(SP->editorInstrument->startPoint >= SP->editorInstrument->loopPoint1)
 		{
@@ -1675,7 +1679,7 @@ static void modEndPoint(int16_t value)
 		SP->editorInstrument->endPoint = SP->editorInstrument->startPoint + 2;
 	}
 
-	if(SP->editorInstrument->playMode != singleShot)
+	if(SP->editorInstrument->playMode != playModeSingleShot)
 	{
 		if(SP->editorInstrument->endPoint < SP->editorInstrument->loopPoint2)
 		{
@@ -1868,7 +1872,7 @@ static void modSliceSelect(int16_t value)
 	}
 	else SP->editorInstrument->selectedSlice += value;
 
-	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice) )
 	{
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
@@ -1886,7 +1890,7 @@ static void modSliceAdjust(int16_t value)
 	value *= move_step;
 	sliceManager.adjustSlice(SP->editorInstrument, value);
 
-	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 	{
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
@@ -1903,7 +1907,7 @@ static uint8_t functAddSlice()
 	if(SP->autoSlicePopupVisible) return 1;
 
 	sliceManager.addSlice(SP->editorInstrument);
-	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 	{
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
@@ -1921,7 +1925,7 @@ static uint8_t functRemoveSlice()
 {
 	if(SP->autoSlicePopupVisible) return 1;
 	sliceManager.removeSlice(SP->editorInstrument);
-	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice) )
 	{
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
@@ -1953,7 +1957,7 @@ static uint8_t functConfirmAutoSlice()
 
 	sliceManager.autoSlice(SP->editorInstrument);
 
-	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	if((SP->editorInstrument->playMode == playModeSlice)||(SP->editorInstrument->playMode == playModeBeatSlice))
 	{
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;

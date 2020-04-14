@@ -253,7 +253,7 @@ void cSamplePlayback::showDefaultScreen()
 		display.setControlShow(progressCursor);
 		display.refreshControl(progressCursor);
 
-		if(editorInstrument->playMode == playModeSlice)
+		if((editorInstrument->playMode == playModeSlice) || (editorInstrument->playMode == playModeBeatSlice))
 		{
 			display.setControlText(label[0], "Slice");
 			display.setControlText(label[1], "Adjust");
@@ -326,7 +326,7 @@ void cSamplePlayback::showDefaultScreen()
 			display.setControlShow(pointsControl);
 			display.refreshControl(pointsControl);
 
-			if((editorInstrument->playMode == singleShot) || (editorInstrument->playMode == playModeWavetable)) hideLoopPoints();
+			if((editorInstrument->playMode == playModeSingleShot) || (editorInstrument->playMode == playModeWavetable)) hideLoopPoints();
 			else showLoopPoints();
 
 			showStartPointValue();
@@ -454,7 +454,7 @@ void cSamplePlayback::showPlayModeList()
 {
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
-	playModeList.linesCount = 8;
+	playModeList.linesCount = 9;
 	playModeList.data = playModeNames;
 
 	display.setControlData(playModeListControl,  &playModeList);
@@ -489,7 +489,7 @@ void cSamplePlayback::showEndPointValue()
 
 void cSamplePlayback::showLoopPoint1Value()
 {
-	if(editorInstrument->playMode == singleShot) return;
+	if(editorInstrument->playMode == playModeSingleShot) return;
 
 	float recTimeValue = editorInstrument->sample.length/44100.0;
 	float localLoopPoint1 = (recTimeValue * editorInstrument->loopPoint1) / MAX_16BIT;
@@ -502,7 +502,7 @@ void cSamplePlayback::showLoopPoint1Value()
 }
 void cSamplePlayback::showLoopPoint2Value()
 {
-	if(editorInstrument->playMode == singleShot) return;
+	if(editorInstrument->playMode == playModeSingleShot) return;
 
 	float recTimeValue = editorInstrument->sample.length/44100.0;
 	float localLoopPoint2 = (recTimeValue * editorInstrument->loopPoint2) / MAX_16BIT;

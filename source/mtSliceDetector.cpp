@@ -29,6 +29,7 @@ void mtSliceDetector::update()
 	uint16_t constrainSize = (dif < INSTANT_BUFFER_SIZE) ? (uint16_t)dif : INSTANT_BUFFER_SIZE;
 
 	if(constrainSize != INSTANT_BUFFER_SIZE) lastBufferFlag = 1;
+
 	for(uint16_t i = 0; i <constrainSize ; i++ )
 	{
 		measureBuff[i] = localAddr[i] *  localAddr[i];
@@ -41,14 +42,16 @@ void mtSliceDetector::update()
 	{
 		localAverage = calcLocalAverage(instantAverageBuffer,LOCAL_BUFFER_SIZE/INSTANT_BUFFER_SIZE);
 		localVariance = calcLocalVariance(instantAverageBuffer, localAverage,LOCAL_BUFFER_SIZE/INSTANT_BUFFER_SIZE);
+
 		sensCoeff = ((-0.00000000015625) * localVariance) + 1.62951;
 		if(sensCoeff < 1.2f) sensCoeff = 1.2f;
+
 		if((currentInstantAverage > sensCoeff * localAverage) && (position > (lastDetected + LAST_DETECTED_DEATH_ZONE)))
 		{
 			if(currentSlice < MAX_SLICE_NUMBER)
 			{
-				lastDetected = position;
 				uint32_t precisePosition = preciseDetect(position);
+				lastDetected = precisePosition;
 				slice[currentSlice++] = (uint16_t) (precisePosition * (MAX_16BIT/(float)length));
 			}
 		}
@@ -127,7 +130,7 @@ uint32_t mtSliceDetector::calcLocalVariance(uint32_t * buf, uint32_t average, ui
 	return (sum/size);
 }
 
-uint32_t mtSliceDetector::preciseDetect(uint32_t position)
+uint32_t mtSliceDetector::preciseDetect(uint32_t presicePosition)
 {
 //******************************************************************************************//
 // W niektórych przypadkach średnia sygnału jest na tyle "energetyczna", że gdy peak trafi na koniec bufora
@@ -135,23 +138,40 @@ uint32_t mtSliceDetector::preciseDetect(uint32_t position)
 // Dlatego pozycja ustalana jest jako srodek szerszego bufora, w którym prezycyjnie wykrywany jest moment przejscia.
 //******************************************************************************************//
 	uint32_t localLength;
-	if(position + (PRECISE_LOCAL_BUFFER_SIZE/2) > length)  localLength = length - position;
-	else localLength = PRECISE_LOCAL_BUFFER_SIZE/2;
+//	if(position + (PRECISE_LOCAL_BUFFER_SIZE/2) > length)  localLength = length - position;
+//	else localLength = PRECISE_LOCAL_BUFFER_SIZE/2;
+//
+//	if((int32_t)(position - (PRECISE_LOCAL_BUFFER_SIZE/2)) < 0 )
+//	{
+//		localLength += position;
+//		position = 0;
+//	}
+//	else
+//	{
+//		localLength += PRECISE_LOCAL_BUFFER_SIZE/2;
+//		position -= (PRECISE_LOCAL_BUFFER_SIZE/2);
+//	}
 
-	if((int32_t)(position - (PRECISE_LOCAL_BUFFER_SIZE/2)) < 0 )
+	if((int32_t)(presicePosition - (PRECISE_LOCAL_BUFFER_SIZE/2)) < 0 )
 	{
-		localLength += position;
-		position = 0;
+		localLength = PRECISE_LOCAL_BUFFER_SIZE - presicePosition;
+		presicePosition = 0;
+	}
+	else if(presicePosition + (PRECISE_LOCAL_BUFFER_SIZE/2) > length)
+	{
+		localLength = PRECISE_LOCAL_BUFFER_SIZE - (length - presicePosition);
+		presicePosition -= (PRECISE_LOCAL_BUFFER_SIZE/2);
 	}
 	else
 	{
-		localLength += PRECISE_LOCAL_BUFFER_SIZE/2;
-		position -= (PRECISE_LOCAL_BUFFER_SIZE/2);
+		localLength = PRECISE_LOCAL_BUFFER_SIZE;
+		presicePosition -= (PRECISE_LOCAL_BUFFER_SIZE/2);
 	}
 
 
 
-	int16_t * localAddr = address + position;
+
+	int16_t * localAddr = address + presicePosition;
 	uint32_t presiceMeasureBuf[PRECISE_INSTANT_BUFFER_SIZE];
 	uint32_t preciseInstantAverageBuffer[PRECISE_LOCAL_BUFFER_SIZE/PRECISE_INSTANT_BUFFER_SIZE];
 
@@ -172,11 +192,16 @@ uint32_t mtSliceDetector::preciseDetect(uint32_t position)
 	float preciseSensCoeff = ((-0.00000000015625) * preciseLocalVariance) + 1.62951;
 	if(preciseSensCoeff < 1.2f) preciseSensCoeff = 1.2f;
 
-	for(uint16_t i = 0; i < localConstrain; i++ )
+	for(uint16_t i = 5; i < localConstrain; i++ )
 	{
 		if(preciseInstantAverageBuffer[i] > preciseSensCoeff * preciseLocalAverage)
 		{
-				return position + i * PRECISE_INSTANT_BUFFER_SIZE;
+			if(currentSlice != 0)
+			{
+				if( (uint32_t)(lastDetected + LAST_DETECTED_DEATH_ZONE)
+						>= (uint32_t)(presicePosition + i * PRECISE_INSTANT_BUFFER_SIZE)) continue;
+			}
+			return presicePosition + (i-5) * PRECISE_INSTANT_BUFFER_SIZE;
 		}
 	}
 
@@ -243,7 +268,7 @@ uint32_t mtSliceDetector::preciseDetect(uint32_t position)
 //		}
 //	}
 
-	return position;
+	return presicePosition;
 }
 
 

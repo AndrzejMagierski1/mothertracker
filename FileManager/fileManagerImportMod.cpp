@@ -180,11 +180,11 @@ void cFileManager::importModFile_SaveInstrument()
 	if (modSampleData.repeatLengthInWords > 1)
 	{
 
-		instr->playMode = loopForward;
+		instr->playMode = playModeLoopForward;
 	}
 	else
 	{
-		instr->playMode = singleShot;
+		instr->playMode = playModeSingleShot;
 	}
 
 	// todo: to oblicza z zaladowanegolu sampla
@@ -197,7 +197,7 @@ void cFileManager::importModFile_SaveInstrument()
 
 	instr->startPoint = 0;
 
-	if (instr->playMode == loopForward)
+	if (instr->playMode == playModeLoopForward)
 	{
 
 //	instr->loopPoint1 = modSampleData.repeatPointInWords * 2;

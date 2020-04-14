@@ -310,11 +310,6 @@ void cInterface::commonThingsUpdate()
 			}
 		}
 	}
-
-
-
-
-
 }
 
 

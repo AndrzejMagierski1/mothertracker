@@ -4,17 +4,17 @@
 #include "mtStructs.h"
 
 constexpr uint16_t LOCAL_BUFFER_SIZE = 10240;											// Rozmiar lokalnego buforu tła
-constexpr uint16_t INSTANT_BUFFER_SIZE = 1024;											// Rozmiar buforu chwilowego
+constexpr uint16_t INSTANT_BUFFER_SIZE = 2048;											// Rozmiar buforu chwilowego
 
 // Po wykryciu peaku często w kolejnych buforach wykrywane są kolejne peaki, ponieważ średnia energetyczna nie zdąży wzrosnąć w kolejnych kilku buforach.
 // Wysokoenergetyczne bufory po peaku muszą zastąpić niskoenergetyczne bufory tła, aby kolejne wysoko energetyczne bufory nie wyróżniały się w odniesieniu do tła,
 // ma to swoją bezwładność określoną w zmiennej LAST_DETECTED_DEATH_ZONE
-constexpr uint16_t LAST_DETECTED_DEATH_ZONE = 3 * INSTANT_BUFFER_SIZE;
+constexpr uint16_t LAST_DETECTED_DEATH_ZONE = LOCAL_BUFFER_SIZE;
 
 // rozmiar bufora dokładnego wyznaczania peaku - oznacza jednocześnie dokładność wyznaczania, ale nie można z nią przesadzić ponieważ uśrednianie potrzebuje
 // rozsądnej ilości próbek ( wygładzanie statystyczne)
-constexpr uint16_t PRECISE_INSTANT_BUFFER_SIZE = 32;
-constexpr uint16_t PRECISE_LOCAL_BUFFER_SIZE = 32 * 64;
+constexpr uint16_t PRECISE_INSTANT_BUFFER_SIZE = 128;
+constexpr uint16_t PRECISE_LOCAL_BUFFER_SIZE = INSTANT_BUFFER_SIZE * 6;
 extern uint32_t measureBuffer[INSTANT_BUFFER_SIZE];
 
 class mtSliceDetector

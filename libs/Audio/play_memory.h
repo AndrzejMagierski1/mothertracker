@@ -34,6 +34,8 @@
 #include "mtGranularTabs.h"
 #include "SD.h"
 
+constexpr uint8_t SMOOTHING_SIZE = 100;
+
 const double notes[MAX_NOTE] =
 {
 		0.0312500000000,
@@ -164,8 +166,6 @@ class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-
-	void printLog(SdFile * log);
 	uint8_t play(uint8_t instr_idx,int8_t note); 										// dla sequencer'a
 	uint8_t playForPrev(uint8_t instr_idx,int8_t n); 									// dla padboard'a - po indeksie instrumentu
 	uint8_t playForPrev(int16_t * addr,uint32_t len,uint8_t type);						// dla importera (odgrywa sample z banku) + umieszczony w wewnętrznym module recordera ale nie uzywany
@@ -241,6 +241,35 @@ public:
 	void setCurrentInstrIdx(uint8_t n);
 private:
 
+//  PLAY OBSLUGA OGÓLNA
+	void refreshStartParamiters();
+	void constrainCurrentTune(uint8_t note);
+	void setStartPitch(uint8_t note);
+	void applyFinetuneOnPitch(uint8_t note);
+	void calculateGlidePitch(uint8_t note);
+//	PLAY Z PODZIALEM NA TRYBY
+	void playSingleShot(uint8_t instrIdx, int8_t note);
+	void playLoopForward(uint8_t instrIdx, int8_t note);
+	void playLoopBackward(uint8_t instrIdx, int8_t note);
+	void playLoopPingpong(uint8_t instrIdx, int8_t note);
+	void playSlice(uint8_t instrIdx, int8_t note);
+	void playBeatSlice(uint8_t instrIdx, int8_t note);
+	void playGranular(uint8_t instrIdx, int8_t note);
+	void playWavetable(uint8_t instrIdx, int8_t note);
+// UPDATE OBSLUGA OGÓLNA
+
+
+// UPDATE Z PODZIALEM NA TRYBY
+	void updateSingleShot();
+	void updateLoopForward();
+	void updateLoopBackward();
+	void updateLoopPingpong();
+	void updateSlice();
+	void updateBeatSlice();
+	void updateGranular();
+	void updateWavetable();
+
+
 	void refreshGranularPosition();
 
 	//********** Zarządzanie
@@ -248,11 +277,10 @@ private:
 	volatile int16_t *next;
 	volatile uint32_t length;
 	volatile uint8_t playing;
-	uint8_t playMode;
+	uint8_t currentPlayMode;
 	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
 	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
-	uint8_t sampleType;
-	volatile int16_t * startAddress;
+	volatile int16_t * currentStartAddress;
 
 	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
 	{
@@ -260,7 +288,7 @@ private:
 		uint32_t end=0;
 		uint32_t loop1=0;
 		uint32_t loop2=0;
-	} samplePoints;
+	} pointsInSamples;
 
 	struct strSampleConstrains								// określają granice dla licznika pitcha
 	{
@@ -271,19 +299,19 @@ private:
 
 		uint32_t glide;
 
-	} sampleConstrains;
+	} constrainsInSamples;
 
-	volatile uint32_t startLen;
+	volatile uint32_t currentSampleLength;
 	int16_t  lastSample = 0;
 	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
 
-	uint8_t currentInstr_idx;
+	uint8_t currentInstrIdx;
 	//*******
 	//********* Pitch
 	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch
 	float fPitchCounter;									// Licznik probek uwzgledniajacy pitch - akumulacja zmienno przecinkowa
 	uint32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
-	uint16_t glide;
+	uint16_t currentGlide;
 	uint32_t glideCounter;									// licznik glide'a w czasie
 	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
 	float fineTuneControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)
