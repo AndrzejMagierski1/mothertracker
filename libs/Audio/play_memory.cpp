@@ -933,8 +933,17 @@ void AudioPlayMemory::constrainCurrentTune(uint8_t note)
 //note + tune
 void AudioPlayMemory::setStartPitch(uint8_t note)
 {
-	if((lastNote >= 0) && (currentGlide != 0)) pitchControl = (float)notes[lastNote + currentTune];
-	else pitchControl = (float)notes[note+ currentTune];
+	if(currentPlayMode == playModeWavetable)
+	{
+		if((lastNote >= 0) && (currentGlide != 0)) pitchControl = (float)wt_notes[lastNote + currentTune];
+		else pitchControl = (float)wt_notes[note+ currentTune];
+	}
+	else
+	{
+		if((lastNote >= 0) && (currentGlide != 0)) pitchControl = (float)notes[lastNote + currentTune];
+		else pitchControl = (float)notes[note+ currentTune];
+	}
+
 }
 void AudioPlayMemory::applyFinetuneOnPitch(uint8_t note)
 {
