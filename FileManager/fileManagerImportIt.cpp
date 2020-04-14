@@ -13,7 +13,7 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-const uint8_t debugMod = 0;
+const uint8_t debugMod = 1;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
@@ -91,8 +91,8 @@ void cFileManager::importItFile_Init()
 
 	moveToNextOperationStep();
 }
-
-uint32_t readUint(uint8_t *buffStart, uint8_t size)
+// czytaj big endian
+uint32_t readLE(uint8_t *buffStart, uint8_t size)
 {
 	if (size > 4) return 0;
 
@@ -121,24 +121,24 @@ void cFileManager::importItFile_ProcessHeader()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint16_t PHiligt = readUint(&byteBuffer[0x1e], 2);
-		OrdNum = readUint(&byteBuffer[0x20], 2);
+		uint16_t PHiligt = readLE(&byteBuffer[0x1e], 2);
+		OrdNum = readLE(&byteBuffer[0x20], 2);
 
-		InsNum = readUint(&byteBuffer[0x22], 2);
-		SmpNum = readUint(&byteBuffer[0x24], 2);
-		PatNum = readUint(&byteBuffer[0x26], 2);
-		Cwt = readUint(&byteBuffer[0x28], 2);
-		Cmwt = readUint(&byteBuffer[0x2A], 2);
-		Flags = readUint(&byteBuffer[0x2C], 2);
-		Special = readUint(&byteBuffer[0x2E], 2);
-		GV = readUint(&byteBuffer[0x30], 1);
-		MV = readUint(&byteBuffer[0x31], 1);
-		IS = readUint(&byteBuffer[0x32], 1);
-		IT = readUint(&byteBuffer[0x33], 1);
-		Sep = readUint(&byteBuffer[0x34], 1);
-		PWD = readUint(&byteBuffer[0x35], 1);
-		MsgLgth = readUint(&byteBuffer[0x36], 1);
-		MessageOffset = readUint(&byteBuffer[0x38], 4);
+		InsNum = readLE(&byteBuffer[0x22], 2);
+		SmpNum = readLE(&byteBuffer[0x24], 2);
+		PatNum = readLE(&byteBuffer[0x26], 2);
+		Cwt = readLE(&byteBuffer[0x28], 2);
+		Cmwt = readLE(&byteBuffer[0x2A], 2);
+		Flags = readLE(&byteBuffer[0x2C], 2);
+		Special = readLE(&byteBuffer[0x2E], 2);
+		GV = readLE(&byteBuffer[0x30], 1);
+		MV = readLE(&byteBuffer[0x31], 1);
+		IS = readLE(&byteBuffer[0x32], 1);
+		IT = readLE(&byteBuffer[0x33], 1);
+		Sep = readLE(&byteBuffer[0x34], 1);
+		PWD = readLE(&byteBuffer[0x35], 1);
+		MsgLgth = readLE(&byteBuffer[0x36], 1);
+		MessageOffset = readLE(&byteBuffer[0x38], 4);
 		oldImpulseInstrumentFormat = Cmwt < 0x200;
 
 		if (debugMod)
@@ -235,7 +235,7 @@ uint32_t cFileManager::getInstrumentOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, 4);
+		return readLE(byteBuffer, 4);
 	}
 
 	return 0;
@@ -258,7 +258,7 @@ uint32_t cFileManager::getSampleOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, 4);
+		return readLE(byteBuffer, 4);
 	}
 
 	return 0;
@@ -281,7 +281,7 @@ uint32_t cFileManager::getPatternOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, 4);
+		return readLE(byteBuffer, 4);
 	}
 
 	return 0;
@@ -304,7 +304,7 @@ uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, varSize);
+		return readLE(byteBuffer, varSize);
 	}
 
 	return 0;
@@ -367,7 +367,7 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	if (debugMod)
 	{
-		Serial.printf("Insstrument: %d, NoS: %d, smp no: %d, GbV %d\n",
+		Serial.printf("Instrument: %d, NoS: %d, smp no: %d, GbV %d\n",
 						processedInstrument,
 						getFileVariable(fileOffset, 0x1e, 1),
 						sampleNumber,
@@ -453,13 +453,13 @@ void cFileManager::importItFile_LoadSamples()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint32_t Flg = readUint(&sampleHeader[0x12], 4);
-		uint32_t length = readUint(&sampleHeader[0x30], 4);
-		uint32_t loopBegin = readUint(&sampleHeader[0x34], 4);
-		uint32_t loopEnd = readUint(&sampleHeader[0x38], 4);
-		uint32_t C5Speed = readUint(&sampleHeader[0x3c], 4);
-		uint32_t SmpPoint = readUint(&sampleHeader[0x48], 4); //'Long' Offset of sample in file.
-		uint32_t Cvt = readUint(&sampleHeader[0x2e], 1);
+		uint32_t Flg = readLE(&sampleHeader[0x12], 4);
+		uint32_t length = readLE(&sampleHeader[0x30], 4);
+		uint32_t loopBegin = readLE(&sampleHeader[0x34], 4);
+		uint32_t loopEnd = readLE(&sampleHeader[0x38], 4);
+		uint32_t C5Speed = readLE(&sampleHeader[0x3c], 4);
+		uint32_t SmpPoint = readLE(&sampleHeader[0x48], 4); //'Long' Offset of sample in file.
+		uint32_t Cvt = readLE(&sampleHeader[0x2e], 1);
 
 		bool isHeader = (Flg & 0b00000001);
 		bool is16or8bit = (Flg & 0b00000010);
@@ -732,8 +732,8 @@ void cFileManager::importItFile_ProcessPatterns()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint16_t length = readUint(&byteBuffer[0], 2);
-		uint16_t rows = readUint(&byteBuffer[2], 2);
+		uint16_t length = readLE(&byteBuffer[0], 2);
+		uint16_t rows = readLE(&byteBuffer[2], 2);
 
 		if (debugMod) Serial.printf("patt %d, len: %d, rows: %d\n",
 									processedPattern,

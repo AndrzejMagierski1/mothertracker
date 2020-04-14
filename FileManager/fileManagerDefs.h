@@ -80,8 +80,8 @@ const char cExportProjectPathFormat[] 		= "Export/%s";
 const char cModsPath[] 						= "Mod";
 const char cModsPathFormat[] 				= "Mod/%s";
 
-const char cExportModPath[] 				= "Export";
-const char cExportModFilePathFormat[] 		= "Export/%s.it";
+const char cExportModPath[] 				= "Mod";
+const char cExportModFilePathFormat[] 		= "Mod/%s.it";
 
 
 

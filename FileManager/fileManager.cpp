@@ -151,7 +151,8 @@ void cFileManager::updateExportModFile()
 	{
 	case 0:			exportItFile_Init();				break;
 	case 1:			exportItFile_InitHeader();			break;
-	case 2:			exportItFile_Finish();				break;
+	case 2:			exportItFile_ProcessInstruments();	break;
+	case 3:			exportItFile_Finish();				break;
 
 	default:
 		stopOperationWithError(fmExportModError);

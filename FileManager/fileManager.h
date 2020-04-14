@@ -575,8 +575,11 @@ private:
 	// EXPORT MOD
 	void exportItFile_Init();
 	void exportItFile_InitHeader();
+	void exportItFile_ProcessInstruments();
 	void exportItFile_Finish();
 	void exportItFile_Error();
+
+	void exportItFile_setInstrumentOffset();
 
 	/*
 	 *      0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
@@ -606,7 +609,7 @@ private:
 	xxxx: │ 'Long' Offset of patterns, Length = PatNum*4 (3)              │
 	      └───────────────────────────────────────────────────────────────┘
 
-	      (1) Offset = 00C0h+OrdNum
+	  (1) Offset = 00C0h+OrdNum
       (2) Offset = 00C0h+OrdNum+InsNum*4
       (3) Offset = 00C0h+OrdNum+InsNum*4+SmpNum*4
 
