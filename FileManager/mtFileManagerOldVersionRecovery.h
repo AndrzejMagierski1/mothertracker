@@ -23,7 +23,7 @@ public:
 	void translateinstrument(uint8_t firstVersion, uint8_t lastVersion, strInstrumentFile* currentInstrument);
 private:
 	void (*recoveryProjectFunction[PROJECT_VERSION_RECOVERY_COUNTS])(void);
-	void (*recoveryInstrumentFunction[PROJECT_VERSION_RECOVERY_COUNTS])(void);
+	void (*recoveryInstrumentFunction[INSTRUMENT_VERSION_RECOVERY_COUNTS])(void);
 	strMtProjectRemote * receivedProject;
 	strInstrumentFile * receivedInstrument;
 };
