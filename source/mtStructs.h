@@ -51,7 +51,7 @@ const uint8_t PATTERN_INDEX_MAX 	=			255;
 
 const uint8_t FX_MAX 			=        		47;
 const uint8_t FX_MAX_FOR_RANDOM	=        		40;
-const uint8_t FX_COUNT		 	=        		32;
+const uint8_t FX_COUNT		 	=        		33;
 const uint8_t FX_COUNT_HIDDEN_FXes		 	=	1; // ile fxów na końcu listy jest ukrytych
 
 const uint8_t FX_VALUE_MAX	=					127;
