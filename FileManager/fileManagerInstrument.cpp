@@ -462,6 +462,16 @@ void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstru
 	targetInstrument->envelope[envPan].loop = 0;
 	targetInstrument->envelope[envPan].enable = 0;
 
+	targetInstrument->envelope[envFinetune].delay = 0;
+	targetInstrument->envelope[envFinetune].attack = 3000;
+	targetInstrument->envelope[envFinetune].hold = 0;
+	targetInstrument->envelope[envFinetune].decay = 0;
+	targetInstrument->envelope[envFinetune].sustain = 1.0;
+	targetInstrument->envelope[envFinetune].release = 1000;
+	targetInstrument->envelope[envFinetune].amount = 1.0;
+	targetInstrument->envelope[envFinetune].loop = 0;
+	targetInstrument->envelope[envFinetune].enable = 0;
+
 	targetInstrument->cutOff = 1.0;
 	targetInstrument->filterEnable = 0;
 	targetInstrument->filterType = lowPass;

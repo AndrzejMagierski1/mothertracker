@@ -479,6 +479,33 @@ void playerEngine::changePanningLfoRatePerformanceMode(int8_t value)
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning] = 1;
 }
 
+void playerEngine::changeFinetuneLfoRatePerformanceMode(int8_t value)
+{
+	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoFinetune] != 1) && (value == 0)) return;
+	performanceMod.lfoFinetuneRate = value;
+
+	uint8_t localFinetuneRate = 0;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFinetune] || trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFinetune] )
+	{
+		localFinetuneRate = currentSeqModValues.lfoFinetuneRate ;
+	}
+	else
+	{
+		localFinetuneRate = mtProject.instrument[currentInstrument_idx].lfo[envFinetune].speed;
+	}
+
+	if(localFinetuneRate + value > 19) currentPerformanceValues.lfoFinetuneRate = 19;
+	else if(localFinetuneRate + value < 0) currentPerformanceValues.lfoFinetuneRate = 0;
+	else currentPerformanceValues.lfoFinetuneRate = localFinetuneRate + value;
+
+	calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune], currentPerformanceValues.lfoFinetuneRate,0);
+	initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
+	setSyncParamsLFO(envFinetune);
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoFinetune] = 1;
+}
+
 
 //*******************************************end
 void playerEngine::endVolumePerformanceMode()
@@ -843,4 +870,32 @@ void playerEngine::endPanningLfoRatePerformanceMode()
 	setSyncParamsLFO(envPan);
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning] = 0;
+}
+void playerEngine::endFinetuneLfoRatePerformanceMode()
+{
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFinetune] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFinetune])
+	{
+		calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune], currentSeqModValues.lfoFinetuneRate,0);
+		initEnvelopesParamiters(envFinetune,&lfoBasedEnvelope[envFinetune]);
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].enable)
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].loop)
+			{
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune], mtProject.instrument[currentInstrument_idx].lfo[envFinetune].speed,0);
+				initEnvelopesParamiters(envFinetune,&lfoBasedEnvelope[envFinetune]);
+			}
+			else
+			{
+				initEnvelopesParamiters(envFinetune,&mtProject.instrument[currentInstrument_idx].envelope[envFinetune]);
+			}
+		}
+	}
+
+	setSyncParamsLFO(envFinetune);
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoFinetune] = 0;
 }

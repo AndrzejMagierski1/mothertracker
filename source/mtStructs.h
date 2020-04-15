@@ -146,7 +146,7 @@ constexpr uint32_t LFO_FILTER_SEND_MASK =			0b00000000000000001000000000000000;
 constexpr uint32_t LFO_WT_POS_SEND_MASK =			0b00000000000000010000000000000000;
 constexpr uint32_t LFO_GRAN_POS_SEND_MASK =			0b00000000000000100000000000000000;
 constexpr uint32_t LFO_PANNING_SEND_MASK =			0b00000000000001000000000000000000;
-
+constexpr uint32_t LFO_FINETUNE_SEND_MASK =			0b00000000000010000000000000000000;
 
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					13;
@@ -266,7 +266,7 @@ enum envelopesType
     envCutoff,
 	envWtPos,
 	envGranPos,
-    envPitch,
+    envFinetune,
 
 
 	envMax

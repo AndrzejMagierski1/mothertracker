@@ -16,6 +16,7 @@ envelopeGenerator		 envelopeFilter[8];
 envelopeGenerator		 envelopeWtPosition[8];
 envelopeGenerator		 envelopeGranPosition[8];
 envelopeGenerator		 envelopePanning[8];
+envelopeGenerator		 envelopeFinetune[8];
 
 AudioPlaySdWav           playSdWav;
 AudioPlaySdWavFloat		 playSdWavFloat;
@@ -385,6 +386,7 @@ playerEngine::playerEngine()
 	envelopePtr[envWtPos]= &envelopeWtPosition[nChannel];
 	envelopePtr[envPan] = &envelopePanning[nChannel];
 	envelopePtr[envGranPos] = &envelopeGranPosition[nChannel];
+	envelopePtr[envFinetune] = &envelopeFinetune[nChannel];
 
 	envelopeAmpPtr->releaseNoteOn(RELEASE_NOTE_ON_VAL);
 }
@@ -715,6 +717,18 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		}
 	}
 
+	if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].loop)
+		{
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[instr_idx].lfo[envFinetune], mtProject.instrument[instr_idx].lfo[envFinetune].speed,0);
+			initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
+		}
+		else
+		{
+			initEnvelopesParamiters(envFinetune, &mtProject.instrument[instr_idx].envelope[envFinetune]);
+		}
+	}
 
 
 	/*======================================================================================================*/
