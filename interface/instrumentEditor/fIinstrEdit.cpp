@@ -744,7 +744,7 @@ void changeEnvList(int16_t value)
 {
 
 	if(IE->selectedEnvelope + value < 0) IE->selectedEnvelope = 0;
-	else if(IE->selectedEnvelope + value > 4 ) IE->selectedEnvelope = 4;
+	else if(IE->selectedEnvelope + value > 5 ) IE->selectedEnvelope = 5;
 	else IE-> selectedEnvelope += value;
 
 	IE->showInstrumentEnv();
@@ -882,6 +882,7 @@ void changeLfoShape(int16_t value)
 		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
 		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
 		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		case envFinetune:	statusByte = LFO_FINETUNE_SEND_MASK; 			break;
 		default: break;
 	}
 	for (int i = 0; i < 8; i++)
@@ -909,6 +910,7 @@ void changeLfoSpeed(int16_t value)
 		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
 		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
 		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		case envFinetune:	statusByte = LFO_FINETUNE_SEND_MASK; 			break;
 		default: break;
 	}
 	for (int i = 0; i < 8; i++)
@@ -936,6 +938,7 @@ void changeLfoAmount(int16_t value)
 		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
 		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
 		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		case envFinetune:	statusByte = LFO_FINETUNE_SEND_MASK; 			break;
 		default: break;
 	}
 	for (int i = 0; i < 8; i++)

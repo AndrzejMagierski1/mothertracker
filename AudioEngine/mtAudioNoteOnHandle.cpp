@@ -28,7 +28,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	handleNoteOnPanning();
 
-	handleNoteOnReverbSend();
+	handleNoteOnDelaySend();
 
 
 	status = playMemPtr->play(instr_idx,note);
@@ -257,16 +257,17 @@ void playerEngine::handleInitNoteOnAllEnvelopes()
 		handleInitNoteOnEnvelope(envCutoff);
 	}
 
-	if(mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable)
+	if(mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable)
 	{
 		handleInitNoteOnEnvelope(envWtPos);
 	}
 
-	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[currentInstrument_idx].playMode == playModeGranular))
+	if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
 	{
 		handleInitNoteOnEnvelope(envGranPos);
 	}
 	handleInitNoteOnEnvelope(envPan);
+	handleInitNoteOnEnvelope(envFinetune);
 }
 
 void playerEngine::handleNoteOnFilter()
@@ -299,7 +300,7 @@ void playerEngine::handleNoteOnPanning()
 	if(!isActiveEnvelope(envPan)) modPanning(mtProject.instrument[currentInstrument_idx].panning);
 }
 
-void playerEngine::handleNoteOnReverbSend()
+void playerEngine::handleNoteOnDelaySend()
 {
 	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
 	{
@@ -385,6 +386,7 @@ void playerEngine::handleInitFxNoteOnEnvelope(uint8_t n)
 						case envGranPos: 	changePositionLfoRatePerformanceMode(performanceMod.lfoPositionRate);	break;
 						case envWtPos:		changePositionLfoRatePerformanceMode(performanceMod.lfoPositionRate);	break;
 						case envPan:		changePositionLfoRatePerformanceMode(performanceMod.lfoPanningRate);	break;
+						case envFinetune: 	changePositionLfoRatePerformanceMode(performanceMod.lfoFinetuneRate);	break;
 					}
 				}
 			}
@@ -437,6 +439,7 @@ void playerEngine::handleInitFxNoteOnAllEnvelopes()
 		handleInitFxNoteOnEnvelope(envGranPos);
 	}
 	handleInitFxNoteOnEnvelope(envPan);
+	handleInitFxNoteOnEnvelope(envFinetune);
 }
 
 void playerEngine::handleFxNoteOnFilter()

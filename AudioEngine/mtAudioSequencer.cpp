@@ -568,6 +568,43 @@ void playerEngine::fxPanningLFO(uint8_t fx_val, uint8_t fx_n)
 	setSyncParamsLFO(envPan);
 }
 //************************************************************
+void playerEngine::fxFinetuneLFO(uint8_t fx_val, uint8_t fx_n)
+{
+	uint8_t otherFx_n = !fx_n;
+
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoFinetune] = 1;
+	if(fx_n == MOST_SIGNIFICANT_FX)
+	{
+		currentSeqModValues.lfoFinetuneEnable = 1;
+		currentSeqModValues.lfoFinetuneRate = fx_val;
+	}
+	else if(fx_n == LEAST_SIGNIFICANT_FX)
+	{
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFinetune])
+		{
+			currentSeqModValues.lfoFinetuneEnable = 1;
+			currentSeqModValues.lfoFinetuneRate = fx_val;
+		}
+	}
+
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoFinetune])
+	{
+		changeFinetuneLfoRatePerformanceMode(performanceMod.lfoFinetuneRate);
+	}
+	else
+	{
+		calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune],currentSeqModValues.lfoFinetuneRate,0);
+		initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
+		if((envelopePtr[envFinetune]->isKeyPressed() != 1) && (envelopePtr[envFinetune]->getPhase() == 0))
+		{
+			envelopePtr[envFinetune]->start();
+		}
+	}
+
+	setSyncParamsLFO(envFinetune);
+}
+
+
 //*********************************** END SEQ FX
 
 void playerEngine::endFxFilter(uint8_t fx_n)
@@ -1158,6 +1195,58 @@ void playerEngine::endFxPanningLFO(uint8_t fx_n)
 	}
 
 	setSyncParamsLFO(envPan);
+}
+
+void playerEngine::endFxFinetuneLFO(uint8_t fx_n)
+{
+	uint8_t otherFx_n = !fx_n;
+
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoFinetune] = 0;
+
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoFinetune])
+	{
+		if(fx_n == MOST_SIGNIFICANT_FX)
+		{
+			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFinetune])
+			{
+				currentSeqModValues.lfoFinetuneRate = lastSeqVal[otherFx_n];
+				currentSeqModValues.lfoFinetuneEnable = 1;
+			}
+		}
+		changeFinetuneLfoRatePerformanceMode(performanceMod.lfoFinetuneRate);
+	}
+	else
+	{
+		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFinetune])
+		{
+			if(fx_n == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.lfoFinetuneRate = lastSeqVal[otherFx_n];
+				currentSeqModValues.lfoFinetuneEnable = 1;
+
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune],currentSeqModValues.lfoFinetuneRate, 0);
+				initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
+			}
+		}
+		else
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].enable)
+			{
+				if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].loop)
+				{
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune],mtProject.instrument[currentInstrument_idx].lfo[envFinetune].speed, 0);
+					initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
+				}
+				else
+				{
+					initEnvelopesParamiters(envFinetune, &mtProject.instrument[currentInstrument_idx].envelope[envFinetune]);
+				}
+
+			}
+		}
+	}
+
+	setSyncParamsLFO(envFinetune);
 }
 
 uint8_t playerEngine::isFxVelocity(uint8_t fx_id)

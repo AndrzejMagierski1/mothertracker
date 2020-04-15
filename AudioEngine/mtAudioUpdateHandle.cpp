@@ -21,6 +21,7 @@ void playerEngine:: update()
 	envelopeCondition[envWtPos] = (mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable);
 	envelopeCondition[envGranPos] = ((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) &&
 			(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular));
+	envelopeCondition[envFinetune] = true;
 	//*******
 	for(uint8_t i = envAmp; i< ACTIVE_ENVELOPES; i++)
 	{
@@ -35,10 +36,10 @@ void playerEngine:: update()
 		handleUpdateRefreshPanning();
 		handleUpdateRefreshGranPos();
 		handleUpdateRefreshWtPos();
+		handleUpdateRefreshFinetune();
 		//**********
 		handleUpdateRefreshLP1();
 		handleUpdateRefreshLP2();
-		handleUpdateRefreshFinetune();
 		handleUpdateRefreshTune();
 		handleUpdateRefreshVolume();
 		handleUpdateRefreshResonance();
@@ -51,6 +52,7 @@ void playerEngine:: update()
 		handleUpdateRefreshWtPosLFO();
 		handleUpdateRefreshGranPosLFO();
 		handleUpdateRefreshPanningLFO();
+		handleUpdateRefreshFinetuneLFO();
 	}
 //***********************
 }
@@ -188,27 +190,31 @@ void playerEngine::handleUpdateRefreshFinetune()
 	{
 		statusBytes &= (~FINETUNE_MASK);
 
-		int8_t fineTune;
-		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] ||
-		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::fineTune] ) fineTune = currentSeqModValues.fineTune;
-		else fineTune = mtProject.instrument[currentInstrument_idx].fineTune;
-
-
-		if(fineTune > MAX_INSTRUMENT_FINETUNE)
+		if(!isActiveEnvelope(envFinetune))
 		{
-			playMemPtr->setForcedFineTune(MAX_INSTRUMENT_FINETUNE);
-			modFineTune(MAX_INSTRUMENT_FINETUNE);
+			currentEnvelopeModification[envFinetune] = 0;
 		}
-		else if(fineTune < MIN_INSTRUMENT_FINETUNE)
+
+		int32_t localFinetuneMod = currentEnvelopeModification[envFinetune] * MAX_INSTRUMENT_FINETUNE;
+
+		int16_t localFinetune = 0;
+
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] ||
+				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::fineTune])
 		{
-			playMemPtr->setForcedFineTune(MIN_INSTRUMENT_FINETUNE);
-			modFineTune(MIN_INSTRUMENT_FINETUNE);
+			localFinetune = currentSeqModValues.fineTune;
 		}
 		else
 		{
-			playMemPtr->setForcedFineTune(fineTune);
-			modFineTune(fineTune);
+			localFinetune = mtProject.instrument[currentInstrument_idx].fineTune;
 		}
+
+		if((int)(localFinetune + localFinetuneMod) < MIN_INSTRUMENT_FINETUNE) localFinetune = MIN_INSTRUMENT_FINETUNE;
+		else if((int)(localFinetune+ localFinetuneMod) >= MAX_INSTRUMENT_FINETUNE) localFinetune = MAX_INSTRUMENT_FINETUNE;
+		else localFinetune += localFinetuneMod;
+
+		playMemPtr->setForcedFineTune(localFinetune);
+		modFineTune(localFinetune);
 	}
 }
 void playerEngine::handleUpdateRefreshTune()
@@ -547,6 +553,28 @@ void playerEngine::handleUpdateRefreshPanningLFO()
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],mtProject.instrument[currentInstrument_idx].lfo[envPan].speed, 0);
 				initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 				setSyncParamsLFO(envPan);
+			}
+		}
+
+	}
+}
+
+void playerEngine::handleUpdateRefreshFinetuneLFO()
+{
+	if(statusBytes & LFO_FINETUNE_SEND_MASK)
+	{
+		statusBytes &= (~LFO_FINETUNE_SEND_MASK);
+
+		if((mtProject.instrument[currentInstrument_idx].envelope[envFinetune].enable)
+		&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFinetune])
+		&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFinetune])
+		&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoFinetune]))
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFinetune].loop)
+			{
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune],mtProject.instrument[currentInstrument_idx].lfo[envFinetune].speed, 0);
+				initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
+				setSyncParamsLFO(envFinetune);
 			}
 		}
 

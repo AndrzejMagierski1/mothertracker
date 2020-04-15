@@ -33,13 +33,14 @@ const char filterModeFunctLabels[filterModeCount][11]=
 };
 
 
-const char envelopesLabels[5][20]=
+const char envelopesLabels[6][20]=
 {
 		"Volume",
 		"Panning",
 		"Cutoff",
 		"Wavetable Position",
-		"Granular Position"
+		"Granular Position",
+		"Finetune"
 
 };
 
@@ -240,13 +241,14 @@ public:
 	strList lfoSpeedList;
 //	strList envLoopList;
 
-	const char* envelopeNames[5] =
+	const char* envelopeNames[6] =
 	{
 		&envelopesLabels[0][0],
 		&envelopesLabels[1][0],
 		&envelopesLabels[2][0],
 		&envelopesLabels[3][0],
-		&envelopesLabels[4][0]
+		&envelopesLabels[4][0],
+		&envelopesLabels[5][0]
 	};
 	const char* envStateNames[3] =
 	{

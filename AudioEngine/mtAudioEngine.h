@@ -185,7 +185,7 @@ constexpr float AMP_MUTED = 0.0f;
 constexpr uint8_t MOST_SIGNIFICANT_FX = 0;
 constexpr uint8_t LEAST_SIGNIFICANT_FX = 1;
 extern IntervalTimer updateTimer;
-constexpr uint8_t ACTIVE_ENVELOPES = envMax - 1;
+constexpr uint8_t ACTIVE_ENVELOPES = envMax;
 
 class audioEngine
 {
@@ -286,7 +286,7 @@ public:
 			CUTOFF_MASK,
 			WT_POS_SEND_MASK,
 			GRANULAR_POS_SEND_MASK,
-			0
+			FINETUNE_MASK
 	};
 	const uint8_t envelopesControlValue[envMax] =
 	{
@@ -295,7 +295,7 @@ public:
 			(uint8_t)parameterList::lfoCutoff,
 			(uint8_t)parameterList::lfoWavetablePosition,
 			(uint8_t)parameterList::lfoGranularPosition,
-			0
+			(uint8_t)parameterList::lfoFinetune,
 	};
 	enum struct controlType
 	{
@@ -329,6 +329,7 @@ public:
 		lfoWavetablePosition,
 		lfoGranularPosition,
 		lfoPanning,
+		lfoFinetune,
 		volume,
 		samplePlaybeckDirection,
 		sampleSlice,
@@ -381,6 +382,9 @@ public:
 		uint8_t lfoPanningEnable;
 		uint8_t lfoPanningRate;
 
+		uint8_t lfoFinetuneEnable;
+		uint8_t lfoFinetuneRate;
+
 	} currentSeqModValues ;
 
 	struct strCurrentPerformanceValues
@@ -415,6 +419,9 @@ public:
 		uint8_t lfoPanningEnable;
 		uint8_t lfoPanningRate;
 
+		uint8_t lfoFinetuneEnable;
+		uint8_t lfoFinetuneRate;
+
 	} currentPerformanceValues;
 
 
@@ -435,6 +442,7 @@ public:
 		int8_t  lfoCutoffRate;
 		int8_t  lfoPositionRate;
 		int8_t  lfoPanningRate;
+		int8_t  lfoFinetuneRate;
 	} performanceMod;
 
 	float currentEnvelopeModification[envMax];
@@ -461,7 +469,7 @@ public:
 	void changeCutoffLfoRatePerformanceMode(int8_t value);
 	void changePositionLfoRatePerformanceMode(int8_t value);
 	void changePanningLfoRatePerformanceMode(int8_t value);
-
+	void changeFinetuneLfoRatePerformanceMode(int8_t value);
 
 //*****************************END
 
@@ -484,6 +492,7 @@ public:
 	void endCutoffLfoRatePerformanceMode();
 	void endPositionLfoRatePerformanceMode();
 	void endPanningLfoRatePerformanceMode();
+	void endFinetuneLfoRatePerformanceMode();
 
 
 //******testowe
@@ -560,7 +569,7 @@ private:
 	void handleNoteOnFilter();
 	void handleNoteOnGain();
 	void handleNoteOnPanning();
-	void handleNoteOnReverbSend();
+	void handleNoteOnDelaySend();
 //*****note off
 	void noteOffFade();
 	void noteOffCut();
@@ -589,6 +598,7 @@ private:
 	void handleUpdateRefreshWtPosLFO();
 	void handleUpdateRefreshGranPosLFO();
 	void handleUpdateRefreshPanningLFO();
+	void handleUpdateRefreshFinetuneLFO();
 
 //*************************************************
 //************************* FX HANDLE
@@ -616,6 +626,8 @@ private:
 	void fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n);
 //***
 	void fxPanningLFO(uint8_t fx_val, uint8_t fx_n);
+//***
+	void fxFinetuneLFO(uint8_t fx_val, uint8_t fx_n);
 //*************************************************
 //************************* FX END HANDLE
 	void endFxFilter(uint8_t fx_n);
@@ -641,6 +653,8 @@ private:
 	void endFxPositionWavetableLFO(uint8_t fx_n);
 //******
 	void endFxPanningLFO(uint8_t fx_n);
+//******
+	void endFxFinetuneLFO(uint8_t fx_n);
 //******FUNKCJE NARZUCAJACE WARTOSCI SILNIKOWI
 	void setFxVolume();
 	void clearFxVolume();
