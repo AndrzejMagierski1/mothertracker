@@ -17,7 +17,7 @@ const uint8_t FV_VER_3 =					66;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		2;		// wersja struktury pliku projektu
-const uint8_t INSTRUMENT_FILE_VERSION 	=	2;		// wersja struktury pliku instrumentu
+const uint8_t INSTRUMENT_FILE_VERSION 	=	3;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			1;
 

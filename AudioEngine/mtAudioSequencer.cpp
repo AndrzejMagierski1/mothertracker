@@ -1406,9 +1406,6 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 			}
 		}
 	}
-
-
-
 }
 
 void playerEngine::setSyncParamsAmpLFO()
