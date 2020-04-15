@@ -186,7 +186,6 @@ uint8_t Sequencer::randomFx()
 				retVal != fx.FX_TYPE_FADE &&
 				retVal != fx.FX_TYPE_CUT &&
 				retVal != fx.FX_TYPE_R4 &&
-				retVal != fx.FX_TYPE_R5 &&
 				retVal != fx.FX_TYPE_R10 &&
 				retVal != fx.FX_TYPE_R30 &&
 				retVal != fx.FX_TYPE_R31 &&
@@ -1321,6 +1320,7 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 
 	case fx.FX_TYPE_FILTER_LFO:
 		case fx.FX_TYPE_PANNING_LFO:
+		case fx.FX_TYPE_FINETUNE_LFO:
 		case fx.FX_TYPE_POSITION_LFO:
 		return 24;
 
@@ -1429,7 +1429,7 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 	}
 }
 
-const char lfoAmpLabels[24][4] =
+const char lfoSpeedLabels_ampOnly[24][4] =
 		{
 				" 24",
 				" 16",
@@ -1459,17 +1459,17 @@ const char lfoAmpLabels[24][4] =
 
 const char lfoSpeedLabels[25][4] =
 		{
-				"32",
-				"24",
-				"16",
-				"12",
-				"8",
-				"6",
-				"4",
-				"3",
-				"2",
+				" 32",
+				" 24",
+				" 16",
+				" 12",
+				"  8",
+				"  6",
+				"  4",
+				"  3",
+				"  2",
 				"3/2",
-				"1",
+				"  1",
 				"3/4",
 				"1/2",
 				"3/8",
@@ -1517,11 +1517,12 @@ void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
 	case fx.FX_TYPE_FILTER_LFO:
 		case fx.FX_TYPE_PANNING_LFO:
 		case fx.FX_TYPE_POSITION_LFO:
+		case fx.FX_TYPE_FINETUNE_LFO:
 		strcpy(ptr, lfoSpeedLabels[val]);
 		break;
 
 	case fx.FX_TYPE_VOLUME_LFO:
-		strcpy(ptr, lfoAmpLabels[val]);
+		strcpy(ptr, lfoSpeedLabels_ampOnly[val]);
 		break;
 
 	case fx.FX_TYPE_OFF:
