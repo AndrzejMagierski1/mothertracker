@@ -1631,8 +1631,9 @@ void Sequencer::handleNote(byte channel,
 			instrumentPlayer[sel->firstTrack].noteOn(
 					mtProject.values.lastUsedInstrument,
 					note,
-					map(velocity,0,127,0,100),
-					0,0,0,0); //magiczne zera
+					map(velocity, 0, 127, 0, 100),
+					0,
+					0, 0, 0); //magiczne zera
 		}
 		else if (isRec())
 		{
@@ -1665,8 +1666,8 @@ void Sequencer::handleNote(byte channel,
 					instrumentPlayer[tr].noteOn(
 												step->instrument,
 												step->note,
-												map(velocity,0,127,0,100),
-												0,0,0,0); //magiczne zera
+												map(velocity, 0, 127, 0, 100),
+												0, 0, 0, 0); //magiczne zera
 
 					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = map(player.uStep + 1, 1, 48, 0, 100);
@@ -1691,8 +1692,9 @@ void Sequencer::handleNote(byte channel,
 					instrumentPlayer[tr].noteOn(
 							mtProject.values.lastUsedInstrument,
 							note,
-							map(velocity,0,127,0,100),
-							0,0,0,0); //magiczne zera
+							map(velocity, 0, 127, 0, 100),
+							0,
+							0, 0, 0); //magiczne zera
 //					Serial.printf("noteON tr %d\n", tr);
 					break;
 				}
@@ -1882,7 +1884,7 @@ uint8_t Sequencer::getInstrumentVelo(uint8_t ins)
 	}
 	else
 	{
-		return mtProject.instrument[ins].volume;
+		return map(mtProject.instrument[ins].volume, 0, 100, 0, 127);
 	}
 	return 0;
 }

@@ -2905,8 +2905,9 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				{
 					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
-											noteFromPad,
-											127);
+							noteFromPad,
+							sequencer.getInstrumentVelo(
+									mtProject.values.lastUsedInstrument));
 				}
 				else if (state == buttonRelease)
 				{
