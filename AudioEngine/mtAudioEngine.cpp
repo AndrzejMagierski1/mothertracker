@@ -296,6 +296,7 @@ void audioEngine::performanceModeEndAll()
 		instrumentPlayer[i].endCutoffLfoRatePerformanceMode();
 		instrumentPlayer[i].endPositionLfoRatePerformanceMode();
 		instrumentPlayer[i].endPanningLfoRatePerformanceMode();
+		instrumentPlayer[i].endFinetuneLfoRatePerformanceMode();
 	}
 }
 
