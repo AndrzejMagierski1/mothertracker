@@ -18,7 +18,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_GLIDE :					fxGlide(fx_val, fx_n);					break;
 		case fx_t::FX_TYPE_MICROTUNING :			fxFinetune(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_PANNING :				fxPanning(fx_val, fx_n);				break;
-		case fx_t::FX_TYPE_DELAY_SEND :			fxReverbSend(fx_val, fx_n);				break;
+		case fx_t::FX_TYPE_DELAY_SEND :				fxDelaySend(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :		fxReversePlayback(fx_val, fx_n);		break;
 		case fx_t::FX_TYPE_R1 : break;
 		case fx_t::FX_TYPE_R7 : break;
@@ -35,6 +35,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_FILTER_LFO:				fxCutoffLFO(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_POSITION_LFO:			fxPositionLFO(fx_val, fx_n);			break;
 		case fx_t::FX_TYPE_PANNING_LFO:				fxPanningLFO(fx_val, fx_n);				break;
+		case fx_t::FX_TYPE_FINETUNE_LFO:			fxFinetuneLFO(fx_val, fx_n);			break;
 		default: break;
 	}
 
@@ -61,7 +62,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 		case fx_t::FX_TYPE_GLIDE:						endFxGlide(fx_n);			break;
 		case fx_t::FX_TYPE_MICROTUNING :				endFxFinetune(fx_n);		break;
 		case fx_t::FX_TYPE_PANNING :					endFxPanning(fx_n);			break;
-		case fx_t::FX_TYPE_DELAY_SEND :				endFxReverbSend(fx_n);		break;
+		case fx_t::FX_TYPE_DELAY_SEND :					endFxReverbSend(fx_n);		break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :			endFxReversePlayback(fx_n);	break;
 		case fx_t::FX_TYPE_R1 : break;
 		case fx_t::FX_TYPE_R7 : break;
@@ -78,6 +79,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 		case fx_t::FX_TYPE_FILTER_LFO:					endFxCutoffLFO(fx_n);		break;
 		case fx_t::FX_TYPE_POSITION_LFO:				endFxPositionLFO(fx_n);		break;
 		case fx_t::FX_TYPE_PANNING_LFO:					endFxPanningLFO(fx_n);		break;
+		case fx_t::FX_TYPE_FINETUNE_LFO:				endFxFinetuneLFO(fx_n);		break;
 		default: break;
 	}
 }
@@ -186,7 +188,7 @@ void playerEngine::fxPanning(uint8_t fx_val, uint8_t fx_n)
 	setFxPanning();
 }
 
-void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
+void playerEngine::fxDelaySend(uint8_t fx_val, uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
@@ -1367,6 +1369,7 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 					case envGranPos: 	localRate 	= currentPerformanceValues.lfoGranularPositionRate;			break;
 					case envPan: 		localRate	= currentPerformanceValues.lfoPanningRate;					break;
 					case envWtPos: 		localRate	= currentPerformanceValues.lfoWavetablePositionRate;		break;
+					case envFinetune: 	localRate	= currentPerformanceValues.lfoFinetuneRate;					break;
 				}
 			}
 			else if ( (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[type]]) ||
@@ -1378,6 +1381,7 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 					case envGranPos: 	localRate 	= currentSeqModValues.lfoGranularPositionRate;			break;
 					case envPan: 		localRate	= currentSeqModValues.lfoPanningRate;					break;
 					case envWtPos: 		localRate	= currentSeqModValues.lfoWavetablePositionRate;			break;
+					case envFinetune: 	localRate	= currentSeqModValues.lfoFinetuneRate;					break;
 				}
 			}
 
