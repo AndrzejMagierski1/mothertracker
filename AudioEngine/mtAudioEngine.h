@@ -607,7 +607,7 @@ private:
 	void fxGlide(uint8_t fx_val, uint8_t fx_n);
 	void fxFinetune(uint8_t fx_val, uint8_t fx_n);
 	void fxPanning(uint8_t fx_val, uint8_t fx_n);
-	void fxReverbSend(uint8_t fx_val, uint8_t fx_n);
+	void fxDelaySend(uint8_t fx_val, uint8_t fx_n);
 	void fxReversePlayback(uint8_t fx_val, uint8_t fx_n);
 //***position
 	void fxPosition(uint8_t fx_val, uint8_t fx_n);
