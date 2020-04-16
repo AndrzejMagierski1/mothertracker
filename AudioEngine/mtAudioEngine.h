@@ -218,11 +218,14 @@ public:
 	void setPassEnvelope(uint8_t state);
 	void blockDelayRefresh();
 	void unblockDelayRefresh();
+	void setLastUsedVoice(uint8_t v);
+	uint8_t getLastUsedVoice();
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;
 	uint16_t currentTempo;
 	uint16_t lastTempo;
+	uint8_t lastUsedVoice;
 };
 
 
@@ -472,8 +475,6 @@ public:
 	void changeFinetuneLfoRatePerformanceMode(int8_t value);
 
 //*****************************END
-
-
 	void endVolumePerformanceMode();
 	void endPanningPerformanceMode();
 	void endTunePerformanceMode();
