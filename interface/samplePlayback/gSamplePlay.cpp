@@ -393,6 +393,8 @@ void cSamplePlayback::showDefaultScreen()
 	display.setControlHide(label[7]);
 	display.refreshControl(label[7]);
 
+	activateLabelsBorder();
+
 	display.synchronizeRefresh();
 
 }
@@ -651,6 +653,43 @@ void cSamplePlayback::hideAutoSlicePopup()
 	showDefaultScreen();
 }
 
+void cSamplePlayback::showEqualSlice()
+{
+	display.setControlText(label[0], "Number");
+	display.setControlText(label[1], "Equal Slice");
+	display.setControlText(label[2], "");
+	display.setControlText(label[3], "");
+	display.setControlText(label[4], "");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "");
+
+	display.setControlText2(label[0], "");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setRemoveControlStyle(label[6], controlStyleShowBitmap);
+	display.setControlText2(label[6], "");
+
+	//display.setControlShow(popupLabel);
+	display.setControlValue(frameControl, 0);
+	display.refreshControl(frameControl);
+	//display.refreshControl(popupLabel);
+	for(uint8_t i = 0; i < 7; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	showSlicesEqualNumberValue();
+
+	display.synchronizeRefresh();
+}
+void cSamplePlayback::hideEqualSlice()
+{
+	showDefaultScreen();
+}
+
 void cSamplePlayback::showSlicesSelectValue()
 {
 	sprintf(sliceSelectTextValue, "%d of %d", editorInstrument->selectedSlice + 1,editorInstrument->sliceNumber < 1 ?  1 : editorInstrument->sliceNumber );
@@ -671,6 +710,14 @@ void cSamplePlayback::showSlicesAdjustValue()
 	display.setControlText2(label[1], sliceAdjustTextValue);
 	display.setControlShow(label[1]);
 	display.refreshControl(label[1]);
+}
+
+void  cSamplePlayback::showSlicesEqualNumberValue()
+{
+	sprintf(equalSliceNumberText, "%d", mtConfig.equalSliceNumber);
+	display.setControlText2(label[0], equalSliceNumberText);
+	display.setControlShow(label[0]);
+	display.refreshControl(label[0]);
 }
 
 

@@ -90,12 +90,14 @@ public:
 	char loopPoint1ValueText[8];
 	char loopPoint2ValueText[8];
 	char playTimeValueText[8];
+	char equalSliceNumberText[8];
 	void showStartPointValue();
 	void showEndPointValue();
 	void showLoopPoint1Value();
 	void showLoopPoint2Value();
 	void showSlicesSelectValue();
 	void showSlicesAdjustValue();
+	void showSlicesEqualNumberValue();
 
 
 	void hideLoopPoints();
@@ -112,6 +114,13 @@ public:
 
 	void showAutoSlicePopup();
 	void hideAutoSlicePopup();
+
+	void showEqualSlice();
+	void hideEqualSlice();
+
+	void modEqualSliceNumber(int16_t val);
+	bool isEqualSliceActive();
+
 	strFrameData frameData;
 
 	strLabelData labelArrow;
@@ -154,6 +163,7 @@ public:
 	elapsedMicros playProgresValueTim = 0;
 	elapsedMicros refreshPlayProgressValue = 0;
 	float playPitch = 1.0 ;
+	bool isShiftPressed;
 
 
 	strInstrument * editorInstrument;

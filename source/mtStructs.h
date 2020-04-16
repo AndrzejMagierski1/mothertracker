@@ -640,6 +640,8 @@ struct strMtConfig
 	} debug;
 
 	uint32_t arcanoidHighestScore;
+
+	uint8_t equalSliceNumber = 1;
 };
 
 

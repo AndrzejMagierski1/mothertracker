@@ -704,6 +704,13 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 static  uint8_t functSelectStart(uint8_t state)
 {
 	if(SP->autoSlicePopupVisible) return 1;
+	if(SP->isEqualSliceActive())
+	{
+		sliceManager.equalSlice(SP->editorInstrument, mtConfig.equalSliceNumber);
+		SP->refreshSlicePoints = 1;
+		return 1;
+	}
+
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
 
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
@@ -948,6 +955,7 @@ static  uint8_t functSelectEnd(uint8_t state)
 		return 1;
 
 	}
+	if(SP->isEqualSliceActive()) return 1;
 	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
 	{
 		if(state == buttonPress) functAutoSlice();
@@ -1015,6 +1023,7 @@ static  uint8_t functSelectEnd(uint8_t state)
 static  uint8_t functSelectZoom()
 {
 	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
 	{
 		return 1;
@@ -1046,6 +1055,7 @@ static  uint8_t functPlayMode(uint8_t button)
 {
 	if(SP->autoSlicePopupVisible) return 1;
 	//if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 	SP->cancelMultiFrame();
 	SP->clearAllNodes();
 
@@ -1074,6 +1084,13 @@ static  uint8_t functPlayMode(uint8_t button)
 static  uint8_t functEncoder(int16_t value)
 {
 	if(SP->autoSlicePopupVisible) return 1;
+
+	if(SP->isEqualSliceActive())
+	{
+			SP->modEqualSliceNumber(value);
+			return 1;
+	}
+
 	if(SP->frameData.multiSelActiveNum != 0)
 	{
 		SP->stepThroughNodes(value);
@@ -1130,6 +1147,7 @@ static  uint8_t functLeft()
 	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0) return 1;
 //	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 
 	if(SP->selectedPlace > 0) SP->selectedPlace--;
 
@@ -1199,6 +1217,7 @@ static  uint8_t functRight()
 	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0) return 1;
 //	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 
 	if(SP->selectedPlace < SP->frameData.placesCount-1) SP->selectedPlace++;
 
@@ -1269,6 +1288,12 @@ static  uint8_t functRight()
 static  uint8_t functUp()
 {
 	if(SP->autoSlicePopupVisible) return 1;
+	if(SP->isEqualSliceActive())
+	{
+		SP->modEqualSliceNumber(1);
+		return 1;
+	}
+
 	if(SP->frameData.multiSelActiveNum != 0)
 	{
 		SP->stepThroughNodes(1);
@@ -1325,6 +1350,13 @@ static  uint8_t functUp()
 static  uint8_t functDown()
 {
 	if(SP->autoSlicePopupVisible) return 1;
+
+	if(SP->isEqualSliceActive())
+	{
+		SP->modEqualSliceNumber(-1);
+		return 1;
+	}
+
 	if(SP->frameData.multiSelActiveNum != 0)
 	{
 		SP->stepThroughNodes(-1);
@@ -1928,6 +1960,7 @@ static void modSliceAdjust(int16_t value)
 static uint8_t functAddSlice()
 {
 	if(SP->autoSlicePopupVisible) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 
 	sliceManager.addSlice(SP->editorInstrument);
 	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
@@ -1947,6 +1980,7 @@ static uint8_t functAddSlice()
 static uint8_t functRemoveSlice()
 {
 	if(SP->autoSlicePopupVisible) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 	sliceManager.removeSlice(SP->editorInstrument);
 	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice) )
 	{
@@ -1963,6 +1997,7 @@ static uint8_t functRemoveSlice()
 }
 static uint8_t functAutoSlice()
 {
+	if(SP->isEqualSliceActive()) return 1;
 	if(SP->autoSlicePopupVisible)
 	{
 		functCancelAutoSlice();
@@ -2072,47 +2107,22 @@ static void modGranularPosition(int16_t value)
 
 static uint8_t functShift(uint8_t value)
 {
-//	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
-//	{
-//		sequencer.stop();
-//	}
-//
-//	if(value == 1)
-//	{
-//		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
-//		sequencer.stop();
-//
-//		SP->isPlayingSample = 1;
-//		SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000000;
-//		SP->refreshPlayProgressValue = 0;
-//		SP->loopDirection = 0;
-//		SP->playPitch = 1.0;
-//		if(SP->editorInstrument->glide > 0)
-//		{
-//			switch(	SP->glidePreviewDif)
-//			{
-//				case 0: SP->playNote = 24;	break;
-//				case 1: SP->playNote = (SP->playNote == 24)? 25 : 24; 	break;
-//				case 2: SP->playNote = (SP->playNote == 24)? 36 : 24; 	break;
-//				case 3: SP->playNote = (SP->playNote == 24)? 47 : 24; 	break;
-//			}
-//		}
-//
-//		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SP->playNote, -1);
-//	}
-//	else if(value == 0)
-//	{
-//		if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
-//		SP->isPlayingSample = 0;
-//		SP->playProgressValue = 0;
-//		SP->playProgressInSpectrum = 0;
-//
-//		SP->refreshSpectrumProgress = 1;
-//
-//		//todo: jezeli shift ma byc uzywany rownolegle z klawiaturą trzeba bedzie dodac flage poniewaz shift zajmuje voice 0 ktory moze zajac takze padboard
-//		// releasy moglyby sie nie zgadzac - dlatego na razie nie ma tu obsługi
-//	}
-
+	if(value == buttonPress)
+	{
+		SP->isShiftPressed = true;
+		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
+		{
+			SP->showEqualSlice();
+		}
+	}
+	else if(value == buttonRelease)
+	{
+		SP->isShiftPressed = false;
+		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
+		{
+			SP->hideEqualSlice();
+		}
+	}
 	return 1;
 }
 
@@ -2201,10 +2211,24 @@ void cSamplePlayback::calcPlayProgressValue()
 
 }
 
+void cSamplePlayback::modEqualSliceNumber(int16_t val)
+{
+	if(mtConfig.equalSliceNumber + val > 48) mtConfig.equalSliceNumber = 48;
+	else if(mtConfig.equalSliceNumber + val < 1) mtConfig.equalSliceNumber = 1;
+	else mtConfig.equalSliceNumber += val;
+	showSlicesEqualNumberValue();
+}
+bool cSamplePlayback::isEqualSliceActive()
+{
+	return (((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
+			&& (SP->isShiftPressed));
+}
+
 
 static  uint8_t functInstrument(uint8_t state)
 {
 	if(SP->autoSlicePopupVisible) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 	if(state == buttonRelease)
 	{
 		SP->cancelPopups();
@@ -2221,6 +2245,7 @@ static  uint8_t functInstrument(uint8_t state)
 static uint8_t functStepNote(uint8_t value)
 {
 	if(SP->autoSlicePopupVisible) return 1;
+	if(SP->isEqualSliceActive()) return 1;
 	if(value == buttonRelease)
 	{
 		SP->cancelPopups();
