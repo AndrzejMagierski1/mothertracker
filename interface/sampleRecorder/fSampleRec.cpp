@@ -1587,8 +1587,8 @@ static  uint8_t functLeft()
 			case 4:
 				if(SR->recorderConfig.source == cSampleRecorder::sourceTypeRadio)
 				{
-					SR->selectedPlace = 3;
-					functSelectButton3();
+					SR->selectedPlace = 1;
+					functSelectButton1(UINT8_MAX);
 				}
 				else
 				{
@@ -1654,7 +1654,7 @@ static  uint8_t functRight()
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig )
 	{
-		if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
+		if(SR->selectedPlace < SR->frameData.placesCount-2) SR->selectedPlace++;
 
 		switch(SR->selectedPlace)
 		{
@@ -1670,7 +1670,9 @@ static  uint8_t functRight()
 				}
 				break;
 			case 2:
-				functSelectButton2(UINT8_MAX);
+				SR->selectedPlace = 5;
+				functSelectButton5();
+//				functSelectButton2(UINT8_MAX);
 				break;
 			case 3:
 				functSelectButton3();
