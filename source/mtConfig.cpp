@@ -287,9 +287,11 @@ void checkConfig()
 
 	for(uint8_t i = 0; i<12; i++)
 	{
-		if(mtConfig.values.perfFxPlaces[i] > performance.getFxCount()-1)
+		//if(mtConfig.values.perfFxPlaces[i] > performance.getFxCount()-1)
+		if(mtConfig.values.perfFxPlaces[i] > 18-1)
 		{
-			mtConfig.values.perfFxPlaces[i] = (i+1 < performance.getFxCount()) ? i+1 : 0;
+			//mtConfig.values.perfFxPlaces[i] = (i+1 < performance.getFxCount()) ? i+1 : 0;
+			mtConfig.values.perfFxPlaces[i] = (i+1 < 18) ? i+1 : 0;
 		}
 
 		if(mtConfig.values.perfSelectedValues[i] > 3) mtConfig.values.perfSelectedValues[i] = 0;
