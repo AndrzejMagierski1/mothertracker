@@ -7,7 +7,7 @@
 #include "mtConfig.h"
 #include "SI4703.h"
 #include "keyScanner.h"
-
+#include "mtPadsBacklight.h"
 
 #include "patternEditor/patternEditor.h"
 
@@ -67,7 +67,7 @@ void changeLimiterRelease(int16_t value);
 void changeLimiterTreshold(int16_t value);
 void changeBitDepth(int16_t value);
 
-
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 void cMasterParams::update()
 {
@@ -115,7 +115,7 @@ void cMasterParams::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
-
+	FM->setPadsGlobal(functPads);
 
 
 
@@ -874,5 +874,34 @@ void cMasterParams::changeDelayFeedback(int16_t val)
 	showDelayFeedback();
 }
 
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(state == buttonPress)
+	{
+		//uint8_t note = mtPadBoard.convertPadToNote(pad);
+		//if(note > 48) note = 48;
+		//editorInstrument->tune = note;
 
+		padsBacklight.setFrontLayer(1,20, pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNote(
+							Sequencer::MIDI_CHANNEL_GRID,
+							noteFromPad,
+							sequencer.getInstrumentVelo(
+									mtProject.values.lastUsedInstrument),
+							pad);
+//		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+
+	}
+	else if(state == buttonRelease)
+	{
+		padsBacklight.setFrontLayer(0,0, pad);
+//		mtPadBoard.stopInstrument(pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
+	}
+
+	return 1;
+
+}
 

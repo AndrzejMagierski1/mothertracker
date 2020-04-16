@@ -16,7 +16,9 @@
 #include "performanceMode/performanceMode.h"
 #include "sdCardDetect.h"
 #include "fileManager.h"
-#include "debugLog.h"
+#include "debugLog.h"
+
+#include "mtPadsBacklight.h"
 
 cProjectEditor projectEditor;
 cProjectEditor* PE = &projectEditor;
@@ -1041,9 +1043,38 @@ static uint8_t functDeleteBackspace(uint8_t state)
 	return 1;
 }
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
-{
-	PE->keyboardManager.onPadChange(pad, state);
-	return 1;
+{	if(PE->keyboardManager.getState())
+	{
+		PE->keyboardManager.onPadChange(pad, state);
+	}
+	else
+	{
+		if(state == buttonPress)
+		{
+			//uint8_t note = mtPadBoard.convertPadToNote(pad);
+			//if(note > 48) note = 48;
+			//editorInstrument->tune = note;
+
+			padsBacklight.setFrontLayer(1,20, pad);
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(
+								Sequencer::MIDI_CHANNEL_GRID,
+								noteFromPad,
+								sequencer.getInstrumentVelo(
+										mtProject.values.lastUsedInstrument),
+								pad);
+	//		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+
+		}
+		else if(state == buttonRelease)
+		{
+			padsBacklight.setFrontLayer(0,0, pad);
+	//		mtPadBoard.stopInstrument(pad);
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
+		}
+	}
+	return 1;
 }
 
 static  uint8_t functEncoder(int16_t value)

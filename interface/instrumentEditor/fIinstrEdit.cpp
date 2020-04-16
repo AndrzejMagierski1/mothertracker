@@ -1189,30 +1189,38 @@ void cInstrumentEditor::lightUpPadBoard()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		sequencer.stop();
-		for(uint8_t i = 0; i < 8; i++)
-		{
-			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
-		}
-	}
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		sequencer.stop();
+//		for(uint8_t i = 0; i < 8; i++)
+//		{
+//			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
+//		}
+//	}
 
-	if(state == 1)
+	if(state == buttonPress)
 	{
 		//uint8_t note = mtPadBoard.convertPadToNote(pad);
 		//if(note > 48) note = 48;
 		//editorInstrument->tune = note;
 
 		padsBacklight.setFrontLayer(1,20, pad);
-		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNote(
+							Sequencer::MIDI_CHANNEL_GRID,
+							noteFromPad,
+							sequencer.getInstrumentVelo(
+									mtProject.values.lastUsedInstrument),
+							pad);
+//		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 
 	}
-	else if(state == 0)
+	else if(state == buttonRelease)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		mtPadBoard.stopInstrument(pad);
-
+//		mtPadBoard.stopInstrument(pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
 	}
 
 	return 1;
