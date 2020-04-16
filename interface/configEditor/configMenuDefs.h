@@ -192,6 +192,48 @@ const char* const ptrMtpState[2] =
 };
 
 
+// metronome
+
+const char* const ptrMetroState[2] =
+{
+		&onOffStateTexts[0][0],
+		&onOffStateTexts[1][0],
+};
+
+const char metroTimeSig[12][3] =
+{
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+		"11",
+		"12",
+};
+
+const char* const ptrMetroTimeSig[12] =
+{
+	&padsLayoutTexts[0][0],
+	&padsLayoutTexts[1][0],
+	&padsLayoutTexts[2][0],
+	&padsLayoutTexts[3][0],
+	&padsLayoutTexts[4][0],
+	&padsLayoutTexts[5][0],
+	&padsLayoutTexts[6][0],
+	&padsLayoutTexts[7][0],
+	&padsLayoutTexts[8][0],
+	&padsLayoutTexts[9][0],
+	&padsLayoutTexts[10][0],
+	&padsLayoutTexts[11][0],
+};
+
+
+
 //===========================================================
 //===========================================================
 //===========================================================

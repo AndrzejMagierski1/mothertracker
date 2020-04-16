@@ -7,7 +7,7 @@
 
 
 // baza baz
-cMenuGroup menuBase(menuBase, 0, 0, 5);
+cMenuGroup menuBase(menuBase, 0, 0, 6);
 //=====================================================================================================================================
 //=====================================================================================================================================
 //=====================================================================================================================================
@@ -17,12 +17,15 @@ cMenuGroup menuBase(menuBase, 0, 0, 5);
 // grupy glowne
 cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
-cMenuGroup menuFirmware	(menuBase, 2, "Firmware", 	2);
-cMenuGroup menuHelp		(menuBase, 3, "Help", 		1);
-cMenuGroup menuCredits	(menuBase, 4, "Credits", 	1);
+cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	3);
+cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
+cMenuGroup menuHelp		(menuBase, 4, "Help", 		1);
+cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
 
 
 // elementy/////////
+
+//general
 const strItemTypeValue8 setupPatternDiv 		{ &mtConfig.general.patternDiv,  	0, 15, 1, 1	 };
 const strItemTypeListText setupRadioRegion		{ &mtConfig.general.radioRegion, 	3, ptrRadioRegion };
 const strItemTypeListTextWithAction setupDispBrightness 	{ &mtConfig.general.dispBrightness,  3, ptrBrightness, setDisplayBrightness };
@@ -48,8 +51,20 @@ cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTe
 
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
+///////////////////
+// metronome
+const strItemTypeListTextWithAction setupMetroState		{ &mtConfig.metronome.state,  			2,  ptrMetroState,		setMetronomValues };
+const strItemTypeListTextWithAction setupMetroTimeSig	{ &mtConfig.metronome.timeSignature, 	12, ptrMetroTimeSig,	setMetronomValues };
+const strItemTypeValue8 setupMetroVolume				{ &mtConfig.metronome.volume,			0, 100,	};
+
+cMenuItem melMetroState			(menuMetro, 	0, "State", 			menuTypeItemListTextWithAction, &setupMetroState);
+cMenuItem melMetroTimeSig		(menuMetro, 	1, "Time signature", 	menuTypeItemListTextWithAction, &setupMetroTimeSig);
+cMenuItem melMetroVolume		(menuMetro, 	2, "Volume", 			menuItemTypeValueU8, 			&setupMetroVolume);
+
+
 
 ///////////////////
+// midi
 const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};
 const strItemTypeListText clockOutSetup 		{ &mtConfig.midi.clkOut, 	 		4, ptrMidiOut  	};
 const strItemTypeListText transportInSetup 		{ &mtConfig.midi.transportIn, 		4, ptrMidiIn  	};

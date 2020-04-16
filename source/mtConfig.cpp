@@ -6,6 +6,8 @@
 
 #include "mtStructs.h"
 
+#include "performanceMode/performanceEngine.h"
+
 #include "debugLog.h"
 #include "mtConfig.h"
 
@@ -51,6 +53,7 @@ void forceSaveConfig()
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.midi -  (uint32_t)&mtConfig) , 				mtConfig.midi);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.general -  (uint32_t)&mtConfig) , 			mtConfig.general);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.metronome -  (uint32_t)&mtConfig) , 			mtConfig.metronome);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
 
@@ -103,6 +106,7 @@ void readConfig()
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.midi -  (uint32_t)&mtConfig) , 				mtConfig.midi);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.general -  (uint32_t)&mtConfig) , 			mtConfig.general);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.metronome -  (uint32_t)&mtConfig) , 			mtConfig.metronome);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
 
@@ -271,6 +275,37 @@ void checkConfig()
 	if(mtConfig.values.padBoardMaxVoices > 8)	 mtConfig.values.padBoardMaxVoices = 8;
 
 
+	// performance mode i inne
+	for(uint8_t i = 0; i<8; i++)
+	{
+		// paterny na trakach w performance mode
+		if(mtConfig.values.perfTracksPatterns[i] < 1 || mtConfig.values.perfTracksPatterns[i] > 255)
+		{
+			mtConfig.values.perfTracksPatterns[i] = 1;
+		}
+	}
+
+	for(uint8_t i = 0; i<12; i++)
+	{
+		if(mtConfig.values.perfFxPlaces[i] > performance.getFxCount()-1)
+		{
+			mtConfig.values.perfFxPlaces[i] = (i+1 < performance.getFxCount()) ? i+1 : 0;
+		}
+
+		if(mtConfig.values.perfSelectedValues[i] > 3) mtConfig.values.perfSelectedValues[i] = 0;
+
+		if(mtConfig.values.perfFxValues[i][0] != 0)
+			mtConfig.values.perfFxValues[i][0] = 0;
+		if(mtConfig.values.perfFxValues[i][1] > 255 || mtConfig.values.perfFxValues[i][1] < -255)
+			mtConfig.values.perfFxValues[i][1] = 0;
+		if(mtConfig.values.perfFxValues[i][2] > 255 || mtConfig.values.perfFxValues[i][2] < -255)
+			mtConfig.values.perfFxValues[i][2] = 0;
+		if(mtConfig.values.perfFxValues[i][3] > 255 || mtConfig.values.perfFxValues[i][3] < -255)
+			mtConfig.values.perfFxValues[i][3] = 0;
+	}
+
+
+
 	// general ----------------------------------------
 	if(mtConfig.general.dispBrightness > 2)
 	{
@@ -301,7 +336,7 @@ void checkConfig()
 	if(mtConfig.general.performanceSource > 1) 		mtConfig.general.performanceSource = 0;
 
 	if(mtConfig.general.padBoardScale > 39) 		mtConfig.general.padBoardScale = 0;
-	if(mtConfig.general.padBoardNoteOffset > 12) 	mtConfig.general.padBoardNoteOffset = 12;
+	if(mtConfig.general.padBoardNoteOffset > 11) 	mtConfig.general.padBoardNoteOffset = 11;
 	if(mtConfig.general.padBoardRootNote > 25) 		mtConfig.general.padBoardRootNote = 12;
 	//if(mtConfig.general.padBoardMaxVoices > 8) 		mtConfig.general.padBoardMaxVoices = 8;
 
@@ -311,6 +346,12 @@ void checkConfig()
 	{
 		mtConfig.interface.fxPopupDescription = 0;
 	}
+
+	// metornome ----------------------------------------
+	if(mtConfig.metronome.state > 1) mtConfig.metronome.state = 0;
+	if(mtConfig.metronome.timeSignature > 11) mtConfig.metronome.timeSignature = 0;
+	if(mtConfig.metronome.volume > 100) mtConfig.metronome.volume = 50;
+
 
 	// debug ----------------------------------------
 	if(mtConfig.debug.debugLogState > 1)
@@ -372,6 +413,22 @@ void resetConfig()
 	mtConfig.values.padBoardRootNote = 36;
 	mtConfig.values.padBoardMaxVoices = 8;
 
+	for(uint32_t i = 0; i < 8; i++)
+	{
+		mtConfig.values.perfTracksPatterns[i] = 1;
+		mtConfig.values.perfTracksState[i] = 0;
+	}
+
+	for(uint32_t i = 0; i < 12; i++)
+	{
+		mtConfig.values.perfSelectedValues[i] = 0;
+		mtConfig.values.perfFxPlaces[i] = (i+1);
+		mtConfig.values.perfFxValues[i][0] = 0;
+		mtConfig.values.perfFxValues[i][1] = 0;
+		mtConfig.values.perfFxValues[i][2] = 0;
+		mtConfig.values.perfFxValues[i][3] = 0;
+	}
+
 	// general ----------------------------------------
 	mtConfig.general.dispBrightness = 2;
 	mtConfig.general.padsBrightness = 2;
@@ -389,6 +446,13 @@ void resetConfig()
 
 	// interface ----------------------------------------
 	mtConfig.interface.fxPopupDescription = 0;
+
+	// metornome ----------------------------------------
+	mtConfig.metronome.state = 0;
+	mtConfig.metronome.timeSignature = 0;
+	mtConfig.metronome.volume = 50;
+
+
 
 	// debug ----------------------------------------
 #ifdef DEBUG

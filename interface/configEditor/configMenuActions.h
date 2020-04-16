@@ -9,6 +9,7 @@ void setPadsBrightness();
 
 void setPadBoardValues();
 
+void setMetronomValues();
 
 
 
