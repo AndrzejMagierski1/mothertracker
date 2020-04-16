@@ -15,6 +15,8 @@ Sequencer sequencer;
 
 #include "debugLog.h"
 
+extern audioEngine engine;
+
 inline void timerExternalVector()
 {
 	sequencer.handle_uStep_timer();
@@ -1634,6 +1636,7 @@ void Sequencer::handleNote(byte channel,
 					map(velocity, 0, 127, 0, 100),
 					0,
 					0, 0, 0); //magiczne zera
+			engine.setLastUsedVoice(sel->firstTrack);
 		}
 		else if (isRec())
 		{
@@ -1669,6 +1672,8 @@ void Sequencer::handleNote(byte channel,
 												map(velocity, 0, 127, 0, 100),
 												0, 0, 0, 0); //magiczne zera
 
+					engine.setLastUsedVoice(tr);
+
 					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = map(player.uStep + 1, 1, 48, 0, 100);
 					break;
@@ -1695,6 +1700,9 @@ void Sequencer::handleNote(byte channel,
 							map(velocity, 0, 127, 0, 100),
 							0,
 							0, 0, 0); //magiczne zera
+
+					engine.setLastUsedVoice(tr);
+
 //					Serial.printf("noteON tr %d\n", tr);
 					break;
 				}
