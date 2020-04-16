@@ -576,114 +576,102 @@ private:
 	void exportItFile_Init();
 	void exportItFile_InitHeader();
 	void exportItFile_ProcessInstruments();
+	void exportItFile_ProcessSamples();
 	void exportItFile_Finish();
 	void exportItFile_Error();
 
-	void exportItFile_setInstrumentOffset();
+	void exportItFile_storeInstrumentOffset();
+	void exportItFile_storeSampleOffset();
 
 	/*
-	 *      0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-	      ┌───┬───┬───┬───┬───────────────────────────────────────────────┐
-	0000: │'I'│'M'│'P'│'M'│ Song Name, max 26 characters, includes NULL   │
-	      ├───┴───┴───┴───┴───────────────────────────────────────┬───────┤
-	0010: │.......................................................│PHiligt│
-	      ├───────┬───────┬───────┬───────┬───────┬───────┬───────┼───────┤
-	0020: │OrdNum │InsNum │SmpNum │PatNum │ Cwt/v │ Cmwt  │ Flags │Special│
-	      ├───┬───┼───┬───┼───┬───┼───────┼───────┴───────┼───────┴───────┤
-	0030: │GV │MV │IS │IT │Sep│PWD│MsgLgth│Message Offset │   Reserved    │
-	      ├───┴───┴───┴───┴───┴───┴───────┴───────────────┴───────────────┤
-	0040: │ Chnl Pan (64 bytes)...........................................│
-	      ├───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┤
+        0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+      ┌───┬───┬───┬───┬───────────────────────────────────────────────┐
+0000: │'I'│'M'│'P'│'S'│ DOS Filename (12345678.123)                   │
+      ├───┼───┼───┼───┼───────────────────────────────────────────────┤
+0010: │00h│GvL│Flg│Vol│ Sample Name, max 26 bytes, includes NUL.......│
+      ├───┴───┴───┴───┴───────────────────────────────────────┬───┬───┤
+0020: │.......................................................│Cvt│DfP│
+      ├───────────────┬───────────────┬───────────────┬───────┴───┴───┤
+0030: │ Length        │ Loop Begin    │ Loop End      │ C5Speed       │
+      ├───────────────┼───────────────┼───────────────┼───┬───┬───┬───┤
+0040: │ SusLoop Begin │ SusLoop End   │ SamplePointer │ViS│ViD│ViR│ViT│
+      └───────────────┴───────────────┴───────────────┴───┴───┴───┴───┘
 
-	      ├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
-	0080: │ Chnl Vol (64 bytes)...........................................│
-	      ├───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┤
+The cache file has the following pieces of information added on:
 
-	      ├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
-	00C0: │ Orders, Length = OrdNum                                       │
-	      ├───────────────────────────────────────────────────────────────┤
-	xxxx: │ 'Long' Offset of instruments, Length = InsNum*4 (1)           │
-	      ├───────────────────────────────────────────────────────────────┤
-	xxxx: │ 'Long' Offset of samples headers, Length = SmpNum*4 (2)       │
-	      ├───────────────────────────────────────────────────────────────┤
-	xxxx: │ 'Long' Offset of patterns, Length = PatNum*4 (3)              │
-	      └───────────────────────────────────────────────────────────────┘
+        0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+      ┌───────────────┬───────┬───────┬───┬───────────────────────────┐
+0050: │ File Size     │ Date  │ Time  │Fmt│...........................│
+      └───────────────┴───────┴───────┴───┴───────────────────────────┘
 
-	  (1) Offset = 00C0h+OrdNum
-      (2) Offset = 00C0h+OrdNum+InsNum*4
-      (3) Offset = 00C0h+OrdNum+InsNum*4+SmpNum*4
+        Fmt. 0 = unchecked. 1 = directory, 2 = it sample, 3 = st sample
 
-        Note that if the (long) offset to a pattern = 0, then the
-        pattern is assumed to be a 64 row empty pattern.
+      GvL:      Global volume for instrument, ranges from 0->64
+      Flg:      Bit 0. On = sample associated with header.
+                Bit 1. On = 16 bit, Off = 8 bit.
+                Bit 2. On = stereo, Off = mono. Stereo samples not supported yet
+                Bit 3. On = compressed samples.
+                Bit 4. On = Use loop
+                Bit 5. On = Use sustain loop
+                Bit 6. On = Ping Pong loop, Off = Forwards loop
+                Bit 7. On = Ping Pong Sustain loop, Off = Forwards Sustain loop
+      Vol:      Default volume for instrument
 
-      PHiliht = Pattern row hilight information. Only relevant for pattern
-                editing situations.
+      Length:   Length of sample in no. of samples NOT no. of bytes
+      LoopBeg:  Start of loop (no of samples in, not bytes)
+      Loop End: Sample no. AFTER end of loop
+      C5Speed:  Number of bytes a second for C-5 (ranges from 0->9999999)
+      SusLBeg:  Start of sustain loop
+      SusLEnd:  Sample no. AFTER end of sustain loop
 
-      Cwt:      Created with tracker.
-                 Impulse Tracker y.xx = 0yxxh
-      Cmwt:     Compatible with tracker with version greater than value.
-                 (ie. format version)
-      OrdNum:   Number of orders in song.
-      InsNum:   Number of instruments in song
-      SmpNum:   Number of samples in song
-      PatNum:   Number of patterns in song
-      Flags:    Bit 0: On = Stereo, Off = Mono
-                Bit 1: Vol0MixOptimizations - If on, no mixing occurs if
-                       the volume at mixing time is 0 (redundant v1.04+)
-                Bit 2: On = Use instruments, Off = Use samples.
-                Bit 3: On = Linear slides, Off = Amiga slides.
-                Bit 4: On = Old Effects, Off = IT Effects
-                        Differences:
-                       - Vibrato is updated EVERY frame in IT mode, whereas
-                          it is updated every non-row frame in other formats.
-                          Also, it is two times deeper with Old Effects ON
-                       - Command Oxx will set the sample offset to the END
-                         of a sample instead of ignoring the command under
-                         old effects mode.
-                       - (More to come, probably)
-                Bit 5: On = Link Effect G's memory with Effect E/F. Also
-                            Gxx with an instrument present will cause the
-                            envelopes to be retriggered. If you change a
-                            sample on a row with Gxx, it'll adjust the
-                            frequency of the current note according to:
+      SmpPoint: 'Long' Offset of sample in file.
 
-                              NewFrequency = OldFrequency * NewC5 / OldC5;
-                Bit 6: Use MIDI pitch controller, Pitch depth given by PWD
-                Bit 7: Request embedded MIDI configuration
-                       (Coded this way to permit cross-version saving)
+      ViS:      Vibrato Speed, ranges from 0->64
+      ViD:      Vibrato Depth, ranges from 0->64
+      ViT:      Vibrato waveform type.
+                        0=Sine wave
+                        1=Ramp down
+                        2=Square wave
+                        3=Random (speed is irrelevant)
+      ViR:      Vibrato Rate, rate at which vibrato is applied (0->64)
 
-      Special:  Bit 0: On = song message attached.
-                       Song message:
-                        Stored at offset given by "Message Offset" field.
-                        Length = MsgLgth.
-                        NewLine = 0Dh (13 dec)
-                        EndOfMsg = 0
+        The depth of the vibrato at any point is worked out in the following
+        way:
+          Every processing cycle, the following occurs:
+                1) Mov AX, [SomeVariableNameRelatingToVibrato]
+                2) Add AL, Rate
+                3) AdC AH, 0
+                4) AH contains the depth of the vibrato as a fine-linear slide.
+                5) Mov [SomeVariableNameRelatingToVibrato], AX  ; For the next
+                                                                ; cycle.
 
-                       Note: v1.04+ of IT may have song messages of up to
-                             8000 bytes included.
-                Bit 1: Reserved
-                Bit 2: Reserved
-                Bit 3: MIDI configuration embedded
-                Bit 4-15: Reserved
+        For those that don't understand assembly, then the depth is
+        basically the running-sum of the rate divided by 256.
 
-      GV:       Global volume. (0->128) All volumes are adjusted by this
-      MV:       Mix volume (0->128) During mixing, this value controls
-                the magnitude of the wave being mixed.
-      IS:       Initial Speed of song.
-      IT:       Initial Tempo of song
-      Sep:      Panning separation between channels (0->128, 128 is max sep.)
-      PWD:      Pitch wheel depth for MIDI controllers
-      Chnl Vol: Volume for each channel. Ranges from 0->64
-      Chnl Pan: Each byte contains a panning value for a channel. Ranges from
-                 0 (absolute left) to 64 (absolute right). 32 = central pan,
-                 100 = Surround sound.
-                 +128 = disabled channel (notes will not be played, but note
-                                          that effects in muted channels are
-                                          still processed)
-      Orders:   This is the order in which the patterns are played.
-                 Valid values are from 0->199.
-                 255 = "---", End of song marker
-                 254 = "+++", Skip to next order
+        Sample vibrato uses a table 256-bytes long
+
+   Convert - bits other than bit 0 are used internally for the loading
+             of alternative formats.
+        Bit 0:
+         Off: Samples are unsigned   } IT 2.01 and below use unsigned samples
+          On: Samples are signed     } IT 2.02 and above use signed samples
+        Bit 1:
+         Off: Intel lo-hi byte order for 16-bit samples    } Safe to ignore
+         On: Motorola hi-lo byte order for 16-bit samples  } these values...
+        Bit 2:                                             }
+         Off: Samples are stored as PCM values             }
+          On: Samples are stored as Delta values           }
+        Bit 3:                                             }
+          On: Samples are stored as byte delta values      }
+              (for PTM loader)                             }
+        Bit 4:                                             }
+          On: Samples are stored as TX-Wave 12-bit values  }
+        Bit 5:                                             }
+          On: Left/Right/All Stereo prompt                 }
+        Bit 6: Reserved
+        Bit 7: Reserved
+
+   DfP - Default Pan. Bits 0->6 = Pan value, Bit 7 ON to USE (opposite of inst)
 	 */
 
 

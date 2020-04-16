@@ -190,9 +190,10 @@ void cFileManager::exportItFile_InitHeader()
 }
 
 uint16_t expInst = 0;
+uint16_t expSmp = 0;
 uint32_t fileOffset = 0;
 
-void cFileManager::exportItFile_setInstrumentOffset()
+void cFileManager::exportItFile_storeInstrumentOffset()
 {
 	uint32_t endOfFile = exportedFile.size();
 	exportedFile.seek(0x00C0 + expOrdNum + expInst * 4);
@@ -201,17 +202,23 @@ void cFileManager::exportItFile_setInstrumentOffset()
 	exportedFile.write(buff, 4);
 
 	exportedFile.seek(endOfFile);
+}
+void cFileManager::exportItFile_storeSampleOffset()
+{
+	uint32_t endOfFile = exportedFile.size();
+	exportedFile.seek(0x00C0 + expOrdNum + INSTRUMENTS_COUNT * 4 + expSmp * 4);
+	uint8_t buff[4];
+	writeLE(buff, endOfFile, 4);
+	exportedFile.write(buff, 4);
 
+	exportedFile.seek(endOfFile);
 }
 
 void cFileManager::exportItFile_ProcessInstruments()
 {
 
 	strInstrument *instr = &mtProject.instrument[expInst];
-	uint32_t instrumentOffset = exportedFile.size() - 1;
-	exportItFile_setInstrumentOffset();
-
-
+	exportItFile_storeInstrumentOffset();
 
 	uint8_t buff0x20[0x20] { 0 };
 
@@ -275,6 +282,80 @@ void cFileManager::exportItFile_ProcessInstruments()
 	{
 		moveToNextOperationStep();
 	}
+}
+
+void cFileManager::exportItFile_ProcessSamples()
+{
+	strInstrument *instr = &mtProject.instrument[expSmp];
+	exportItFile_storeSampleOffset();
+
+	uint8_t buff0x50[0x50] { 0 };
+
+	// 0x00
+	sprintf((char*) buff0x50, "IMPSInstr%.3d.mts",
+			expSmp + 1);
+
+	bool isLoop = instr->playMode == loopPingPong ||
+			instr->playMode == loopForward ||
+			instr->playMode == loopBackward;
+	bool isLoopPingPong = instr->playMode == loopPingPong;
+
+	uint8_t instrVolume = map(instr->volume, 0, 100, 0, 64);
+
+	uint8_t Flg =
+			(0 << 0) |	// Bit 0. On = sample associated with header.
+			(1 << 1) |	// Bit 1. On = 16 bit, Off = 8 bit.
+			(0 << 2) |	// Bit 2. On = stereo, Off = mono. Stereo samples not supported yet
+			(0 << 3) |	// Bit 3. On = compressed samples.
+			(isLoop << 4) |	// Bit 4. On = Use loop
+			(isLoop << 5) | // Bit 5. On = Use sustain loop
+			(isLoopPingPong << 6) | //Bit 6. On = Ping Pong loop, Off = Forwards loop
+			(isLoopPingPong << 7); // Bit 7. On = Ping Pong Sustain loop, Off = Forwards Sustain loop
+
+	uint8_t *ptr = &buff0x50[0x10];
+	ptr = writeLE(ptr, 0, 1);	//00h
+	ptr = writeLE(ptr, instrVolume, 1);	//GvL:      Global volume for instrument, ranges from 0->64
+	ptr = writeLE(ptr, Flg, 1);	//Flg
+	ptr = writeLE(ptr, instrVolume, 1);	//Vol
+
+	sprintf((char*) ptr, "%.25s",
+			instr->sample.file_name);
+
+	ptr = &buff0x50[0x10];
+	ptr = writeLE(ptr, instr->sample.length, 4);	//	Length
+	ptr = writeLE(ptr,
+					map((float) instr->loopPoint1, 0, MAX_16BIT, 0,
+						instr->sample.length),
+					4);										//	Loop Begin
+	ptr = writeLE(ptr,
+					map((float) instr->loopPoint2, 0, MAX_16BIT, 0,
+						instr->sample.length),
+					4);										//	Loop End
+	ptr = writeLE(ptr, 44100, 4);	//	C5Speed
+
+	ptr = writeLE(ptr,
+					map((float) instr->loopPoint1, 0, MAX_16BIT, 0,
+						instr->sample.length),
+					4);										//	SusLoop Begin
+	ptr = writeLE(ptr,
+					map((float) instr->loopPoint2, 0, MAX_16BIT, 0,
+						instr->sample.length),
+					4);										//	SusLoop End
+
+	ptr = writeLE(ptr, 0, 4);	//	SamplePointer - todo tymczasowe zero
+	ptr = writeLE(ptr, 0, 1);	//	ViS:      Vibrato Speed, ranges from 0->64
+	ptr = writeLE(ptr, 0, 1);	//	ViD:      Vibrato Depth, ranges from 0->64
+	ptr = writeLE(ptr, 0, 1);//	ViR:      Vibrato Rate, rate at which vibrato is applied (0->64)
+	ptr = writeLE(ptr, 0, 1);	//	ViT:      Vibrato waveform type.
+
+	exportedFile.write(buff0x50, sizeof(buff0x50));
+
+	expSmp++;
+	if (expSmp >= INSTRUMENTS_COUNT)
+	{
+		moveToNextOperationStep();
+	}
+
 }
 
 void cFileManager::exportItFile_Finish()
