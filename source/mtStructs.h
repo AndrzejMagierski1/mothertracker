@@ -608,6 +608,12 @@ struct strMtConfig
 		uint8_t padBoardRootNote;
 		uint8_t padBoardMaxVoices;
 
+		uint16_t perfTracksPatterns[8]  = {1,1,1,1,1,1,1,1};
+		uint8_t perfFxPlaces[12] 		= {1,2,3,4,5,6,7,8,9,10,11,12}; // jakie efekty w 12 slotach
+		int16_t perfFxValues[12][4] 	= {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
+		uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
+		uint8_t perfTracksState[8] 		= {0,0,0,0,0,0,0,0}; // narazie nie uzywana
+
 	} values;
 
 
@@ -626,12 +632,22 @@ struct strMtConfig
 		uint8_t padBoardNoteOffset;
 		uint8_t padBoardRootNote;
 
+
 	} general;
 
 	struct strInterfaceState
 	{
 		uint8_t fxPopupDescription;
 	} interface;
+
+	struct strMetronome
+	{
+		uint8_t state; // 0-1
+		uint8_t timeSignature; // 0-11 - do zmiany pewnie
+		uint8_t volume; // 0-100
+	} metronome;
+
+
 
 	struct strDebugState
 	{

@@ -48,3 +48,19 @@ void setPadBoardValues()
 							mtConfig.values.padBoardRootNote);
 
 }
+
+
+
+
+
+void setMetronomValues()
+{
+ // wlaczenie wylaczenie metronomu
+ // aktualizajca metrum
+ // volume mozna brac pod uwage na bierzaco tam gdzie przetwarzanie metronomu
+
+	//mtConfig.metronome.state;
+	//mtConfig.metronome.timeSignature;
+
+
+}
