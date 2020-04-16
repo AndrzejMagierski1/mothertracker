@@ -83,6 +83,15 @@ void mtSliceManager::autoSlice(strInstrument * instr)
 	instr->selectedSlice = 0;
 	sliceDetector.start(instr->sample.address,instr->sample.length,instr->slices, &instr->sliceNumber);
 }
+void mtSliceManager::equalSlice(strInstrument *instr, uint8_t n)
+{
+	instr->sliceNumber = n;
+
+	for(uint8_t i = 0; i < n; i++)
+	{
+		instr->slices[i] = (MAX_16BIT * i) / n;
+	}
+}
 
 uint8_t mtSliceManager::getAutoSliceProgress()
 {
