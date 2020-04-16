@@ -9,7 +9,8 @@
 
 #include "mtAudioEngine.h"
 #include "keyScanner.h"
-
+#include "mtPadsBacklight.h"
+#include "mtPadBoard.h"
 
 cSongEditor songEditor;
 
@@ -790,19 +791,42 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 //	fileManager.storePatternUndoRevision();
 
-	switch (SE->selectedPlace)
+//	switch (SE->selectedPlace)
+//	{
+//	case 9:
+//		// TODO: zmiana tempa z pod padów
+//		//sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+//
+//		SE->showTempoValue();
+//		break;
+//	default:
+//		break;
+//	}
+
+	if(state == buttonPress)
 	{
-	case 9:
-		// TODO: zmiana tempa z pod padów
-		//sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+		//uint8_t note = mtPadBoard.convertPadToNote(pad);
+		//if(note > 48) note = 48;
+		//editorInstrument->tune = note;
 
-		SE->showTempoValue();
-		break;
-	default:
-		break;
+		padsBacklight.setFrontLayer(1,20, pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNote(
+							Sequencer::MIDI_CHANNEL_GRID,
+							noteFromPad,
+							sequencer.getInstrumentVelo(
+									mtProject.values.lastUsedInstrument),
+							pad);
+//		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+
 	}
-
-
+	else if(state == buttonRelease)
+	{
+		padsBacklight.setFrontLayer(0,0, pad);
+//		mtPadBoard.stopInstrument(pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
+	}
 	//newFileManager.setPatternStructChanged(mtProject.values.actualPattern); // todo odkomentowac jesli potrzebne
 
 	return 1;
