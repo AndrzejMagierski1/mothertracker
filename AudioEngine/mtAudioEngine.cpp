@@ -373,6 +373,15 @@ void audioEngine::setBitDepth(uint16_t bitDepth)
 	bitDepthControl[1].setBitDepth(bitDepth);
 }
 
+void audioEngine::setLastUsedVoice(uint8_t v)
+{
+	lastUsedVoice = v;
+}
+uint8_t audioEngine::getLastUsedVoice()
+{
+	return	lastUsedVoice;
+}
+
 playerEngine::playerEngine()
 {
 	// bazuje na zadeklarowanych wyzej obiektach silnika i na tym ze obiekty playerEngine beda umieszczone w tablicy(instrumentPlayer)
