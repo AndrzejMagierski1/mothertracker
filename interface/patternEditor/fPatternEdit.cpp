@@ -2939,10 +2939,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				{
 //					sequencer.setSelectionInstrument(pad);
 
-					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
-											Sequencer::STEP_NOTE_DEFAULT,
-											127,
-											pad);
+					sequencer.handleNote(
+							Sequencer::MIDI_CHANNEL_GRID,
+							Sequencer::STEP_NOTE_DEFAULT,
+							sequencer.getInstrumentVelo(
+									mtProject.values.lastUsedInstrument),
+							pad);
 				}
 				else if (state == buttonRelease)
 				{
