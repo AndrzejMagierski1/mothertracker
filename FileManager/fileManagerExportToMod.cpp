@@ -191,6 +191,7 @@ void cFileManager::exportItFile_InitHeader()
 
 uint16_t expInst = 0;
 uint16_t expSmp = 0;
+uint16_t expWave = 0;
 uint32_t fileOffset = 0;
 
 void cFileManager::exportItFile_storeInstrumentOffset()
@@ -211,6 +212,27 @@ void cFileManager::exportItFile_storeSampleOffset()
 	writeLE(buff, endOfFile, 4);
 	exportedFile.write(buff, 4);
 
+	exportedFile.seek(endOfFile);
+}
+void cFileManager::exportItFile_storeWaveOffset()
+{
+	uint32_t endOfFile = exportedFile.size();
+	// get sample offset
+
+	uint32_t offSetForSampleOffset = 0x00C0 + expOrdNum + INSTRUMENTS_COUNT * 4 + expWave * 4;
+
+	exportedFile.seek(offSetForSampleOffset);
+
+	//	czytamy offset pliku sampla
+	exportedFile.read((uint8_t*) &sampleFileOffset, 4);
+
+	// wpisujemy offset wave do pliku sampla, zmienna SamplePointer z docsa
+	exportedFile.seek(sampleFileOffset + 0x48);
+	uint8_t buff[4];
+	writeLE(buff, endOfFile, 4);
+	exportedFile.write(buff, 4);
+
+	// wracamy na koniec
 	exportedFile.seek(endOfFile);
 }
 
@@ -234,7 +256,7 @@ void cFileManager::exportItFile_ProcessInstruments()
 	ptr = writeLE(ptr, 0, 2);	//FadeOut
 	ptr = writeLE(ptr, 0, 1);	//PPS
 	ptr = writeLE(ptr, 0, 1);//        PPC: Pitch-Pan center: C-0 to B-9 represented as 0->119 inclusive
-	ptr = writeLE(ptr, 128, 1);	//        GbV: Global Volume, 0->128
+	ptr = writeLE(ptr, 128, 1);	//     GbV: Global Volume, 0->128
 	ptr = writeLE(ptr, 0, 1);//        DfP: Default Pan, 0->64, &128 => Don't use
 	ptr = writeLE(ptr, 0, 1);//        RV: Random volume variation (percentage)
 	ptr = writeLE(ptr, 0, 1);//        RP: Random panning variation (panning change - not implemented yet)
@@ -356,6 +378,14 @@ void cFileManager::exportItFile_ProcessSamples()
 		moveToNextOperationStep();
 	}
 
+}
+
+void cFileManager::exportItFile_ProcessWaves()
+{
+
+	exportItFile_storeWaveOffset();
+
+	moveToNextOperationStep();
 }
 
 void cFileManager::exportItFile_Finish()

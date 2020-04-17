@@ -577,11 +577,13 @@ private:
 	void exportItFile_InitHeader();
 	void exportItFile_ProcessInstruments();
 	void exportItFile_ProcessSamples();
+	void exportItFile_ProcessWaves();
 	void exportItFile_Finish();
 	void exportItFile_Error();
 
 	void exportItFile_storeInstrumentOffset();
 	void exportItFile_storeSampleOffset();
+	void exportItFile_storeWaveOffset();
 
 	/*
         0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
