@@ -1,7 +1,7 @@
 #include "mtAudioEngine.h"
 #include "sampleRecorder/sampleRecorder.h"
 #include "mtStructs.h"
-
+#include "metronomeBeep.h"
 extern AudioControlSGTL5000 audioShield;
 static cSampleRecorder* SR = &sampleRecorder;
 
@@ -42,6 +42,7 @@ AudioAnalyzeRMS			 rms;
 AudioRecordQueue		 exportL, exportR;
 AudioAnalyzeRMS			 exportRmsL, exportRmsR;
 AudioSynthWaveform		 testWaveform;
+AudioPlayMemory 		 metronomeTick;
 
 AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
 AudioConnection          connect2(&playMem[1], 0, &filter[1], 0);
@@ -137,6 +138,9 @@ AudioConnection 		 connect66(&playSdWav24Bit,0,&mixerSourceR,3);
 
 AudioConnection          connect80(&testWaveform, 0, &mixerSourceR, 4);
 AudioConnection          connect81(&testWaveform, 0, &mixerSourceL, 4);
+
+AudioConnection          connect82(&metronomeTick, 0, &mixerSourceR, 5);
+AudioConnection          connect83(&metronomeTick, 0, &mixerSourceL, 5);
 
 AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
 AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
@@ -380,6 +384,14 @@ void audioEngine::setLastUsedVoice(uint8_t v)
 uint8_t audioEngine::getLastUsedVoice()
 {
 	return	lastUsedVoice;
+}
+
+void audioEngine::makeMetronomeTick()
+{
+	mixerSourceL.gain(5,ampLogValues[mtConfig.metronome.volume]);
+	mixerSourceR.gain(5,ampLogValues[mtConfig.metronome.volume]);
+	metronomeTick.playForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
+	metronomeTick.setFineTune(45, 30);
 }
 
 playerEngine::playerEngine()
