@@ -707,6 +707,7 @@ static  uint8_t functSelectStart(uint8_t state)
 	if(SP->isEqualSliceActive())
 	{
 		sliceManager.equalSlice(SP->editorInstrument, mtConfig.equalSliceNumber);
+		newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 		SP->refreshSlicePoints = 1;
 		return 1;
 	}
