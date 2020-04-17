@@ -120,6 +120,7 @@ public:
 
 	void modEqualSliceNumber(int16_t val);
 	bool isEqualSliceActive();
+	void equalSlice();
 
 	strFrameData frameData;
 
@@ -149,12 +150,20 @@ public:
 //----------------------------------
 // spectrum + punkty
 
+	enum enOverwriteSliceSource
+	{
+		overvwriteAutoSlice,
+		overwriteEqualSlice
+	};
+
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
 	uint8_t refreshSlicePoints = 0;
 	uint8_t currentAutoSlice = 0;
 	uint8_t lastAutoSlice = 0;
-	uint8_t autoSlicePopupVisible = 0;
+	uint8_t overwriteSlicePopupVisible = 0;
+	uint8_t overwriteSliceSource;
+
 	uint8_t refreshSpectrumProgress = 0;
 	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
