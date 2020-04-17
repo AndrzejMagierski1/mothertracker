@@ -321,7 +321,7 @@ void cFileManager::exportItFile_ProcessSamples()
 	sprintf((char*) ptr, "%.25s",
 			instr->sample.file_name);
 
-	ptr = &buff0x50[0x10];
+	ptr = &buff0x50[0x30];
 	ptr = writeLE(ptr, instr->sample.length, 4);	//	Length
 	ptr = writeLE(ptr,
 					map((float) instr->loopPoint1, 0, MAX_16BIT, 0,

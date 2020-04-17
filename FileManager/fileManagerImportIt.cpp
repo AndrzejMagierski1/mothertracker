@@ -474,7 +474,14 @@ void cFileManager::importItFile_LoadSamples()
 		bool isPTMLoad = Cvt & 0b00001000;
 		bool isTX12Bit = Cvt & 0b00010000;
 
+		char sampleName[30] { 0 };
+
 		if (debugMod)
+		{
+
+			strcpy(sampleName, (char*) &sampleHeader[0x14]);
+
+			Serial.printf("##sampleName: %.26s\n", sampleName);
 			Serial.printf(
 					"flags: %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s \n",
 					isHeader ? "header" : "no header",
@@ -490,6 +497,7 @@ void cFileManager::importItFile_LoadSamples()
 					isPingPong ? "ping pong" : "forward",
 					isPingPongSustain ? "ping pong sutain" : "forward sustain");
 
+		}
 		if (debugMod)
 			Serial.printf(
 					"length: %d, loopBegin: %d, loopEnd %d, C5Speed: %d, SmpPoint %d\n",
