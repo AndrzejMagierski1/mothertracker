@@ -11,6 +11,9 @@
 
 #include "patternEditor/patternEditor.h"
 
+
+#include "performanceMode/performanceEngine.h"
+
 #include "masterParams/masterParams.h"
 #include "mtGainLevelLogarithmicTab.h"
 
@@ -137,18 +140,6 @@ void cMasterParams::stop()
 	moduleRefresh = 0;
 }
 
-void cMasterParams::turnOffPerformanceMode()
-{
-	if(sequencer.isPerformanceMode())
-	{
-		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
-		sequencer.switchRamPatternsNow();
-		sequencer.exitPerformanceMode();
-	}
-
-	engine.performanceModeEndAll();
-
-}
 
 void cMasterParams::setMasterScreenFunct()
 {
@@ -461,7 +452,7 @@ static  uint8_t functSelectLimiterTreshold(uint8_t state)
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(button != interfaceButtonPerformance) MP->turnOffPerformanceMode();
+	if(button != interfaceButtonPerformance) performance.turnOff();
 	//if(button != interfaceButtonSampleRec) MP->turnOffRadio();
 
 	if(MP->sourceModuleButton == interfaceButtonSampleRec)

@@ -8,7 +8,6 @@
 
 #include "mtAudioEngine.h"
 
-
 enum mtPerformanceMode
 {
 	mtPerformanceMaster,
@@ -16,86 +15,20 @@ enum mtPerformanceMode
 
 };
 
-//------------------------------------------------------------------------------
-
-enum mtPerformanceFxes
-{
-	mtPerfFxNone,
-	mtPerfFxVolume,
-	mtPerfPanning,
-	mtPerfTune,
-	mtPerfLowPass,
-	mtPerfHighPass,
-	mtPerfBandPass,
-	mtPerfReverbSend,
-	mtPerfSamplePosition,
-	mtPerfSampleEnd,
-	mtPerfSamplePlayback,
-	mtPerfVolumeLfoSpeed,
-	mtPerfPanningLfoSpeed,
-	mtPerfFilterfoSpeed,
-	mtPerfGranWtfoSpeed,
-	mtPerfStepStutter,
-	mtPerfPatternPlayMode,
-	mtPerfPatternLength,
-
-	performanceFxesCount
-};
-
-
-const char performanceFxesLabels[performanceFxesCount][22] =
-{
-	"",
-	"Volume",
-	"Panning",
-	"Tune",
-	"Low-pass cutoff",
-	"High-Pass cutoff",
-	"Band-pass cutoff",
-	"Delay send",
-	"Sample position",
-	"Sample end",
-	"Sample playback",
-	"Volume LFO Speed",
-	"Panning LFO Speed",
-	"Filter LFO Speed",
-	"Gran/Wt LFO Speed",
-	"Step repeater",
-	"Pattern play mode",
-	"Pattern length",
-};
 
 //------------------------------------------------------------------------------
 
 const uint8_t trackMasterModeCount = 2;
+
+
 const char trackMasterLabels[trackMasterModeCount][5] =
 {
 	"On",
 	"Off",
 };
 
-const char performanceStutterLabels[16][20] =
-{
-	"Off",
-	"16",
-	"12",
-	"8",
-	"6",
-	"4",
-	"3",
-	"2",
-	"1",
-	"1/2",
-	"1/3",
-	"1/4",
-	"1/6",
-	"1/8",
-	"1/12",
-	"1/16",
-};
 
-const uint8_t performancePatternLengthValues[] =
-{ 1, 2, 4, 8, 16, 32, 64, 128 };
+
 
 //const char * const performanceLfoSpeedLabels[20] =
 //{
@@ -176,22 +109,14 @@ public:
 
 //----------------------------------
 
-
-//	void showArrow(uint8_t place, uint8_t type);
-//	void hideArrow(uint8_t place);
-
 	strMultiLabelData multiLabelData[12];
-
 	strFrameData frameData;
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl bgLabel;
-
-
+	hControl bgLabel = nullptr;
 	hControl label[8] = {nullptr};
-
 	hControl textLabel[12] = {nullptr};
 	hControl value1Label[12] = {nullptr};
 
@@ -216,12 +141,7 @@ public:
 	char trackPaternText[8][12]; // do labeli przyciskow pod ekranem
 
 	// funct
-	uint8_t tracksPerformanceState[8] = {0}; // afektowane tracki
-	int8_t performancePadsState[12]; //ktory slot wybrano: 0-zaden 1-4-slot
-	int16_t placesTempValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; // tymczasowe zmieniane bez reca
-
-	uint8_t trackPatternChange[8] = {0}; // zarzazdanie pattern-trackami
-
+	uint8_t trackPatternChange[8] = {0,0,0,0,0,0,0,0}; // zarzazdanie pattern-trackami
 
 	// blinkowanie na zmienianycnm tracku
 	void blinkTrackUntilSwitch();
@@ -239,7 +159,7 @@ extern cPerformanceMode performanceMode;
 
 
 //#define FX_VALUE(x) PM->fxValues[x][PM->activeFxValues[x]]
-#define FX_VALUE(x) PM->placesTempValues[x]
+//#define FX_VALUE(x) PM->placesTempValues[x]
 
 
 #endif /* INTERFACE_INSTRUMENTEDITOR_H_ */

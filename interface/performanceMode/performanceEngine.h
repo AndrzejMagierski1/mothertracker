@@ -30,31 +30,39 @@ public:
 
 	~cPerformEngine() {  }
 
-	void enable();
-	void disable();
-
+	void turnOff();
 
 	void setEditState(uint8_t state) { editState = state ? true : false;}
 	void changeSlotFx(uint8_t slot, int8_t change);
 
+	void swapSlotFx(uint8_t slotFrom, uint8_t slotTo);
+	void copySlotFx(uint8_t slot);
+	void pasteSlotFx(uint8_t slot);
+
+	void loadSelectedValuesToTempValues();
 
 	const uint8_t getFxCount() { return fxCount;}
 	const char* getSlotFxName(uint8_t slot);
+	int8_t getSelectedRow(uint8_t slot);
 	uint8_t getTrackState(uint8_t track);
-
-	uint8_t getSlotSelectedRow(uint8_t slot) { return slotToRow[slot]; } //0-3
+	uint8_t slotChanged(uint8_t slot);
 
 	void fillSlotFxValue(uint8_t slot, uint8_t row, char* value);
 
 	void setSelectedRow(uint8_t slot, uint8_t row);
+	void setSlotState(uint8_t slot, uint8_t state);
 
 	void setTrackState(uint8_t track, uint8_t state);
 	void toggleTrackState(uint8_t track);
 
-	void resetFxOnTrack(uint8_t slot, uint8_t track);
+	void resetAllFx();
+	void resetFxOnTrack(uint8_t fx, uint8_t track);
 	void resetFxOnAffectedTrack(uint8_t slot);
+	void loadAllSlotsFxOnTrack(uint8_t track);
 	void loadFxValuesOnTrack(uint8_t slot, uint8_t track);
-	void loadFxValuesOnAffectedTrack(uint8_t slot);
+	void loadFxValuesOnAffectedTracks(uint8_t slot);
+	void resetOtherSlotsWithSameFx(uint8_t slot);
+	void resetSlotsWithBlockedFx(uint8_t slot);
 
 	void changeSlotFxValue(uint8_t slot, int16_t value);
 
@@ -74,7 +82,6 @@ public:
 			if(slotToRow[slot] >= 4) slotToRow[slot] = 0;
 			//if(*(slotRowToValue+) >= 4) slotRowToValue[slot] = 0; // value niech se bedzie jakie chce
 		}
-
 	}
 
 
@@ -90,6 +97,8 @@ private:
 	uint8_t dataSourcesCount;
 
 	bool editState;
+	bool isSlotCopied = false;
+	uint8_t slotCopied;
 
 	bool afectedTrack[8];
 
@@ -101,7 +110,10 @@ private:
 	uint8_t tracksPerformanceState[8] = {0}; // afektowane tracki
 
 	int16_t slotsTempValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; // tymczasowe zmieniane bez reca
+	uint8_t slotsState[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; // czy slot jest aktywny (pad wcisniety)
 
+	// do odpytywania przez interfejs w celu odwieznia na ekranie
+	uint8_t slotChangeFlag[12] = {0,0,0,0,0,0,0,0,0,0,0,0};;
 };
 
 extern cPerformEngine performance;

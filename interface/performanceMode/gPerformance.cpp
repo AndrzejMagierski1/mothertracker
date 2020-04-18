@@ -2,8 +2,9 @@
 
 
 
-#include "performanceMode/performanceMode.h"
+#include "performanceMode.h"
 
+#include "performanceEngine.h"
 
 static uint16_t framesPlaces[12][4] =
 {
@@ -251,7 +252,7 @@ void cPerformanceMode::showPerformanceFxes()
 
 	for(uint8_t i = 0; i < 12; i++)
 	{
-		display.setControlText(textLabel[i], &performanceFxesLabels[mtProject.values.perfFxPlaces[i]][0]);
+		display.setControlText(textLabel[i], performance.getSlotFxName(i));
 		display.setControlShow(textLabel[i]);
 		display.refreshControl(textLabel[i]);
 
@@ -295,7 +296,7 @@ void cPerformanceMode::showFxNames(uint8_t place)
 {
 	if(place < 12)
 	{
-		display.setControlText(textLabel[place], &performanceFxesLabels[mtProject.values.perfFxPlaces[place]][0]);
+		display.setControlText(textLabel[place], performance.getSlotFxName(place));
 		display.setControlShow(textLabel[place]);
 		display.refreshControl(textLabel[place]);
 		return;
@@ -303,30 +304,46 @@ void cPerformanceMode::showFxNames(uint8_t place)
 
 	for(uint8_t i = 0; i < 12; i++)
 	{
-		display.setControlText(textLabel[i], &performanceFxesLabels[mtProject.values.perfFxPlaces[i]][0]);
+		display.setControlText(textLabel[i], performance.getSlotFxName(i));
 		display.setControlShow(textLabel[i]);
 		display.refreshControl(textLabel[i]);
 	}
 }
+
+uint32_t activeTrackLabelsColors[4] =
+{
+	0x777777, // tekst
+	one_true_red, // tło
+	one_true_red, // ramka
+	0xFFFFFF, // tekst2
+};
+
+uint32_t mutedTrackLabelColors[4]=
+{
+		0x000000, // tekst
+		one_true_red, // tło
+		0xFF0000, // ramka
+		0x000000, // tekst2
+};
 
 
 void cPerformanceMode::showTracksState()
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
-		if(tracksPerformanceState[i] == 1)
+		if(performance.getTrackState(i) == 1)
 		{
-			uint32_t* ptrColors = interfaceGlobals.activeLabelsColors;
-			if(mtProject.values.trackMute[i] > 0) ptrColors = interfaceGlobals.disabledLabelsColors;
+			uint32_t* ptrColors =  activeTrackLabelsColors;
+			if(mtProject.values.trackMute[i] > 0) ptrColors = mutedTrackLabelColors;
 
 			display.setControlColors(label[i], ptrColors);
 			//display.setControlColors(bottomLabel[i], ptrColors);
-			display.setControlStyle(label[i], controlStyleCenterX | controlStyleFont3 | controlStyleBorder );
+			display.setControlStyle(label[i], controlStyleCenterX | controlStyleFont3 | controlStyleBackground /*| controlStyleNoTransparency*//*controlStyleBorder*/ );
 		}
 		else
 		{
-			uint32_t* ptrColors = interfaceGlobals.activeLabelsColors;
-			if(mtProject.values.trackMute[i] > 0) ptrColors = interfaceGlobals.disabledLabelsColors;
+			uint32_t* ptrColors = activeTrackLabelsColors;
+			if(mtProject.values.trackMute[i] > 0) ptrColors = mutedTrackLabelColors;
 
 			display.setControlColors(label[i], ptrColors);
 			//display.setControlColors(bottomLabel[i], ptrColors);
@@ -368,61 +385,13 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 {
 	if(place >= 12) return;
 
-	multiLabelData[place].selected = mtProject.values.perfSelectedValues[place]+1;
+	multiLabelData[place].selected = performance.getSelectedRow(place)+1;
 
-	for(uint8_t slot = 0; slot < 4; slot++)
-	{
+	performance.fillSlotFxValue(place, 0, &fxValuesText[place][0][0]);
+	performance.fillSlotFxValue(place, 1, &fxValuesText[place][1][0]);
+	performance.fillSlotFxValue(place, 2, &fxValuesText[place][2][0]);
+	performance.fillSlotFxValue(place, 3, &fxValuesText[place][3][0]);
 
-		int16_t fx_value  = (slot == mtProject.values.perfSelectedValues[place])  	// ten zapis ustawial na start zaznaczone wartosci  fxow z tempValues
-				? placesTempValues[place]											// zamiast poprawnych; naprawione w start()
-				: mtProject.values.perfFxValues[place][slot];
-
-		// wyjątkowe efejkty (nie liczbowe) obslużyc wyjątkowo
-		switch(mtProject.values.perfFxPlaces[place])
-		{
-		case mtPerfFxNone:
-		{
-			strcpy(&fxValuesText[place][slot][0], "");
-			break;
-		}
-		case mtPerfSamplePlayback:
-		{
-			if(fx_value == 1) 	strcpy(&fxValuesText[place][slot][0], "<<<");
-			else 				strcpy(&fxValuesText[place][slot][0], ">>>");
-			break;
-		}
-		case mtPerfStepStutter:
-		{
-			strcpy(&fxValuesText[place][slot][0], &performanceStutterLabels[fx_value][0]);
-			break;
-		}
-		case mtPerfPatternPlayMode:
-		{
-			if(fx_value == 1) 		strcpy(&fxValuesText[place][slot][0], "Back");
-			else if(fx_value == 2) 	strcpy(&fxValuesText[place][slot][0], "Rnd");
-			else 					strcpy(&fxValuesText[place][slot][0], "Fwd");
-			break;
-		}
-
-		case mtPerfPatternLength:
-		{
-				if (fx_value <= 0) strcpy(&fxValuesText[place][slot][0], "---");
-				else
-				{
-					sprintf(&fxValuesText[place][slot][0], "%d", performancePatternLengthValues[fx_value-1]);
-
-				}
-			break;
-		}
-
-		// nie wyjatkowe (liczbowe) tu
-		default:
-			if(fx_value == 0) strcpy(&fxValuesText[place][slot][0], "---");
-			else if(fx_value > 0) sprintf(&fxValuesText[place][slot][0],"+%d", fx_value);
-			else sprintf(&fxValuesText[place][slot][0],"%d", fx_value);
-			break;
-		}
-	}
 
 
 	display.setControlShow(value1Label[place]);
@@ -453,26 +422,4 @@ void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
 
 	display.refreshControl(label[track]);
 }
-////=================================================================================
-////
-////=================================================================================
-//void cPerformanceMode::showArrow(uint8_t place, uint8_t type)
-//{
-//	if(mtProject.values.perfFxPlaces[place] == mtPerfFxNone) return;
-//
-//	//textLabelData[place].bitmapIndex = type;
-//
-//	display.setAddControlStyle(value1Label[place], controlStyleShowBitmap);
-//	display.refreshControl(value1Label[place]);
-//}
-//
-////=================================================================================
-////
-////=================================================================================
-//void cPerformanceMode::hideArrow(uint8_t place)
-//{
-//
-//	display.setRemoveControlStyle(value1Label[place], controlStyleShowBitmap);
-//	display.refreshControl(value1Label[place]);
-//}
 

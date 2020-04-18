@@ -13,7 +13,10 @@
 #include "mtPadBoard.h"
 #include "sampleRecorder/sampleRecorder.h"
 
-#include "performanceMode/performanceMode.h"
+#include "performanceMode/performanceMode.h"
+#include "performanceMode/performanceEngine.h"
+
+
 #include "sdCardDetect.h"
 #include "fileManager.h"
 #include "debugLog.h"
@@ -310,9 +313,9 @@ uint8_t cProjectEditor::loadProjectValues()
 
 	for(uint8_t i = 0; i<12; i++)
 	{
-		if(mtProject.values.perfFxPlaces[i] > performanceFxesCount-1)
+		if(mtProject.values.perfFxPlaces[i] > performance.getFxCount()-1)
 		{
-			mtProject.values.perfFxPlaces[i] = (i+1 < performanceFxesCount) ? i+1 : 0;
+			mtProject.values.perfFxPlaces[i] = (i+1 < performance.getFxCount()) ? i+1 : 0;
 		}
 		if(mtProject.values.perfSelectedValues[i] > 3) mtProject.values.perfSelectedValues[i] = 0;
 
