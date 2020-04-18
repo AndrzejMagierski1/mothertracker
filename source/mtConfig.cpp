@@ -441,7 +441,7 @@ void resetConfig()
 	mtConfig.general.recQuantization = 0;
 	mtConfig.general.performanceSource = 0;
 	mtConfig.general.padBoardScale = 0;
-	mtConfig.general.padBoardNoteOffset = 12;
+	mtConfig.general.padBoardNoteOffset = 11;
 	mtConfig.general.padBoardRootNote = 12;
 	//mtConfig.general.padBoardMaxVoices = 8;
 
@@ -470,18 +470,21 @@ void resetConfig()
 void firmwareVersionChange()
 {
 	// naprawki zmian -------------------------------------------------------------------------------------
-	if(mtConfig.firmware.ver_1 <= 0 && mtConfig.firmware.ver_2 <= 9 && mtConfig.firmware.ver_3 <= 61)
+	if(mtConfig.firmware.ver_1 <= 0 && mtConfig.firmware.ver_2 <= 9 && mtConfig.firmware.ver_3 <= 67)
 	{
-		mtConfig.values.padBoardScale = 0;
-		mtConfig.values.padBoardNoteOffset = 12;
-		mtConfig.values.padBoardRootNote = 36;
-		mtConfig.values.padBoardMaxVoices = 8;
 
-		mtConfig.general.recQuantization = 1;
-		mtConfig.general.performanceSource = 1;
-		mtConfig.general.padBoardScale = 0;
-		mtConfig.general.padBoardNoteOffset = 11;
-		mtConfig.general.padBoardRootNote = 12;
+		resetConfig();
+
+//		mtConfig.values.padBoardScale = 0;
+//		mtConfig.values.padBoardNoteOffset = 12;
+//		mtConfig.values.padBoardRootNote = 36;
+//		mtConfig.values.padBoardMaxVoices = 8;
+//
+//		mtConfig.general.recQuantization = 1;
+//		mtConfig.general.performanceSource = 1;
+//		mtConfig.general.padBoardScale = 0;
+//		mtConfig.general.padBoardNoteOffset = 11;
+//		mtConfig.general.padBoardRootNote = 12;
 	}
 
 
