@@ -40,10 +40,28 @@ static uint32_t valuesLabelColors[] =
 uint32_t redBlinkLabelColors[4] =
 {
 	one_true_red, // tekst
-	0x323132, // tło
+	one_true_red,//0x323132, // tło
 	one_true_red, // ramka
 	one_true_red, // tekst2
 };
+
+//----------------------------------------
+uint32_t activeTrackLabelsColors[4] =
+{
+	0x777777, // tekst
+	one_true_red, // tło
+	one_true_red, // ramka
+	0xFFFFFF, // tekst2
+};
+
+uint32_t mutedTrackLabelColors[4]=
+{
+		0x000000, // tekst
+		one_true_red, // tło
+		0xFF0000, // ramka
+		0x000000, // tekst2
+};
+
 
 
 void cPerformanceMode::initDisplayControls()
@@ -310,21 +328,6 @@ void cPerformanceMode::showFxNames(uint8_t place)
 	}
 }
 
-uint32_t activeTrackLabelsColors[4] =
-{
-	0x777777, // tekst
-	one_true_red, // tło
-	one_true_red, // ramka
-	0xFFFFFF, // tekst2
-};
-
-uint32_t mutedTrackLabelColors[4]=
-{
-		0x000000, // tekst
-		one_true_red, // tło
-		0xFF0000, // ramka
-		0x000000, // tekst2
-};
 
 
 void cPerformanceMode::showTracksState()
@@ -410,10 +413,10 @@ void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
 	}
 	else
 	{
-		uint32_t *ptrColors = interfaceGlobals.activeLabelsColors;
+		uint32_t *ptrColors = activeTrackLabelsColors;
 		if (mtProject.values.trackMute[track] > 0)
 		{
-			ptrColors = interfaceGlobals.disabledLabelsColors;
+			ptrColors = mutedTrackLabelColors;
 		}
 
 		display.setControlColors(label[track],

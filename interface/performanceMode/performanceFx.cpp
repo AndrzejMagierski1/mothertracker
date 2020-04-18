@@ -110,7 +110,7 @@ void sampleEndSet(uint8_t track, int16_t value) { instrumentPlayer[track].change
 void sampleEndClear(uint8_t track) { instrumentPlayer[track].endEndPointPerformanceMode(); }
 const fxSetup sampleEndSetup = {-100, 100, nullptr};
 
-cPerformFx sampleEndPerfFx(mtPerfSampleEnd, "Sample end", panningSet, panningClear, &panningSetup);
+cPerformFx sampleEndPerfFx(mtPerfSampleEnd, "Sample end", sampleEndSet, sampleEndClear, &sampleEndSetup);
 
 //########## SAMPLE PLAYBACK ########################################################################
 void samplePlaybackSet(uint8_t track, int16_t value) { instrumentPlayer[track].changeSamplePlaybackPerformanceMode(value); }
