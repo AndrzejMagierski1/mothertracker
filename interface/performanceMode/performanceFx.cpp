@@ -135,8 +135,8 @@ const fxSetup panningLfoSpeedSetup = {-20, 20, nullptr};
 cPerformFx panningLfoSpeedPerfFx(mtPerfPanningLfoSpeed, "Panning LFO Speed", panningLfoSpeedSet, panningLfoSpeedClear, &panningLfoSpeedSetup);
 
 //########## PITCH LFO SPEED ########################################################################
-void finetuneLfoSpeedSet(uint8_t track, int16_t value) { /*instrumentPlayer[track].changeFinetuneLfoRatePerformanceMode(value);*/ }
-void finetuneLfoSpeedClear(uint8_t track) { /*instrumentPlayer[track].endFinetuneLfoRatePerformanceMode();*/ }
+void finetuneLfoSpeedSet(uint8_t track, int16_t value) { instrumentPlayer[track].changeFinetuneLfoRatePerformanceMode(value); }
+void finetuneLfoSpeedClear(uint8_t track) { instrumentPlayer[track].endFinetuneLfoRatePerformanceMode(); }
 const fxSetup finetuneLfoSpeedSetup = {-20, 20, nullptr};
 
 cPerformFx finetuneLfoSpeedPerfFx(mtPerfFinetuneLfoSpeed, "Finetune LFO Speed", finetuneLfoSpeedSet, finetuneLfoSpeedClear, &finetuneLfoSpeedSetup);
