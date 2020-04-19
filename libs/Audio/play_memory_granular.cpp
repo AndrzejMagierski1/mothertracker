@@ -141,17 +141,94 @@ void AudioPlayMemory::updateGranular()
 							*out++ = 0;
 						}
 
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
+						switch(granularLoopType)
 						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
+							case granularLoopForward:
+								//**************************************************************************
+								iPitchCounter += castPitchControl;
+								fPitchCounter += pitchFraction;
+								if (fPitchCounter >= 1.0f)
+								{
+									fPitchCounter -= 1.0f;
+									iPitchCounter++;
+								}
+								else if(fPitchCounter <= -1.0f)
+								{
+									fPitchCounter += 1.0f;
+									iPitchCounter--;
+								}
+								//**************************************************************************
+							break;
+							case granularLoopBackward:
+								//**************************************************************************
+								if (!loopBackwardFlag)
+								{
+									iPitchCounter += castPitchControl;
+									fPitchCounter += pitchFraction;
+									if (fPitchCounter >= 1.0f)
+									{
+										fPitchCounter -= 1.0f;
+										iPitchCounter++;
+									}
+									else if(fPitchCounter <= -1.0f)
+									{
+										fPitchCounter += 1.0f;
+										iPitchCounter--;
+									}
+								}
+								else
+								{
+									iPitchCounter -= castPitchControl;
+
+									fPitchCounter -= pitchFraction;
+									if (fPitchCounter <= -1.0f)
+									{
+										fPitchCounter += 1.0f;
+										iPitchCounter--;
+									}
+									else if (fPitchCounter >= 1.0f)
+									{
+										fPitchCounter -= 1.0f;
+										iPitchCounter++;
+									}
+								}
+								//**************************************************************************
+							break;
+							case granularLoopPingPong:
+								//**************************************************************************
+								if (!loopBackwardFlag)
+								{
+									iPitchCounter += castPitchControl;
+									fPitchCounter += pitchFraction;
+									if (fPitchCounter >= 1.0f)
+									{
+										fPitchCounter -= 1.0f;
+										iPitchCounter++;
+									}
+									else if(fPitchCounter <= -1.0f)
+									{
+										fPitchCounter += 1.0f;
+										iPitchCounter--;
+									}
+								}
+								else
+								{
+									iPitchCounter -= castPitchControl;
+									fPitchCounter -= pitchFraction;
+									if (fPitchCounter <= -1.0f)
+									{
+										fPitchCounter += 1.0f;
+										iPitchCounter--;
+									}
+									else if (fPitchCounter >= 1.0f)
+									{
+										fPitchCounter -= 1.0f;
+										iPitchCounter++;
+									}
+								}
+								//**************************************************************************
+							break;
+							default: break;
 						}
 
 						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
