@@ -85,7 +85,8 @@ void playerEngine::changeStartPointPerformanceMode(int32_t value)
 void playerEngine::changeEndPointPerformanceMode(int32_t value)
 {
 	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
-	changePointsPerformanceMode(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] ? performanceMod.startPoint : 0, value );
+	int32_t localEndPointMod = map(value,-100,100,-MAX_16BIT,MAX_16BIT);
+	changePointsPerformanceMode(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] ? performanceMod.startPoint : 0, localEndPointMod );
 }
 
 void playerEngine::changePointsPerformanceMode(int32_t spValue, int32_t epValue)

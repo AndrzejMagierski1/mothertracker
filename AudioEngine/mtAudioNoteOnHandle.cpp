@@ -70,9 +70,9 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 //********* obsluga performance parametrow obslugiwanych w play_memory
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
 	{
-		changeEndPointPerformanceMode(performanceMod.endPoint);
+		changeEndPointPerformanceMode(map(performanceMod.endPoint,-MAX_16BIT,MAX_16BIT,-100,100));//zalatanie na szybko
 	}
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])//tu nie ma mapowania bo posredniczy change position
 	{
 		changeStartPointPerformanceMode(performanceMod.startPoint);
 	}
