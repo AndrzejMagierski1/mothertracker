@@ -98,7 +98,7 @@ void AudioPlayMemory::updateGranular()
 		in = (int16_t*)next;
 
 		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-		pitchFraction = pitchControl - (int32_t)pitchControl;
+		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
@@ -115,7 +115,7 @@ void AudioPlayMemory::updateGranular()
 					{
 						pitchControl += glideControl;
 						castPitchControl = (int32_t) ( (reverseDirectionFlag) ?  -pitchControl : pitchControl);
-						pitchFraction = pitchControl - (int32_t)pitchControl;
+						pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 						glideCounter++;
 					}
 				}
@@ -262,14 +262,14 @@ void AudioPlayMemory::updateGranular()
 									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 										loopBackwardFlag = 1;
 										fPitchCounter = 0;
 									}
 									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 										fPitchCounter = 0;
 									}
 								}
@@ -297,7 +297,7 @@ void AudioPlayMemory::updateGranular()
 									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 									{
 										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
+										iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 										loopBackwardFlag = 1;
 										fPitchCounter = 0;
 									}
@@ -474,14 +474,14 @@ void AudioPlayMemory::updateGranular()
 							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 							{
 								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 								loopBackwardFlag = 1;
 								fPitchCounter = 0;
 							}
 							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
 							{
 								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 								fPitchCounter = 0;
 							}
 						}
@@ -509,7 +509,7 @@ void AudioPlayMemory::updateGranular()
 							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
 							{
 								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1;
+								iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 								loopBackwardFlag = 1;
 								fPitchCounter = 0;
 							}

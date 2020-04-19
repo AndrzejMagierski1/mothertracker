@@ -104,7 +104,7 @@ void AudioPlayMemory::updateLoopForward()
 		in = (int16_t*)next;
 
 		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-		pitchFraction = pitchControl - (int32_t)pitchControl;
+		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
@@ -120,7 +120,7 @@ void AudioPlayMemory::updateLoopForward()
 					{
 						pitchControl += glideControl;
 						castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-						pitchFraction = pitchControl - (int32_t)pitchControl;
+						pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 						glideCounter++;
 					}
 				}

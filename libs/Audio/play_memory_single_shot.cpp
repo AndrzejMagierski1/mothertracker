@@ -81,12 +81,12 @@ void AudioPlayMemory::updateSingleShot()
 		in = (int16_t*)next;
 
 		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-		pitchFraction = pitchControl - (int32_t)pitchControl;
+		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			bool dataIsEnable = reverseDirectionFlag ? (iPitchCounter > 0) : (length > iPitchCounter);
+			bool dataIsEnable = reverseDirectionFlag ? ((int32_t)iPitchCounter > 0) : (length > iPitchCounter);
 
 			if(dataIsEnable)
 			{
@@ -97,7 +97,7 @@ void AudioPlayMemory::updateSingleShot()
 					{
 						pitchControl += glideControl;
 						castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-						pitchFraction = pitchControl - (int32_t)pitchControl;
+						pitchFraction = (float) ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 						glideCounter++;
 					}
 				}
@@ -167,7 +167,7 @@ void AudioPlayMemory::updateSingleShot()
 				{
 					iPitchCounter = length;
 				}
-				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
+				else if (((int32_t)(iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
 				{
 					iPitchCounter = 0;
 				}
