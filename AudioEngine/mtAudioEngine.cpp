@@ -392,6 +392,8 @@ void audioEngine::makeMetronomeTick()
 	mixerSourceR.gain(5,ampLogValues[mtConfig.metronome.volume]);
 	metronomeTick.playForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
 	metronomeTick.setFineTune(45, 30);
+
+	//Pykniecie jest probkowane 8kHz(oszczednosc pamieci), nuta 30 i finetune 45 wynikaja z koniecznosci zamienienia pitcha na odpowiedni dla 44.1 kHz
 }
 
 playerEngine::playerEngine()
