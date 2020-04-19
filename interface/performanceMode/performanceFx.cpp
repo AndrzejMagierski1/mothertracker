@@ -100,7 +100,7 @@ cPerformFx delayPerfFx(mtPerfDelaySend, "Delay send", delaySet, delayClear, &del
 
 //########## SAMPLE POS ########################################################################
 void samplePosSet(uint8_t track, int16_t value) { instrumentPlayer[track].changePositionPerformanceMode(value); }
-void samplePosClear(uint8_t track) { instrumentPlayer[track].endStartPointPerformanceMode(); }
+void samplePosClear(uint8_t track) { instrumentPlayer[track].endPositionPerformanceMode(); }
 const fxSetup samplePosSetup = {-100, 100, nullptr};
 
 cPerformFx samplePosPerfFx(mtPerfSamplePosition, "Sample position", samplePosSet, samplePosClear, &samplePosSetup);
