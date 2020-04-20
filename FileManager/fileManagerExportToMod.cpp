@@ -11,14 +11,36 @@
 /*
  * https://github.com/schismtracker/schismtracker/wiki/ITTECH.TXT
  */
+
+extern int16_t *sdram_ptrSampleBank;
+
 char file[255];
 
-uint32_t headerSize = 0;
-
 uint16_t expOrdNum = 0;
+uint16_t expInst = 0;
+uint16_t expSmp = 0;
+uint16_t expWave = 0;
 
 SdFile exportedFile;
 // wystartuj operację
+
+/*
+ * export wave
+ */
+enum enWaveWriteStat
+{
+	waveWrite_idle,
+	waveWrite_inProgress,
+	waveWrite_finished,
+
+};
+
+uint32_t waveTotalBytes = 0;
+uint32_t waveBytesLeft = 0;
+uint8_t waveWriteStatus = waveWrite_idle;
+
+uint8_t *waveSourceDataPtr = (uint8_t*) sdram_ptrSampleBank;
+
 uint8_t cFileManager::exportItFile()
 {
 	if (status != fmIdle && status != fmSavingProjectToWorkspace) return false;
@@ -35,6 +57,16 @@ uint8_t cFileManager::exportItFile()
 void cFileManager::exportItFile_Init()
 {
 	Serial.println("exportItFile_Init");
+
+	waveTotalBytes = 0;
+	waveBytesLeft = 0;
+	waveWriteStatus = waveWrite_idle;
+	waveSourceDataPtr = (uint8_t*) sdram_ptrSampleBank;
+
+	expOrdNum = 0;
+	expInst = 0;
+	expSmp = 0;
+	expWave = 0;
 
 	if (!SD.exists("Export")) SD.mkdir(0, "Export");
 
@@ -101,13 +133,16 @@ void cFileManager::exportItFile_InitHeader()
 	// 0x20
 	memset(buff32, 0, sizeof(buff32));
 
-	expOrdNum = 255;
+	expOrdNum = 200;
 	uint16_t InsNum = INSTRUMENTS_COUNT;
 	uint16_t SmpNum = INSTRUMENTS_COUNT;
-	uint16_t PatNum = 255;
-	uint16_t Cwt = 0x200;
+	uint16_t PatNum = 199;
+	uint16_t Cwt = 0x0217;
 	uint16_t Cmwt = 0x200;
-	uint16_t Flags = 0b00000000;
+	uint16_t Flags =
+			(1 << 2) | //Bit 2: On = Use instruments, Off = Use samples.
+			(1 << 3); //Bit 3: On = Linear slides, Off = Amiga slides.
+
 	uint16_t Special = 0b00000000;
 
 	uint16_t GV = 128;
@@ -183,16 +218,8 @@ void cFileManager::exportItFile_InitHeader()
 		exportedFile.write(0);
 	}
 
-	headerSize = exportedFile.size();
-	Serial.printf("headerSize: %d\n", headerSize);
-
 	moveToNextOperationStep();
 }
-
-uint16_t expInst = 0;
-uint16_t expSmp = 0;
-uint16_t expWave = 0;
-uint32_t fileOffset = 0;
 
 void cFileManager::exportItFile_storeInstrumentOffset()
 {
@@ -224,6 +251,7 @@ void cFileManager::exportItFile_storeWaveOffset()
 	exportedFile.seek(offSetForSampleOffset);
 
 	//	czytamy offset pliku sampla
+	uint32_t sampleFileOffset;
 	exportedFile.read((uint8_t*) &sampleFileOffset, 4);
 
 	// wpisujemy offset wave do pliku sampla, zmienna SamplePointer z docsa
@@ -251,7 +279,7 @@ void cFileManager::exportItFile_ProcessInstruments()
 	uint8_t *ptr = &buff0x20[0x10];
 	ptr = writeLE(ptr, 0, 1);	//00h
 	ptr = writeLE(ptr, 2, 1);	//NNA
-	ptr = writeLE(ptr, 0, 1);	//DCT
+	ptr = writeLE(ptr, 3, 1);	//DCT
 	ptr = writeLE(ptr, 0, 1);	//DCA
 	ptr = writeLE(ptr, 0, 2);	//FadeOut
 	ptr = writeLE(ptr, 0, 1);	//PPS
@@ -382,10 +410,43 @@ void cFileManager::exportItFile_ProcessSamples()
 
 void cFileManager::exportItFile_ProcessWaves()
 {
+	strInstrument *instr = &mtProject.instrument[expWave];
 
-	exportItFile_storeWaveOffset();
+	if (waveWriteStatus == waveWrite_idle)
+	{
+		exportItFile_storeWaveOffset();
 
-	moveToNextOperationStep();
+		waveTotalBytes = instr->sample.length * 2;
+		waveBytesLeft = waveTotalBytes;
+		waveWriteStatus = waveWrite_inProgress;
+	}
+
+	if (waveWriteStatus == waveWrite_inProgress)
+	{
+		uint32_t bytesToWrite = waveBytesLeft;
+		if (bytesToWrite > 512) bytesToWrite = 512;
+
+		exportedFile.write(waveSourceDataPtr, bytesToWrite);
+
+		waveSourceDataPtr += bytesToWrite;	//przesuwam wskaznik
+		waveBytesLeft -= bytesToWrite; // zmniejszam ikosc danych do kopiowania
+
+		if (waveBytesLeft <= 0)
+		{
+			waveWriteStatus = waveWrite_finished;
+		}
+	}
+	if (waveWriteStatus == waveWrite_finished)
+	{
+		waveWriteStatus = waveWrite_idle;
+
+		expWave++;
+		if (expWave >= INSTRUMENTS_COUNT)
+		{
+			moveToNextOperationStep();
+		}
+	}
+
 }
 
 void cFileManager::exportItFile_Finish()
