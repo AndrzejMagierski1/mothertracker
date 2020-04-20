@@ -714,7 +714,7 @@ void cSamplePlayback::showSlicesAdjustValue()
 
 void  cSamplePlayback::showSlicesEqualNumberValue()
 {
-	sprintf(equalSliceNumberText, "%d", mtConfig.equalSliceNumber);
+	sprintf(equalSliceNumberText, "%d", mtConfig.common.equalSliceNumber);
 	display.setControlText2(label[0], equalSliceNumberText);
 	display.setControlShow(label[0]);
 	display.refreshControl(label[0]);

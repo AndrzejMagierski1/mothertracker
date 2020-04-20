@@ -8,7 +8,7 @@
 #include "keyScanner.h"
 
 #include "core/graphicProcessing.h"
-//#include "mtFileManager.h"
+#include "mtConfig.h"
 #include "fileManager.h"
 #include "mtSliceManager.h"
 
@@ -2028,7 +2028,7 @@ static uint8_t functConfirmOverwrite()
 	}
 	else
 	{
-		sliceManager.equalSlice(SP->editorInstrument, mtConfig.equalSliceNumber);
+		sliceManager.equalSlice(SP->editorInstrument, mtConfig.common.equalSliceNumber);
 		SP->hideAutoSlicePopup();
 		if(!SP->isShiftPressed)
 		{
@@ -2249,10 +2249,12 @@ void cSamplePlayback::equalSlice()
 }
 void cSamplePlayback::modEqualSliceNumber(int16_t val)
 {
-	if(mtConfig.equalSliceNumber + val > 48) mtConfig.equalSliceNumber = 48;
-	else if(mtConfig.equalSliceNumber + val < 1) mtConfig.equalSliceNumber = 1;
-	else mtConfig.equalSliceNumber += val;
+	if(mtConfig.common.equalSliceNumber + val > 48) mtConfig.common.equalSliceNumber = 48;
+	else if(mtConfig.common.equalSliceNumber + val < 1) mtConfig.common.equalSliceNumber = 1;
+	else mtConfig.common.equalSliceNumber += val;
 	showSlicesEqualNumberValue();
+
+	saveConfig();
 }
 bool cSamplePlayback::isEqualSliceActive()
 {

@@ -43,9 +43,9 @@ void forceSaveConfig()
 {
 	//EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
 
-	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.startMode - (uint32_t)&mtConfig) , 		mtConfig.startup.startMode);
-	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
-	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup - (uint32_t)&mtConfig) , 			mtConfig.startup);
+	//EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
+	//EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
 
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
@@ -55,6 +55,9 @@ void forceSaveConfig()
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.metronome -  (uint32_t)&mtConfig) , 			mtConfig.metronome);
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.common -  (uint32_t)&mtConfig) , 			mtConfig.common);
+
+
 	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
 
 }
@@ -96,9 +99,9 @@ void readConfig()
 
 	//EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
 
-	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup.startMode - (uint32_t)&mtConfig) , 		mtConfig.startup.startMode);
-	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
-	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup - (uint32_t)&mtConfig) , 			mtConfig.startup);
+	//EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
+	//EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
 
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
@@ -108,6 +111,9 @@ void readConfig()
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.metronome -  (uint32_t)&mtConfig) , 			mtConfig.metronome);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.common -  (uint32_t)&mtConfig) , 			mtConfig.common);
+
+
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
 
 
@@ -366,6 +372,12 @@ void checkConfig()
 	}
 
 
+	// common ----------------------------------------
+	if(mtConfig.common.equalSliceNumber < 1) mtConfig.common.equalSliceNumber = 8;
+	else if(mtConfig.common.equalSliceNumber > 48) mtConfig.common.equalSliceNumber = 8;
+
+
+
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO
 // TODO
@@ -462,6 +474,10 @@ void resetConfig()
 #else
 	mtConfig.debug.debugLogState = 0;
 #endif
+
+	// common ----------------------------------------
+	 mtConfig.common.equalSliceNumber = 8;
+
 
 	// game ----------------------------------------
 	mtConfig.arcanoidHighestScore = 0;

@@ -93,8 +93,6 @@ void cConfigEditor::update()
 		prepareAndFlash();
 	}
 
-	eepromUpdate(false);
-
 }
 
 void cConfigEditor::start(uint32_t options)

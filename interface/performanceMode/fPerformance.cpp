@@ -70,8 +70,6 @@ void cPerformanceMode::update()
 		refreshTrackPattern = 0;
 		showTracksPatterns();
 	}
-
-	eepromUpdate(false);
 }
 
 void cPerformanceMode::start(uint32_t options)
@@ -150,8 +148,6 @@ void cPerformanceMode::stop()
 
 		mtPadBoard.releaseAllInstrument();
 	}
-
-	eepromUpdate(true);
 
 	moduleRefresh = 0;
 	padsBacklight.clearAllPads(1, 1, 1);

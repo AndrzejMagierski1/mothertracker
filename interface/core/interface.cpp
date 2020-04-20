@@ -182,6 +182,11 @@ void cInterface::processOperatingMode()
 
 			break;
 		}
+		case mtOperatingModeRun:
+		{
+			eepromUpdate(false);
+			break;
+		}
 		default: break; //mtOperatingModeRun
 	}
 }

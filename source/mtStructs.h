@@ -648,16 +648,24 @@ struct strMtConfig
 		uint8_t volume; // 0-100
 	} metronome;
 
-
-
 	struct strDebugState
 	{
 		uint8_t debugLogState;
 	} debug;
 
+	 // tu wszystko co nie ma jakiejsc szczegulnej kategori
+	struct strCommonValues
+	{
+		uint8_t equalSliceNumber = 8;
+	} common;
+
+
+
+
+	// dodawac powyzej
+	// \/ to niech zostanie na koncu itak narazie nie uzywane
 	uint32_t arcanoidHighestScore;
 
-	uint8_t equalSliceNumber = 1;
 };
 
 
