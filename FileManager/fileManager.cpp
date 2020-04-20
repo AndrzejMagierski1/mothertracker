@@ -154,7 +154,8 @@ void cFileManager::updateExportModFile()
 	case 2:			exportItFile_ProcessInstruments();	break;
 	case 3:			exportItFile_ProcessSamples();		break;
 	case 4:			exportItFile_ProcessWaves();		break;
-	case 5:			exportItFile_Finish();				break;
+	case 5:			exportItFile_ProcessPatterns();		break;
+	case 6:			exportItFile_Finish();				break;
 
 	default:
 		stopOperationWithError(fmExportModError);

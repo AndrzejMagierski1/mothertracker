@@ -20,6 +20,7 @@ uint16_t expOrdNum = 0;
 uint16_t expInst = 0;
 uint16_t expSmp = 0;
 uint16_t expWave = 0;
+uint16_t expPattern = 0;
 
 SdFile exportedFile;
 // wystartuj operację
@@ -67,6 +68,7 @@ void cFileManager::exportItFile_Init()
 	expInst = 0;
 	expSmp = 0;
 	expWave = 0;
+	expPattern = 0;
 
 	if (!SD.exists("Export")) SD.mkdir(0, "Export");
 
@@ -235,6 +237,21 @@ void cFileManager::exportItFile_storeSampleOffset()
 {
 	uint32_t endOfFile = exportedFile.size();
 	exportedFile.seek(0x00C0 + expOrdNum + INSTRUMENTS_COUNT * 4 + expSmp * 4);
+	uint8_t buff[4];
+	writeLE(buff, endOfFile, 4);
+	exportedFile.write(buff, 4);
+
+	exportedFile.seek(endOfFile);
+}
+void cFileManager::exportItFile_storePatternOffset()
+{
+	uint32_t endOfFile = exportedFile.size();
+	exportedFile.seek(
+						0x00C0 +
+								expOrdNum +
+								INSTRUMENTS_COUNT * 4 +
+								INSTRUMENTS_COUNT * 4 +
+								expPattern * 4);
 	uint8_t buff[4];
 	writeLE(buff, endOfFile, 4);
 	exportedFile.write(buff, 4);
@@ -449,6 +466,35 @@ void cFileManager::exportItFile_ProcessWaves()
 
 }
 
+void cFileManager::exportItFile_ProcessPatterns()
+{
+//expPattern= 0;
+	exportItFile_storePatternOffset();
+
+	Sequencer::strPattern *patt = sequencer.getActualPattern();
+
+	uint8_t buff0x08[0x08] { 0 };
+
+	uint8_t *ptr = &buff0x08[0x00];
+	ptr = writeLE(ptr, 0, 2);	//length todo: wpisać pozniej
+	ptr = writeLE(ptr, patt->track[0].length + 1, 2);	//rows
+
+	exportedFile.write(buff0x08, sizeof(buff0x08));
+
+	// tutaj row to nr stepa
+	for (uint8_t row = 0; row < Sequencer::MAXSTEP; row++)
+	{
+		for (uint8_t tr = 0; tr < Sequencer::MAXTRACK; tr++)
+		{
+			Sequencer::strPattern::strTrack::strStep *step = &patt->track[tr].step[row];
+
+
+
+		}
+	}
+
+	moveToNextOperationStep();
+}
 void cFileManager::exportItFile_Finish()
 {
 	Serial.println("exportItFile_Finish");
