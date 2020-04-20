@@ -6,7 +6,7 @@
 #include "SD.h"
 
 #include "mtSequencer.h"
-
+#include "mtKeyboardManager.h"
 
 
 uint8_t isMultiSelection();
@@ -124,6 +124,11 @@ public:
 	void playheadRecMode();
 	void playheadNormalMode();
 
+	void setKeyboardExportFunctions();
+
+	void showKeyboardExport();
+	void hideKeyboardExport();
+
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -169,10 +174,14 @@ public:
 //	hControl titleBar;
 //	hControl titleLabel;
 //	hControl instrumentLabel;
+	hControl keyboardControl;
+	hControl editName;
 
 	strLabelData labelArrow;
 
 	strFrameData frameData;
+
+	mtKeyboardManager keyboardManager;
 
 	int8_t selectedPlace = -1;
 

@@ -493,10 +493,10 @@ struct strInterfaceGlobals
 
 	uint32_t inactiveButtonLabelsColors[4] =
 	{
-		0x555555, // tekst
+		0x333333, // tekst
 		0x323132, // tło
 		one_true_red, // ramka
-		0x555555, // tekst2
+		0x333333, // tekst2
 	};
 
 	uint32_t disabledLabelsColors[4]=
