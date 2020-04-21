@@ -1597,15 +1597,15 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 
 	newFileManager.loadWorkspacePattern(patternNumber);
 }
-
+// handleNote dla sytuacji gdzie nr pada jest nieistotny
 void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
 	handleNote(channel, note, velocity, -1);
 }
-void Sequencer::handleNote(byte channel,
+void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
 							byte note,
 							byte velocity,
-							int16_t source) // jesli midi to source = nuta+100,
+							int16_t source) // nr pada, jesli midi to source = nuta+100,
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
