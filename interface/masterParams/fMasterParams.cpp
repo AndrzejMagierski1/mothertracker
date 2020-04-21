@@ -136,6 +136,7 @@ void cMasterParams::start(uint32_t options)
 
 void cMasterParams::stop()
 {
+	sequencer.stopManualNotes();
 	exitOnButtonRelease = 0;
 	moduleRefresh = 0;
 }
@@ -876,7 +877,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		padsBacklight.setFrontLayer(1,20, pad);
 		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 		sequencer.handleNote(
-							Sequencer::MIDI_CHANNEL_GRID,
+							Sequencer::GRID_OUTSIDE_PATTERN,
 							noteFromPad,
 							sequencer.getInstrumentVelo(
 									mtProject.values.lastUsedInstrument),
@@ -889,7 +890,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		padsBacklight.setFrontLayer(0,0, pad);
 //		mtPadBoard.stopInstrument(pad);
 		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-		sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
+		sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
 	}
 
 	return 1;

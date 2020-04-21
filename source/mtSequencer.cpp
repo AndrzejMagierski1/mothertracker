@@ -1605,7 +1605,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 void Sequencer::handleNote(byte channel,
 							byte note,
 							byte velocity,
-							int16_t source) // jesli midi to source = nuta+100
+							int16_t source) // jesli midi to source = nuta+100,
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1613,7 +1613,7 @@ void Sequencer::handleNote(byte channel,
 // NOTE ON
 	if (velocity != 0)
 	{
-		if (isEditMode())
+		if (isEditMode() && channel != GRID_OUTSIDE_PATTERN)
 		{
 			newFileManager.setPatternStructChanged(
 					mtProject.values.actualPattern);
@@ -1711,7 +1711,7 @@ void Sequencer::handleNote(byte channel,
 	}
 	else // czyli noteOff
 	{
-		if (isEditMode())
+		if (isEditMode() && channel != GRID_OUTSIDE_PATTERN)
 		{
 			if (!isMultiSelection())
 			{

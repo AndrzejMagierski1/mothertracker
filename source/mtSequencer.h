@@ -249,7 +249,8 @@ public:
 	};
 	enum midiChannel
 	{
-		MIDI_CHANNEL_GRID = 20
+		GRID_OUTSIDE_PATTERN = 20,
+		GRID_INSIDE_PATTERN = 21
 	};
 
 	struct strSelection
