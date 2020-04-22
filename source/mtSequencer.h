@@ -60,7 +60,7 @@ public:
 		TEMPODIV_1_1 = 0,
 	};
 
-	static constexpr float MAX_TEMPO = 400.0,
+	static constexpr float MAX_TEMPO = 800.0,
 			MIN_TEMPO = 40.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
@@ -247,7 +247,7 @@ public:
 		ELEMENTS_FX1,
 		ELEMENTS_FX2,
 	};
-	enum midiChannel
+	enum enAltMidiChannel
 	{
 		GRID_OUTSIDE_PATTERN = 20,
 		GRID_INSIDE_PATTERN = 21
