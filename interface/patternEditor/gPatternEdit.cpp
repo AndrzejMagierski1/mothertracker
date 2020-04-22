@@ -709,7 +709,7 @@ void cPatternEditor::showFillFx()
 	// fx
 	fillFxTypeList.linesCount = 6;
 	fillFxTypeList.start = fillData[editParam].param+1;
-	fillFxTypeList.length = FX_COUNT+1;
+	fillFxTypeList.length = FX_COUNT+1-FX_COUNT_HIDDEN_FXes;
 	fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
 
 	display.setControlData(param2PopupListControl, &fillFxTypeList);

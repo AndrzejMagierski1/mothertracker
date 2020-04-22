@@ -577,7 +577,7 @@ uint8_t cPatternEditor::getStepFx()
 	uint8_t fx_type =  interfaceGlobals.fxIdToName(
 			sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
 
-	if(fx_type < FX_COUNT) selectedFx = fx_type;
+	if(fx_type < FX_COUNT-FX_COUNT_HIDDEN_FXes) selectedFx = fx_type;
 
 	if(selectedFx == 0) selectedFx = mtProject.values.lastUsedFx;
 
@@ -667,7 +667,7 @@ void cPatternEditor::cancelPopups()
 
 					uint8_t fx_name = interfaceGlobals.fxIdToName(
 							sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
-					if (fx_name > 0 && fx_name < FX_COUNT)
+					if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes)
 					{
 
 						sendSelection();
@@ -1039,7 +1039,7 @@ void cPatternEditor::changeFillData(int16_t value)
 	case 4: // param
 		ptrVal = &fillData[editParam].param;
 		min = (editParam == 0 ? 0 : -1);
-		max = (editParam == 0 ? MAX_SCALE : FX_COUNT);
+		max = (editParam == 0 ? MAX_SCALE : FX_COUNT-1-FX_COUNT_HIDDEN_FXes);
 		break;
 
 	default: return;
@@ -1127,7 +1127,10 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 		{
 			if(pad < MAX_SCALE) fillData[editParam].param = pad;
 		}
-		else if(editParam == 3) fillData[editParam].param = pad;
+		else if(editParam >= 2)
+		{
+			if(pad < FX_COUNT-FX_COUNT_HIDDEN_FXes) fillData[editParam].param = pad;
+		}
 		break;
 	}
 	default: break;
