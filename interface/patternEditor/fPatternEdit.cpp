@@ -1325,7 +1325,31 @@ void cPatternEditor::endExportSelection()
 	setDefaultScreenFunct();
 	refreshEditState();
 	setSwitchModuleFunct();
-	PTE->FM->unblockAllInputs();
+	FM->unblockAllInputs();
+	if(isLoadAfterSave)
+	{
+		isLoadAfterSave = false;
+
+		if((mtProject.used_memory + exporter.getRenderLength() * 2) > mtProject.max_memory)
+		{
+			showFullMemoryInBank();
+		}
+
+		int8_t firstFreeInstrumentSlot = -1;
+		for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+		{
+			if(!mtProject.instrument[i].isActive)
+			{
+				firstFreeInstrumentSlot = i;
+				mtProject.values.lastUsedInstrument = i;
+				break;
+			}
+		}
+		if(firstFreeInstrumentSlot == -1)
+		{
+			showFullInstrumentInBank();
+		}
+	}
 }
 
 
@@ -2747,11 +2771,8 @@ static  uint8_t functConfirmExport()
 //Zatwierdzenie nazwy - rozpoczęcie exportu - po nim zaladowanie instrumentu
 static  uint8_t functConfirmExportLoad()
 {
-//	char localPatch[255];
-//
-//	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
-//	exporter.start(localPatch, exportRenderSelection);
-//	PTE->showExportProgress();
+	functConfirmExport();
+	PTE->isLoadAfterSave = true;
 	return 1;
 }
 //Zatwierdzenie znaku w klawiaturze
@@ -2820,7 +2841,7 @@ static 	uint8_t functCancelOverwriteExportFile()
 		}while(SD.exists(localPatch));
 	}
 
-
+	PTE->isLoadAfterSave = false;
 	PTE->keyboardManager.fillName(keyboardName);
 	PTE->keyboardManager.activateKeyboard();
 

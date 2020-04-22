@@ -8,6 +8,7 @@ public:
 	void start(char * path);
 	void cancel();
 	uint8_t getProgress();
+	uint32_t getLength();
 private:
 //	int16_t * recBuf = nullptr;
 //	int16_t * sendBuf = nullptr;

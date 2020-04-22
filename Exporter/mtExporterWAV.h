@@ -41,6 +41,7 @@ public:
 	uint8_t getProgress();
 	uint8_t getState();
 	uint8_t getStemsTrack();
+	uint32_t getRenderLength();
 	friend void setOnLastExportStep();
 	friend void setOnLastExportStepInSong();
 private:

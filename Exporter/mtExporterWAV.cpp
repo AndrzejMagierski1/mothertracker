@@ -131,6 +131,11 @@ uint8_t mtExporter::getStemsTrack()
 	return 0;
 }
 
+uint32_t mtExporter::getRenderLength()
+{
+	return renderExporter.getLength();
+}
+
 void mtExporter::cancel()
 {
 	switch(type)

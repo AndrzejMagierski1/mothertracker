@@ -50,4 +50,8 @@ uint8_t mtRenderWAV::getProgress()
 {
 	return (!lastStep) ? sequencer.getPlaySelectionProgress() : 100;
 }
+uint32_t mtRenderWAV::getLength()
+{
+	return byteRecorded;
+}
 

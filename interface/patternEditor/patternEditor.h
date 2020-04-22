@@ -138,6 +138,8 @@ public:
 	void showExportProgress();
 	void refreshExportProgress();
 	void hideExportProgress();
+	void showFullMemoryInBank();
+	void showFullInstrumentInBank();
 
 //----------------------------------
 // Funct
@@ -163,7 +165,7 @@ public:
 
 	uint8_t currentExportState;
 	uint8_t lastExportState;
-
+	bool isLoadAfterSave;
 //----------------------------------
 // GUI
 
