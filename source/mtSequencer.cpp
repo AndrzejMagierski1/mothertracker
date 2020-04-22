@@ -5,6 +5,7 @@
 #include "mtStructs.h"
 //#include "mtFileManager.h"
 #include "fileManager.h"
+#include "sampleRecorder/sampleRecorder.h"
 
 #include "core/songTimer.h"
 #include "mtMidi.h"
@@ -53,6 +54,12 @@ bool Sequencer::isInternalClock(void)
 {
 	return mtConfig.midi.clkIn == clockIn_Internal;
 }
+
+extern cSampleRecorder sampleRecorder;
+cSampleRecorder *SR = &sampleRecorder;
+//SR->recordInProgressFlag ==1
+
+//recorderConfig.source
 void Sequencer::handle_uStep_timer(void)
 {
 	/*
@@ -61,6 +68,44 @@ void Sequencer::handle_uStep_timer(void)
 	 */
 
 	// noInterrupts();
+	if (SR->recordInProgressFlag == 1)
+	{
+		if (SR->recorderConfig.source == SR->sourceTypeMicLG ||
+				SR->recorderConfig.source == SR->sourceTypeMicHG ||
+				SR->recorderConfig.source == SR->sourceTypeLineIn)
+		{
+			if (nanoStep % 576 == 0)
+			{
+				//rekonfig timera
+				init_player_timer();
+
+				if (isMetronomeActive() &&
+						player.extRecMetronomeStep % (getMetronomeDenominator() * getMetronomeNumerator()) == 0)
+				{
+					engine.makeMetronomeTick(1);
+				}
+				else if (isMetronomeActive() &&
+						player.extRecMetronomeStep % getMetronomeDenominator() == 0)
+				{
+					engine.makeMetronomeTick(0);
+				}
+
+				player.extRecMetronomeStep++;
+			}
+
+			nanoStep++;
+			if (nanoStep > 6912)
+			{
+				nanoStep = 1;
+				nanoStepMultiplier++;
+			}
+		}
+	}
+	else
+	{
+		player.extRecMetronomeStep = 0;
+	}
+
 	if (isInternalClock())
 	{
 		if (isPlay() || isRec())
@@ -1946,9 +1991,9 @@ uint8_t Sequencer::isMetronomeActive()
 }
 uint8_t Sequencer::getMetronomeNumerator()
 {
-	return mtConfig.metronome.timeSignatureNumerator+1;
+	return mtConfig.metronome.timeSignatureNumerator + 1;
 }
 uint8_t Sequencer::getMetronomeDenominator()
 {
-	return mtConfig.metronome.timeSignatureDenominator+1;
+	return mtConfig.metronome.timeSignatureDenominator + 1;
 }

@@ -474,6 +474,8 @@ public:
 		void (*onPatternEnd)(void) = NULL;
 		void (*onSongEnd)(void) = NULL;
 
+		uint8_t extRecMetronomeStep = 0;
+
 	} player;
 
 	//__________________________________________
