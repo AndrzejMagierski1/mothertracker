@@ -243,6 +243,22 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack::strSendStep &stepToSend = player.track[row].stepToSend;
 	strPlayer::strPlayerTrack::strSendStep &stepSent = player.track[row].stepSent;
 
+	if (row == 0 &&
+			playerRow.uStep == 1 &&
+			isRec())
+	{
+		if (isMetronomeActive() &&
+				playerRow.actual_pos % (getMetronomeDenominator() * getMetronomeNumerator()) == 0)
+		{
+			engine.makeMetronomeTick(1);
+		}
+		else if (isMetronomeActive() &&
+				playerRow.actual_pos % getMetronomeDenominator() == 0)
+		{
+			engine.makeMetronomeTick(0);
+		}
+	}
+
 	if (!playerRow.isActive)
 		return;
 
@@ -319,6 +335,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 	if (playerRow.uStep == 1)
 	{
+
 		if (patternStep.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
 		{
 			int16_t lowVal = constrain(
@@ -1603,9 +1620,9 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 	handleNote(channel, note, velocity, -1);
 }
 void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
-							byte note,
-							byte velocity,
-							int16_t source) // nr pada, jesli midi to source = nuta+100,
+		byte note,
+		byte velocity,
+		int16_t source) // nr pada, jesli midi to source = nuta+100,
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1921,4 +1938,17 @@ void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
 	patternTo->track[trackToSwitch] = patternFrom->track[trackToSwitch];
 	player.track[trackToSwitch].performanceSourcePattern = -1;
 
+}
+
+uint8_t Sequencer::isMetronomeActive()
+{
+	return mtConfig.metronome.state > 0;
+}
+uint8_t Sequencer::getMetronomeNumerator()
+{
+	return mtConfig.metronome.timeSignatureNumerator+1;
+}
+uint8_t Sequencer::getMetronomeDenominator()
+{
+	return mtConfig.metronome.timeSignatureDenominator+1;
 }

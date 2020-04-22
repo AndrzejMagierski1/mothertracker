@@ -17,7 +17,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 6);
 // grupy glowne
 cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
-cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	3);
+cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	4);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
 cMenuGroup menuHelp		(menuBase, 4, "Help", 		1);
 cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
@@ -54,12 +54,14 @@ cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTe
 ///////////////////
 // metronome
 const strItemTypeListTextWithAction setupMetroState		{ &mtConfig.metronome.state,  			2,  ptrMetroState,		setMetronomValues };
-const strItemTypeListTextWithAction setupMetroTimeSig	{ &mtConfig.metronome.timeSignature, 	12, ptrMetroTimeSig,	setMetronomValues };
+const strItemTypeListTextWithAction setupMetroTimeSigNum	{ &mtConfig.metronome.timeSignatureNumerator, 	12, ptrMetroTimeSig,	setMetronomValues };
+const strItemTypeListTextWithAction setupMetroTimeSigDenum	{ &mtConfig.metronome.timeSignatureDenominator, 	12, ptrMetroTimeSig,	setMetronomValues };
 const strItemTypeValue8 setupMetroVolume				{ &mtConfig.metronome.volume,			0, 100,	};
 
-cMenuItem melMetroState			(menuMetro, 	0, "State", 			menuTypeItemListTextWithAction, &setupMetroState);
-cMenuItem melMetroTimeSig		(menuMetro, 	1, "Time signature", 	menuTypeItemListTextWithAction, &setupMetroTimeSig);
-cMenuItem melMetroVolume		(menuMetro, 	2, "Volume", 			menuItemTypeValueU8, 			&setupMetroVolume);
+cMenuItem melMetroState			(menuMetro, 	0, "State", 				menuTypeItemListTextWithAction, &setupMetroState);
+cMenuItem melMetroTimeSigNum	(menuMetro, 	1, "Time signature num", 	menuTypeItemListTextWithAction, &setupMetroTimeSigNum);
+cMenuItem melMetroTimeSigDenum	(menuMetro, 	2, "Time signature denum", 	menuTypeItemListTextWithAction, &setupMetroTimeSigDenum);
+cMenuItem melMetroVolume		(menuMetro, 	3, "Volume", 				menuItemTypeValueU8, 			&setupMetroVolume);
 
 
 

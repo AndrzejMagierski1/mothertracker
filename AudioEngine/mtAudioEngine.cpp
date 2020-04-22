@@ -386,13 +386,14 @@ uint8_t audioEngine::getLastUsedVoice()
 	return	lastUsedVoice;
 }
 
-void audioEngine::makeMetronomeTick()
+void audioEngine::makeMetronomeTick(uint8_t accent)
 {
 	mixerSourceL.gain(5,ampLogValues[mtConfig.metronome.volume]);
 	mixerSourceR.gain(5,ampLogValues[mtConfig.metronome.volume]);
 	metronomeTick.playForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
-	metronomeTick.setFineTune(45, 30);
 
+	if(accent)metronomeTick.setFineTune(100, 30);
+	else metronomeTick.setFineTune(45, 30);
 	//Pykniecie jest probkowane 8kHz(oszczednosc pamieci), nuta 30 i finetune 45 wynikaja z koniecznosci zamienienia pitcha na odpowiedni dla 44.1 kHz
 }
 

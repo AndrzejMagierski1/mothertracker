@@ -316,7 +316,6 @@ public:
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
 
-
 	inline uint16_t rollValToPeriod(int8_t rollType);
 	inline uint16_t stutterValToPeriod(int8_t rollType);
 
@@ -627,6 +626,9 @@ public:
 	void rec(void);
 	void stop(void);
 	void stopManualNotes(void);
+	uint8_t isMetronomeActive();
+	uint8_t getMetronomeNumerator();
+	uint8_t getMetronomeDenominator();
 
 // SELECTION
 	void insert(strSelection *selection);

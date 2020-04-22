@@ -220,7 +220,7 @@ public:
 	void unblockDelayRefresh();
 	void setLastUsedVoice(uint8_t v);
 	uint8_t getLastUsedVoice();
-	void makeMetronomeTick();
+	void makeMetronomeTick(uint8_t);
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;
