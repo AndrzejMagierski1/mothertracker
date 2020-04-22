@@ -71,10 +71,31 @@ bool cFileManager::saveRecordedSound(char* fileName, int8_t importSlot)
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
-	if(!SD.exists("Recorded")) SD.mkdir(0,"Recorded");
+
+	char dirPath[30];
+	strcpy(dirPath, "Recordings");
+	uint8_t dir_num = 1;
+	uint8_t files_count = 0;
+
+	do
+	{
+		if(dir_num > 1) sprintf(dirPath, "Recordings %d", dir_num);
+
+		if(!SD.exists(dirPath)) break;
+
+		sdLocation.open(dirPath);
+		files_count = sdLocation.countContainedFiles();
+		sdLocation.close();
+
+		dir_num++;
+	}
+	while(files_count < 100);
+
+
+	if(!SD.exists(dirPath)) SD.mkdir(0, dirPath);
 
 	char filePath[70];
-	sprintf(filePath, "Recorded/%s.wav", fileName);
+	sprintf(filePath, "%s/%s.wav", dirPath, fileName);
 	if(SD.exists(filePath)) SD.remove(filePath);
 
 	recorder.startSave(filePath);

@@ -268,6 +268,8 @@ public:
 	uint16_t createProjectsList(char** list, uint8_t list_length, uint16_t max_used_memory);
 
 
+	uint16_t countContainedFiles();
+
 private:
 //	~SdDir()
 //	{

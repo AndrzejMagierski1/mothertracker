@@ -334,6 +334,9 @@ bool SdCard::removeDirWithFiles(const char* path)
     return true;
 }
 
+
+
+
 FRESULT SdCard::delete_node(
     TCHAR* path,    /* Path name buffer with the sub-directory to delete */
     UINT sz_buff,   /* Size of path name buffer (items) */
@@ -721,3 +724,53 @@ uint16_t SdDir::createProjectsList(char** list, uint8_t list_length, uint16_t ma
 	return n;
 }
 
+
+
+
+uint16_t SdDir::countContainedFiles()
+{
+	FILINFO fno;
+	FRESULT error;
+	SdFile local_file;
+	uint8_t n = 0;
+
+	f_readdir(directory, nullptr);
+
+	while (1)
+	{
+		error = f_readdir(directory, &fno);
+		if(error)
+		{
+			reportSdError("create list - read dir item - failed", error);
+			break;
+		}
+		else if(!fno.fname[0]) // koniec folderu
+		{
+			break;
+		}
+
+		if (fno.fattrib & AM_HID) // ukryty
+		{
+			continue;
+		}
+
+		if ((fno.fattrib & AM_DIR) == 0) // JESLI NIE FOLDER TO SPRAWDZ CZY WAVE
+		{
+			uint8_t filenameLen = strlen(fno.fname);
+
+			if (filenameLen < 5) continue;
+
+			if (((fno.fname[filenameLen - 1] != 'V') && (fno.fname[filenameLen - 1] != 'v'))
+					|| ((fno.fname[filenameLen - 2] != 'A') && (fno.fname[filenameLen - 2] != 'a'))
+					|| ((fno.fname[filenameLen - 3] != 'W') && (fno.fname[filenameLen - 3] != 'w'))
+					|| (fno.fname[filenameLen - 4] != '.')) continue;
+
+			if ((strlen(dir_path) + filenameLen) > 253) continue;
+
+		}
+
+		n++;
+	}
+
+	return n;
+}
