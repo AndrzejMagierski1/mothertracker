@@ -14,6 +14,7 @@ void mtRenderWAV::start(char * path)
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
+	requiredSave = false;
 
 	strcpy(currentRenderExportPath, path);
 
@@ -26,6 +27,7 @@ void mtRenderWAV::start(char * path)
 		wavExport.write(recBuf, 44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
+		headerIsNotSaved = true;
 
 		exportL.begin();
 		exportR.begin();
@@ -33,10 +35,6 @@ void mtRenderWAV::start(char * path)
 		sendSelection();
 		sequencer.playSelection();
 	}
-
-
-
-
 	//__enable_irq();
 }
 
@@ -50,6 +48,6 @@ void mtRenderWAV::cancel()
 
 uint8_t mtRenderWAV::getProgress()
 {
-	return sequencer.getPlaySelectionProgress();
+	return (!lastStep) ? sequencer.getPlaySelectionProgress() : 100;
 }
 

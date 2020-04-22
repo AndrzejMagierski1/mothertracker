@@ -47,11 +47,15 @@ public:
 
 	void showDefaultScreen();
 	void setDefaultScreenFunct();
+	void setSwitchModuleFunct();
 
 	void setNotePopupFunct();
 	void setInstrPopupFunct();
 	void setVolPopupFunct();
 	void setFxListPopupFunct();
+
+	void setKeyboardExportFunctions();
+	void setOverwriteRenderFunct();
 
 	void focusOnActual();
 	void moveCursorByStep();
@@ -124,10 +128,16 @@ public:
 	void playheadRecMode();
 	void playheadNormalMode();
 
-	void setKeyboardExportFunctions();
+	void startExportSelection();
+	void endExportSelection();
 
 	void showKeyboardExport();
 	void hideKeyboardExport();
+	void showOverwriteExportDialog();
+	void hideOverwriteExportDialog();
+	void showExportProgress();
+	void refreshExportProgress();
+	void hideExportProgress();
 
 //----------------------------------
 // Funct
@@ -150,6 +160,9 @@ public:
 	uint8_t shiftAction = 0; // ustawić na 1 jeśli była akcja shift + cokolwiek
 
 	uint8_t padsTempData[48];
+
+	uint8_t currentExportState;
+	uint8_t lastExportState;
 
 //----------------------------------
 // GUI

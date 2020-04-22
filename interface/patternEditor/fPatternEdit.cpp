@@ -62,7 +62,7 @@ static 	uint8_t	functExportSelection();
 static  uint8_t functAutoNameExport();
 static  uint8_t functCancelExport();
 static  uint8_t functConfirmExport();
-static  uint8_t functConfirmReplaceExport();
+static  uint8_t functConfirmExportLoad();
 static  uint8_t functEnterKeyExport();
 static 	uint8_t	functLeftKeyboard();
 static 	uint8_t	functRightKeyboard();
@@ -70,6 +70,9 @@ static 	uint8_t	functUpKeyboard();
 static 	uint8_t	functDownKeyboard();
 static 	uint8_t	functDeleteKeyboard();
 static 	uint8_t	functInsertKeyboard();
+
+static 	uint8_t functOverwriteExportFile();
+static 	uint8_t functCancelOverwriteExportFile();
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -109,6 +112,20 @@ elapsedMillis patternRefreshTimer;
 
 void cPatternEditor::update()
 {
+	currentExportState = exporter.getState();
+
+	if(currentExportState)
+	{
+		refreshExportProgress();
+	}
+	if((currentExportState != lastExportState) && (!currentExportState))
+	{
+		endExportSelection();
+	}
+
+	lastExportState = currentExportState;
+
+
 	if(patternRefreshTimer < 20) return;
 
 	patternRefreshTimer = 0;
@@ -140,6 +157,8 @@ void cPatternEditor::update()
 		lastPatternPosition = trackerPattern.playheadPosition;
 	}
 
+
+
 }
 
 
@@ -158,17 +177,7 @@ void cPatternEditor::start(uint32_t options)
 
 
 
-	// ustawienie funkcji
-	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
+	setSwitchModuleFunct();
 	//FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
@@ -245,6 +254,20 @@ void cPatternEditor::setDefaultScreenFunct()
 
 	FM->setPadsGlobal(functPads);
 
+}
+
+void cPatternEditor::setSwitchModuleFunct()
+{
+	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 }
 
 //==============================================================================================================
@@ -708,12 +731,23 @@ void cPatternEditor::setKeyboardExportFunctions()
 	FM->setButtonObj(interfaceButton0,buttonPress, functEnterKeyExport);
 	FM->setButtonObj(interfaceButton4,buttonPress, functAutoNameExport);
 	FM->setButtonObj(interfaceButton5,buttonPress, functCancelExport);
-	FM->setButtonObj(interfaceButton6,buttonPress, functConfirmReplaceExport);
+	FM->setButtonObj(interfaceButton6,buttonPress, functConfirmExportLoad);
 	FM->setButtonObj(interfaceButton7,buttonPress, functConfirmExport);
 
 	FM->setButtonObj(interfaceButtonDelete,buttonPress, functDeleteKeyboard);
 	FM->setButtonObj(interfaceButtonInsert,buttonPress, functInsertKeyboard);
 
+}
+
+void cPatternEditor::setOverwriteRenderFunct()
+{
+	FM->clearButton(interfaceButton6);
+	FM->clearButton(interfaceButton7);
+
+	FM->setButtonObj(interfaceButton6,buttonPress, functCancelOverwriteExportFile);
+	FM->setButtonObj(interfaceButton7,buttonPress, functOverwriteExportFile);
+
+	FM->blockAllInputsExcept(interfaceButton6,interfaceButton7);
 }
 
 
@@ -1215,7 +1249,7 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 			FM->setButtonObj(interfaceButton3, buttonPress, functFill);
 			FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 			FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
-			FM->setButtonObj(interfaceButton6, functTranspose);
+			FM->setButtonObj(interfaceButton6, buttonPress, functExportSelection);
 			FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 		}
 	}
@@ -1275,6 +1309,24 @@ void cPatternEditor::setProjectSaveFlags()
 //	newFileManager.projectChangeFlag = 1;
 }
 
+void cPatternEditor::startExportSelection()
+{
+	char localPatch[PATCH_SIZE];
+
+	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
+	exporter.start(localPatch, exportRenderSelection);
+	PTE->showExportProgress();
+	PTE->FM->blockAllInputs();
+}
+void cPatternEditor::endExportSelection()
+{
+	hideExportProgress();
+	showDefaultScreen();
+	setDefaultScreenFunct();
+	refreshEditState();
+	setSwitchModuleFunct();
+	PTE->FM->unblockAllInputs();
+}
 
 
 //==============================================================================================================
@@ -2633,8 +2685,6 @@ static  uint8_t functFillAction6()
 static 	uint8_t	functExportSelection()
 {
 	PTE->setKeyboardExportFunctions();
-	PTE->showKeyboardExport();
-
 	char localPatch[128];
 	uint16_t cnt = 1;
 	char keyboardName[MAX_NAME_LENGTH];
@@ -2653,6 +2703,7 @@ static 	uint8_t	functExportSelection()
 
 	PTE->keyboardManager.fillName(keyboardName);
 	PTE->keyboardManager.activateKeyboard();
+	PTE->showKeyboardExport();
 	return 1;
 }
 //Auto name klawiatury exportu
@@ -2665,6 +2716,7 @@ static  uint8_t functAutoNameExport()
 static  uint8_t functCancelExport()
 {
 	PTE->setDefaultScreenFunct();
+	PTE->setSwitchModuleFunct();
 	PTE->refreshEditState();
 	PTE->hideKeyboardExport();
 	PTE->keyboardManager.deactivateKeyboard();
@@ -2673,11 +2725,33 @@ static  uint8_t functCancelExport()
 //Zatwierdzenie nazwy - rozpoczęcie exportu
 static  uint8_t functConfirmExport()
 {
+	char localPatch[255];
+
+	sprintf(localPatch, "Export/%s/Selection",newFileManager.getCurrentProjectName());
+
+	if(!SD.exists(localPatch)) SD.mkdir(0, localPatch);
+
+	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
+	if(SD.exists(localPatch))
+	{
+		PTE->setOverwriteRenderFunct();
+		PTE->showOverwriteExportDialog();
+	}
+	else
+	{
+		PTE->startExportSelection();
+	}
+
 	return 1;
 }
-//Zatwierdzenie nazwy - rozpoczęcie exportu - po nim zaladowanie instrumentu i  wstawienie w lewy gorny rog zaznaczenia
-static  uint8_t functConfirmReplaceExport()
+//Zatwierdzenie nazwy - rozpoczęcie exportu - po nim zaladowanie instrumentu
+static  uint8_t functConfirmExportLoad()
 {
+//	char localPatch[255];
+//
+//	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
+//	exporter.start(localPatch, exportRenderSelection);
+//	PTE->showExportProgress();
 	return 1;
 }
 //Zatwierdzenie znaku w klawiaturze
@@ -2720,6 +2794,39 @@ static 	uint8_t	functDeleteKeyboard()
 static 	uint8_t	functInsertKeyboard()
 {
 	PTE->keyboardManager.confirmKey();
+	return 1;
+}
+//Nadpisz istniejący plik
+static 	uint8_t functOverwriteExportFile()
+{
+	PTE->hideOverwriteExportDialog();
+	PTE->startExportSelection();
+	return 1;
+}
+//Nie nadpisuj istniejącego pliku - zmien nazwę
+static 	uint8_t functCancelOverwriteExportFile()
+{
+	char localPatch[PATCH_SIZE];
+	char keyboardName[33];
+	uint16_t cnt = 1;
+	strcpy(keyboardName,PTE->keyboardManager.getName());
+	if(strlen(keyboardName) <= 27) // 33 - 1(na zero) - 5 znakow na _%04d
+	{
+		do
+		{
+			sprintf(keyboardName,"%s_%04d",PTE->keyboardManager.getName(),cnt);
+			sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), keyboardName);
+			if(++cnt > 9999) break;
+		}while(SD.exists(localPatch));
+	}
+
+
+	PTE->keyboardManager.fillName(keyboardName);
+	PTE->keyboardManager.activateKeyboard();
+
+	PTE->hideOverwriteExportDialog();
+	PTE->FM->unblockAllInputs();
+	PTE->setKeyboardExportFunctions();
 	return 1;
 }
 //##############################################################################################

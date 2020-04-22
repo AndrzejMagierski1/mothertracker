@@ -1,9 +1,9 @@
 
 #include "patternEditor/patternEditor.h"
 #include "mtStructs.h"
-
 #include "scales.h"
-
+#include "core/interfacePopups.h"
+#include "mtExporterWAV.h"
 static uint16_t framesPlaces[8][4] =
 {
 	{0+1, 		  421, 800/8-1, 65},
@@ -383,6 +383,9 @@ void cPatternEditor::destroyDisplayControls()
 
 	display.destroyControl(editName);
 	editName = nullptr;
+
+	mtPopups.hideInfoPopup();
+	mtPopups.hideProgressPopup();
 }
 
 
@@ -413,7 +416,7 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText(label[3], "Fill");
 	display.setControlText(label[4], "Preview");
 	display.setControlText(label[5], "Invert");
-	display.setControlText(label[6], "Export");
+	display.setControlText(label[6], "Render");
 	display.setControlText(label[7], "Undo");
 
 	display.setControlText2(label[3], "");
@@ -1203,11 +1206,11 @@ void cPatternEditor::showKeyboardExport()
 	display.setControlText(label[0], "Enter");
 	display.setControlText(label[4], "Auto Name");
 	display.setControlText(label[5], "Cancel");
-	display.setControlText(label[6], "Replace");
-	display.setControlText2(label[6], "Selection");
+	display.setControlText(label[6], "Render");
+	display.setControlText2(label[6], "& Load");
 	display.setControlStyle2(label[6], controlStyleCenterX | controlStyleFont3);
 	display.setControlColors(label[6], interfaceGlobals.activeButtonLabelsColors);
-	display.setControlText(label[7], "Export");
+	display.setControlText(label[7], "Render");
 	display.setControlText2(label[7], "Selection");
 	display.setControlStyle2(label[7], controlStyleCenterX | controlStyleFont3);
 	display.setControlColors(label[7], interfaceGlobals.activeButtonLabelsColors);
@@ -1225,6 +1228,50 @@ void cPatternEditor::hideKeyboardExport()
 	display.setControlShow(patternControl);
 	display.refreshControl(patternControl);
 	showDefaultScreen();
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::showOverwriteExportDialog()
+{
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+	}
+
+	display.setControlText(label[6],"No");
+	display.setControlText(label[7],"Yes");
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	mtPopups.showInfoPopup("This name already exists.", "Do you want to overwrite it?");
+
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::hideOverwriteExportDialog()
+{
+	mtPopups.hideInfoPopup();
+	showKeyboardExport();
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::showExportProgress()
+{
+	mtPopups.showProgressPopup("Rendering...");
+	keyboardManager.deactivateKeyboard();
+	display.synchronizeRefresh();
+}
+void cPatternEditor::refreshExportProgress()
+{
+	mtPopups.changePopupProgress(exporter.getProgress());
+}
+void cPatternEditor::hideExportProgress()
+{
+	mtPopups.hideProgressPopup();
 }
 
 
