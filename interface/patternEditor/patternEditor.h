@@ -6,7 +6,7 @@
 #include "SD.h"
 
 #include "mtSequencer.h"
-
+#include "mtKeyboardManager.h"
 
 
 uint8_t isMultiSelection();
@@ -47,11 +47,15 @@ public:
 
 	void showDefaultScreen();
 	void setDefaultScreenFunct();
+	void setSwitchModuleFunct();
 
 	void setNotePopupFunct();
 	void setInstrPopupFunct();
 	void setVolPopupFunct();
 	void setFxListPopupFunct();
+
+	void setKeyboardExportFunctions();
+	void setOverwriteRenderFunct();
 
 	void focusOnActual();
 	void moveCursorByStep();
@@ -124,6 +128,19 @@ public:
 	void playheadRecMode();
 	void playheadNormalMode();
 
+	void startExportSelection();
+	void endExportSelection();
+
+	void showKeyboardExport();
+	void hideKeyboardExport();
+	void showOverwriteExportDialog();
+	void hideOverwriteExportDialog();
+	void showExportProgress();
+	void refreshExportProgress();
+	void hideExportProgress();
+	void showFullMemoryInBank();
+	void showFullInstrumentInBank();
+
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -146,6 +163,9 @@ public:
 
 	uint8_t padsTempData[48];
 
+	uint8_t currentExportState;
+	uint8_t lastExportState;
+	bool isLoadAfterSave;
 //----------------------------------
 // GUI
 
@@ -169,10 +189,14 @@ public:
 //	hControl titleBar;
 //	hControl titleLabel;
 //	hControl instrumentLabel;
+	hControl keyboardControl;
+	hControl editName;
 
 	strLabelData labelArrow;
 
 	strFrameData frameData;
+
+	mtKeyboardManager keyboardManager;
 
 	int8_t selectedPlace = -1;
 
