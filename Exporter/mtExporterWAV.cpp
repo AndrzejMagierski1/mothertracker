@@ -114,7 +114,7 @@ uint8_t mtExporter::getState()
 		case exportSongStems : 			return songStemsExporter.getStatus();		break;
 		case exportPattern : 			return patternExporter.getStatus();			break;
 		case exportPatternStems : 		return patternStemsExporter.getStatus();	break;
-		case exportRenderSelection :   return renderExporter.getStatus();			break;
+		case exportRenderSelection :    return renderExporter.getStatus();			break;
 		default: break;
 	}
 	return 0;
@@ -129,6 +129,11 @@ uint8_t mtExporter::getStemsTrack()
 		default: break;
 	}
 	return 0;
+}
+
+uint32_t mtExporter::getRenderLength()
+{
+	return renderExporter.getLength();
 }
 
 void mtExporter::cancel()

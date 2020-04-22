@@ -1,9 +1,9 @@
 
 #include "patternEditor/patternEditor.h"
 #include "mtStructs.h"
-
 #include "scales.h"
-
+#include "core/interfacePopups.h"
+#include "mtExporterWAV.h"
 static uint16_t framesPlaces[8][4] =
 {
 	{0+1, 		  421, 800/8-1, 65},
@@ -188,6 +188,23 @@ const char* ptrfillStepNames[fillStepCount] =
 void cPatternEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
+	strControlProperties prop3;
+	prop3.x = 13;
+	prop3.y = 143;
+	prop3.w = 780;
+	prop3.h = 260;
+	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
+
+	strControlProperties prop4;
+	prop4.text = (char*)"";
+	prop4.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleFont2);
+	prop4.x = 400;
+	prop4.y = 29;
+	prop4.w = 795;
+	prop4.h = 90;
+	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
+
+
 	strControlProperties prop;
 
 	// ramka
@@ -361,6 +378,14 @@ void cPatternEditor::destroyDisplayControls()
 	display.destroyControl(notePopoutControl);
 	notePopoutControl = nullptr;
 
+	display.destroyControl(keyboardControl);
+	keyboardControl = nullptr;
+
+	display.destroyControl(editName);
+	editName = nullptr;
+
+	mtPopups.hideInfoPopup();
+	mtPopups.hideProgressPopup();
 }
 
 
@@ -391,13 +416,13 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText(label[3], "Fill");
 	display.setControlText(label[4], "Preview");
 	display.setControlText(label[5], "Invert");
-	display.setControlText(label[6], "");
+	display.setControlText(label[6], "Render");
 	display.setControlText(label[7], "Undo");
 
 	display.setControlText2(label[3], "");
 	display.setControlText2(label[4], "");
 	display.setControlText2(label[5], "");
-	display.setControlText2(label[6], "");
+	display.setControlText2(label[6], "Selection");
 	display.setControlText2(label[7], "");
 
 //	showTempo();
@@ -418,8 +443,17 @@ void cPatternEditor::showDefaultScreen()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
-		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+
+		if(i == 6 )
+		{
+			display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont3);
+			display.setControlColors(label[i], interfaceGlobals.activeButtonLabelsColors);
+		}
+		else
+		{
+			display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
+			display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		}
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
@@ -439,7 +473,7 @@ void cPatternEditor::showEditModeLabels()
 	display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
 	display.setControlColors(label[4], interfaceGlobals.activeLabelsColors);
 	display.setControlColors(label[5], interfaceGlobals.activeLabelsColors);
-	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.activeButtonLabelsColors);
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	display.refreshControl(label[3]);
@@ -456,7 +490,7 @@ void cPatternEditor::hideEditModeLabels()
 	display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
 	display.setControlColors(label[4], interfaceGlobals.inactiveLabelsColors);
 	display.setControlColors(label[5], interfaceGlobals.inactiveLabelsColors);
-	display.setControlColors(label[6], interfaceGlobals.inactiveLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.inactiveButtonLabelsColors);
 	display.setControlColors(label[7], interfaceGlobals.inactiveLabelsColors);
 
 	display.refreshControl(label[3]);
@@ -799,6 +833,7 @@ void cPatternEditor::showFillPopup()
 	}
 
 	display.setControlText(label[6], "Cancel");
+	display.setControlText2(label[6], "");
 	display.setControlText(label[7], "Fill");
 	display.setControlShow(label[6]);
 	display.refreshControl(label[6]);
@@ -1157,3 +1192,96 @@ void cPatternEditor::deactivateSelection()
 {
 	patternTrackerColors[10] = 0xffffff;
 }
+void cPatternEditor::showKeyboardExport()
+{
+	display.setControlHide(patternControl);
+	display.refreshControl(patternControl);
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+	}
+
+	display.setControlText(label[0], "Enter");
+	display.setControlText(label[4], "Auto Name");
+	display.setControlText(label[5], "Cancel");
+	display.setControlText(label[6], "Render");
+	display.setControlText2(label[6], "& Load");
+	display.setControlStyle2(label[6], controlStyleCenterX | controlStyleFont3);
+	display.setControlColors(label[6], interfaceGlobals.activeButtonLabelsColors);
+	display.setControlText(label[7], "Render");
+	display.setControlText2(label[7], "Selection");
+	display.setControlStyle2(label[7], controlStyleCenterX | controlStyleFont3);
+	display.setControlColors(label[7], interfaceGlobals.activeButtonLabelsColors);
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::hideKeyboardExport()
+{
+	display.setControlShow(patternControl);
+	display.refreshControl(patternControl);
+	showDefaultScreen();
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::showOverwriteExportDialog()
+{
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+	}
+
+	display.setControlText(label[6],"No");
+	display.setControlText(label[7],"Yes");
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	mtPopups.showInfoPopup("This name already exists.", "Do you want to overwrite it?");
+
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::hideOverwriteExportDialog()
+{
+	mtPopups.hideInfoPopup();
+	showKeyboardExport();
+	display.synchronizeRefresh();
+}
+
+void cPatternEditor::showExportProgress()
+{
+	mtPopups.showProgressPopup("Rendering...");
+	keyboardManager.deactivateKeyboard();
+	display.synchronizeRefresh();
+}
+void cPatternEditor::refreshExportProgress()
+{
+	mtPopups.changePopupProgress(exporter.getProgress());
+}
+void cPatternEditor::hideExportProgress()
+{
+	mtPopups.hideProgressPopup();
+}
+//komunikat ze za malo pamieci w banku zeby zaladowac render
+void cPatternEditor::showFullMemoryInBank()
+{
+	mtPopups.show(4, "There is not enough memory in sample bank."); //todo: podzielic
+}
+//komunikat ze nie ma wolnych instrumentow dla rendera
+void cPatternEditor::showFullInstrumentInBank()
+{
+	mtPopups.show(4, "There are not enough instruments"); //todo: podzielic
+}
+
+

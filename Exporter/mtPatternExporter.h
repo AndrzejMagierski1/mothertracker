@@ -37,6 +37,7 @@ public:
 	uint8_t getProgress();
 
 	friend class mtSongExporter;
+	friend class mtRenderWAV;
 private:
 	void switchBuffer();
 	void refreshReceiving();
