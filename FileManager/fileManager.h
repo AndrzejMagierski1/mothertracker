@@ -180,7 +180,7 @@ public:
 
 	bool exportSound(uint8_t mode);
 	bool exportSoundCancel();
-	bool saveRecordedSound(char* fileName, int8_t importSlot);
+	bool saveRecordedSound(char* dirPath, char* fileName, int8_t importSlot);
 
 	bool importSampleFromSampleEditor(int16_t* memoryAddres, uint32_t length, uint8_t instrumentSlot);
 
@@ -479,6 +479,7 @@ private:
 	// recording
 	void saveRecording();
 	void saveRecordingEnd();
+	char* getRecordingDirPath();
 	char* getRecordingFileName();
 	void saveRecordedSoundFinish();
 	uint8_t recordingImportSlot;

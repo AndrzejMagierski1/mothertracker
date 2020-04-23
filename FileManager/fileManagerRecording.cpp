@@ -11,7 +11,7 @@
 #include "mtRecorder.h"
 
 
-
+static char recordingsDirPath[30];
 static char recordedFileName[35];
 
 void cFileManager::saveRecording()
@@ -60,40 +60,26 @@ void cFileManager::saveRecordedSoundFinish()
 
 
 
+char* cFileManager::getRecordingDirPath()
+{
+	return recordingsDirPath;
+}
 
 char* cFileManager::getRecordingFileName()
 {
 	return recordedFileName;
 }
 
-bool cFileManager::saveRecordedSound(char* fileName, int8_t importSlot)
+bool cFileManager::saveRecordedSound(char* dirPath, char* fileName, int8_t importSlot)
 {
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 
-	char dirPath[30];
-	strcpy(dirPath, "Recordings");
-	uint8_t dir_num = 1;
-	uint8_t files_count = 0;
-
-	do
-	{
-		if(dir_num > 1) sprintf(dirPath, "Recordings %d", dir_num);
-
-		if(!SD.exists(dirPath)) break;
-
-		sdLocation.open(dirPath);
-		files_count = sdLocation.countContainedFiles();
-		sdLocation.close();
-
-		dir_num++;
-	}
-	while(files_count < 100);
-
-
+	// utworz folder jesli nie istnieje
 	if(!SD.exists(dirPath)) SD.mkdir(0, dirPath);
 
+	// tworzy sciezke do pliku
 	char filePath[70];
 	sprintf(filePath, "%s/%s.wav", dirPath, fileName);
 	if(SD.exists(filePath)) SD.remove(filePath);
@@ -108,6 +94,7 @@ bool cFileManager::saveRecordedSound(char* fileName, int8_t importSlot)
 	}
 	else
 	{
+		strcpy(recordingsDirPath, dirPath);
 		strcpy(recordedFileName, fileName);
 		recordingImportSlot = importSlot;
 		status = fmSavingImportingRecordedSound;
