@@ -427,11 +427,14 @@ void cSamplePlayback::start(uint32_t options)
 
 	activateLabelsBorder();
 
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_SamplePlayback);
+
 }
 
 void cSamplePlayback::stop()
 {
 	sequencer.stopManualNotes();
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 	moduleRefresh = 0;
 	mtPadBoard.releaseAllInstrument();
 }

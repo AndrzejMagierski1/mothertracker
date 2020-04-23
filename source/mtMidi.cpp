@@ -47,15 +47,22 @@ void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 	{
 		if (isIncomingChannelDesired(channel))
 		{
-			sendSelection();
-
-			sequencer.handleNote(channel, pitch, velocity, pitch + 100);
-			if (isEditMode())
+			if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_sequencer)
 			{
-				patternEditor.moveCursorByStep();
-			}
+				sendSelection();
 
-			patternEditor.refreshPattern();
+				sequencer.handleNote(channel, pitch, velocity, pitch + 100);
+				if (isEditMode())
+				{
+					patternEditor.moveCursorByStep();
+				}
+
+				patternEditor.refreshPattern();
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
+			{
+
+			}
 		}
 	}
 
@@ -71,16 +78,22 @@ void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
 	{
 		if (isIncomingChannelDesired(channel))
 		{
-
-			sendSelection();
-
-			sequencer.handleNote(channel, pitch, velocity, pitch + 100);
-			if (isEditMode())
+			if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_sequencer)
 			{
-				patternEditor.moveCursorByStep();
-			}
+				sendSelection();
 
-			patternEditor.refreshPattern();
+				sequencer.handleNote(channel, pitch, velocity, pitch + 100);
+				if (isEditMode())
+				{
+					patternEditor.moveCursorByStep();
+				}
+
+				patternEditor.refreshPattern();
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
+			{
+
+			}
 		}
 	}
 
@@ -97,8 +110,11 @@ void handleJackNoteOff(byte channel, byte pitch, byte velocity)
 	{
 		if (isIncomingChannelDesired(channel))
 		{
-			sendSelection();
-			sequencer.handleNote(channel, pitch, 0, pitch + 100);
+			if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_sequencer)
+			{
+				sendSelection();
+				sequencer.handleNote(channel, pitch, 0, pitch + 100);
+			}
 		}
 	}
 }
@@ -114,8 +130,11 @@ void handleUsbNoteOff(byte channel, byte pitch, byte velocity)
 	{
 		if (isIncomingChannelDesired(channel))
 		{
-			sendSelection();
-			sequencer.handleNote(channel, pitch, 0, pitch + 100);
+			if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_sequencer)
+			{
+				sendSelection();
+				sequencer.handleNote(channel, pitch, 0, pitch + 100);
+			}
 		}
 	}
 }

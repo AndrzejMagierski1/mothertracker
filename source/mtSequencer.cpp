@@ -1997,3 +1997,13 @@ uint8_t Sequencer::getMetronomeDenominator()
 {
 	return mtConfig.metronome.timeSignatureDenominator + 1;
 }
+
+void Sequencer::setMidiInVoiceMode(enMidiInVoiceMode mode)
+{
+	player.midiInVoiceMode = mode;
+}
+
+uint8_t Sequencer::getMidiInVoiceMode()
+{
+	return player.midiInVoiceMode;
+}

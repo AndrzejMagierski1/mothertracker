@@ -60,6 +60,14 @@ public:
 		TEMPODIV_1_1 = 0,
 	};
 
+	enum enMidiInVoiceMode
+	{
+		midiInVoiceMode_sequencer,
+		midiInVoiceMode_ignore,
+		midiInVoiceMode_SamplePlayback,
+		midiInVoiceMode_default = midiInVoiceMode_sequencer,
+	};
+
 	static constexpr float MAX_TEMPO = 800.0,
 			MIN_TEMPO = 40.0,
 			MAX_SWING = 75.0,
@@ -387,6 +395,8 @@ public:
 
 		bool breakPattern = 0;
 
+		uint8_t midiInVoiceMode = midiInVoiceMode_sequencer;
+
 		struct strPerformance
 		{
 			int16_t patternLength = -1;
@@ -631,6 +641,8 @@ public:
 	uint8_t isMetronomeActive();
 	uint8_t getMetronomeNumerator();
 	uint8_t getMetronomeDenominator();
+	void setMidiInVoiceMode(enMidiInVoiceMode mode);
+	uint8_t getMidiInVoiceMode();
 
 // SELECTION
 	void insert(strSelection *selection);
