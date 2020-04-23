@@ -70,7 +70,7 @@ void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 1;
 
-	if(((muteState == 0) && (onlyDelayMuteState == 0)) || (engine.forceSend == 1))
+	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
 		modDelaySend(currentPerformanceValues.delaySend);
 	}
@@ -551,7 +551,7 @@ void playerEngine::endReverbSendPerformanceMode()
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 0;
 
-	if(((muteState == 0) && (onlyDelayMuteState == 0)) || (engine.forceSend == 1)) modDelaySend(delaySend);
+	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel])) modDelaySend(delaySend);
 }
 
 void playerEngine::endPointsPerformanceMode()

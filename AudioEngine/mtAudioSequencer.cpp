@@ -1667,7 +1667,7 @@ void playerEngine::setFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
 			modDelaySend(currentSeqModValues.delaySend);
 		}
@@ -1682,7 +1682,7 @@ void playerEngine::clearFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
 			modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 		}

@@ -879,6 +879,7 @@ uint16_t playerEngine ::getWavePosition()
 }
 //**************************************************************************************************************************************
 //state: 1 - solo ON, 0 - solo OFF
+//Na potrzeby eksportu - nie wykorzystywana w mixerze
 void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 {
 	if(channel >= 8 ) return;
@@ -889,10 +890,10 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 		{
 			if(i == channel)
 			{
-				muteReverbSend(i, 1);
+				if(!mtProject.values.trackMute[i]) muteDelaySend(i, 1);
 				continue;
 			}
-			muteTrack(i,1);
+			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
 		}
 	}
 	else if(state == 0)
@@ -901,10 +902,10 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 		{
 			if(i == channel)
 			{
-				muteReverbSend(i, 0);
+				muteDelaySend(i, 0);
 				continue;
 			}
-			muteTrack(i,0);
+			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
 		}
 	}
 
@@ -919,7 +920,7 @@ void audioEngine::soloReverbSend(uint8_t state)
 		forceSend = 1;
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			muteTrack(i,1);
+			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
 		}
 	}
 	else if(state == 0)
@@ -927,7 +928,7 @@ void audioEngine::soloReverbSend(uint8_t state)
 		forceSend = 0;
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			muteTrack(i,0);
+			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
 		}
 	}
 
@@ -939,7 +940,7 @@ void audioEngine::clearDelay()
 	shortDelay.clear();
 }
 
-void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
+void audioEngine::muteDelaySend(uint8_t channel, uint8_t state)
 {
 	if(channel >= 8) return;
 	if(state == 0)
@@ -971,7 +972,7 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 	{
 		instrumentPlayer[channel].muteState = 1;
 		amp[channel].gain(AMP_MUTED);
-		if(!forceSend) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+		if(!forceSend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
 	}
 }
 

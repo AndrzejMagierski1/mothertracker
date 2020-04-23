@@ -302,7 +302,7 @@ void playerEngine::handleNoteOnPanning()
 
 void playerEngine::handleNoteOnDelaySend()
 {
-	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
 		modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 	}
@@ -532,7 +532,7 @@ void playerEngine::handleFxNoteOnPanning()
 
 void playerEngine::handleFxNoteOnDelaySend()
 {
-	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{

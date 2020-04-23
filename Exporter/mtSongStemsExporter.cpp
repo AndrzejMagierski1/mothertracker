@@ -40,6 +40,12 @@ void mtSongStemsExporter::start(char * path)
 
 	strcpy(folderPath, path);
 	currentTrack = 0;
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		if(mtProject.values.trackMute[i]) currentTrack++;
+		else break;
+	}
+
 	sprintf(currentPath,"%s/track%d.wav", path, currentTrack + 1);
 
 	status = 1;
@@ -57,11 +63,18 @@ void mtSongStemsExporter::updateReceiving()
 		if((currentTrackState == 0) && (currentTrackState != lastTrackState))
 		{
 			currentTrack++;
+
+			for(uint8_t i = currentTrack; i < 8 ; i++)
+			{
+				if(mtProject.values.trackMute[i]) currentTrack++;
+				else break;
+			}
+
 			if(currentTrack > 9 ) status = 0;
 			else if(currentTrack == 8)
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/reverb.wav",folderPath);
+				sprintf(currentPath,"%s/delay.wav",folderPath);
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else if(currentTrack == 9)
