@@ -207,7 +207,7 @@ public:
 	void setBitDepth(uint16_t bitDepth);
 	void muteTrack(uint8_t channel, uint8_t state);
 	void soloTrack(uint8_t channel, uint8_t state);
-	void muteReverbSend(uint8_t channel, uint8_t state);
+	void muteDelaySend(uint8_t channel, uint8_t state);
 	void soloReverbSend(uint8_t state);
 	void clearDelay();
 	void performanceModeEndAll();
@@ -220,7 +220,7 @@ public:
 	void unblockDelayRefresh();
 	void setLastUsedVoice(uint8_t v);
 	uint8_t getLastUsedVoice();
-	void makeMetronomeTick();
+	void makeMetronomeTick(uint8_t);
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;

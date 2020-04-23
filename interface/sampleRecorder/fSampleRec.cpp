@@ -263,6 +263,8 @@ void cSampleRecorder::start(uint32_t options)
 		return;
 	}
 
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_ignore);
+
 
 	moduleRefresh = 1;
 	dontTurnOffRadio = 0;
@@ -371,6 +373,8 @@ void cSampleRecorder::stop()
 	songTimer.show();
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
+
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 }
 
 

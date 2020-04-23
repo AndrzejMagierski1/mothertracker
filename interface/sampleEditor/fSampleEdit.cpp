@@ -94,6 +94,8 @@ void cSampleEditor::start(uint32_t options)
 		return;
 	}
 
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_SamplePlayback);
+
 	engine.blockDelayRefresh();
 	songTimer.hide();
 
@@ -291,6 +293,7 @@ void cSampleEditor::stop()
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
 	songTimer.show();
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 }
 
 void cSampleEditor::setCommonFunctions()

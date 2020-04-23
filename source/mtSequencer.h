@@ -60,7 +60,15 @@ public:
 		TEMPODIV_1_1 = 0,
 	};
 
-	static constexpr float MAX_TEMPO = 400.0,
+	enum enMidiInVoiceMode
+	{
+		midiInVoiceMode_sequencer,
+		midiInVoiceMode_ignore,
+		midiInVoiceMode_SamplePlayback,
+		midiInVoiceMode_default = midiInVoiceMode_sequencer,
+	};
+
+	static constexpr float MAX_TEMPO = 800.0,
 			MIN_TEMPO = 40.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
@@ -247,9 +255,10 @@ public:
 		ELEMENTS_FX1,
 		ELEMENTS_FX2,
 	};
-	enum midiChannel
+	enum enAltMidiChannel
 	{
-		MIDI_CHANNEL_GRID = 20
+		GRID_OUTSIDE_PATTERN = 20,
+		GRID_INSIDE_PATTERN = 21
 	};
 
 	struct strSelection
@@ -314,7 +323,6 @@ public:
 	uint8_t getRollType(uint8_t value);
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
-
 
 	inline uint16_t rollValToPeriod(int8_t rollType);
 	inline uint16_t stutterValToPeriod(int8_t rollType);
@@ -386,6 +394,8 @@ public:
 		uint8_t actualBank = 0;
 
 		bool breakPattern = 0;
+
+		uint8_t midiInVoiceMode = midiInVoiceMode_sequencer;
 
 		struct strPerformance
 		{
@@ -473,6 +483,8 @@ public:
 
 		void (*onPatternEnd)(void) = NULL;
 		void (*onSongEnd)(void) = NULL;
+
+		uint8_t extRecMetronomeStep = 0;
 
 	} player;
 
@@ -626,6 +638,11 @@ public:
 	void rec(void);
 	void stop(void);
 	void stopManualNotes(void);
+	uint8_t isMetronomeActive();
+	uint8_t getMetronomeNumerator();
+	uint8_t getMetronomeDenominator();
+	void setMidiInVoiceMode(enMidiInVoiceMode mode);
+	uint8_t getMidiInVoiceMode();
 
 // SELECTION
 	void insert(strSelection *selection);
