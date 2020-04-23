@@ -1406,7 +1406,8 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	if(tactButtons.isButtonPressed(interfaceButtonShift) || !isMultiSelection())
+//	if(tactButtons.isButtonPressed(interfaceButtonShift) || !isMultiSelection())
+	if(1)
 	{
 		newFileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
