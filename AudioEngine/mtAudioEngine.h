@@ -207,7 +207,7 @@ public:
 	void setBitDepth(uint16_t bitDepth);
 	void muteTrack(uint8_t channel, uint8_t state);
 	void soloTrack(uint8_t channel, uint8_t state);
-	void muteReverbSend(uint8_t channel, uint8_t state);
+	void muteDelaySend(uint8_t channel, uint8_t state);
 	void soloReverbSend(uint8_t state);
 	void clearDelay();
 	void performanceModeEndAll();
