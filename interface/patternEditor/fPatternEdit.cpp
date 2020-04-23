@@ -3109,7 +3109,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 			sequencer.handleNote(
-					Sequencer::MIDI_CHANNEL_GRID,
+					Sequencer::GRID_INSIDE_PATTERN,
 					noteFromPad,
 					sequencer.getInstrumentVelo(
 							mtProject.values.lastUsedInstrument),
@@ -3118,7 +3118,10 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		else if (state == buttonRelease)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0, pad);
+			sequencer.handleNote(Sequencer::GRID_INSIDE_PATTERN,
+									noteFromPad,
+									0,
+									pad);
 		}
 		return 1;
 	}
@@ -3165,7 +3168,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				if (state == buttonPress)
 				{
 					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+					sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN,
 							noteFromPad,
 							sequencer.getInstrumentVelo(
 									mtProject.values.lastUsedInstrument));
@@ -3173,7 +3176,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				else if (state == buttonRelease)
 				{
 					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+					sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN,
 											noteFromPad,
 											0);
 				}
@@ -3201,7 +3204,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 //					sequencer.setSelectionInstrument(pad);
 
 					sequencer.handleNote(
-							Sequencer::MIDI_CHANNEL_GRID,
+							Sequencer::GRID_OUTSIDE_PATTERN,
 							Sequencer::STEP_NOTE_DEFAULT,
 							sequencer.getInstrumentVelo(
 									mtProject.values.lastUsedInstrument),
@@ -3210,7 +3213,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				else if (state == buttonRelease)
 				{
 
-					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+					sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN,
 											Sequencer::STEP_NOTE_DEFAULT,
 											0,
 											pad);
