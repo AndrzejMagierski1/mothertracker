@@ -1735,9 +1735,12 @@ void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie
 												0, 0, 0, 0); //magiczne zera
 
 					engine.setLastUsedVoice(tr);
-
-					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
-					step->fx[0].value = map(player.uStep + 1, 1, 48, 0, 100);
+					if (mtConfig.general.recQuantization)
+					{
+						step->fx[0].type = fx.FX_TYPE_MICROMOVE;
+						step->fx[0].value = map(player.uStep + 1, 1, 48, 0,
+												100);
+					}
 					break;
 				}
 			}
@@ -1802,9 +1805,12 @@ void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie
 						if (step->note == STEP_NOTE_EMPTY)
 						{
 							step->note = STEP_NOTE_OFF;
-							step->fx[0].type = fx.FX_TYPE_MICROMOVE;
-							step->fx[0].value = map(player.uStep, 1, 48, 0,
-													100);
+							if (mtConfig.general.recQuantization)
+							{
+								step->fx[0].type = fx.FX_TYPE_MICROMOVE;
+								step->fx[0].value = map(player.uStep, 1, 48, 0,
+														100);
+							}
 						}
 						else
 						{
