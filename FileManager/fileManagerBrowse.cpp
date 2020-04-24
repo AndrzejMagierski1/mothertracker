@@ -21,6 +21,12 @@ bool cFileManager::browseSdCard(uint8_t* index)
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
+	// dla bezpieczenstwa reset sciezki jesli jestesmy na poziomie 0
+	if(explorerDirLevel == 0)
+	{
+		strcpy(explorerCurrentPath, "/");
+	}
+
 	if(index == nullptr) // tylko odswiez
 	{
 		status = fmBrowsingSamples;
@@ -91,6 +97,16 @@ bool cFileManager::browseSdCard(uint8_t* index)
 }
 
 
+
+// wymusza przy nastepnym wywolaniu browseSdCard()
+// wyzerowanie pokazywanej lokalizaji do poczatku karty SD
+void cFileManager::resetBrowse()
+{
+	explorerDirLevel = 0;
+	explorerCurrentPosition = 0;
+	//strcpy(explorerCurrentPath, "/");
+}
+
 uint8_t cFileManager::getBrowsedFilesList(char*** list, uint32_t** memoryList)
 {
 	*list = explorerList;
@@ -158,7 +174,7 @@ void cFileManager::listOnlyWavFromActualPath()
 		sdLocation.close();
 		sdLocation.open(explorerCurrentPath, O_READ);
 
-		uint8_t filesFound = sdLocation.createFilesList(0, explorerList+explorerListLength, (list_length_max-explorerListLength), 4000, 2);
+		uint8_t filesFound = sdLocation.createFilesList(0, explorerList+explorerListLength, (list_length_max-explorerListLength), 8000, 2);
 		sdLocation.close();
 
 		if(filesFound == 0) // nie ma plikow wav w folderze - koncz listowanie
@@ -322,7 +338,7 @@ void cFileManager::browseProjectsLocation()
 		return;
 	}
 
-	uint8_t projectsfoundCount = sdLocation.createProjectsList(projectsList, list_length_max, 3000);
+	uint8_t projectsfoundCount = sdLocation.createProjectsList(projectsList, list_length_max, 4000);
 	sdLocation.close();
 
 	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
@@ -428,7 +444,7 @@ void cFileManager::browseFirmwaresLocation()
 		return;
 	}
 
-	uint8_t locationFileCount = sdLocation.createFilesList(0, firmwaresList, list_length_max, 4000, 3);
+	uint8_t locationFileCount = sdLocation.createFilesList(0, firmwaresList, list_length_max, 6000, 3);
 
 	sdLocation.close();
 

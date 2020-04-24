@@ -96,9 +96,6 @@ void cSongEditor::start(uint32_t options)
 	showPatternsList();
 
 
-	Encoder.setAcceleration(0);
-
-
 	//selectedPlace = 0;
 	activateLabelsBorder();
 
@@ -128,8 +125,6 @@ void cSongEditor::start(uint32_t options)
 void cSongEditor::stop()
 {
 	sequencer.stopManualNotes();
-
-	Encoder.setAcceleration(3);
 
 	moduleRefresh = 0;
 }

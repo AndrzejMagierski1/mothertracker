@@ -97,6 +97,9 @@ void seek_callback(void);
 void turnOffRecorder();
 
 
+char redordingDirPath[30];
+
+
 
 void cSampleRecorder::update()
 {
@@ -198,6 +201,7 @@ void cSampleRecorder::update()
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
 			uint8_t button = interfaceButtonSampleLoad;
+			SR->firstFreeInstrumentSlotFound++;
 			SR->eventFunct(eventSwitchModule, SR, &button, &SR->firstFreeInstrumentSlotFound);
 		}
 		else
@@ -748,7 +752,7 @@ static  uint8_t functActionButton0(uint8_t s)
 		SR->selectionWindowSaveFlag = 0;
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
 		{
-			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), -1))
+			if(newFileManager.saveRecordedSound(redordingDirPath, SR->keyboardManager.getName(), -1))
 			{
 				SR->FM->blockAllInputs();
 			}
@@ -777,7 +781,7 @@ static  uint8_t functActionButton0(uint8_t s)
 			}
 
 
-			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
+			if(newFileManager.saveRecordedSound(redordingDirPath, SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
 			{
 				SR->FM->blockAllInputs();
 			}
@@ -1325,16 +1329,49 @@ static  uint8_t functActionSave()
 {
 	SR->currentScreen = cSampleRecorder::screenTypeKeyboard;
 
+
+	strcpy(redordingDirPath, "Recordings");
+	uint8_t dir_num = 0;
+	uint8_t files_count = 0;
+
+	// znajdz ostatni folder Recordings xx
+	do
+	{
+		dir_num++;
+		if(dir_num > 1) sprintf(redordingDirPath, "Recordings %d", dir_num);
+	}
+	while(SD.exists(redordingDirPath));
+
+	dir_num--;
+
+	if(dir_num <= 1) 	strcpy(redordingDirPath, "Recordings");
+	else 				sprintf(redordingDirPath, "Recordings %d", dir_num);
+
+
+	// sprawdz czy nie jest pelny
+	SdDir recPlace;
+	recPlace.open(redordingDirPath);
+	files_count = recPlace.countContainedFiles();
+	recPlace.close();
+
+	if(files_count >= 99) // jesli pelny to przygotuj nazwe nowego
+	{
+		dir_num++;
+		sprintf(redordingDirPath, "Recordings %d", dir_num);
+	}
+
+
+
 	char localPatch[70];
 	uint16_t cnt = 1;
 	char keyboardName[MAX_NAME_LENGTH];
 
 	do
 	{
-		sprintf(keyboardName, "recording%04d", cnt);
-		sprintf(localPatch, "Recorded/%s.wav", keyboardName);
+		sprintf(keyboardName, "recording%03d", cnt);
+		sprintf(localPatch, "%s/%s.wav", redordingDirPath, keyboardName);
 		cnt++;
-		if(cnt > 9999)
+		if(cnt > 999)
 		{
 			break;
 		}
@@ -1352,7 +1389,7 @@ static  uint8_t functActionConfirmSave()
 	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeNormal;
 
 	char filePath[70];
-	sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+	sprintf(filePath, "%s/%s.wav", redordingDirPath, SR->keyboardManager.getName());
 
 	if(SD.exists(filePath))
 	{
@@ -1363,7 +1400,7 @@ static  uint8_t functActionConfirmSave()
 	else
 	{
 
-		if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), -1))
+		if(newFileManager.saveRecordedSound(redordingDirPath, SR->keyboardManager.getName(), -1))
 		{
 			SR->FM->blockAllInputs();
 		}
@@ -1397,7 +1434,7 @@ static  uint8_t functActionConfirmSaveLoad()
 		if(!mtProject.instrument[i].isActive)
 		{
 			SR->firstFreeInstrumentSlotFound = i;
-			mtProject.values.lastUsedInstrument = i;
+			//mtProject.values.lastUsedInstrument = i;
 			break;
 		}
 	}
@@ -1409,7 +1446,7 @@ static  uint8_t functActionConfirmSaveLoad()
 	else
 	{
 		char filePath[70];
-		sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+		sprintf(filePath, "%s/%s.wav",redordingDirPath, SR->keyboardManager.getName());
 		if(SD.exists(filePath))
 		{
 			SR->selectionWindowSaveFlag = 1;
@@ -1419,7 +1456,7 @@ static  uint8_t functActionConfirmSaveLoad()
 		}
 		else
 		{
-			if(newFileManager.saveRecordedSound(SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
+			if(newFileManager.saveRecordedSound(redordingDirPath, SR->keyboardManager.getName(), SR->firstFreeInstrumentSlotFound))
 			{
 				SR->FM->blockAllInputs();
 			}
@@ -1427,7 +1464,7 @@ static  uint8_t functActionConfirmSaveLoad()
 		}
 
 
-		SR->firstFreeInstrumentSlotFound++;
+		//SR->firstFreeInstrumentSlotFound++;
 
 	}
 
