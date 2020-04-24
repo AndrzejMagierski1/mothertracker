@@ -6,6 +6,9 @@
 
 #include "configEditor/configEditor.h"
 #include "patternEditor/patternEditor.h"
+#include "samplePlayback/samplePlayback.h"
+
+static cSamplePlayback* SP = &samplePlayback;
 
 void midiInit()
 {
@@ -61,7 +64,7 @@ void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 			}
 			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
 			{
-
+				SP->noteOnHandle(channel, pitch, velocity, pitch + 100);
 			}
 		}
 	}
@@ -92,7 +95,7 @@ void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
 			}
 			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
 			{
-
+				SP->noteOnHandle(channel, pitch, velocity, pitch + 100);
 			}
 		}
 	}
@@ -115,6 +118,10 @@ void handleJackNoteOff(byte channel, byte pitch, byte velocity)
 				sendSelection();
 				sequencer.handleNote(channel, pitch, 0, pitch + 100);
 			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
+			{
+				SP->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
 		}
 	}
 }
@@ -134,6 +141,10 @@ void handleUsbNoteOff(byte channel, byte pitch, byte velocity)
 			{
 				sendSelection();
 				sequencer.handleNote(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
+			{
+				SP->noteOffHandle(channel, pitch, 0, pitch + 100);
 			}
 		}
 	}

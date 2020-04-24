@@ -586,120 +586,154 @@ void cSamplePlayback::clearStopPatternFunction()
 
 	FM->unblockAllInputs();
 }
+//jezeli channel == Sequencer::GRID_OUTSIDE_PATTERN przez note przekazywany jest pad
+void cSamplePlayback::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
+{
+	sequencer.handleNote(channel,
+						 note,
+						 sequencer.getInstrumentVelo( mtProject.values.lastUsedInstrument),
+						 source);
+
+	//todo: obsluga progresu
+}
+//jezeli channel == Sequencer::GRID_OUTSIDE_PATTERN przez note przekazywany jest pad
+void cSamplePlayback::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
+{
+	sequencer.handleNote(channel,
+						 note,
+						 0,
+						 source);
+	//todo: obsluga progresu
+}
+
+
 
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(SP->overwriteSlicePopupVisible) return 1;
 
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	if(state == buttonPress)
 	{
-//		SP->showStopPatternPopup();
-//		SP->setStopPatternFunction();
-//		return 1;
-		if(state == buttonPress)
-		{
-			padsBacklight.setFrontLayer(1,20, pad);
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(
-								Sequencer::GRID_OUTSIDE_PATTERN,
-								noteFromPad,
-								sequencer.getInstrumentVelo(
-										mtProject.values.lastUsedInstrument),
-								pad);
-		}
-		else if(state == buttonRelease)
-		{
-			padsBacklight.setFrontLayer(0,0, pad);
-	//		mtPadBoard.stopInstrument(pad);
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
-		}
-
+		padsBacklight.setFrontLayer(1,20, pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		SP->noteOnHandle(Sequencer::GRID_OUTSIDE_PATTERN,
+					noteFromPad,
+					sequencer.getInstrumentVelo(mtProject.values.lastUsedInstrument),
+					pad);
 	}
-	else
+	else if(state == buttonRelease)
 	{
-		if(state == buttonPress)
-		{
-			//uint8_t note = mtPadBoard.convertPadToNote(pad);
-			//if(note > 48) note = 48;
-			//editorInstrument->tune = note;
-
-			if(mtPadBoard.getEmptyVoice() < 0) return 1;
-
-			if(SP->seqReleaseFlag) SP->seqReleaseFlag = 0;
-
-			if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
-			{
-
-				if(mtPadBoard.getEmptyVoice() == 0)
-				{
-					SP->refreshPlayProgressValue = 0;
-					SP->isPlayingSample = 1;
-				}
-			}
-			else
-			{
-				if(mtPadBoard.getEmptyVoice() == 0)
-				{
-					SP->isPlayingWavetable = 1;
-				}
-			}
-
-
-			padsBacklight.setFrontLayer(1,20, pad);
-	//		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
-	//		{
-	//			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
-	//
-	//			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
-	//			if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
-	//
-	//			SP->showSlicesAdjustValue();
-	//			SP->showSlicesSelectValue();
-	//			SP->refreshSlicePoints = 1;
-	//			if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
-	//			else if(SP->editorInstrument->playMode == playModeBeatSlice) mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1); //todo: rozkminic jak ma byc
-	//		}
-	//		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
-			mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
-
-		}
-		else if(state == buttonRelease)
-		{
-			padsBacklight.setFrontLayer(0,0, pad);
-	//		if(SP->editorInstrument->playMode == playModeSlice)  mtPadBoard.stopInstrument(pad + 48);
-	//		else mtPadBoard.stopInstrument(pad);
-			mtPadBoard.stopInstrument(pad);
-			if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
-			{
-				if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
-				{
-					if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
-					{
-						SP->playProgressValue=0;
-						SP->playProgressInSpectrum = 0;
-						SP->isPlayingSample = 0;
-						SP->refreshSpectrumProgress = 1;
-						if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) SP->hidePreviewValue();
-					}
-				}
-			}
-			else
-			{
-				if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
-				{
-					if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
-					{
-						SP->isPlayingWavetable = 0;
-					}
-				}
-			}
-		}
+		padsBacklight.setFrontLayer(0,0, pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		SP->noteOffHandle(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
 	}
 
-
-
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+////		SP->showStopPatternPopup();
+////		SP->setStopPatternFunction();
+////		return 1;
+//		if(state == buttonPress)
+//		{
+//			padsBacklight.setFrontLayer(1,20, pad);
+//			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+//			sequencer.handleNote(
+//								Sequencer::GRID_OUTSIDE_PATTERN,
+//								noteFromPad,
+//								sequencer.getInstrumentVelo(
+//										mtProject.values.lastUsedInstrument),
+//								pad);
+//		}
+//		else if(state == buttonRelease)
+//		{
+//			padsBacklight.setFrontLayer(0,0, pad);
+//	//		mtPadBoard.stopInstrument(pad);
+//			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+//			sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
+//		}
+//
+//	}
+//	else
+//	{
+//		if(state == buttonPress)
+//		{
+//			//uint8_t note = mtPadBoard.convertPadToNote(pad);
+//			//if(note > 48) note = 48;
+//			//editorInstrument->tune = note;
+//
+//			if(mtPadBoard.getEmptyVoice() < 0) return 1;
+//
+//			if(SP->seqReleaseFlag) SP->seqReleaseFlag = 0;
+//
+//			if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+//			{
+//
+//				if(mtPadBoard.getEmptyVoice() == 0)
+//				{
+//					SP->refreshPlayProgressValue = 0;
+//					SP->isPlayingSample = 1;
+//				}
+//			}
+//			else
+//			{
+//				if(mtPadBoard.getEmptyVoice() == 0)
+//				{
+//					SP->isPlayingWavetable = 1;
+//				}
+//			}
+//
+//
+//			padsBacklight.setFrontLayer(1,20, pad);
+//	//		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
+//	//		{
+//	//			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
+//	//
+//	//			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+//	//			if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+//	//
+//	//			SP->showSlicesAdjustValue();
+//	//			SP->showSlicesSelectValue();
+//	//			SP->refreshSlicePoints = 1;
+//	//			if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
+//	//			else if(SP->editorInstrument->playMode == playModeBeatSlice) mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1); //todo: rozkminic jak ma byc
+//	//		}
+//	//		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+//			mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+//
+//		}
+//		else if(state == buttonRelease)
+//		{
+//			padsBacklight.setFrontLayer(0,0, pad);
+//	//		if(SP->editorInstrument->playMode == playModeSlice)  mtPadBoard.stopInstrument(pad + 48);
+//	//		else mtPadBoard.stopInstrument(pad);
+//			mtPadBoard.stopInstrument(pad);
+//			if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+//			{
+//				if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
+//				{
+//					if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+//					{
+//						SP->playProgressValue=0;
+//						SP->playProgressInSpectrum = 0;
+//						SP->isPlayingSample = 0;
+//						SP->refreshSpectrumProgress = 1;
+//						if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) SP->hidePreviewValue();
+//					}
+//				}
+//			}
+//			else
+//			{
+//				if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
+//				{
+//					if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+//					{
+//						SP->isPlayingWavetable = 0;
+//					}
+//				}
+//			}
+//		}
+//	}
 	return 1;
 }
 
