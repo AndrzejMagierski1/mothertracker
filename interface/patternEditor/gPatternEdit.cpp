@@ -1276,7 +1276,7 @@ void cPatternEditor::hideExportProgress()
 //komunikat ze za malo pamieci w banku zeby zaladowac render
 void cPatternEditor::showFullMemoryInBank()
 {
-	mtPopups.show(4, "There is not enough memory in sample bank."); //todo: podzielic
+	mtPopups.show(4, "There is not enough memory", "in sample bank."); //todo: podzielic
 }
 //komunikat ze nie ma wolnych instrumentow dla rendera
 void cPatternEditor::showFullInstrumentInBank()

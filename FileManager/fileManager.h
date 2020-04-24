@@ -161,6 +161,7 @@ public:
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 	bool importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
+	bool importSampleToProject(char* filePath, char* fileName, uint8_t instrumentSlot);
 	bool copyInstrumentsInWorkspace(uint8_t copyInstrSrc, uint8_t copyInstrCount, uint8_t copyInstrDest);
 
 	bool browseSdCard(uint8_t* index);
@@ -179,6 +180,7 @@ public:
 	bool deleteMod(uint8_t index);
 
 	bool exportSound(uint8_t mode);
+	bool exportSoundRenderSelection(char* filePath);
 	bool exportSoundCancel();
 	bool saveRecordedSound(char* dirPath, char* fileName, int8_t importSlot);
 
@@ -445,6 +447,7 @@ private:
 	uint8_t modsListLength = 0;
 	char* modsList[list_length_max];
 
+	void resetBrowse();
 	void browseCurrentLocation();
 	void listOnlyFolderNames();
 	void processDirFileSizes();

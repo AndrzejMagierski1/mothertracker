@@ -201,6 +201,7 @@ void cSampleRecorder::update()
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
 			uint8_t button = interfaceButtonSampleLoad;
+			SR->firstFreeInstrumentSlotFound++;
 			SR->eventFunct(eventSwitchModule, SR, &button, &SR->firstFreeInstrumentSlotFound);
 		}
 		else
@@ -1433,7 +1434,7 @@ static  uint8_t functActionConfirmSaveLoad()
 		if(!mtProject.instrument[i].isActive)
 		{
 			SR->firstFreeInstrumentSlotFound = i;
-			mtProject.values.lastUsedInstrument = i;
+			//mtProject.values.lastUsedInstrument = i;
 			break;
 		}
 	}
@@ -1463,7 +1464,7 @@ static  uint8_t functActionConfirmSaveLoad()
 		}
 
 
-		SR->firstFreeInstrumentSlotFound++;
+		//SR->firstFreeInstrumentSlotFound++;
 
 	}
 

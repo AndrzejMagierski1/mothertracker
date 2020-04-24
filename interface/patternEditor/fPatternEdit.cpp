@@ -112,20 +112,45 @@ elapsedMillis patternRefreshTimer;
 
 void cPatternEditor::update()
 {
-	currentExportState = exporter.getState();
+	// zarzadznie renderowaniem mzaznaczenia ---------------------------
+	uint8_t managerStatus = newFileManager.getStatus();
 
-	if(currentExportState)
+	if(managerStatus == fmExportSoundEnd)
 	{
-		refreshExportProgress();
-	}
-	if((currentExportState != lastExportState) && (!currentExportState))
-	{
+		newFileManager.clearStatus();
+
 		endExportSelection();
+
+		interfaceGlobals.refreshFileExplorer = true;
+	}
+	else if(managerStatus == fmImportSamplesEnd)
+	{
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+
+		interfaceGlobals.refreshFileExplorer = true;
+
+		uint8_t button = interfaceButtonSampleLoad;
+		PTE->firstFreeInstrumentSlotFound ++;
+		PTE->eventFunct(eventSwitchModule, PTE, &button, &PTE->firstFreeInstrumentSlotFound);
+	}
+	else if(managerStatus >= fmLoadEnd && managerStatus < fmError) // 	lapie cala reszte Endow
+	{
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+		start(0);
+	}
+	else if(managerStatus >=  fmError) // a tu wszelakie errory
+	{
+		debugLog.addLine("File Manager Opretion Error");
+
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+		start(0);
 	}
 
-	lastExportState = currentExportState;
 
-
+	// reszta odwiezania modulu -----------------------------------
 	if(patternRefreshTimer < 20) return;
 
 	patternRefreshTimer = 0;
@@ -1316,43 +1341,73 @@ void cPatternEditor::startExportSelection()
 {
 	char localPatch[PATCH_SIZE];
 
-	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
-	exporter.start(localPatch, exportRenderSelection);
-	PTE->showExportProgress();
-	PTE->FM->blockAllInputs();
+//	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
+//	exporter.start(localPatch, exportRenderSelection);
+//	PTE->showExportProgress();
+
+	keyboardManager.deactivateKeyboard();
+
+	if(newFileManager.exportSoundRenderSelection(PTE->keyboardManager.getName()))
+	{
+		//PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportCancel);
+		//PE->FM->blockAllInputsExcept(interfaceButton7);
+		PTE->FM->blockAllInputs();
+
+	}
+
+
 }
 void cPatternEditor::endExportSelection()
 {
-	hideExportProgress();
-	showDefaultScreen();
-	setDefaultScreenFunct();
-	refreshEditState();
-	setSwitchModuleFunct();
-	FM->unblockAllInputs();
+	//hideExportProgress();
+	//showDefaultScreen();
+	//setDefaultScreenFunct();
+	//refreshEditState();
+	//setSwitchModuleFunct();
+
 	if(isLoadAfterSave)
 	{
 		isLoadAfterSave = false;
 
+		// sprawdz czy wystarczy pamieci
 		if((mtProject.used_memory + exporter.getRenderLength() * 2) > mtProject.max_memory)
 		{
 			showFullMemoryInBank();
 		}
-
-		int8_t firstFreeInstrumentSlot = -1;
-		for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+		else
 		{
-			if(!mtProject.instrument[i].isActive)
+			// sprawdz czy jest wolny slot instrumentu
+			PTE->firstFreeInstrumentSlotFound = -1;
+			for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 			{
-				firstFreeInstrumentSlot = i;
-				mtProject.values.lastUsedInstrument = i;
-				break;
+				if(!mtProject.instrument[i].isActive)
+				{
+					PTE->firstFreeInstrumentSlotFound = i;
+					//mtProject.values.lastUsedInstrument = i;
+					break;
+				}
+			}
+
+			if(PTE->firstFreeInstrumentSlotFound == -1)
+			{
+				showFullInstrumentInBank();
+			}
+			else
+			{
+				// dopeiro teraz importuj
+				char localPatch[255];
+				sprintf(localPatch, "Export/%s/Selection", newFileManager.getCurrentProjectName());
+				if(newFileManager.importSampleToProject(localPatch, PTE->keyboardManager.getName(), PTE->firstFreeInstrumentSlotFound))
+				{
+					return;
+				}
 			}
 		}
-		if(firstFreeInstrumentSlot == -1)
-		{
-			showFullInstrumentInBank();
-		}
 	}
+
+	// jesli nei importuje albo blad to oodblokuj modul i zakoncz
+	FM->unblockAllInputs();
+	start(0);
 }
 
 

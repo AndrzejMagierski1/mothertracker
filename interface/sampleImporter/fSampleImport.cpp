@@ -157,9 +157,14 @@ void cSampleImporter::start(uint32_t options)
 
 	keyboardManager.init(keyboardControl,editName);
 
+	// focus na wybranym insturmencie
 	if(options)
 	{
+		selectedFile  = 0; // slabe takie ustawianie tu ale przy imporcie zaznaczenia zabezpiecza przez zlym zaznaczeniem powodujacym zawiech
+		selectedPlace = 1;
 		selectedSlot = options - 1;
+
+		mtProject.values.lastUsedInstrument = selectedSlot;
 	}
 
 	// przeladuj pierwszy raz xxx rzeba to popawic

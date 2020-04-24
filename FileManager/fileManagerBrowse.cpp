@@ -21,6 +21,12 @@ bool cFileManager::browseSdCard(uint8_t* index)
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
+	// dla bezpieczenstwa reset sciezki jesli jestesmy na poziomie 0
+	if(explorerDirLevel == 0)
+	{
+		strcpy(explorerCurrentPath, "/");
+	}
+
 	if(index == nullptr) // tylko odswiez
 	{
 		status = fmBrowsingSamples;
@@ -90,6 +96,16 @@ bool cFileManager::browseSdCard(uint8_t* index)
 	return true;
 }
 
+
+
+// wymusza przy nastepnym wywolaniu browseSdCard()
+// wyzerowanie pokazywanej lokalizaji do poczatku karty SD
+void cFileManager::resetBrowse()
+{
+	explorerDirLevel = 0;
+	explorerCurrentPosition = 0;
+	//strcpy(explorerCurrentPath, "/");
+}
 
 uint8_t cFileManager::getBrowsedFilesList(char*** list, uint32_t** memoryList)
 {

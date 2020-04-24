@@ -27,7 +27,7 @@ bool cFileManager::exportSound(uint8_t mode)
 	char currentExportPath[255];
 
 	//make dirs boys
-	if(!SD.exists("Export")) SD.mkdir(0,"Export");
+	if(!SD.exists(cExportPath)) SD.mkdir(0,cExportPath);
 	sprintf(currentExportPath, cExportProjectPathFormat, newFileManager.getCurrentProjectName());
 	if(!SD.exists(currentExportPath)) SD.mkdir(0, currentExportPath);
 
@@ -68,6 +68,36 @@ bool cFileManager::exportSound(uint8_t mode)
 	currentOperation = fmExportSound;
 	return true;
 }
+
+
+bool cFileManager::exportSoundRenderSelection(char* filePath)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	char currentExportPath[255];
+
+	//make dirs boys
+	if(!SD.exists(cExportPath)) SD.mkdir(0,cExportPath);
+
+	sprintf(currentExportPath, cExportProjectPathFormat, newFileManager.getCurrentProjectName());
+	if(!SD.exists(currentExportPath)) SD.mkdir(0, currentExportPath);
+
+	strcat(currentExportPath, "/Selection");
+	if(!SD.exists(currentExportPath)) SD.mkdir(0, currentExportPath);
+
+	strcat(currentExportPath, "/");
+	strcat(currentExportPath, filePath);
+	strcat(currentExportPath, ".wav");
+
+	exporter.start(currentExportPath, exportRenderSelection);
+
+	status = fmExportingSoundRenderSelection;
+	currentOperationStep = 0;
+	currentOperation = fmExportSound;
+	return true;
+}
+
 
 void cFileManager::exportSoundEnd()
 {
