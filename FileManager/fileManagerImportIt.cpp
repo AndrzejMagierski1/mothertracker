@@ -367,7 +367,7 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	if (debugMod)
 	{
-		Serial.printf("Insstrument: %d, NoS: %d, smp no: %d, GbV %d\n",
+		Serial.printf("###Instrument: %d, NoS: %d, smp no: %d, GbV %d\n",
 						processedInstrument,
 						getFileVariable(fileOffset, 0x1e, 1),
 						sampleNumber,
@@ -457,9 +457,16 @@ void cFileManager::importItFile_LoadSamples()
 		uint32_t length = readUint(&sampleHeader[0x30], 4);
 		uint32_t loopBegin = readUint(&sampleHeader[0x34], 4);
 		uint32_t loopEnd = readUint(&sampleHeader[0x38], 4);
+		uint32_t susLoopBegin = readUint(&sampleHeader[0x40], 4);
+		uint32_t susLoopEnd = readUint(&sampleHeader[0x44], 4);
 		uint32_t C5Speed = readUint(&sampleHeader[0x3c], 4);
 		uint32_t SmpPoint = readUint(&sampleHeader[0x48], 4); //'Long' Offset of sample in file.
 		uint32_t Cvt = readUint(&sampleHeader[0x2e], 1);
+
+		uint32_t GvL = readUint(&sampleHeader[0x11], 1);
+		uint32_t Vol = readUint(&sampleHeader[0x13], 1);
+
+		instr->volume = map(Vol, 0, 64, 0, instr->volume);
 
 		bool isHeader = (Flg & 0b00000001);
 		bool is16or8bit = (Flg & 0b00000010);
@@ -476,7 +483,7 @@ void cFileManager::importItFile_LoadSamples()
 
 		if (debugMod)
 			Serial.printf(
-					"flags: %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s \n",
+					"###SAMPLE/nflags: %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s \n",
 					isHeader ? "header" : "no header",
 					is16or8bit ? "16bit" : "8bit",
 					isSigned ? "signed" : "unsign",
@@ -492,12 +499,16 @@ void cFileManager::importItFile_LoadSamples()
 
 		if (debugMod)
 			Serial.printf(
-					"length: %d, loopBegin: %d, loopEnd %d, C5Speed: %d, SmpPoint %d\n",
+					"length: %d\nloopBegin: %d\tloopEnd %d\tC5Speed: %d\tSmpPoint %d\nsusLoopBegin: %d\tsusLoopEnd: %d\t GvL: %d\tVol: %d\n",
 					length,
 					loopBegin,
 					loopEnd,
 					C5Speed,
-					SmpPoint
+					SmpPoint,
+					susLoopBegin,
+					susLoopEnd,
+					GvL,
+					Vol
 					);
 
 		if (sampleNumber > 0 && length > 0) // 0 == no sample
@@ -523,9 +534,9 @@ void cFileManager::importItFile_LoadSamples()
 
 			// todo save instrument
 
-			if (isLoop)
+			if (isLoop || isPingPong)
 			{
-				if (isPingPongSustain)
+				if (isPingPong)
 				{
 					instr->playMode = playModePingpong;
 				}
