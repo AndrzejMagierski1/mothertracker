@@ -465,13 +465,20 @@ void cFileManager::exportItFile_ProcessWaves()
 	}
 
 }
-
+/*
+ *  if(maskvariable & 1), then read note. (byte value)
+ // Note ranges from 0->119 (C-0 -> B-9)
+ // 255 = note off, 254 = notecut
+ // Others = note fade (already programmed into IT's player
+ //                     but not available in the editor)
+ */
 void cFileManager::exportItFile_ProcessPatterns()
 {
 //expPattern= 0;
 	exportItFile_storePatternOffset();
 
 	Sequencer::strPattern *patt = sequencer.getActualPattern();
+	uint32_t seekForLength = exportedFile.size(); // pozycja gdzie wpisać length
 
 	uint8_t buff0x08[0x08] { 0 };
 
@@ -481,17 +488,82 @@ void cFileManager::exportItFile_ProcessPatterns()
 
 	exportedFile.write(buff0x08, sizeof(buff0x08));
 
+	uint16_t length = 0;
+
 	// tutaj row to nr stepa
-	for (uint8_t row = 0; row < Sequencer::MAXSTEP; row++)
+	for (uint8_t row = 0; row <= patt->track[0].length; row++)
 	{
-		for (uint8_t tr = 0; tr < Sequencer::MAXTRACK; tr++)
+		for (uint8_t tr = 0; tr <= Sequencer::MAXTRACK; tr++)
 		{
 			Sequencer::strPattern::strTrack::strStep *step = &patt->track[tr].step[row];
 
+			if (step->note != Sequencer::STEP_NOTE_EMPTY)
+			{
+				uint8_t channelvariable = 0;
 
+				//ustawiam channel
+				channelvariable = (tr + 1) & 0b00111111;
+
+				// ustawiamy flage ze kolejny bajt to maskvariable
+				channelvariable |= 0b01000000;
+
+				exportedFile.write(channelvariable);
+				length++;
+
+				// maska mowi co maja kolejne bajty
+				uint8_t maskvariable = 0;
+				maskvariable |= 1; // note w kolejnym bajcie
+				maskvariable |= 2; // instr w kolejnym bajcie
+				exportedFile.write(maskvariable);
+				length++;
+
+				// nuta
+				uint8_t noteToWrite = 0;
+				if (step->note >= 0) noteToWrite = step->note;
+				else if (step->note == Sequencer::STEP_NOTE_OFF)
+				{
+					noteToWrite = 255;
+				}
+				else if (step->note == Sequencer::STEP_NOTE_CUT ||
+						step->note == Sequencer::STEP_NOTE_FADE)
+				{
+					noteToWrite = 254;
+				}
+				exportedFile.write(noteToWrite);
+				length++;
+
+				uint8_t instrumentToWrite = 0;
+				instrumentToWrite = step->instrument;
+				exportedFile.write(instrumentToWrite);
+				length++;
+
+			}
+
+			if (tr == Sequencer::MAXTRACK)
+			{
+				exportedFile.write(0); // END OF ROW
+				length++;
+			}
 
 		}
 	}
+
+	// wpisuje length do struktury patternu
+
+	uint32_t seekBuffer = exportedFile.size();
+
+	exportedFile.seek(seekForLength);
+
+	// zapisuje length
+	uint8_t buff[2];
+	writeLE(buff, length, 2);
+	exportedFile.write(buff, 2);
+
+	//wracam na koniec
+	exportedFile.seek(seekBuffer);
+
+//	expPattern++;
+//	if(expPattern>=)
 
 	moveToNextOperationStep();
 }
