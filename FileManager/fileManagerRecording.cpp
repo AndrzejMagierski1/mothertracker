@@ -11,7 +11,7 @@
 #include "mtRecorder.h"
 
 
-
+static char recordingsDirPath[30];
 static char recordedFileName[35];
 
 void cFileManager::saveRecording()
@@ -60,21 +60,28 @@ void cFileManager::saveRecordedSoundFinish()
 
 
 
+char* cFileManager::getRecordingDirPath()
+{
+	return recordingsDirPath;
+}
 
 char* cFileManager::getRecordingFileName()
 {
 	return recordedFileName;
 }
 
-bool cFileManager::saveRecordedSound(char* fileName, int8_t importSlot)
+bool cFileManager::saveRecordedSound(char* dirPath, char* fileName, int8_t importSlot)
 {
 	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
 	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
-	if(!SD.exists("Recorded")) SD.mkdir(0,"Recorded");
 
+	// utworz folder jesli nie istnieje
+	if(!SD.exists(dirPath)) SD.mkdir(0, dirPath);
+
+	// tworzy sciezke do pliku
 	char filePath[70];
-	sprintf(filePath, "Recorded/%s.wav", fileName);
+	sprintf(filePath, "%s/%s.wav", dirPath, fileName);
 	if(SD.exists(filePath)) SD.remove(filePath);
 
 	recorder.startSave(filePath);
@@ -87,6 +94,7 @@ bool cFileManager::saveRecordedSound(char* fileName, int8_t importSlot)
 	}
 	else
 	{
+		strcpy(recordingsDirPath, dirPath);
 		strcpy(recordedFileName, fileName);
 		recordingImportSlot = importSlot;
 		status = fmSavingImportingRecordedSound;

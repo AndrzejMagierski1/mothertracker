@@ -127,6 +127,7 @@ void Sequencer::fillLinearInstruments(int16_t fillStep,
 		}
 	}
 }
+
 void Sequencer::fillLinearFx(int16_t fxIndex,
 								int16_t fillStep,
 								int16_t fxName,
@@ -189,8 +190,8 @@ uint8_t Sequencer::randomFx()
 				retVal != fx.FX_TYPE_R10 &&
 				retVal != fx.FX_TYPE_R30 &&
 				retVal != fx.FX_TYPE_R31 &&
-				retVal != fx.FX_TYPE_R22
-
+				retVal != fx.FX_TYPE_R22 &&
+				retVal != fx.FX_TYPE_BREAK_PATTERN // breaka nie chcemy
 				) break;
 
 	}

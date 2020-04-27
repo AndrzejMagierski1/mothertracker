@@ -709,7 +709,7 @@ void cPatternEditor::showFillFx()
 	// fx
 	fillFxTypeList.linesCount = 6;
 	fillFxTypeList.start = fillData[editParam].param+1;
-	fillFxTypeList.length = FX_COUNT+1;
+	fillFxTypeList.length = FX_COUNT+1-FX_COUNT_HIDDEN_FXes;
 	fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
 
 	display.setControlData(param2PopupListControl, &fillFxTypeList);
@@ -1276,7 +1276,7 @@ void cPatternEditor::hideExportProgress()
 //komunikat ze za malo pamieci w banku zeby zaladowac render
 void cPatternEditor::showFullMemoryInBank()
 {
-	mtPopups.show(4, "There is not enough memory in sample bank."); //todo: podzielic
+	mtPopups.show(4, "There is not enough memory", "in sample bank."); //todo: podzielic
 }
 //komunikat ze nie ma wolnych instrumentow dla rendera
 void cPatternEditor::showFullInstrumentInBank()

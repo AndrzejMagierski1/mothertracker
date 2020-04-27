@@ -458,7 +458,7 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	{
 		//refreshAllList();
 
-		selectedActualItem = constrain(selectedActualItem, 0, FX_COUNT-1);
+		selectedActualItem = constrain(selectedActualItem, 0, FX_COUNT-1-FX_COUNT_HIDDEN_FXes);
 		mtProject.values.lastUsedFx = selectedActualItem;
 		display.setControlValue(popupListControl, selectedActualItem);
 		display.refreshControl(popupListControl);
@@ -527,7 +527,7 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		padsBacklight.setBackLayer(0, 0, selectedActualItem);
 
 
-		selectedActualItem = constrain(selectedActualItem + value,0, FX_COUNT-1);
+		selectedActualItem = constrain(selectedActualItem + value,0, FX_COUNT-1-FX_COUNT_HIDDEN_FXes);
 //		if(selectedActualItem + value < 0) selectedActualItem = 0;
 //		else if(selectedActualItem + value > FX_COUNT) selectedActualItem = FX_COUNT;
 //		else selectedActualItem += value;

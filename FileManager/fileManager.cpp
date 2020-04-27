@@ -1015,6 +1015,59 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 	return true;
 }
 
+// importowanie dowolnego wavaprzez podanie jego sciezki na dowolny slot instrumentu
+bool cFileManager::importSampleToProject(char* filePath, char* fileName, uint8_t instrumentSlot)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	// sprawdz czy plik istnieje
+	char test_path[255];
+	sprintf(test_path, "%s/%s.wav" ,filePath, fileName);
+	if(!SD.exists(test_path)) return false;
+
+	// explorerCurrentPath, explorerList[importCurrentFile]
+	// kozrysta z listy plikow explorera
+	// ustawia plik do importu na 0 miejscu tablicy explorerList[]
+	// i uruchamia import jak w sample laderze
+	if(explorerList[0] != nullptr)
+	{
+		delete explorerList[0];
+		explorerList[0] = nullptr;
+	}
+
+	uint16_t len = strlen(fileName) + 5; // + .wav + \0
+	explorerList[0] = new char[len];
+	strcpy(explorerList[0], fileName);
+	strcat(explorerList[0], ".wav");
+
+	// wymagane tez ustawienie aktualnego path explorera
+	// na lokalizajce wczytywanego pliku
+	strcpy(explorerCurrentPath, filePath);
+
+	// liczy sie tlyko 0 index w tablicy
+	importCurrentFile = 0;
+
+	currentInstrument = instrumentSlot;
+	currentSample = instrumentSlot;
+	importStartSlot = instrumentSlot;
+	importEndSlot = instrumentSlot;
+	if(importEndSlot >= INSTRUMENTS_COUNT) importEndSlot = INSTRUMENTS_COUNT-1; //xxx
+	//findLastActiveInstrumentBeforeCurrent();
+
+	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
+	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć
+	// jesli 48 to znaczy ze nie ma sampli do przesuniecia
+	calcFirstSlotToMoveInMemory(importEndSlot+1);
+
+	// reset browsera przy nastepnym uzywaniu
+	resetBrowse();
+
+	status = fmImportingSamplesToWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmImportSamplesToWorkspace;
+	return true;
+}
 
 // narazie kopiowanie dziala tylko na 1 instrument
 bool cFileManager::copyInstrumentsInWorkspace(uint8_t copyInstrSrc, uint8_t copyInstrCount, uint8_t copyInstrDest)

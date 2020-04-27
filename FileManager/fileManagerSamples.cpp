@@ -100,7 +100,7 @@ void cFileManager::copySamples()
 	}
 	else if(currentOperation == fmSaveRecordedSound)
 	{
-		sprintf(currentCopySrcPath, "Recorded/%s.wav",  getRecordingFileName());
+		sprintf(currentCopySrcPath, "%s/%s.wav", getRecordingDirPath(), getRecordingFileName());
 		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 	}
 	else if(currentOperation == fmCopyInstrumentsInWorkspace) // copy

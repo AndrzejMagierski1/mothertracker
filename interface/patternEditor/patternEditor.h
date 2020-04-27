@@ -166,6 +166,7 @@ public:
 	uint8_t currentExportState;
 	uint8_t lastExportState;
 	bool isLoadAfterSave;
+	int8_t firstFreeInstrumentSlotFound;
 //----------------------------------
 // GUI
 

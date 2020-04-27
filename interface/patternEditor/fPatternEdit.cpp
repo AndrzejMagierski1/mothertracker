@@ -112,20 +112,45 @@ elapsedMillis patternRefreshTimer;
 
 void cPatternEditor::update()
 {
-	currentExportState = exporter.getState();
+	// zarzadznie renderowaniem mzaznaczenia ---------------------------
+	uint8_t managerStatus = newFileManager.getStatus();
 
-	if(currentExportState)
+	if(managerStatus == fmExportSoundEnd)
 	{
-		refreshExportProgress();
-	}
-	if((currentExportState != lastExportState) && (!currentExportState))
-	{
+		newFileManager.clearStatus();
+
 		endExportSelection();
+
+		interfaceGlobals.refreshFileExplorer = true;
+	}
+	else if(managerStatus == fmImportSamplesEnd)
+	{
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+
+		interfaceGlobals.refreshFileExplorer = true;
+
+		uint8_t button = interfaceButtonSampleLoad;
+		PTE->firstFreeInstrumentSlotFound ++;
+		PTE->eventFunct(eventSwitchModule, PTE, &button, &PTE->firstFreeInstrumentSlotFound);
+	}
+	else if(managerStatus >= fmLoadEnd && managerStatus < fmError) // 	lapie cala reszte Endow
+	{
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+		start(0);
+	}
+	else if(managerStatus >=  fmError) // a tu wszelakie errory
+	{
+		debugLog.addLine("File Manager Opretion Error");
+
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+		start(0);
 	}
 
-	lastExportState = currentExportState;
 
-
+	// reszta odwiezania modulu -----------------------------------
 	if(patternRefreshTimer < 20) return;
 
 	patternRefreshTimer = 0;
@@ -577,7 +602,7 @@ uint8_t cPatternEditor::getStepFx()
 	uint8_t fx_type =  interfaceGlobals.fxIdToName(
 			sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
 
-	if(fx_type < FX_COUNT) selectedFx = fx_type;
+	if(fx_type < FX_COUNT-FX_COUNT_HIDDEN_FXes) selectedFx = fx_type;
 
 	if(selectedFx == 0) selectedFx = mtProject.values.lastUsedFx;
 
@@ -667,7 +692,7 @@ void cPatternEditor::cancelPopups()
 
 					uint8_t fx_name = interfaceGlobals.fxIdToName(
 							sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
-					if (fx_name > 0 && fx_name < FX_COUNT)
+					if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes)
 					{
 
 						sendSelection();
@@ -1039,7 +1064,7 @@ void cPatternEditor::changeFillData(int16_t value)
 	case 4: // param
 		ptrVal = &fillData[editParam].param;
 		min = (editParam == 0 ? 0 : -1);
-		max = (editParam == 0 ? MAX_SCALE : FX_COUNT);
+		max = (editParam == 0 ? MAX_SCALE : FX_COUNT-1-FX_COUNT_HIDDEN_FXes);
 		break;
 
 	default: return;
@@ -1127,7 +1152,10 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 		{
 			if(pad < MAX_SCALE) fillData[editParam].param = pad;
 		}
-		else if(editParam == 3) fillData[editParam].param = pad;
+		else if(editParam >= 2)
+		{
+			if(pad < FX_COUNT-FX_COUNT_HIDDEN_FXes) fillData[editParam].param = pad;
+		}
 		break;
 	}
 	default: break;
@@ -1313,43 +1341,73 @@ void cPatternEditor::startExportSelection()
 {
 	char localPatch[PATCH_SIZE];
 
-	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
-	exporter.start(localPatch, exportRenderSelection);
-	PTE->showExportProgress();
-	PTE->FM->blockAllInputs();
+//	sprintf(localPatch, "Export/%s/Selection/%s.wav",newFileManager.getCurrentProjectName(), PTE->keyboardManager.getName());
+//	exporter.start(localPatch, exportRenderSelection);
+//	PTE->showExportProgress();
+
+	keyboardManager.deactivateKeyboard();
+
+	if(newFileManager.exportSoundRenderSelection(PTE->keyboardManager.getName()))
+	{
+		//PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportCancel);
+		//PE->FM->blockAllInputsExcept(interfaceButton7);
+		PTE->FM->blockAllInputs();
+
+	}
+
+
 }
 void cPatternEditor::endExportSelection()
 {
-	hideExportProgress();
-	showDefaultScreen();
-	setDefaultScreenFunct();
-	refreshEditState();
-	setSwitchModuleFunct();
-	FM->unblockAllInputs();
+	//hideExportProgress();
+	//showDefaultScreen();
+	//setDefaultScreenFunct();
+	//refreshEditState();
+	//setSwitchModuleFunct();
+
 	if(isLoadAfterSave)
 	{
 		isLoadAfterSave = false;
 
+		// sprawdz czy wystarczy pamieci
 		if((mtProject.used_memory + exporter.getRenderLength() * 2) > mtProject.max_memory)
 		{
 			showFullMemoryInBank();
 		}
-
-		int8_t firstFreeInstrumentSlot = -1;
-		for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+		else
 		{
-			if(!mtProject.instrument[i].isActive)
+			// sprawdz czy jest wolny slot instrumentu
+			PTE->firstFreeInstrumentSlotFound = -1;
+			for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 			{
-				firstFreeInstrumentSlot = i;
-				mtProject.values.lastUsedInstrument = i;
-				break;
+				if(!mtProject.instrument[i].isActive)
+				{
+					PTE->firstFreeInstrumentSlotFound = i;
+					//mtProject.values.lastUsedInstrument = i;
+					break;
+				}
+			}
+
+			if(PTE->firstFreeInstrumentSlotFound == -1)
+			{
+				showFullInstrumentInBank();
+			}
+			else
+			{
+				// dopeiro teraz importuj
+				char localPatch[255];
+				sprintf(localPatch, "Export/%s/Selection", newFileManager.getCurrentProjectName());
+				if(newFileManager.importSampleToProject(localPatch, PTE->keyboardManager.getName(), PTE->firstFreeInstrumentSlotFound))
+				{
+					return;
+				}
 			}
 		}
-		if(firstFreeInstrumentSlot == -1)
-		{
-			showFullInstrumentInBank();
-		}
 	}
+
+	// jesli nei importuje albo blad to oodblokuj modul i zakoncz
+	FM->unblockAllInputs();
+	start(0);
 }
 
 
