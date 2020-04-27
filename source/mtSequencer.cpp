@@ -764,10 +764,12 @@ void Sequencer::play_microStep(uint8_t row)
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
 			instrumentPlayer[row].noteOff(STEP_NOTE_CUT);
+			playerRow.noteOpen = 0;
 		}
 		else if (patternStep.note == STEP_NOTE_FADE)
 		{
 			instrumentPlayer[row].noteOff(STEP_NOTE_FADE);
+			playerRow.noteOpen = 0;
 		}
 	}
 
