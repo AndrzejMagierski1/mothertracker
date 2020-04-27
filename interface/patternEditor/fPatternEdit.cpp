@@ -679,35 +679,35 @@ void cPatternEditor::cancelPopups()
 			switch (popup_type)
 			{
 			case stepPopupNote:
-	//			if (!isMultiSelection())
-	//			{
-					//sendSelection();
-					//sequencer.setSelectionNote(mtProject.values.lastUsedNote);
-	//			}
+				if (!isMultiSelection())
+				{
+					sendSelection();
+					sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+				}
 				break;
 			case stepPopupFx:
 				if (!isMultiSelection())
 				{
 					uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-					uint8_t fx_name = interfaceGlobals.fxIdToName(
-							sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
-					if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes)
-					{
+					//uint8_t fx_name = interfaceGlobals.fxIdToName(
+					//		sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
+					//if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes) // tylko jesli na stepie jest juz jakis fx
+					//{
 
 						sendSelection();
 						sequencer.setSelectionFxType(
 								fx_index,
 								interfaceGlobals.fxIDs[mtProject.values.lastUsedFx]);
-					}
+					//}
 				}
 				break;
 			case stepPopupInstr:
-	//			if (!isMultiSelection())
-	//			{
-					//sendSelection();
-					//sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
-	//			}
+				if (!isMultiSelection())
+				{
+					sendSelection();
+					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+				}
 				break;
 
 			default:
@@ -2351,15 +2351,16 @@ static uint8_t functDeleteBackspace(uint8_t state)
 			// DELETE
 			else
 			{
-				PTE->dontShowPopupsUntilButtonRelease = 1;	// blokuje ponowne pojawianie sie popupu
+				// wykomentowane bo chyba juz nie aktualne a robi problem
+//				PTE->dontShowPopupsUntilButtonRelease = 1;	// blokuje ponowne pojawianie sie popupu
 															// jesli ciagle wcisniety przycisk popupu
 															// do czasu release note...fx
-				if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
-				{
-					PTE->insertOnPopupHideDisabled = 1;  // dezaktywuje wstawianie danych na wyjecie z popupow
-					PTE->cancelPopups();
-					PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
-				}
+//				if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
+//				{
+//					PTE->insertOnPopupHideDisabled = 1;  // dezaktywuje wstawianie danych na wyjecie z popupow
+//					PTE->cancelPopups();
+//					PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
+//				}
 
 				sendSelection();
 				if (PTE->editParam == 3 )

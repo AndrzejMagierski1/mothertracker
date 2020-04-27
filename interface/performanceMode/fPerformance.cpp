@@ -354,6 +354,29 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	bool trackChanging = false;
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		if((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(i))
+		{
+			trackChanging = true;
+			PM->trackPatternChange[i] = 2;
+
+			if(mtProject.values.perfTracksPatterns[i] < 255)
+			{
+				mtProject.values.perfTracksPatterns[i]++;			//zmiana o 1
+
+				PM->setProjectSaveFlags();
+			}
+			//else PM->trackPatternChange[i] = 1;
+
+			PM->refreshTrackPattern = 1;
+		}
+	}
+
+	if(trackChanging) return 1;
+
 	if(PM->performanceEditState)
 	{
 
@@ -373,29 +396,7 @@ static  uint8_t functUp()
 		PM->showFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(PM->performanceEditPlace);
 		PM->lightUpPadBoard();
-
-		return 1;
 	}
-
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		if((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(i))
-		{
-			PM->trackPatternChange[i] = 2;
-
-			if(mtProject.values.perfTracksPatterns[i] < 255)
-			{
-				mtProject.values.perfTracksPatterns[i]++;			//zmiana o 1
-
-				PM->setProjectSaveFlags();
-			}
-			//else PM->trackPatternChange[i] = 1;
-
-			PM->refreshTrackPattern = 1;
-		}
-	}
-
 
 	return 1;
 }
@@ -403,22 +404,13 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	if(PM->performanceEditState)
-	{
-		performance.changeSlotFx(PM->performanceEditPlace, -1);
-
-		PM->showFxNames(PM->performanceEditPlace);
-		PM->showPerformaceValue(PM->performanceEditPlace);
-		PM->lightUpPadBoard();
-
-		return 1;
-	}
-
+	bool trackChanging = false;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
 		if((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(i))
 		{
+			trackChanging = true;
 			PM->trackPatternChange[i] = 2;
 
 			if(mtProject.values.perfTracksPatterns[i] > 1)
@@ -432,6 +424,18 @@ static  uint8_t functDown()
 			PM->refreshTrackPattern = 1;
 		}
 	}
+
+	if(trackChanging) return 1;
+
+	if(PM->performanceEditState)
+	{
+		performance.changeSlotFx(PM->performanceEditPlace, -1);
+
+		PM->showFxNames(PM->performanceEditPlace);
+		PM->showPerformaceValue(PM->performanceEditPlace);
+		PM->lightUpPadBoard();
+	}
+
 
 
 	return 1;
