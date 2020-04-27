@@ -1138,7 +1138,20 @@ void Sequencer::stop(void)
 		player.track[a].rollIsOn = 0;
 		player.track[a].isActive = 1;
 
-		player.track[a].performanceSourcePattern = -1;
+		if (isPerformanceMode())
+		{
+			if (player.track[a].performanceSourcePattern != -1)
+			{
+				setTrackToLoadOnSwitch(
+						a,
+						player.track[a].performanceSourcePattern);
+				switchPerformanceTrackNow(a);
+			}
+		}
+		else
+		{
+			player.track[a].performanceSourcePattern = -1;
+		}
 	}
 //	player.changeBank = 0;
 
@@ -1889,7 +1902,7 @@ void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 	setPerformancePatternLength(performancePatternLengthValues[val]);
 
 }
-
+// laduje track do bufora i czeka na switch
 void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 {
 	if (!player.performanceMode)
