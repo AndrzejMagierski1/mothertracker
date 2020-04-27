@@ -873,6 +873,26 @@ void playerEngine ::clearInterfacePlayingEndFlag()
 	interfacePlayingEndFlag = 0;
 }
 
+void playerEngine::setTrackIsDisplayed()
+{
+	isTrackDisplayed = true;
+}
+void playerEngine::clearTrackIsDisplayed()
+{
+	isTrackDisplayed = false;
+}
+bool playerEngine::getEndDisplayTrackFlag()
+{
+	return onEndDisplay;
+}
+void playerEngine::clearEndDisplayTrackFlag()
+{
+	onEndDisplay = false;
+}
+
+
+
+
 uint16_t playerEngine ::getWavePosition()
 {
 	return playMemPtr->getPosition();

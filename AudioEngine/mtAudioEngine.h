@@ -270,6 +270,13 @@ public:
 	void clearInterfaceEndReleaseFlag();
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
+
+	void setTrackIsDisplayed();
+	void clearTrackIsDisplayed();
+	bool getEndDisplayTrackFlag();
+	void clearEndDisplayTrackFlag();
+
+
 	uint32_t getEnvelopeGranPosMod();
 
 	uint32_t getEnvelopeWtPosMod();
@@ -544,6 +551,8 @@ private:
 
 	uint8_t isActiveFlag = 0;
 
+	bool isTrackDisplayed;
+	bool onEndDisplay;
 
 //**********************FUNKCJE POMOCNICZE
 	uint8_t isFxVelocity(uint8_t fx_id);

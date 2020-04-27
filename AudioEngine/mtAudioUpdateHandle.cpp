@@ -63,6 +63,7 @@ void playerEngine::handleUpdateEndPlayDetect()
 	{
 		envelopeAmpPtr->noteOff();
 		interfacePlayingEndFlag = 1;
+		if(isTrackDisplayed) onEndDisplay = true;
 	}
 	lastPlayState = currentPlayState;
 }
@@ -152,6 +153,7 @@ void playerEngine::handleUpdateEndReleaseAction()
 	{
 		envelopeAmpPtr->clearEndReleaseFlag();
 		interfaceEndReleaseFlag = 1;
+		if(isTrackDisplayed) onEndDisplay = true;
 		playMemPtr->stop();
 
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )

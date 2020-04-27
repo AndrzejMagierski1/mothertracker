@@ -99,6 +99,8 @@ public:
 	void showSlicesAdjustValue();
 	void showSlicesEqualNumberValue();
 
+	void onEndTrackDisplay();
+
 	void noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
 	void noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
 
@@ -175,7 +177,7 @@ public:
 	elapsedMicros refreshPlayProgressValue = 0;
 	float playPitch = 1.0 ;
 	bool isShiftPressed;
-
+	int8_t displayedTrack = -1;
 
 	strInstrument * editorInstrument;
 	uint32_t lastSampleLength = 0xFFFFFFFF;

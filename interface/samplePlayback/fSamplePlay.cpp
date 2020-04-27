@@ -82,106 +82,141 @@ constexpr uint32_t PLAY_REFRESH_US = 5000;
 void cSamplePlayback::update()
 {
 
-	if(seqReleaseFlag)
+	if(displayedTrack != -1)
 	{
-		if(editorInstrument->playMode != playModeGranular && editorInstrument->playMode != playModeWavetable) seqReleaseFlag = 0;
-
-		if((editorInstrument->playMode == playModeGranular) || (editorInstrument->playMode == playModeWavetable))
-		{
-			if( (!mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].enable) ||
-				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].release == 0) ||
-				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].loop) ||
-				(!(mtProject.values.allPatternsBitmask[mtProject.values.actualPattern] & 0x01))) //biezacy pattern , zerowy track czy aktywny
+			calcPlayProgressValue();
+			if(SP->editorInstrument->playMode != playModeWavetable)
 			{
-				instrumentPlayer[0].noteOff(Sequencer::STEP_NOTE_CUT);
-
-				currentEnvelopeWtPos = editorInstrument->wavetableCurrentWindow;
-				currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
-
-				if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
-				if(editorInstrument->playMode == playModeWavetable)
-				{
-					showWavetablePosition();
-					processWavetableCursor(currentEnvelopeWtPos);
-				}
-
-				seqReleaseFlag = 0;
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice))	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+			}
+			else
+			{
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
 			}
 
-			if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+			if(instrumentPlayer[displayedTrack].getEndDisplayTrackFlag())
 			{
-				instrumentPlayer[0].noteOff(Sequencer::STEP_NOTE_CUT);
-
-				currentEnvelopeWtPos = editorInstrument->wavetableCurrentWindow;
-				currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
-
-				if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
-				if(editorInstrument->playMode == playModeWavetable)
-				{
-					showWavetablePosition();
-					processWavetableCursor(currentEnvelopeWtPos);
-				}
-
-
-				seqReleaseFlag = 0;
+				instrumentPlayer[displayedTrack].clearEndDisplayTrackFlag();
+				onEndTrackDisplay();
 			}
-		}
-
+//			if(instrumentPlayer[displayedTrack].getInterfaceEndReleaseFlag())
+//			{
+//				instrumentPlayer[displayedTrack].clearInterfaceEndReleaseFlag();
+//
+//				playProgressValue=0;
+//				playProgressInSpectrum = 0;
+//				displayedTrack = -1;
+//				refreshSpectrumProgress = 1;
+//				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
+//			}
+//			if(instrumentPlayer[displayedTrack].getInterfacePlayingEndFlag())
+//			{
+//				instrumentPlayer[displayedTrack].clearInterfacePlayingEndFlag();
+//
+//				playProgressValue=0;
+//				playProgressInSpectrum = 0;
+//				displayedTrack = -1;
+//				refreshSpectrumProgress = 1;
+//				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
+//			}
 	}
+//	if(seqReleaseFlag)
+//	{
+//		if(editorInstrument->playMode != playModeGranular && editorInstrument->playMode != playModeWavetable) seqReleaseFlag = 0;
+//
+//		if((editorInstrument->playMode == playModeGranular) || (editorInstrument->playMode == playModeWavetable))
+//		{
+//			if( (!mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].enable) ||
+//				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].release == 0) ||
+//				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].loop) ||
+//				(!(mtProject.values.allPatternsBitmask[mtProject.values.actualPattern] & 0x01))) //biezacy pattern , zerowy track czy aktywny
+//			{
+//				instrumentPlayer[0].noteOff(Sequencer::STEP_NOTE_CUT);
+//
+//				currentEnvelopeWtPos = editorInstrument->wavetableCurrentWindow;
+//				currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
+//
+//				if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
+//				if(editorInstrument->playMode == playModeWavetable)
+//				{
+//					showWavetablePosition();
+//					processWavetableCursor(currentEnvelopeWtPos);
+//				}
+//
+//				seqReleaseFlag = 0;
+//			}
+//
+//			if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+//			{
+//				instrumentPlayer[0].noteOff(Sequencer::STEP_NOTE_CUT);
+//
+//				currentEnvelopeWtPos = editorInstrument->wavetableCurrentWindow;
+//				currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
+//
+//				if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
+//				if(editorInstrument->playMode == playModeWavetable)
+//				{
+//					showWavetablePosition();
+//					processWavetableCursor(currentEnvelopeWtPos);
+//				}
+//
+//
+//				seqReleaseFlag = 0;
+//			}
+//		}
+//
+//	}
 
-	currentSeqState = sequencer.getSeqState();
-
-
-	if(currentSeqState != lastSeqState)
-	{
-		if(currentSeqState)
-		{
-			currentEnvelopeWtPos = editorInstrument->wavetableCurrentWindow;
-			currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
-
-			if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
-			if(editorInstrument->playMode == playModeWavetable)
-			{
-				showWavetablePosition();
-				processWavetableCursor(currentEnvelopeWtPos);
-			}
-		}
-		else
-		{
-			if(SP->startNoteStoppedSeq) SP->startNoteStoppedSeq = 0;
-			else seqReleaseFlag = 1;
-		}
-	}
-
-
-
-	if(( currentSeqState == Sequencer::SEQ_STATE_STOP) && (!seqReleaseFlag))
-	{
-		currentEnvelopeWtPos = instrumentPlayer[0].getEnvelopeWtPosMod();
-
-		if(currentEnvelopeWtPos != lastEnvelopeWtPos)
-		{
-			refreshSpectrum = 1;
-			refreshWavetablePosition = 1;
-
-			if(editorInstrument->playMode == playModeWavetable) processWavetableCursor(currentEnvelopeWtPos);
-		}
-
-		lastEnvelopeWtPos = currentEnvelopeWtPos;
-
-
-		currentEnvelopeGranPos = instrumentPlayer[0].getEnvelopeGranPosMod();
-
-		if(currentEnvelopeGranPos != lastEnvelopeGranPos)
-		{
-
-			if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
-
-		}
-		lastEnvelopeGranPos = currentEnvelopeGranPos;
-	}
-
-	lastSeqState = currentSeqState;
+//	currentSeqState = sequencer.getSeqState();
+//
+//	if(currentSeqState != lastSeqState)
+//	{
+//		if(currentSeqState)
+//		{
+//			currentEnvelopeWtPos = editorInstrument->wavetableCurrentWindow;
+//			currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
+//
+//			if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
+//			if(editorInstrument->playMode == playModeWavetable)
+//			{
+//				showWavetablePosition();
+//				processWavetableCursor(currentEnvelopeWtPos);
+//			}
+//		}
+//		else
+//		{
+//			if(SP->startNoteStoppedSeq) SP->startNoteStoppedSeq = 0;
+//			else seqReleaseFlag = 1;
+//		}
+//	}
+//
+//	if(( currentSeqState == Sequencer::SEQ_STATE_STOP) && (!seqReleaseFlag))
+//	{
+//		currentEnvelopeWtPos = instrumentPlayer[0].getEnvelopeWtPosMod();
+//
+//		if(currentEnvelopeWtPos != lastEnvelopeWtPos)
+//		{
+//			refreshSpectrum = 1;
+//			refreshWavetablePosition = 1;
+//
+//			if(editorInstrument->playMode == playModeWavetable) processWavetableCursor(currentEnvelopeWtPos);
+//		}
+//
+//		lastEnvelopeWtPos = currentEnvelopeWtPos;
+//
+//
+//		currentEnvelopeGranPos = instrumentPlayer[0].getEnvelopeGranPosMod();
+//
+//		if(currentEnvelopeGranPos != lastEnvelopeGranPos)
+//		{
+//
+//			if(editorInstrument->playMode == playModeGranular) showGranularPositionValue();
+//
+//		}
+//		lastEnvelopeGranPos = currentEnvelopeGranPos;
+//	}
+//
+//	lastSeqState = currentSeqState;
 
 
 	if(refreshSpectrum)
@@ -228,71 +263,71 @@ void cSamplePlayback::update()
 		refreshSpectrumProgress = 0;
 	}
 
-	if(isPlayingWavetable)
-	{
-		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
-		{
-			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
-
-			isPlayingWavetable = 0;
-
-			mtPadBoard.clearVoice(0);
-		}
-		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
-		{
-			instrumentPlayer[0].clearInterfacePlayingEndFlag();
-
-			isPlayingWavetable = 0;
-
-			mtPadBoard.clearVoice(0);
-		}
-	}
-	if(isPlayingSample)
-	{
-		calcPlayProgressValue();
-		if(isPlayingSample)
-		{
-			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice))	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
-		}
-		else
-		{
-			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
-			mtPadBoard.clearVoice(0);
-		}
-		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
-		{
-			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
-
-			playProgressValue=0;
-			playProgressInSpectrum = 0;
-			isPlayingSample = 0;
-			refreshSpectrumProgress = 1;
-			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
-			mtPadBoard.clearVoice(0);
-		}
-		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
-		{
-			instrumentPlayer[0].clearInterfacePlayingEndFlag();
-
-			playProgressValue=0;
-			playProgressInSpectrum = 0;
-			isPlayingSample = 0;
-			refreshSpectrumProgress = 1;
-			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
-			mtPadBoard.clearVoice(0);
-		}
-	}
-	else
-	{
-		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
-		{
-			instrumentPlayer[0].clearInterfacePlayingEndFlag();
-		}
-		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
-		{
-			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
-		}
-	}
+//	if(isPlayingWavetable)
+//	{
+//		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+//		{
+//			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
+//
+//			isPlayingWavetable = 0;
+//
+//			mtPadBoard.clearVoice(0);
+//		}
+//		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+//		{
+//			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+//
+//			isPlayingWavetable = 0;
+//
+//			mtPadBoard.clearVoice(0);
+//		}
+//	}
+//	if(isPlayingSample)
+//	{
+//		calcPlayProgressValue();
+//		if(isPlayingSample)
+//		{
+//			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice))	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+//		}
+//		else
+//		{
+//			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
+//			mtPadBoard.clearVoice(0);
+//		}
+//		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+//		{
+//			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
+//
+//			playProgressValue=0;
+//			playProgressInSpectrum = 0;
+//			isPlayingSample = 0;
+//			refreshSpectrumProgress = 1;
+//			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
+//			mtPadBoard.clearVoice(0);
+//		}
+//		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+//		{
+//			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+//
+//			playProgressValue=0;
+//			playProgressInSpectrum = 0;
+//			isPlayingSample = 0;
+//			refreshSpectrumProgress = 1;
+//			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
+//			mtPadBoard.clearVoice(0);
+//		}
+//	}
+//	else
+//	{
+//		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+//		{
+//			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+//		}
+//		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+//		{
+//			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
+//		}
+//	}
 
 }
 
@@ -567,6 +602,26 @@ void cSamplePlayback::cancelPopups()
 	}
 }
 
+void cSamplePlayback::onEndTrackDisplay()
+{
+	instrumentPlayer[displayedTrack].clearTrackIsDisplayed();
+
+	if(editorInstrument->playMode != playModeWavetable)
+	{
+		playProgressValue = 0;
+		playProgressInSpectrum = 0;
+		refreshSpectrumProgress = 1;
+		if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) hidePreviewValue();
+	}
+	else
+	{
+
+	}
+
+	displayedTrack = -1;
+}
+
+
 void cSamplePlayback::setStopPatternFunction()
 {
 	FM->clearButton(interfaceButton6);
@@ -586,7 +641,6 @@ void cSamplePlayback::clearStopPatternFunction()
 
 	FM->unblockAllInputs();
 }
-//jezeli channel == Sequencer::GRID_OUTSIDE_PATTERN przez note przekazywany jest pad
 void cSamplePlayback::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
 {
 	sequencer.handleNote(channel,
@@ -594,16 +648,24 @@ void cSamplePlayback::noteOnHandle(uint8_t channel, uint8_t note, uint8_t veloci
 						 sequencer.getInstrumentVelo( mtProject.values.lastUsedInstrument),
 						 source);
 
-	//todo: obsluga progresu
+	if(displayedTrack == engine.getLastUsedVoice())
+	{
+		instrumentPlayer[displayedTrack].setTrackIsDisplayed();
+		instrumentPlayer[displayedTrack].clearEndDisplayTrackFlag();
+		// akcja ustawia sie w audio engine - sequencer jej nie clearuje a tu tak - wiec seq gasi progres a druga nuta na tym samym vocie z pada/midi nie
+	}
+	else if(displayedTrack == -1)
+	{
+		displayedTrack = engine.getLastUsedVoice();
+		instrumentPlayer[displayedTrack].setTrackIsDisplayed();
+	}
 }
-//jezeli channel == Sequencer::GRID_OUTSIDE_PATTERN przez note przekazywany jest pad
 void cSamplePlayback::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
 {
 	sequencer.handleNote(channel,
 						 note,
 						 0,
 						 source);
-	//todo: obsluga progresu
 }
 
 
@@ -629,111 +691,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		SP->noteOffHandle(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
 	}
 
-//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-//	{
-////		SP->showStopPatternPopup();
-////		SP->setStopPatternFunction();
-////		return 1;
-//		if(state == buttonPress)
-//		{
-//			padsBacklight.setFrontLayer(1,20, pad);
-//			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-//			sequencer.handleNote(
-//								Sequencer::GRID_OUTSIDE_PATTERN,
-//								noteFromPad,
-//								sequencer.getInstrumentVelo(
-//										mtProject.values.lastUsedInstrument),
-//								pad);
-//		}
-//		else if(state == buttonRelease)
-//		{
-//			padsBacklight.setFrontLayer(0,0, pad);
-//	//		mtPadBoard.stopInstrument(pad);
-//			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-//			sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
-//		}
-//
-//	}
-//	else
-//	{
-//		if(state == buttonPress)
-//		{
-//			//uint8_t note = mtPadBoard.convertPadToNote(pad);
-//			//if(note > 48) note = 48;
-//			//editorInstrument->tune = note;
-//
-//			if(mtPadBoard.getEmptyVoice() < 0) return 1;
-//
-//			if(SP->seqReleaseFlag) SP->seqReleaseFlag = 0;
-//
-//			if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
-//			{
-//
-//				if(mtPadBoard.getEmptyVoice() == 0)
-//				{
-//					SP->refreshPlayProgressValue = 0;
-//					SP->isPlayingSample = 1;
-//				}
-//			}
-//			else
-//			{
-//				if(mtPadBoard.getEmptyVoice() == 0)
-//				{
-//					SP->isPlayingWavetable = 1;
-//				}
-//			}
-//
-//
-//			padsBacklight.setFrontLayer(1,20, pad);
-//	//		if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
-//	//		{
-//	//			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
-//	//
-//	//			SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
-//	//			if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
-//	//
-//	//			SP->showSlicesAdjustValue();
-//	//			SP->showSlicesSelectValue();
-//	//			SP->refreshSlicePoints = 1;
-//	//			if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
-//	//			else if(SP->editorInstrument->playMode == playModeBeatSlice) mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1); //todo: rozkminic jak ma byc
-//	//		}
-//	//		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
-//			mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
-//
-//		}
-//		else if(state == buttonRelease)
-//		{
-//			padsBacklight.setFrontLayer(0,0, pad);
-//	//		if(SP->editorInstrument->playMode == playModeSlice)  mtPadBoard.stopInstrument(pad + 48);
-//	//		else mtPadBoard.stopInstrument(pad);
-//			mtPadBoard.stopInstrument(pad);
-//			if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
-//			{
-//				if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
-//				{
-//					if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
-//					{
-//						SP->playProgressValue=0;
-//						SP->playProgressInSpectrum = 0;
-//						SP->isPlayingSample = 0;
-//						SP->refreshSpectrumProgress = 1;
-//						if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeBeatSlice)) SP->hidePreviewValue();
-//					}
-//				}
-//			}
-//			else
-//			{
-//				if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
-//				{
-//					if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
-//					{
-//						SP->isPlayingWavetable = 0;
-//					}
-//				}
-//			}
-//		}
-//	}
 	return 1;
 }
 
@@ -2259,7 +2216,7 @@ void cSamplePlayback::calcPlayProgressValue()
 //		{
 //			playProgressValue = playPitch * MAX_16BIT*((int32_t)(localLoopPoint2Value - playProgresValueBackwardTim)/(float)localRecTimeValue);
 //		}
-		playProgressValue = instrumentPlayer[0].getWavePosition();
+		playProgressValue = instrumentPlayer[displayedTrack].getWavePosition();
 
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)

@@ -32,6 +32,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	status = playMemPtr->play(instr_idx,note);
+	if(isTrackDisplayed) onEndDisplay = true;
 	envelopeAmpPtr->noteOn();
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
@@ -116,6 +117,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 //*******
 	status = playMemPtr->play(instr_idx,note);
+	if(isTrackDisplayed) onEndDisplay = true;
 //******* start env
 	__enable_irq();
 	AudioInterrupts();
@@ -168,6 +170,8 @@ void playerEngine::noteOffCut()
 	}
 	playMemPtr->stop();
 
+	if(isTrackDisplayed) onEndDisplay = true;
+
 	AudioInterrupts();
 	__enable_irq();
 }
@@ -208,7 +212,7 @@ void playerEngine::noteOffOrdinary()
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 	{
 		playMemPtr->stop();
-
+		if(isTrackDisplayed) onEndDisplay = true;
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 		{
 			if((mtProject.instrument[currentInstrument_idx].envelope[i].enable && mtProject.instrument[currentInstrument_idx].envelope[i].loop)
@@ -225,6 +229,7 @@ void playerEngine::noteOffOrdinary()
 		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 		{
 			playMemPtr->stop();
+			if(isTrackDisplayed) onEndDisplay = true;
 			for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 			{
 				if((mtProject.instrument[currentInstrument_idx].envelope[i].enable && mtProject.instrument[currentInstrument_idx].envelope[i].loop)
