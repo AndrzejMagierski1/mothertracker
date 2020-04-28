@@ -1009,6 +1009,7 @@ void cPatternEditor::refreshEditState()
 		hideEditModeLabels();
 
 		FM->clearButtonsRange(interfaceButton3, interfaceButton7);
+		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 
 		padsBacklight.clearAllPads(0, 1, 0);
 

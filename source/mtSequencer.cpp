@@ -764,10 +764,12 @@ void Sequencer::play_microStep(uint8_t row)
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
 			instrumentPlayer[row].noteOff(STEP_NOTE_CUT);
+			playerRow.noteOpen = 0;
 		}
 		else if (patternStep.note == STEP_NOTE_FADE)
 		{
 			instrumentPlayer[row].noteOff(STEP_NOTE_FADE);
+			playerRow.noteOpen = 0;
 		}
 	}
 
@@ -1138,7 +1140,20 @@ void Sequencer::stop(void)
 		player.track[a].rollIsOn = 0;
 		player.track[a].isActive = 1;
 
-		player.track[a].performanceSourcePattern = -1;
+		if (isPerformanceMode())
+		{
+			if (player.track[a].performanceSourcePattern != -1)
+			{
+				setTrackToLoadOnSwitch(
+						a,
+						player.track[a].performanceSourcePattern);
+				switchPerformanceTrackNow(a);
+			}
+		}
+		else
+		{
+			player.track[a].performanceSourcePattern = -1;
+		}
 	}
 //	player.changeBank = 0;
 
@@ -1889,7 +1904,7 @@ void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 	setPerformancePatternLength(performancePatternLengthValues[val]);
 
 }
-
+// laduje track do bufora i czeka na switch
 void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 {
 	if (!player.performanceMode)

@@ -519,16 +519,18 @@ void cFileManager::importItFile_LoadSamples()
 			instr->sample.length = length;
 			instr->startPoint = 0;
 
-			instr->loopPoint1 = map((float) loopBegin,
-									0,
-									length,
-									0,
-									MAX_16BIT);
-			instr->loopPoint2 = map((float) loopEnd,
-									0,
-									length,
-									0,
-									MAX_16BIT);
+			instr->loopPoint1 = constrain(map(loopBegin,
+												0,
+												length,
+												0,
+												MAX_16BIT),
+											1, MAX_16BIT);
+			instr->loopPoint2 = constrain(map(loopEnd,
+												0,
+												length,
+												0,
+												MAX_16BIT),
+											1, MAX_16BIT);
 
 			instr->endPoint = MAX_16BIT;
 
@@ -551,6 +553,8 @@ void cFileManager::importItFile_LoadSamples()
 				instr->loopPoint1 = 1;
 				instr->loopPoint2 = MAX_16BIT - 1;
 			}
+
+			checkLoopParameters(instr);
 
 			if (debugMod) Serial.printf(
 										"loopPoint1: %d, loopPoint2 %d\n",
