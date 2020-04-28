@@ -496,3 +496,27 @@ void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstru
 
 
 }
+
+void cFileManager::checkLoopParameters(struct strInstrument* instr)
+{
+	if (instr->loopPoint1 >= instr->loopPoint2)
+		instr->loopPoint1 = instr->loopPoint2 - 1;
+
+	if (((instr->loopPoint1 >= instr->endPoint) && (instr->loopPoint2 >= instr->endPoint))
+			|| ((instr->loopPoint1 <= instr->startPoint) && (instr->loopPoint2 <= instr->startPoint))
+			|| ((instr->loopPoint1 <= instr->startPoint) && (instr->loopPoint2 >= instr->endPoint)))
+	{
+		instr->loopPoint1 = instr->startPoint + 1;
+		instr->loopPoint2 = instr->endPoint - 1;
+	}
+	else if ((instr->loopPoint1 >= instr->startPoint) && (instr->loopPoint1 <= instr->endPoint) &&
+			(instr->loopPoint2 >= instr->endPoint))
+	{
+		instr->loopPoint2 = instr->endPoint - 1;
+	}
+	else if ((instr->loopPoint2 >= instr->startPoint) && (instr->loopPoint2 <= instr->endPoint) &&
+			(instr->loopPoint1 <= instr->startPoint))
+	{
+		instr->loopPoint1 = instr->startPoint + 1;
+	}
+}

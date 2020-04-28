@@ -221,6 +221,8 @@ public:
 	char* getCurrentProjectName() { return currentProjectName; }
 	char* getCurrentProjectPath() { return currentProjectPatch; }
 
+	void checkLoopParameters(struct strInstrument* );
+
 private:
 	// na cele zewnetrzne (popupy itp)
 	uint8_t status;
@@ -367,6 +369,7 @@ private:
 
 	void instrumentThrowError();
 	void setDefaultActiveInstrument(struct strInstrument* targetInstrument);
+
 	void getEmptyInstrument(struct strInstrument* source);
 	uint32_t calcWorkspaceInstrumentsSize();
 	uint32_t calcProjectsInstrumentsSize();

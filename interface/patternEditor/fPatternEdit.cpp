@@ -679,35 +679,35 @@ void cPatternEditor::cancelPopups()
 			switch (popup_type)
 			{
 			case stepPopupNote:
-	//			if (!isMultiSelection())
-	//			{
-					//sendSelection();
-					//sequencer.setSelectionNote(mtProject.values.lastUsedNote);
-	//			}
+				if (!isMultiSelection())
+				{
+					sendSelection();
+					sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+				}
 				break;
 			case stepPopupFx:
 				if (!isMultiSelection())
 				{
 					uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-					uint8_t fx_name = interfaceGlobals.fxIdToName(
-							sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
-					if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes)
-					{
+					//uint8_t fx_name = interfaceGlobals.fxIdToName(
+					//		sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
+					//if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes) // tylko jesli na stepie jest juz jakis fx
+					//{
 
 						sendSelection();
 						sequencer.setSelectionFxType(
 								fx_index,
 								interfaceGlobals.fxIDs[mtProject.values.lastUsedFx]);
-					}
+					//}
 				}
 				break;
 			case stepPopupInstr:
-	//			if (!isMultiSelection())
-	//			{
-					//sendSelection();
-					//sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
-	//			}
+				if (!isMultiSelection())
+				{
+					sendSelection();
+					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+				}
 				break;
 
 			default:
@@ -1009,6 +1009,7 @@ void cPatternEditor::refreshEditState()
 		hideEditModeLabels();
 
 		FM->clearButtonsRange(interfaceButton3, interfaceButton7);
+		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 
 		padsBacklight.clearAllPads(0, 1, 0);
 
@@ -2351,15 +2352,16 @@ static uint8_t functDeleteBackspace(uint8_t state)
 			// DELETE
 			else
 			{
-				PTE->dontShowPopupsUntilButtonRelease = 1;	// blokuje ponowne pojawianie sie popupu
+				// wykomentowane bo chyba juz nie aktualne a robi problem
+//				PTE->dontShowPopupsUntilButtonRelease = 1;	// blokuje ponowne pojawianie sie popupu
 															// jesli ciagle wcisniety przycisk popupu
 															// do czasu release note...fx
-				if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
-				{
-					PTE->insertOnPopupHideDisabled = 1;  // dezaktywuje wstawianie danych na wyjecie z popupow
-					PTE->cancelPopups();
-					PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
-				}
+//				if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
+//				{
+//					PTE->insertOnPopupHideDisabled = 1;  // dezaktywuje wstawianie danych na wyjecie z popupow
+//					PTE->cancelPopups();
+//					PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
+//				}
 
 				sendSelection();
 				if (PTE->editParam == 3 )
@@ -3167,7 +3169,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if (state == buttonPress)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(
+			sequencer.handleNoteOn(
 					Sequencer::GRID_INSIDE_PATTERN,
 					noteFromPad,
 					sequencer.getInstrumentVelo(
@@ -3177,7 +3179,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		else if (state == buttonRelease)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(Sequencer::GRID_INSIDE_PATTERN,
+			sequencer.handleNoteOff(Sequencer::GRID_INSIDE_PATTERN,
 									noteFromPad,
 									0,
 									pad);
@@ -3227,17 +3229,21 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				if (state == buttonPress)
 				{
 					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-					sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN,
+					sequencer.handleNoteOn(
+							Sequencer::GRID_OUTSIDE_PATTERN,
 							noteFromPad,
 							sequencer.getInstrumentVelo(
-									mtProject.values.lastUsedInstrument));
+									mtProject.values.lastUsedInstrument),
+							Sequencer::handleNoteSource_irrelevant);
 				}
 				else if (state == buttonRelease)
 				{
 					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-					sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN,
-											noteFromPad,
-											0);
+					sequencer.handleNoteOff(
+							Sequencer::GRID_OUTSIDE_PATTERN,
+							noteFromPad,
+							0,
+							Sequencer::handleNoteSource_irrelevant);
 				}
 			}
 			else
@@ -3262,7 +3268,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				{
 //					sequencer.setSelectionInstrument(pad);
 
-					sequencer.handleNote(
+					sequencer.handleNoteOn(
 							Sequencer::GRID_OUTSIDE_PATTERN,
 							Sequencer::STEP_NOTE_DEFAULT,
 							sequencer.getInstrumentVelo(
@@ -3272,7 +3278,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				else if (state == buttonRelease)
 				{
 
-					sequencer.handleNote(Sequencer::GRID_OUTSIDE_PATTERN,
+					sequencer.handleNoteOff(Sequencer::GRID_OUTSIDE_PATTERN,
 											Sequencer::STEP_NOTE_DEFAULT,
 											0,
 											pad);

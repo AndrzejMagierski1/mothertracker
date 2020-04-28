@@ -488,7 +488,7 @@ void cPatternEditor::showEditModeLabels()
 void cPatternEditor::hideEditModeLabels()
 {
 	display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
-	display.setControlColors(label[4], interfaceGlobals.inactiveLabelsColors);
+//	display.setControlColors(label[4], interfaceGlobals.inactiveLabelsColors);
 	display.setControlColors(label[5], interfaceGlobals.inactiveLabelsColors);
 	display.setControlColors(label[6], interfaceGlobals.inactiveButtonLabelsColors);
 	display.setControlColors(label[7], interfaceGlobals.inactiveLabelsColors);

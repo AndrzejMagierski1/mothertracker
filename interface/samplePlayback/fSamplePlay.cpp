@@ -185,25 +185,7 @@ void cSamplePlayback::start(uint32_t options)
 		if(loadedInstrumentType == mtSampleTypeWaveFile)
 		{
 			//warunki
-			if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - 1;
-
-			if(((editorInstrument->loopPoint1 >= editorInstrument->endPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint))
-					|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->startPoint))
-					|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint)))
-			{
-				editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
-				editorInstrument->loopPoint2 = editorInstrument->endPoint-1;
-			}
-			else if((editorInstrument->loopPoint1 >= editorInstrument->startPoint) && (editorInstrument->loopPoint1 <= editorInstrument->endPoint) &&
-					(editorInstrument->loopPoint2 >= editorInstrument->endPoint))
-			{
-				editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
-			}
-			else if((editorInstrument->loopPoint2 >= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->endPoint) &&
-					(editorInstrument->loopPoint1 <= editorInstrument->startPoint))
-			{
-				editorInstrument->loopPoint1 = editorInstrument->startPoint +1;
-			}
+			newFileManager.checkLoopParameters(editorInstrument);
 			/////////////////////////////////////////////////////////////////////
 
 			// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
