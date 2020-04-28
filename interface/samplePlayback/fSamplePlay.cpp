@@ -471,7 +471,7 @@ void cSamplePlayback::clearStopPatternFunction()
 }
 void cSamplePlayback::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
 {
-	sequencer.handleNote(channel,
+	sequencer.handleNoteOn(channel,
 						 note,
 						 sequencer.getInstrumentVelo( mtProject.values.lastUsedInstrument),
 						 source);
@@ -490,7 +490,7 @@ void cSamplePlayback::noteOnHandle(uint8_t channel, uint8_t note, uint8_t veloci
 }
 void cSamplePlayback::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
 {
-	sequencer.handleNote(channel,
+	sequencer.handleNoteOff(channel,
 						 note,
 						 0,
 						 source);

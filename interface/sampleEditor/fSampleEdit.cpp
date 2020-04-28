@@ -433,6 +433,15 @@ void cSampleEditor::restoreFunctions()
 	else if(screenType == effectParamsScreen) setParamsScreenFunctions();
 }
 
+void cSampleEditor::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
+{
+
+}
+void cSampleEditor::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
+{
+
+}
+
 
 void cSampleEditor::prepareDisplayDataMainScreen()
 {

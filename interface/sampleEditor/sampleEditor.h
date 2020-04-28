@@ -59,6 +59,8 @@ public:
 	void setTooLongSampleFunctions();
 	void setTooLongProcessedSampleFunctions();
 
+	void noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
+	void noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
 //******************* OPERATION FOR GRAPHIC
 	void prepareDisplayDataMainScreen();
 

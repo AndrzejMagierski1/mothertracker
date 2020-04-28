@@ -504,6 +504,15 @@ void cSampleRecorder::listMonitor()
 
 }
 
+void cSampleRecorder::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
+{
+
+}
+void cSampleRecorder::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
+{
+
+}
+
 //==============================================================================================================
 static  uint8_t functSelectButton0()
 {
