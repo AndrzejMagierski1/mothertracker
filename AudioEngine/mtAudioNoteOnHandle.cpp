@@ -539,12 +539,12 @@ void playerEngine::handleFxNoteOnDelaySend()
 {
 	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 		{
-			changeReverbSendPerformanceMode(performanceMod.reverbSend);
+			changeDelaySendPerformanceMode(performanceMod.reverbSend);
 		}
-		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend])
-			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]))
+		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::delaySend])
+			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend]))
 		{
 			modDelaySend(currentSeqModValues.delaySend);
 		}

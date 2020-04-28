@@ -264,7 +264,7 @@ void cSampleRecorder::start(uint32_t options)
 		return;
 	}
 
-	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_ignore);
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_SampleRecorder);
 
 
 	moduleRefresh = 1;

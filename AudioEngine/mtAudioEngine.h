@@ -326,7 +326,7 @@ public:
 		filterCutoff,
 		filterType,
 		filterEnable,
-		reverbSend,
+		delaySend,
 		panning,
 		ampAttack,
 		ampRelease,
@@ -465,7 +465,7 @@ public:
 	void changeVolumePerformanceMode(int8_t value);
 	void changePanningPerformanceMode(int8_t value);
 	void changeTunePerformanceMode(int8_t value);
-	void changeReverbSendPerformanceMode(int8_t value);
+	void changeDelaySendPerformanceMode(int8_t value);
 	void changeStartPointPerformanceMode(int32_t value);
 	void changeEndPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);

@@ -326,12 +326,12 @@ void playerEngine::handleUpdateRefreshReverb()
 
 		uint8_t localReverbSend = 0;
 
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 		{
 			localReverbSend = currentPerformanceValues.delaySend;
 		}
-		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
-				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend])
+		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::delaySend] ||
+				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend])
 		{
 			localReverbSend = currentSeqModValues.delaySend;
 		}

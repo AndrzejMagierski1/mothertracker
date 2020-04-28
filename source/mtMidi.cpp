@@ -66,6 +66,14 @@ void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 			{
 				SP->noteOnHandle(channel, pitch, velocity, pitch + 100);
 			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+
+			}
 		}
 	}
 
@@ -97,6 +105,14 @@ void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
 			{
 				SP->noteOnHandle(channel, pitch, velocity, pitch + 100);
 			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+
+			}
 		}
 	}
 
@@ -122,6 +138,14 @@ void handleJackNoteOff(byte channel, byte pitch, byte velocity)
 			{
 				SP->noteOffHandle(channel, pitch, 0, pitch + 100);
 			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+
+			}
 		}
 	}
 }
@@ -145,6 +169,14 @@ void handleUsbNoteOff(byte channel, byte pitch, byte velocity)
 			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
 			{
 				SP->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+
 			}
 		}
 	}

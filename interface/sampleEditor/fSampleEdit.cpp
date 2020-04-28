@@ -94,8 +94,6 @@ void cSampleEditor::start(uint32_t options)
 		return;
 	}
 
-	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_SamplePlayback);
-
 	engine.blockDelayRefresh();
 	songTimer.hide();
 
@@ -161,6 +159,8 @@ void cSampleEditor::start(uint32_t options)
 	}
 
 	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
+	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_SampleEditor);
 }
 
 void cSampleEditor::update()
