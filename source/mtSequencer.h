@@ -260,6 +260,10 @@ public:
 		GRID_OUTSIDE_PATTERN = 20,
 		GRID_INSIDE_PATTERN = 21
 	};
+	enum enHandleNoteSource
+	{
+		handleNoteSource_irrelevant = -1,
+	};
 
 	struct strSelection
 
@@ -750,8 +754,11 @@ public:
 	void blinkSelectedStep();
 
 	void loadNextPattern(uint8_t patternNumber);
-	void handleNote(byte channel, byte pitch, byte velocity);
-	void handleNote(byte channel, byte pitch, byte velocity, int16_t source);
+//	void handleNote(byte channel, byte pitch, byte velocity);
+//	void handleNote(byte channel, byte pitch, byte velocity, int16_t source);
+	void handleNoteOn(byte channel, byte pitch, byte velocity, int16_t source);
+	void handleNoteOff(byte channel, byte pitch, byte velocity, int16_t source);
+
 	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
