@@ -554,26 +554,7 @@ void cFileManager::importItFile_LoadSamples()
 				instr->loopPoint2 = MAX_16BIT - 1;
 			}
 
-			if (instr->loopPoint1 >= instr->loopPoint2)
-				instr->loopPoint1 = instr->loopPoint2 - 1;
-
-			if (((instr->loopPoint1 >= instr->endPoint) && (instr->loopPoint2 >= instr->endPoint))
-					|| ((instr->loopPoint1 <= instr->startPoint) && (instr->loopPoint2 <= instr->startPoint))
-					|| ((instr->loopPoint1 <= instr->startPoint) && (instr->loopPoint2 >= instr->endPoint)))
-			{
-				instr->loopPoint1 = instr->startPoint + 1;
-				instr->loopPoint2 = instr->endPoint - 1;
-			}
-			else if ((instr->loopPoint1 >= instr->startPoint) && (instr->loopPoint1 <= instr->endPoint) &&
-					(instr->loopPoint2 >= instr->endPoint))
-			{
-				instr->loopPoint2 = instr->endPoint - 1;
-			}
-			else if ((instr->loopPoint2 >= instr->startPoint) && (instr->loopPoint2 <= instr->endPoint) &&
-					(instr->loopPoint1 <= instr->startPoint))
-			{
-				instr->loopPoint1 = instr->startPoint + 1;
-			}
+			checkLoopParameters(instr);
 
 			if (debugMod) Serial.printf(
 										"loopPoint1: %d, loopPoint2 %d\n",
