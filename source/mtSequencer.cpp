@@ -341,7 +341,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 		}
 	}
-	if (playerRow.noteOpen && playerRow.noteSource != -1)
+	if (playerRow.noteOpen && playerRow.noteSource == -1)
 	{
 		playerRow.noteTimer++;
 
@@ -1862,6 +1862,7 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 				instrumentPlayer[tr].noteOff();
 				player.track[tr].noteOpen = 0;
 				player.track[tr].recOpen = 0;
+				player.track[tr].noteSource = -1;
 				//					Serial.printf("\tnoteOFF tr %d\n", tr);
 				break;
 			}
