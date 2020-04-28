@@ -92,7 +92,7 @@ cPerformFx highPassPerfFx(mtPerfHighPass, "High-Pass cutoff", highPassSet, filte
 cPerformFx bandPassPerfFx(mtPerfBandPass, "Band-pass cutoff", bandPassSet, filterClear, &bandPassSetup);
 
 //########## DELAY ########################################################################
-void delaySet(uint8_t track, int16_t value) { instrumentPlayer[track].changeReverbSendPerformanceMode(value); }
+void delaySet(uint8_t track, int16_t value) { instrumentPlayer[track].changeDelaySendPerformanceMode(value); }
 void delayClear(uint8_t track) { instrumentPlayer[track].endReverbSendPerformanceMode(); }
 const fxSetup delaySetup = {-100, 100, nullptr};
 
