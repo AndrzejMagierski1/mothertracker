@@ -341,7 +341,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 		}
 	}
-	if (playerRow.noteOpen)
+	if (playerRow.noteOpen && playerRow.noteSource != -1)
 	{
 		playerRow.noteTimer++;
 
@@ -1675,11 +1675,12 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	newFileManager.loadWorkspacePattern(patternNumber);
 }
 // handleNote dla sytuacji gdzie nr pada jest nieistotny
-void Sequencer::handleNote(byte channel, byte note, byte velocity)
-{
-	handleNote(channel, note, velocity, -1);
-}
-void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
+//void Sequencer::handleNote(byte channel, byte note, byte velocity)
+//{
+//	handleNote(channel, note, velocity, handleNoteSource_irrelevant);
+//}
+
+void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
 		byte note,
 		byte velocity,
 		int16_t source) // nr pada, jesli midi to source = nuta+100,
@@ -1687,182 +1688,209 @@ void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
-// NOTE ON
-	if (velocity != 0)
+	if (isEditMode() && channel != GRID_OUTSIDE_PATTERN)
 	{
-		if (isEditMode() && channel != GRID_OUTSIDE_PATTERN)
+		newFileManager.setPatternStructChanged(
+												mtProject.values.actualPattern);
+
+		strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
+		if (!isMultiSelection())
 		{
-			newFileManager.setPatternStructChanged(
-					mtProject.values.actualPattern);
 
-			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
-			if (!isMultiSelection())
+			if (step->note == STEP_NOTE_EMPTY)
 			{
+				step->instrument = mtProject.values.lastUsedInstrument;
+			}
+			step->note = note;
+		}
 
-				if (step->note == STEP_NOTE_EMPTY)
+		instrumentPlayer[sel->firstTrack].noteOff();
+		instrumentPlayer[sel->firstTrack].noteOn(
+				mtProject.values.lastUsedInstrument,
+				note,
+				map(velocity, 0, 127, 0, 100),
+				0,
+				0, 0, 0); //magiczne zera
+		engine.setLastUsedVoice(sel->firstTrack);
+	}
+	else if (isRec())
+	{
+		newFileManager.setPatternStructChanged(
+												mtProject.values.actualPattern);
+
+		for (uint8_t tr = getActualTrack(); tr < 8; tr++)
+		{
+			strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
+			if (step->note == STEP_NOTE_EMPTY &&
+					step->fx[0].type == 0 &&
+					step->fx[1].type == 0 &&
+					(source < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
+			{
+				step->note = note;
+				if (source < 0)
 				{
 					step->instrument = mtProject.values.lastUsedInstrument;
 				}
-				step->note = note;
-			}
-
-			instrumentPlayer[sel->firstTrack].noteOff();
-			instrumentPlayer[sel->firstTrack].noteOn(
-					mtProject.values.lastUsedInstrument,
-					note,
-					map(velocity, 0, 127, 0, 100),
-					0,
-					0, 0, 0); //magiczne zera
-			engine.setLastUsedVoice(sel->firstTrack);
-		}
-		else if (isRec())
-		{
-			newFileManager.setPatternStructChanged(
-					mtProject.values.actualPattern);
-
-			for (uint8_t tr = getActualTrack(); tr < 8; tr++)
-			{
-				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
-				if (step->note == STEP_NOTE_EMPTY &&
-						step->fx[0].type == 0 &&
-						step->fx[1].type == 0 &&
-						(source < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
+				else
 				{
-					step->note = note;
-					if (source < 0)
+					step->instrument = source;
+				}
+
+				player.track[tr].stepSent.note = note;
+				player.track[tr].noteOpen = 1;
+				player.track[tr].recOpen = 1;
+
+				instrumentPlayer[tr].noteOff();
+				instrumentPlayer[tr].noteOn(
+											step->instrument,
+											step->note,
+											map(velocity, 0, 127, 0, 100),
+											0, 0, 0, 0); //magiczne zera
+
+				engine.setLastUsedVoice(tr);
+				if (mtConfig.general.recQuantization)
+				{
+					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
+					step->fx[0].value = map(player.uStep + 1, 1, 48, 0,
+											100);
+				}
+				break;
+			}
+		}
+	}
+	else // czyli playMode
+	{
+		for (uint8_t tr = sel->firstTrack; tr < 8; tr++)
+		{
+			if (!player.track[tr].noteOpen)
+			{
+
+				//					player.track[tr].stepSent.note = note;
+				player.track[tr].noteOpen = 1;
+				player.track[tr].noteLength = 9999;
+				player.track[tr].recOpen = note;
+				player.track[tr].noteSource = source;
+
+				instrumentPlayer[tr].noteOff();
+				instrumentPlayer[tr].noteOn(
+											mtProject.values.lastUsedInstrument,
+											note,
+											map(velocity, 0, 127, 0, 100),
+											0,
+											0,
+											0, 0); //magiczne zera
+
+				engine.setLastUsedVoice(tr);
+
+				//					Serial.printf("noteON tr %d\n", tr);
+				break;
+			}
+		}
+	}
+
+}
+void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
+		byte note,
+		byte velocity,
+		int16_t source) // nr pada, jesli midi to source = nuta+100,
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	if (isEditMode() && channel != GRID_OUTSIDE_PATTERN)
+	{
+		if (!isMultiSelection())
+		{
+			instrumentPlayer[sel->firstTrack].noteOff();
+		}
+	}
+	else if (isRec())
+	{
+		newFileManager.setPatternStructChanged(
+												mtProject.values.actualPattern);
+
+		for (uint8_t tr = 0; tr < 8; tr++)
+		{
+			if (player.track[tr].noteOpen
+					&& player.track[tr].stepSent.note == note
+					&& player.track[tr].recOpen)
+			{
+				instrumentPlayer[tr].noteOff();
+				player.track[tr].noteOpen = 0;
+				player.track[tr].recOpen = 0;
+
+				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
+
+				if (source < 0) // tylko wtedy dajemy offy
+				{
+					if (step->note == STEP_NOTE_EMPTY)
 					{
-						step->instrument = mtProject.values.lastUsedInstrument;
+						step->note = STEP_NOTE_OFF;
+						if (mtConfig.general.recQuantization)
+						{
+							step->fx[0].type = fx.FX_TYPE_MICROMOVE;
+							step->fx[0].value = map(player.uStep, 1, 48, 0,
+													100);
+						}
 					}
 					else
 					{
-						step->instrument = source;
-					}
-
-					player.track[tr].stepSent.note = note;
-					player.track[tr].noteOpen = 1;
-					player.track[tr].recOpen = 1;
-
-					instrumentPlayer[tr].noteOff();
-					instrumentPlayer[tr].noteOn(
-												step->instrument,
-												step->note,
-												map(velocity, 0, 127, 0, 100),
-												0, 0, 0, 0); //magiczne zera
-
-					engine.setLastUsedVoice(tr);
-					if (mtConfig.general.recQuantization)
-					{
-						step->fx[0].type = fx.FX_TYPE_MICROMOVE;
-						step->fx[0].value = map(player.uStep + 1, 1, 48, 0,
-												100);
-					}
-					break;
-				}
-			}
-		}
-		else // czyli playMode
-		{
-			for (uint8_t tr = sel->firstTrack; tr < 8; tr++)
-			{
-				if (!player.track[tr].noteOpen)
-				{
-
-//					player.track[tr].stepSent.note = note;
-					player.track[tr].noteOpen = 1;
-					player.track[tr].noteLength = 9999;
-					player.track[tr].recOpen = note;
-					player.track[tr].noteSource = source;
-
-					instrumentPlayer[tr].noteOff();
-					instrumentPlayer[tr].noteOn(
-							mtProject.values.lastUsedInstrument,
-							note,
-							map(velocity, 0, 127, 0, 100),
-							0,
-							0, 0, 0); //magiczne zera
-
-					engine.setLastUsedVoice(tr);
-
-//					Serial.printf("noteON tr %d\n", tr);
-					break;
-				}
-			}
-		}
-	}
-	else // czyli noteOff
-	{
-		if (isEditMode() && channel != GRID_OUTSIDE_PATTERN)
-		{
-			if (!isMultiSelection())
-			{
-				instrumentPlayer[sel->firstTrack].noteOff();
-			}
-		}
-		else if (isRec())
-		{
-			newFileManager.setPatternStructChanged(
-					mtProject.values.actualPattern);
-
-			for (uint8_t tr = 0; tr < 8; tr++)
-			{
-				if (player.track[tr].noteOpen
-						&& player.track[tr].stepSent.note == note
-						&& player.track[tr].recOpen)
-				{
-					instrumentPlayer[tr].noteOff();
-					player.track[tr].noteOpen = 0;
-					player.track[tr].recOpen = 0;
-
-					strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
-
-					if (source < 0) // tylko wtedy dajemy offy
-					{
-						if (step->note == STEP_NOTE_EMPTY)
+						if (player.track[0].actual_pos < getActualPattern()->track[0].length)
 						{
+							step = &getActualPattern()->track[tr].step[player.track[0].actual_pos + 1];
 							step->note = STEP_NOTE_OFF;
-							if (mtConfig.general.recQuantization)
-							{
-								step->fx[0].type = fx.FX_TYPE_MICROMOVE;
-								step->fx[0].value = map(player.uStep, 1, 48, 0,
-														100);
-							}
 						}
 						else
 						{
-							if (player.track[0].actual_pos < getActualPattern()->track[0].length)
-							{
-								step = &getActualPattern()->track[tr].step[player.track[0].actual_pos + 1];
-								step->note = STEP_NOTE_OFF;
-							}
-							else
-							{
-								step = &getActualPattern()->track[tr].step[0];
-								step->note = STEP_NOTE_OFF;
-							}
+							step = &getActualPattern()->track[tr].step[0];
+							step->note = STEP_NOTE_OFF;
 						}
 					}
-					break;
 				}
-			}
-		}
-		else // czyli playMode
-		{
-			for (uint8_t tr = 0; tr < 8; tr++)
-			{
-				if (player.track[tr].noteOpen
-						&& player.track[tr].recOpen
-						&& player.track[tr].noteSource == source)
-				{
-					instrumentPlayer[tr].noteOff();
-					player.track[tr].noteOpen = 0;
-					player.track[tr].recOpen = 0;
-//					Serial.printf("\tnoteOFF tr %d\n", tr);
-					break;
-				}
+				break;
 			}
 		}
 	}
+	else // czyli playMode
+	{
+		for (uint8_t tr = 0; tr < 8; tr++)
+		{
+			if (player.track[tr].noteOpen
+					&& player.track[tr].recOpen
+					&& player.track[tr].noteSource == source)
+			{
+				instrumentPlayer[tr].noteOff();
+				player.track[tr].noteOpen = 0;
+				player.track[tr].recOpen = 0;
+				//					Serial.printf("\tnoteOFF tr %d\n", tr);
+				break;
+			}
+		}
+	}
+
 }
+//void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
+//		byte note,
+//		byte velocity,
+//		int16_t source) // nr pada, jesli midi to source = nuta+100,
+//{
+//
+//	if (velocity > 0)
+//	{
+//		handleNoteOn(channel,
+//						note,
+//						velocity,
+//						source);
+//	}
+//	else
+//	{
+//		handleNoteOff(channel,
+//						note,
+//						velocity,
+//						source);
+//	}
+//
+//}
 
 void Sequencer::cancelFxes()
 {
