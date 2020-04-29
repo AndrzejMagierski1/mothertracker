@@ -219,7 +219,7 @@ private:
   elapsedMillis holdTim[BUTTON_MAX];
   uint8_t holdFactor[BUTTON_MAX] = {0};
   static const uint8_t holdTimeStepsCount = 6;
-  uint16_t holdTimeStep[holdTimeStepsCount] = {50,50,50,50,100,120}; // kolejne wartosci skracajace czas do kolejnej akcji holda
+  uint16_t holdTimeStep[holdTimeStepsCount] = {0,100,200,250,300,320}; // kolejne wartosci skracajace czas do kolejnej akcji holda
 
 protected:
  
@@ -251,7 +251,7 @@ private:
   
  uint8_t* convertTable = (uint8_t*)defaultConvert;
 
- uint16_t HOLD_TIME = 200;
+ uint16_t HOLD_TIME = 400;
 
  };
 
