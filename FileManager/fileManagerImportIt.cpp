@@ -145,6 +145,8 @@ void cFileManager::importItFile_ProcessHeader()
 		{
 			Serial.println(PHiligt);
 			Serial.printf("OrdNum = %d\n", OrdNum);
+			Serial.print("Flags: ");
+			Serial.println(Flags, BIN);
 			Serial.printf("InsNum = %d\n", InsNum);
 			Serial.printf("SmpNum = %d\n", SmpNum);
 			Serial.printf("PatNum = %d\n", PatNum);
@@ -367,11 +369,22 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	if (debugMod)
 	{
-		Serial.printf("Instrument: %d, NoS: %d, smp no: %d, GbV %d\n",
+		Serial.printf("Instrument: %d,\nNoS: %d, smp no: %d, GbV %d\nNNA: %d, DCT: %d, DCA: %d, Fade: %d, PPS: %d, PPC: %d, DfP: %d, RV: %d, RP: %d, ver: %d, \n",
 						processedInstrument,
 						getFileVariable(fileOffset, 0x1e, 1),
 						sampleNumber,
-						GbV);
+						GbV,
+						getFileVariable(fileOffset, 0x11, 1),//nna
+						getFileVariable(fileOffset, 0x12, 1),//dct
+						getFileVariable(fileOffset, 0x13, 1),//dca
+						getFileVariable(fileOffset, 0x14, 2),//fade
+						getFileVariable(fileOffset, 0x16, 1),//pps
+						getFileVariable(fileOffset, 0x17, 1),//ppc
+						getFileVariable(fileOffset, 0x19, 1),//dfp
+						getFileVariable(fileOffset, 0x1a, 1),//rv
+						getFileVariable(fileOffset, 0x1b, 1),//rp
+						getFileVariable(fileOffset, 0x1c, 2)//ver
+										);
 	}
 
 	// pobieranie nazwy

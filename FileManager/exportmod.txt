@@ -1,0 +1,79 @@
+        0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+      ┌───────┬───────┬───┬───┬───┬───┬───────────────────────────────┐
+0000: │Length │ Rows  │ x │ x │ x │ x │ Packed data................   │
+      ├───┬───┼───┬───┼───┼───┼───┼───┼───┬───┬───┬───┬───┬───┬───┬───┤
+
+      Length:   Length of packed pattern, not including the 8 byte header
+                Note that the pattern + the 8 byte header will ALWAYS
+                be less than 64k
+      Rows:     Number of rows in this pattern (Ranges from 32->200)
+
+      Patterns are unpacked by the following pseudocode... (this may look
+      horrible, but in practise, it's just as convenient as the S3M
+      pattern format for playback (but not for display))
+
+      GetNextChannelMarker:
+        Read byte into channelvariable.
+        if(channelvariable = 0) then end of row
+        Channel = (channelvariable-1) & 63              ; Channel is 0 based.
+        if(channelvariable & 128) then read byte into maskvariable
+          else maskvariable = previousmaskvariable for current channel
+
+        if(maskvariable & 1), then read note. (byte value)
+                // Note ranges from 0->119 (C-0 -> B-9)
+                // 255 = note off, 254 = notecut
+                // Others = note fade (already programmed into IT's player
+                //                     but not available in the editor)
+
+        if(maskvariable & 2), then read instrument (byte value)
+                // Instrument ranges from 1->99
+
+        if(maskvariable & 4), then read volume/panning (byte value)
+                // Volume ranges from 0->64
+                // Panning ranges from 0->64, mapped onto 128->192
+                // Prepare for the following also:
+                //  65->74 = Fine volume up
+                //  75->84 = Fine volume down
+                //  85->94 = Volume slide up
+                //  95->104 = Volume slide down
+                //  105->114 = Pitch Slide down
+                //  115->124 = Pitch Slide up
+                //  193->202 = Portamento to
+                //  203->212 = Vibrato
+
+        Effects 65 is equivalent to D0F, 66 is equivalent to D1F -> 74 = D9F
+        Similarly for 75-84 (DFx), 85-94 (Dx0), 95->104 (D0x).
+
+        (Fine) Volume up/down all share the same memory (NOT shared with Dxx
+        in the effect column tho).
+
+        Pitch slide up/down affect E/F/(G)'s memory - a Pitch slide
+        up/down of x is equivalent to a normal slide by x*4
+
+        Portamento to (Gx) affects the memory for Gxx and has the equivalent
+        slide given by this table:
+
+        SlideTable      DB      1, 4, 8, 16, 32, 64, 96, 128, 255
+
+        Vibrato uses the same 'memory' as Hxx/Uxx.
+
+        if(maskvariable & 8), then read command (byte value) and commandvalue
+                // Valid ranges from 0->31 (0=no effect, 1=A, 2=B, 3=C, etc.)
+
+        if(maskvariable & 16), then note = lastnote for channel
+        if(maskvariable & 32), then instrument = lastinstrument for channel
+        if(maskvariable & 64), then volume/pan = lastvolume/pan for channel
+        if(maskvariable & 128), then {
+                command = lastcommand for channel and
+                commandvalue = lastcommandvalue for channel
+        }
+        Goto GetNextChannelMarker
+        
+        
+        uint32_t endOfFile = exportedFile.size();
+	exportedFile.seek(0x00C0 + expOrdNum + expInst * 4);
+	uint8_t buff[4];
+	writeLE(buff, endOfFile, 4);
+	exportedFile.write(buff, 4);
+
+	exportedFile.seek(endOfFile);

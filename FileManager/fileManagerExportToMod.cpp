@@ -166,12 +166,12 @@ void cFileManager::exportItFile_InitHeader()
 	ptr = writeLE(ptr, Flags, 2);
 	ptr = writeLE(ptr, Special, 2);
 
-	ptr = writeLE(ptr, GV, 2);
-	ptr = writeLE(ptr, MV, 2);
-	ptr = writeLE(ptr, IS, 2);
-	ptr = writeLE(ptr, IT, 2);
-	ptr = writeLE(ptr, Sep, 2);
-	ptr = writeLE(ptr, PWD, 2);
+	ptr = writeLE(ptr, GV, 1);
+	ptr = writeLE(ptr, MV, 1);
+	ptr = writeLE(ptr, IS, 1);
+	ptr = writeLE(ptr, IT, 1);
+	ptr = writeLE(ptr, Sep, 1);
+	ptr = writeLE(ptr, PWD, 1);
 	ptr = writeLE(ptr, MsgLgth, 2);
 	ptr = writeLE(ptr, MsgOffset, 2);
 
@@ -296,16 +296,16 @@ void cFileManager::exportItFile_ProcessInstruments()
 	uint8_t *ptr = &buff0x20[0x10];
 	ptr = writeLE(ptr, 0, 1);	//00h
 	ptr = writeLE(ptr, 2, 1);	//NNA
-	ptr = writeLE(ptr, 3, 1);	//DCT
+	ptr = writeLE(ptr, 0, 1);	//DCT
 	ptr = writeLE(ptr, 0, 1);	//DCA
-	ptr = writeLE(ptr, 0, 2);	//FadeOut
+	ptr = writeLE(ptr, 250, 2);	//FadeOut
 	ptr = writeLE(ptr, 0, 1);	//PPS
-	ptr = writeLE(ptr, 0, 1);//        PPC: Pitch-Pan center: C-0 to B-9 represented as 0->119 inclusive
+	ptr = writeLE(ptr, 60, 1);//        PPC: Pitch-Pan center: C-0 to B-9 represented as 0->119 inclusive
 	ptr = writeLE(ptr, 128, 1);	//     GbV: Global Volume, 0->128
-	ptr = writeLE(ptr, 0, 1);//        DfP: Default Pan, 0->64, &128 => Don't use
-	ptr = writeLE(ptr, 0, 1);//        RV: Random volume variation (percentage)
-	ptr = writeLE(ptr, 0, 1);//        RP: Random panning variation (panning change - not implemented yet)
-	ptr = writeLE(ptr, 0, 2);	//TrkVers
+	ptr = writeLE(ptr, 32, 1);//        DfP: Default Pan, 0->64, &128 => Don't use
+	ptr = writeLE(ptr, 26, 1);//        RV: Random volume variation (percentage)
+	ptr = writeLE(ptr, 21, 1);//        RP: Random panning variation (panning change - not implemented yet)
+	ptr = writeLE(ptr, 529, 2);	//TrkVers
 	ptr = writeLE(ptr, 1, 1);	//NoS
 	ptr = writeLE(ptr, 0, 1);	//x
 
@@ -370,7 +370,7 @@ void cFileManager::exportItFile_ProcessSamples()
 	uint8_t instrVolume = map(instr->volume, 0, 100, 0, 64);
 
 	uint8_t Flg =
-			(0 << 0) |	// Bit 0. On = sample associated with header.
+			(1 << 0) |	// Bit 0. On = sample associated with header.
 			(1 << 1) |	// Bit 1. On = 16 bit, Off = 8 bit.
 			(0 << 2) |	// Bit 2. On = stereo, Off = mono. Stereo samples not supported yet
 			(0 << 3) |	// Bit 3. On = compressed samples.
@@ -385,8 +385,12 @@ void cFileManager::exportItFile_ProcessSamples()
 	ptr = writeLE(ptr, Flg, 1);	//Flg
 	ptr = writeLE(ptr, instrVolume, 1);	//Vol
 
+
 	sprintf((char*) ptr, "%.25s",
 			instr->sample.file_name);
+
+	ptr = &buff0x50[0x2e];
+	ptr = writeLE(ptr, 0b00000001, 1);	//cvt
 
 	ptr = &buff0x50[0x30];
 	ptr = writeLE(ptr, instr->sample.length, 4);	//	Length
@@ -505,7 +509,7 @@ void cFileManager::exportItFile_ProcessPatterns()
 				channelvariable = (tr + 1) & 0b00111111;
 
 				// ustawiamy flage ze kolejny bajt to maskvariable
-				channelvariable |= 0b01000000;
+				channelvariable |= 0b10000000;
 
 				exportedFile.write(channelvariable);
 				length++;
@@ -533,7 +537,7 @@ void cFileManager::exportItFile_ProcessPatterns()
 				length++;
 
 				uint8_t instrumentToWrite = 0;
-				instrumentToWrite = step->instrument;
+				instrumentToWrite = step->instrument+1;
 				exportedFile.write(instrumentToWrite);
 				length++;
 
