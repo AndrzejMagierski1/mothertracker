@@ -195,6 +195,7 @@ public:
 
 	wt_position_data_t wtPosition;
 
+	strLineIndicatorSelection lineIndicatorSelection;
 
 //----------------------------------
 // aktualny instrument na belce tytułowej
