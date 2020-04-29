@@ -127,7 +127,7 @@ const char* const ptrRecQuantization[2] =
 		&onOffStateTexts[1][0],
 };
 
-const char performanceSourceTexts[2][9] =
+const char performanceSourceTexts[2][12] =
 {
 		"Global",
 		"Per Project",
