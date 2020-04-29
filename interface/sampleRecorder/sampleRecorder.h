@@ -120,6 +120,9 @@ public:
 	void displayEmptyRDS();
 	void hideRDS();
 
+	void noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
+	void noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
+
 	strFrameData frameData;
 	strSelectWindowData selectWindowData;
 

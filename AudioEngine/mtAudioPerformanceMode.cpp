@@ -53,22 +53,22 @@ void playerEngine ::changeTunePerformanceMode(int8_t value)
 
 	playMemPtr->setTune(currentPerformanceValues.tune,currentNote);
 }
-void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
+void playerEngine ::changeDelaySendPerformanceMode(int8_t value)
 {
-	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] != 1) && (value == 0)) return;
+	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] != 1) && (value == 0)) return;
 	performanceMod.reverbSend = value;
 
-	uint8_t reverbSend;
+	uint8_t delaySend;
 
-	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
-	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]	) reverbSend = currentSeqModValues.delaySend;
-	else reverbSend = mtProject.instrument[currentInstrument_idx].delaySend;
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::delaySend] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend]	) delaySend = currentSeqModValues.delaySend;
+	else delaySend = mtProject.instrument[currentInstrument_idx].delaySend;
 
-	if(reverbSend + value > REVERB_SEND_MAX) currentPerformanceValues.delaySend = REVERB_SEND_MAX;
-	else if(reverbSend + value < REVERB_SEND_MIN) currentPerformanceValues.delaySend = REVERB_SEND_MIN;
-	else currentPerformanceValues.delaySend = reverbSend + value;
+	if(delaySend + value > REVERB_SEND_MAX) currentPerformanceValues.delaySend = REVERB_SEND_MAX;
+	else if(delaySend + value < REVERB_SEND_MIN) currentPerformanceValues.delaySend = REVERB_SEND_MIN;
+	else currentPerformanceValues.delaySend = delaySend + value;
 
-	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 1;
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] = 1;
 
 	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
@@ -545,11 +545,11 @@ void playerEngine::endReverbSendPerformanceMode()
 {
 	uint8_t delaySend;
 
-	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
-	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]) delaySend = currentSeqModValues.delaySend;
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::delaySend] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend]) delaySend = currentSeqModValues.delaySend;
 	else delaySend = mtProject.instrument[currentInstrument_idx].delaySend;
 
-	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 0;
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] = 0;
 
 	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel])) modDelaySend(delaySend);
 }

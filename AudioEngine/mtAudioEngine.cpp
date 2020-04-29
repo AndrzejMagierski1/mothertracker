@@ -873,6 +873,26 @@ void playerEngine ::clearInterfacePlayingEndFlag()
 	interfacePlayingEndFlag = 0;
 }
 
+void playerEngine::setTrackIsDisplayed()
+{
+	isTrackDisplayed = true;
+}
+void playerEngine::clearTrackIsDisplayed()
+{
+	isTrackDisplayed = false;
+}
+bool playerEngine::getEndDisplayTrackFlag()
+{
+	return onEndDisplay;
+}
+void playerEngine::clearEndDisplayTrackFlag()
+{
+	onEndDisplay = false;
+}
+
+
+
+
 uint16_t playerEngine ::getWavePosition()
 {
 	return playMemPtr->getPosition();
@@ -986,7 +1006,9 @@ uint32_t playerEngine::getEnvelopeWtPosMod()
 
 		if( (int)(localWTPos + localWTMod) >  (int)(mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1))
 		{
-			localWTPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+			localWTPos = ( (int)(mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1) >= 0) ?
+								 mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1:
+								 0;
 		}
 		else if( (int)(localWTPos + localWTMod) < 0 )
 		{

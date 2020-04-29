@@ -51,18 +51,14 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 	else instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(12), velocity);
 }
 
-void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
+void cMtPadBoard::startInstrument(uint8_t note, int16_t * addres, uint32_t length, int16_t source)
 {
 	int8_t voiceToTake = getEmptyVoice();
 	if(voiceToTake < 0) return;
 
-	voices[voiceToTake] = pad;
+	voices[voiceToTake] = source;
 
-	//mtPrint("start: ");
-	//mtPrintln(voiceToTake);
-
-	if(pad < 48) instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad), mtSampleTypeWaveFile);
-	else instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(12), mtSampleTypeWaveFile);
+	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, note, mtSampleTypeWaveFile);
 }
 
 int8_t cMtPadBoard::getEmptyVoice()
@@ -74,20 +70,20 @@ int8_t cMtPadBoard::getEmptyVoice()
 	return -1;
 }
 
-int8_t cMtPadBoard::getVoiceTakenByPad(uint8_t pad)
+int8_t cMtPadBoard::getVoiceTakenByPad(int16_t source)
 {
 	for(uint8_t i = 0; i < voicesCount; i++)
 	{
-		if(voices[i] == pad) return i;
+		if(voices[i] == source) return i;
 	}
 	return -1;
 }
 
 
 
-void cMtPadBoard::stopInstrument(uint8_t pad)
+void cMtPadBoard::stopInstrument(int16_t source)
 {
-	int8_t voiceToClear = getVoiceTakenByPad(pad);
+	int8_t voiceToClear = getVoiceTakenByPad(source);
 	if(voiceToClear < 0) return;
 	voices[voiceToClear] = -1;
 	//mtPrint("stop: ");
