@@ -198,10 +198,17 @@ void cFileManager::exportItFile_InitHeader()
 	}
 	exportedFile.write(buff64, sizeof(buff64));
 
-	// 0x60  orders
+	// 0x60  orders/song
 	for (uint16_t a = 0; a < expOrdNum; a++)
 	{
-		exportedFile.write(0);
+		if (mtProject.song.playlist[a] > 0)
+		{
+			exportedFile.write(mtProject.song.playlist[a] - 1);
+		}
+		else
+		{
+			exportedFile.write(255);
+		}
 	}
 
 	// instruments
@@ -519,6 +526,9 @@ void cFileManager::exportItFile_ProcessPatterns()
 			if (step->note != Sequencer::STEP_NOTE_EMPTY)
 			{
 				uint8_t channelvariable = 0;
+				uint8_t noteToWrite = 0;
+				uint8_t instrumentToWrite = 0;
+				uint8_t volPanToWrite = 0;
 
 				//ustawiam channel
 				channelvariable = (tr + 1) & 0b00111111;
@@ -529,15 +539,32 @@ void cFileManager::exportItFile_ProcessPatterns()
 				exportedFile.write(channelvariable);
 				length++;
 
+				/*
+				 * MASKA
+				 */
 				// maska mowi co maja kolejne bajty
 				uint8_t maskvariable = 0;
 				maskvariable |= 1; // note w kolejnym bajcie
 				maskvariable |= 2; // instr w kolejnym bajcie
+
+				if (step->fx[0].type == sequencer.fx.FX_TYPE_VELOCITY)
+				{
+					maskvariable |= 4; // vol/pan w kolejnym bajcie
+					volPanToWrite = map(step->fx[0].value, 0, 100, 0, 64);
+				}
+				else if (step->fx[1].type == sequencer.fx.FX_TYPE_VELOCITY)
+				{
+					maskvariable |= 4; // vol/pan w kolejnym bajcie
+					volPanToWrite = map(step->fx[1].value, 0, 100, 0, 64);
+				}
 				exportedFile.write(maskvariable);
 				length++;
 
+				/*
+				 * pozostale po masce
+				 */
+
 				// nuta
-				uint8_t noteToWrite = 0;
 				if (step->note >= 0) noteToWrite = step->note;
 				else if (step->note == Sequencer::STEP_NOTE_OFF)
 				{
@@ -551,10 +578,15 @@ void cFileManager::exportItFile_ProcessPatterns()
 				exportedFile.write(noteToWrite);
 				length++;
 
-				uint8_t instrumentToWrite = 0;
 				instrumentToWrite = step->instrument + 1;
 				exportedFile.write(instrumentToWrite);
 				length++;
+
+				if (maskvariable & 4)
+				{
+					exportedFile.write(volPanToWrite);
+					length++;
+				}
 
 			}
 

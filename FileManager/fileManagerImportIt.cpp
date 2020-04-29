@@ -883,7 +883,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 	uint8_t maskvariable = 0;
 	uint8_t note = 0;
 	uint8_t instrument = 0;
-	uint8_t volume = 0;
+	int16_t volume = -1;
 	uint8_t command = 0;
 	uint8_t commandValue = 0;
 	uint8_t row = 0;
@@ -976,7 +976,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 									0,
 									0);
 
-			volume = 0;
+			volume = -1;
 
 		}
 
@@ -991,7 +991,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 void cFileManager::importItFile_setStep(uint8_t step,
 										uint8_t track,
 										uint8_t note,
-										uint8_t volume,
+										int16_t volume,
 										uint8_t instrument,
 										uint8_t fx,
 										uint8_t fxVal)
@@ -1008,7 +1008,7 @@ void cFileManager::importItFile_setStep(uint8_t step,
 	pattStep->instrument = instrument - 1;
 
 	// Volume ranges from 0->64
-	if (volume > 0 && volume <= 64)
+	if (volume >= 0 && volume <= 64)
 	{
 		pattStep->fx[0].type = sequencer.fx.FX_TYPE_VELOCITY;
 		pattStep->fx[0].value = map(volume, 0, 64, 0, 100);
