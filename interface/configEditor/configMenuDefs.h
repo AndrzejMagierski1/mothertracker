@@ -130,7 +130,7 @@ const char* const ptrRecQuantization[2] =
 const char performanceSourceTexts[2][9] =
 {
 		"Global",
-		"Project",
+		"Per Project",
 };
 
 const char* const ptrPerformanceSource[2] =

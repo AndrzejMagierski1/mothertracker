@@ -85,6 +85,14 @@ public:
 
 	void refreshEditState();
 
+
+	void setStepButtonState(uint8_t button, uint8_t state);
+	void showNotePopup();
+	void showInstrumentPopup();
+	void showFx1Popup();
+	void showFx2Popup();
+
+
 	void lightUpPadBoard();
 	void clearPadBoard();
 
@@ -249,6 +257,8 @@ public:
 
 	uint8_t wasNotesEditBefore = 0;
 
+	uint8_t stepButtonsState[4] = {0,0,0,0};
+	elapsedMillis stepButtonsTimer[4];
 
 //-------------------------------------------------------
 // pojedyncze parametry / 8 trackow

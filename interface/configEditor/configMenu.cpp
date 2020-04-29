@@ -43,8 +43,8 @@ cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValu
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListTextWithAction, &setupDispBrightness);
 cMenuItem melPadsBright	(menuGeneral, 		3, "Pads Brightness", 		menuTypeItemListTextWithAction, &setupPadsBrightness);
-cMenuItem melRecQuantization	(menuGeneral, 	4, "Record quantization", 	menuTypeItemListText, &setupRecQuantization);
-cMenuItem melPerformanceSource	(menuGeneral, 	5, "Performance source", 	menuTypeItemListText, &setupPerfSource);
+cMenuItem melRecQuantization	(menuGeneral, 	4, "Record microtiming", 	menuTypeItemListText, &setupRecQuantization);
+cMenuItem melPerformanceSource	(menuGeneral, 	5, "Performance presets", 	menuTypeItemListText, &setupPerfSource);
 cMenuItem melPadsScale			(menuGeneral, 	6, "Pads Scale", 			menuTypeItemListTextWithAction, &setupPadsScale);
 cMenuItem melPadsRootNote		(menuGeneral, 	7, "Pads Root Note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
 cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
@@ -81,9 +81,9 @@ cMenuItem melClockIn		(menuMidi, 		0, "Clock in", 				menuTypeItemListText, &clo
 cMenuItem melClockOut		(menuMidi, 		1, "Clock out",				menuTypeItemListText, &clockOutSetup);
 cMenuItem melTransportIn	(menuMidi, 		2, "Transport in", 			menuTypeItemListText, &transportInSetup);
 cMenuItem melTransportOut	(menuMidi, 		3, "Transport out", 		menuTypeItemListText, &transportOutSetup);
-cMenuItem melNotsInMode		(menuMidi, 		4, "Notes in mode", 		menuTypeItemListText, &notesInModeSetup);
+cMenuItem melNotsInMode		(menuMidi, 		4, "Notes in", 				menuTypeItemListText, &notesInModeSetup);
 cMenuItem melNotesInChannel	(menuMidi, 		5, "Notes in channnel", 	menuTypeItemListText, &notesInChanneletup);
-cMenuItem melNotsOutMode	(menuMidi, 		6, "MIDI out mode", 		menuTypeItemListText, &notesOutModeSetup);
+cMenuItem melNotsOutMode	(menuMidi, 		6, "MIDI out", 				menuTypeItemListText, &notesOutModeSetup);
 cMenuItem melNotesOutChannel(menuMidi, 		7, "CC/PC out channel", 	menuTypeItemListText, &notesOutChannelSetup);
 cMenuGroup menuCCOut		(menuMidi, 		8, "CC out", 		5);
 
