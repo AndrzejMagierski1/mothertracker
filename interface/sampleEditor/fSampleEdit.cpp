@@ -435,11 +435,31 @@ void cSampleEditor::restoreFunctions()
 
 void cSampleEditor::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
 {
+	if(mtPadBoard.getEmptyVoice() == 0)
+	{
+		SE->needRefreshPlayhead = 1;
+		SE->playheadValue = 0;
+	}
+
+	int16_t padboardSource = (channel == Sequencer::GRID_OUTSIDE_PATTERN) ? source : 100 + channel;
+
+	uint32_t length = (uint32_t)((uint32_t)SE->selection.endPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
+	uint32_t addressShift = (uint32_t)( (uint32_t)SE->selection.startPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
+
+	mtPadBoard.startInstrument(note,SE->editorInstrument->sample.address + addressShift,length - addressShift, padboardSource);
 
 }
 void cSampleEditor::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
 {
+	int16_t padboardSource = (channel == Sequencer::GRID_OUTSIDE_PATTERN) ? source : 100 + channel;
 
+	if(mtPadBoard.getVoiceTakenByPad(padboardSource) == 0)
+	{
+		SE->needRefreshPlayhead = 0;
+		SE->playheadValue = 0;
+		SE->hidePlayhead();
+	}
+	mtPadBoard.stopInstrument(padboardSource);
 }
 
 
@@ -1079,34 +1099,17 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(state == 1)
+	if(state == buttonPress)
 	{
-		if(mtPadBoard.getEmptyVoice() == 0)
-		{
-			SE->needRefreshPlayhead = 1;
-			SE->playheadValue = 0;
-		}
-
-		uint32_t length;
-		uint32_t addressShift;
-		length =(uint32_t)((uint32_t)SE->selection.endPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
-
-		addressShift = (uint32_t)( (uint32_t)SE->selection.startPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
-
 		padsBacklight.setFrontLayer(1,20, pad);
-		mtPadBoard.startInstrument(pad,SE->editorInstrument->sample.address + addressShift,length - addressShift);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		SE->noteOnHandle(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 100, pad);
 	}
-	else if(state == 0)
+	else if(state == buttonRelease)
 	{
-		if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
-		{
-			SE->needRefreshPlayhead = 0;
-			SE->playheadValue = 0;
-			SE->hidePlayhead();
-		}
-
 		padsBacklight.setFrontLayer(0,0, pad);
-		mtPadBoard.stopInstrument(pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		SE->noteOffHandle(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
 	}
 	return 1;
 }
@@ -1358,7 +1361,7 @@ static  uint8_t functPreview()
 static  uint8_t functPlay()
 {
 	mtPadBoard.cutAllInstrument();
-	mtPadBoard.startInstrument(INTERFACE_BUTTON_PREVIEW, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview());
+	mtPadBoard.startInstrument(60, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview(),INTERFACE_BUTTON_PREVIEW); //tego nie moze robic midi
 	SE->playingInProgress = 1;
 	SE->playingProgress = 0;
 	SE->showPopupPlaying();
