@@ -25,6 +25,8 @@ uint16_t expPattern = 0;
 SdFile exportedFile;
 // wystartuj operację
 
+const uint8_t debugExport = 1;
+const uint8_t EXPORT_MAX_PATTERN = 199;
 /*
  * export wave
  */
@@ -385,7 +387,6 @@ void cFileManager::exportItFile_ProcessSamples()
 	ptr = writeLE(ptr, Flg, 1);	//Flg
 	ptr = writeLE(ptr, instrVolume, 1);	//Vol
 
-
 	sprintf((char*) ptr, "%.25s",
 			instr->sample.file_name);
 
@@ -479,7 +480,21 @@ void cFileManager::exportItFile_ProcessWaves()
 void cFileManager::exportItFile_ProcessPatterns()
 {
 //expPattern= 0;
-	exportItFile_storePatternOffset();
+
+	if (newFileManager.loadWorkspacePatternNow(expPattern + 1))
+	{
+		exportItFile_storePatternOffset();
+		sequencer.switchRamPatternsNow();
+	}
+	else
+	{
+		expPattern++;
+		if (expPattern >= EXPORT_MAX_PATTERN)
+		{
+			moveToNextOperationStep();
+		}
+		return;
+	}
 
 	Sequencer::strPattern *patt = sequencer.getActualPattern();
 	uint32_t seekForLength = exportedFile.size(); // pozycja gdzie wpisać length
@@ -537,7 +552,7 @@ void cFileManager::exportItFile_ProcessPatterns()
 				length++;
 
 				uint8_t instrumentToWrite = 0;
-				instrumentToWrite = step->instrument+1;
+				instrumentToWrite = step->instrument + 1;
 				exportedFile.write(instrumentToWrite);
 				length++;
 
@@ -566,10 +581,12 @@ void cFileManager::exportItFile_ProcessPatterns()
 	//wracam na koniec
 	exportedFile.seek(seekBuffer);
 
-//	expPattern++;
-//	if(expPattern>=)
+	expPattern++;
+	if (expPattern >= EXPORT_MAX_PATTERN)
+	{
+		moveToNextOperationStep();
+	}
 
-	moveToNextOperationStep();
 }
 void cFileManager::exportItFile_Finish()
 {
