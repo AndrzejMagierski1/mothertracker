@@ -34,6 +34,7 @@ const char checkList[checkCount][20] =
 		"Screen",
 		"Inputs",
 		"USB/SD",
+		"RAM",
 		"MIDI",
 		"Audio",
 		"Radio",
@@ -65,6 +66,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	display.clear();
 	memset(&results,0,checkCount);
 
+	ramErrorsCounter  = 0;
 
 	for(uint8_t button = 0; button<interfaceButtonsCount; button++)
 	{
@@ -120,6 +122,7 @@ void cTest::drawGui()
 	case checkScreen: 	showScreenTest(); 	break;
 	case checkInputs:	showInputsTest();	break;
 	case checkUSB:		showUSBTest();		break;
+	case checkRAM:		showRAMTest();		break;
 	case checkMidi:		showMidiTest();		break;
 	case checkRadio:	showRadioTest();	break;
 	case checkAudio:	showAudioTest();	break;
@@ -147,6 +150,7 @@ void cTest::doTasks()
 	case checkScreen:	runScreenTest();	break;
 	case checkInputs: 	runInputsTest();	break;
 	case checkUSB:			break;
+	case checkRAM:		runRAMTest();		break;
 	case checkMidi:		runMidiTest();		break;
 	case checkRadio:	runRadioTest();		break;
 	case checkAudio:	runAudioTest();		break;
@@ -277,6 +281,34 @@ void cTest::runInputsTest()
 	{
 		testPhase = lastPhase;
 	}
+
+}
+
+void cTest::runRAMTest()
+{
+	if(testPhase == 0)
+	{
+		ramErrorsCounter = 0;
+
+		for(int16_t i = 0; i<32000; i++)
+		{
+			*(sdram_ptrEffectsBank+i) = i;
+		}
+
+		delay(10);
+
+		for(int16_t i = 0; i<32000; i++)
+		{
+			if(*(sdram_ptrEffectsBank+i) != i)
+			{
+				ramErrorsCounter++;
+			}
+		}
+
+		if(ramErrorsCounter == 0 ) testPhase = 2;
+		else testPhase = 1;
+	}
+
 
 }
 
@@ -528,6 +560,23 @@ void cTest::showUSBTest()
 }
 
 
+void cTest::showRAMTest()
+{
+	if(testPhase == 0)
+	{
+		showMessage("Testing RAM...", "", "", "");
+	}
+	else if(testPhase == 1)
+	{
+		showMessage("RAM test failed", "", "Ok", "");
+	}
+	else if(testPhase == 2)
+	{
+		showMessage("RAM test ended successfully", "", "Ok", "");
+	}
+}
+
+
 void cTest::showMidiTest()
 {
 	if(testPhase == 0)
@@ -682,6 +731,12 @@ void cTest::AcceptButton()
 		nextTest();
 		break;
 	}
+	case checkRAM:
+	{
+		if(testPhase == 1) results[checkUSB] = 1;
+		if(testPhase > 0) nextTest();
+		break;
+	}
 	case checkMidi:
 	{
 		if(testPhase == 1) break;
@@ -738,6 +793,12 @@ void cTest::DeclineButton()
 	{
 		results[checkUSB] = 1;
 		nextTest();
+		break;
+	}
+	case checkRAM:
+	{
+		if(testPhase == 1) results[checkUSB] = 1;
+		//nextTest();
 		break;
 	}
 	case checkMidi:
