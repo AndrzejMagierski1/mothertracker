@@ -343,15 +343,139 @@ void cFileManager::exportItFile_ProcessInstruments()
 	}
 
 	// pseudoenvelope
-	memset(buff0x20, 0, sizeof(buff0x20));
-	for (uint16_t a = 0; a < 3; a++)
+//	memset(buff0x20, 0, sizeof(buff0x20));
+//	for (uint16_t a = 0; a < 3; a++)
+//	{
+//		exportedFile.write(buff0x20, 0x10);
+//	}
+
+	/*
+	 * volume envelope
+	 */
+
+	uint8_t buff0x52[0x52] { 0 };
 	{
-		exportedFile.write(buff0x20, 0x10);
+
+		ptr = buff0x52;
+		ptr = writeLE(ptr,
+						(1 << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 5, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 2, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
+
+		//node 0
+		ptr = writeLE(ptr, 0, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		//node 1
+		ptr = writeLE(ptr, 64, 1);	//att max
+		ptr = writeLE(ptr, 10/*att*/, 2);	//att time
+
+		//node 2
+		ptr = writeLE(ptr, 32, 1);	//sus val
+		ptr = writeLE(ptr, 20/*dec*/, 2);	//decay time
+
+		//node 3
+		ptr = writeLE(ptr, 32/*sus*/, 1);	//sus val
+		ptr = writeLE(ptr, 30, 2);	//time nie gra roli bo loop
+
+		//node 4
+		ptr = writeLE(ptr, 0, 1);	//release val 0
+		ptr = writeLE(ptr, 40/*rel*/, 2);	//time = release
+
+		exportedFile.write(buff0x52, sizeof(buff0x52));
 	}
 
 	/*
-	 *  ENVELOPES todo
+	 * panning envelope
 	 */
+	{
+
+		memset(buff0x52, 0, sizeof(buff0x52));
+
+		ptr = buff0x52;
+		ptr = writeLE(ptr,
+						(1 << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 5, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 2, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
+
+		//node 0
+		ptr = writeLE(ptr, 0, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		//node 1
+		ptr = writeLE(ptr, 64, 1);	//att max
+		ptr = writeLE(ptr, 10/*att*/, 2);	//att time
+
+		//node 2
+		ptr = writeLE(ptr, 32, 1);	//sus val
+		ptr = writeLE(ptr, 20/*dec*/, 2);	//decay time
+
+		//node 3
+		ptr = writeLE(ptr, 32/*sus*/, 1);	//sus val
+		ptr = writeLE(ptr, 30, 2);	//time nie gra roli bo loop
+
+		//node 4
+		ptr = writeLE(ptr, 0, 1);	//release val 0
+		ptr = writeLE(ptr, 40/*rel*/, 2);	//time = release
+
+		exportedFile.write(buff0x52, sizeof(buff0x52));
+
+	}
+
+	/*
+	 * pitch/cutoff envelope
+	 */
+	{
+		memset(buff0x52, 0, sizeof(buff0x52));
+
+		ptr = buff0x52;
+		ptr = writeLE(ptr,
+						(1 << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2) | //sus loop
+						(1 << 7), // For Pitch envelope only: Bit 7: Use pitch envelope as filter envelope instead.
+						1);	//Flg
+
+		ptr = writeLE(ptr, 5, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 2, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
+
+		//node 0
+		ptr = writeLE(ptr, 0, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		//node 1
+		ptr = writeLE(ptr, 64, 1);	//att max
+		ptr = writeLE(ptr, 10/*att*/, 2);	//att time
+
+		//node 2
+		ptr = writeLE(ptr, 32, 1);	//sus val
+		ptr = writeLE(ptr, 20/*dec*/, 2);	//decay time
+
+		//node 3
+		ptr = writeLE(ptr, 32/*sus*/, 1);	//sus val
+		ptr = writeLE(ptr, 30, 2);	//time nie gra roli bo loop
+
+		//node 4
+		ptr = writeLE(ptr, 0, 1);	//release val 0
+		ptr = writeLE(ptr, 40/*rel*/, 2);	//time = release
+
+		exportedFile.write(buff0x52, sizeof(buff0x52));
+	}
 
 	expInst++;
 	if (expInst >= INSTRUMENTS_COUNT)
