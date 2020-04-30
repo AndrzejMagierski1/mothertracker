@@ -12,6 +12,7 @@ enum enChecklist
 	checkScreen,
 	checkInputs,
 	checkUSB,
+	checkRAM,
 	checkMidi,
 	checkAudio,
 	checkRadio,
@@ -68,6 +69,9 @@ public:
 	// radio
 	char radioFreq[10];
 
+	//ram
+	uint16_t ramErrorsCounter;
+
 private:
 	void drawGui();
 	void doTasks();
@@ -89,6 +93,9 @@ private:
 	void runInputsTest();
 
 	void showUSBTest();
+
+	void showRAMTest();
+	void runRAMTest();
 
 	void showMidiTest();
 	void runMidiTest();
@@ -112,7 +119,7 @@ private:
 	elapsedMillis guiRefresh;
 	uint8_t procedureRunning = 0;
 	uint8_t mainStatus = 0;
-	uint8_t results[checkCount] = {0,0,0,0,0,0,0,0};
+	uint8_t results[checkCount] = {0,0,0,0,0,0,0,0,0};
 	uint8_t hideStatus = 0;
 
 	// konkretny aktualny test konkretnego elementu

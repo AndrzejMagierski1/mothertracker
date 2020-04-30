@@ -50,7 +50,7 @@ void cInterface::powerButtonChange(uint8_t state)
 	}
 
 
-	//FM->processPowerButton(state);
+	FM->processPowerButton(state);
 }
 
 //=======================================================================

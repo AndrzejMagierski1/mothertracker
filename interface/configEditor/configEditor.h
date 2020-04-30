@@ -57,6 +57,8 @@ public:
 
 	//menu
 	void createConfigMenu();
+	void hideConfigMenu();
+
 	void createMenuBaseList();
 	void reloadSubmenu();
 	void loadConfigTextList(strItemTypeListText* itemSetup);
@@ -136,7 +138,7 @@ public:
 	hControl configSubmenuListControl;
 	hControl configSecondSubmenuListControl;
 	hControl configListControl;
-
+	hControl textBox;
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
@@ -154,6 +156,8 @@ public:
 	strInstrument * editorInstrument;
 
 	strLabelData labelArrow[3];
+
+	strTextBoxData textBoxData;
 
 //----------------------------------
 // listy
@@ -185,6 +189,17 @@ public:
 
 	void changeLabelText(uint8_t labelIdx, const char *text);
 
+
+	//---------- credits ------------
+
+	void openCredits();
+	void closeCredits();
+	void showCreditsControls();
+	void hideCreditsControls();
+
+
+
+	///-------------------------------
 
 
 

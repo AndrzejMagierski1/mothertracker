@@ -11,7 +11,7 @@ void setPadBoardValues();
 
 void setMetronomValues();
 
-
+void openCreditsAction();
 
 
 

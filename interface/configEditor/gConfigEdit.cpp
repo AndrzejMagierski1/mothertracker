@@ -20,6 +20,16 @@ static uint32_t popUpLabelColors[] =
 	one_true_red, // ramka
 };
 
+const char creditsText[100] =
+{
+"Credits"
+"\nPolyend Team"
+"\nBema & Struga"
+};
+
+
+
+
 
 void cConfigEditor::initDisplayControls()
 {
@@ -132,6 +142,17 @@ void cConfigEditor::initDisplayControls()
 	prop.h = 394;
 	if(configListControl == nullptr)  configListControl = display.createControl<cList>(&prop);
 
+	prop3.style = 0;
+	prop3.value = 0;
+	prop3.x = 10;
+	prop3.y = 35;
+	prop3.w = 780;
+	prop3.h = 400;
+	prop3.data = nullptr; //&textBoxData;
+	if(textBox == nullptr) textBox = display.createControl<cTextBox>(&prop3);
+
+
+
 }
 
 
@@ -201,7 +222,10 @@ void cConfigEditor::showDefaultConfigScreen()
 	frameData.places[2] = &framesPlacesConfig[2][0];
 	frameData.places[3] = &framesPlacesConfig[3][0];
 
+	display.setControlValue(bgLabel, 36);
 	display.refreshControl(bgLabel);
+
+	display.setControlShow(frameControl);
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -218,7 +242,7 @@ void cConfigEditor::activateLabelsBorder()
 	if(selectedPlace > frameData.placesCount-1) return;
 
 	display.setControlValue(frameControl, selectedPlace);
-	display.setControlShow(frameControl);
+	//display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
 
@@ -420,6 +444,39 @@ void cConfigEditor::hideFirmwareUpdatePopout()
 }
 
 
+void cConfigEditor::showCreditsControls()
+{
+	for(uint8_t i = 0; i<7; i++)
+	{
+		display.setControlHide(label[i]);
+		//display.setControlText(label[i], "");
+		//display.refreshControl(label[i]);
+	}
 
+	display.setControlShow(label[7]);
+	display.setControlText(label[7], "Close");
+	display.refreshControl(label[7]);
+
+	display.setControlHide(frameControl);
+	//display.refreshControl(frameControl);
+
+	display.setControlValue(bgLabel, 1);
+	display.refreshControl(bgLabel);
+
+	display.setControlShow(textBox);
+	display.setControlText(textBox, creditsText);
+	display.refreshControl(textBox);
+
+
+
+}
+
+
+void cConfigEditor::hideCreditsControls()
+{
+
+	display.setControlText(label[7], "");
+	display.refreshControl(label[7]);
+}
 
 

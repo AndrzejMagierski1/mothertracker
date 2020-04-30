@@ -288,7 +288,7 @@ void cTextBox::string2Bitmaps(int16_t x, int16_t y, strFont* font, char* string,
 
 int16_t cTextBox::getNextLineLength()
 {
-	//width; // niby powinno patrzec na szerokosc miejsca zeby jesli dlugi wyraz nie wyjsc poza i ciąc wyraz wtedy ale...
+	//width; // niby powinno patrzec na szerokosc miejsca i jesli dlugi wyraz nie wyjsc poza i ciąc wyraz wtedy ale...
 
 	const char* temp_pos = position;
 	int16_t last_length = -1;
