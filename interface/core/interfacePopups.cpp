@@ -840,7 +840,7 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 			{
 			case stepPopupNone:
 			{
-				padsBacklight.setFrontLayer(1,20, pad);
+				padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
 				break;
 			}
 			case stepPopupNote:
@@ -856,7 +856,7 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 				//if(note > 48) note = 48;
 				//editorInstrument->tune = note;
 
-				padsBacklight.setFrontLayer(1,20, pad);
+				padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
 				mtPopups.setStepPopupValue(pad);
 				mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 				break;
@@ -870,7 +870,7 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 									step->velocity,
 									PTE->trackerPattern.actualTrack);
 				*/
-				padsBacklight.setFrontLayer(1,20, pad);
+				padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
 				mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 				break;
 			}
@@ -878,7 +878,7 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 			{
 				//if(pad < 0 || pad > FX_MAX) break;
 				padsBacklight.setBackLayer(0, 0, mtProject.values.lastUsedFx);
-				padsBacklight.setBackLayer(1, 20, pad);
+				padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, pad);
 				mtPopups.setStepPopupValue(pad);
 				break;
 			}

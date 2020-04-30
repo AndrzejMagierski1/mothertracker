@@ -505,7 +505,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	if(state == buttonPress)
 	{
-		padsBacklight.setFrontLayer(1,20, pad);
+		padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
 		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 		SP->noteOnHandle(Sequencer::GRID_OUTSIDE_PATTERN,
 					noteFromPad,
