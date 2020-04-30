@@ -61,6 +61,7 @@ uint8_t checkIfFirmwareValid(char *name);
 static uint8_t prepareAndFlash();
 static uint8_t hideFlashingWarning();
 
+static uint8_t closeCreditsButton();
 
 void cConfigEditor::update()
 {
@@ -808,6 +809,46 @@ static uint8_t hideFlashingWarning()
 }
 
 
+//==============================================================================================================
+// credits
+
+void cConfigEditor::openCredits()
+{
+	//funkcje
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearAllPots();
+
+	FM->clearButton(interfaceButtonLeft);
+	FM->clearButton(interfaceButtonRight);
+	FM->clearButton(interfaceButtonUp);
+	FM->clearButton(interfaceButtonDown);
+
+	FM->setButtonObj(interfaceButton7, buttonPress, closeCreditsButton);
+
+	FM->setPadsGlobal(functPads);
+
+	hideConfigMenu();
+	showCreditsControls();
+}
+
+void cConfigEditor::closeCredits()
+{
+	hideCreditsControls();
+	start(0);
+}
+
+
+static uint8_t closeCreditsButton()
+{
+	CE->closeCredits();
+
+	return 1;
+}
+
+void openCreditsAction()
+{
+	CE->openCredits();
+}
 
 
 //==============================================================================================================

@@ -122,9 +122,9 @@ cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 		menuTypeItem
 //cMenuItem melOpenManual		(menuHelp, 		0, "Open Manual", 			menuTypeItemLabel, &helpSetup);
 
 ///////////
-const strItemTypeLabel creditsSetup 		{ (char*)"" };
+const strItemTypeActionButton creditsSetup 		{ openCreditsAction, nullptr};
 
-cMenuItem melOpenCredits	(menuCredits, 	0, "Credits", 				menuTypeItemLabel, &creditsSetup);
+cMenuItem melOpenCredits	(menuCredits, 	0, "Credits", 				menuTypeItemActionButton, &creditsSetup);
 
 
 
@@ -138,6 +138,19 @@ void cConfigEditor::createConfigMenu()
 {
 	createMenuBaseList();
 	refreshConfigMenu(0);
+}
+
+void cConfigEditor::hideConfigMenu()
+{
+	display.setControlHide(configListControl);
+	display.setControlHide(configBasemenuListControl);
+	display.setControlHide(configSubmenuListControl);
+	display.setControlHide(configSecondSubmenuListControl);
+	display.setControlHide(frameControl);
+
+
+	display.refreshControl(frameControl);
+
 }
 
 void cConfigEditor::createMenuBaseList()
