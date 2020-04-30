@@ -546,17 +546,60 @@ void cFileManager::exportItFile_ProcessPatterns()
 				uint8_t maskvariable = 0;
 				maskvariable |= 1; // note w kolejnym bajcie
 				maskvariable |= 2; // instr w kolejnym bajcie
-
+				/*
+				 *
+				 */
+				// velocity
 				if (step->fx[0].type == sequencer.fx.FX_TYPE_VELOCITY)
 				{
 					maskvariable |= 4; // vol/pan w kolejnym bajcie
-					volPanToWrite = map(step->fx[0].value, 0, 100, 0, 64);
+					volPanToWrite = map(
+							step->fx[0].value,
+							sequencer.getFxMin(sequencer.fx.FX_TYPE_VELOCITY),
+							sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY),
+							0,
+							64);
+
+					volPanToWrite = constrain(volPanToWrite, 0, 64);
 				}
 				else if (step->fx[1].type == sequencer.fx.FX_TYPE_VELOCITY)
 				{
 					maskvariable |= 4; // vol/pan w kolejnym bajcie
-					volPanToWrite = map(step->fx[1].value, 0, 100, 0, 64);
+					volPanToWrite = map(
+							step->fx[1].value,
+							sequencer.getFxMin(sequencer.fx.FX_TYPE_VELOCITY),
+							sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY),
+							0,
+							64);
+					volPanToWrite = constrain(volPanToWrite, 0, 64);
 				}
+				/*
+				 *
+				 */
+				// panning
+				if (step->fx[0].type == sequencer.fx.FX_TYPE_PANNING)
+				{
+					maskvariable |= 4; // vol/pan w kolejnym bajcie
+					volPanToWrite = map(
+							step->fx[0].value,
+							sequencer.getFxMin(sequencer.fx.FX_TYPE_VELOCITY),
+							sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY),
+							128,
+							192);
+					volPanToWrite = constrain(volPanToWrite, 128, 192);
+				}
+				else if (step->fx[1].type == sequencer.fx.FX_TYPE_PANNING)
+				{
+					maskvariable |= 4; // vol/pan w kolejnym bajcie
+					volPanToWrite = map(
+							step->fx[1].value,
+							sequencer.getFxMin(sequencer.fx.FX_TYPE_VELOCITY),
+							sequencer.getFxMax(sequencer.fx.FX_TYPE_VELOCITY),
+							128,
+							192);
+					volPanToWrite = constrain(volPanToWrite, 128, 192);
+				}
+
 				exportedFile.write(maskvariable);
 				length++;
 
