@@ -168,7 +168,7 @@ audioEngine engine;
 
 
 
-constexpr uint16_t RELEASE_NOTE_ON_VAL = 5;
+constexpr uint16_t RELEASE_NOTE_ON_VAL = 1;
 
 void updateAudioEngine();
 
