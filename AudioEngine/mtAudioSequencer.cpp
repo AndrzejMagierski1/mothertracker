@@ -202,12 +202,12 @@ void playerEngine::fxDelaySend(uint8_t fx_val, uint8_t fx_n)
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 		{
 			currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 		}
 	}
-	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 1;
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::delaySend] = 1;
 
 	setFxReverbSend();
 }
@@ -749,11 +749,11 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
-	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 0;
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::delaySend] = 0;
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 		{
 			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
 			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
@@ -762,7 +762,7 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 	{
 		setFxReverbSend();
 	}
@@ -1661,9 +1661,9 @@ void playerEngine::clearFxSlice()
 //REVERB SEND
 void playerEngine::setFxReverbSend()
 {
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 	{
-		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+		changeDelaySendPerformanceMode(performanceMod.reverbSend);
 	}
 	else
 	{
@@ -1676,9 +1676,9 @@ void playerEngine::setFxReverbSend()
 }
 void playerEngine::clearFxReverbSend()
 {
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 	{
-		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+		changeDelaySendPerformanceMode(performanceMod.reverbSend);
 	}
 	else
 	{

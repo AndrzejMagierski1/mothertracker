@@ -6,6 +6,13 @@
 
 #include "configEditor/configEditor.h"
 #include "patternEditor/patternEditor.h"
+#include "samplePlayback/samplePlayback.h"
+#include "sampleRecorder/sampleRecorder.h"
+#include "sampleEditor/sampleEditor.h"
+
+static cSamplePlayback* SP = &samplePlayback;
+static cSampleRecorder* SR = &sampleRecorder;
+static cSampleEditor* SE = &sampleEditor;
 
 void midiInit()
 {
@@ -61,7 +68,15 @@ void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 			}
 			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
 			{
-
+				SP->noteOnHandle(channel, pitch, velocity, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+				SE->noteOnHandle(channel, pitch, velocity, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+				SR->noteOnHandle(channel, pitch, velocity, pitch + 100);
 			}
 		}
 	}
@@ -92,7 +107,15 @@ void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
 			}
 			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
 			{
-
+				SP->noteOnHandle(channel, pitch, velocity, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+				SE->noteOnHandle(channel, pitch, velocity, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+				SR->noteOnHandle(channel, pitch, velocity, pitch + 100);
 			}
 		}
 	}
@@ -115,6 +138,18 @@ void handleJackNoteOff(byte channel, byte pitch, byte velocity)
 				sendSelection();
 				sequencer.handleNoteOff(channel, pitch, 0, pitch + 100);
 			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
+			{
+				SP->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+				SE->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+				SR->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
 		}
 	}
 }
@@ -134,6 +169,18 @@ void handleUsbNoteOff(byte channel, byte pitch, byte velocity)
 			{
 				sendSelection();
 				sequencer.handleNoteOff(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SamplePlayback)
+			{
+				SP->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleEditor)
+			{
+				SE->noteOffHandle(channel, pitch, 0, pitch + 100);
+			}
+			else if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_SampleRecorder)
+			{
+				SR->noteOffHandle(channel, pitch, 0, pitch + 100);
 			}
 		}
 	}

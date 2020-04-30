@@ -17,8 +17,8 @@ static uint16_t framesPlaces[7][4] =
 
 static uint32_t granularColors[] =
 {
-	0xFFFFFF, // linie
-	0x00FFFF
+	0x0a0a0a, // kolor zaznaczenia
+	0x00FFFF  // kolor lini cyan
 };
 
 static uint32_t popUpLabelColors[] =
@@ -127,6 +127,11 @@ void cSamplePlayback::initDisplayControls()
 	prop.w = 600;
 	prop.h = 300;
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
+
+	lineIndicatorSelection.start = 0;
+	lineIndicatorSelection.end = 0;
+
+	prop.data = &lineIndicatorSelection;
 	if(granularCursor == nullptr) granularCursor = display.createControl<cLineIndicator>(&prop);
 
 	prop.data = &points;
@@ -755,6 +760,15 @@ void cSamplePlayback::showGranularPositionValue()
 
 	sprintf(granularPositionTextValue,"%0.3f s",localPosition);
 
+
+	uint16_t granularDisplayedLength = ( (uint32_t)( (uint32_t)editorInstrument->granular.grainLength * 600) ) / editorInstrument->sample.length;
+
+	lineIndicatorSelection.start = ((granularPositionInSpectrum - (granularDisplayedLength/2))) < 0 ?
+			0 : (granularPositionInSpectrum - (granularDisplayedLength/2));
+
+	lineIndicatorSelection.end = ((granularPositionInSpectrum + (granularDisplayedLength/2)) > 600) ?
+			600 : (granularPositionInSpectrum + (granularDisplayedLength/2));
+
 	display.setControlValue(granularCursor, granularPositionInSpectrum);
 	display.setControlShow(granularCursor);
 	display.refreshControl(granularCursor);
@@ -766,9 +780,21 @@ void cSamplePlayback::showGranularPositionValue()
 }
 void cSamplePlayback::showGrainLengthValue()
 {
+
+	uint16_t granularDisplayedLength = ( (uint32_t)( (uint32_t)editorInstrument->granular.grainLength * 600) ) / editorInstrument->sample.length;
+
+	lineIndicatorSelection.start = ((granularPositionInSpectrum - (granularDisplayedLength/2))) < 0 ?
+			0 : (granularPositionInSpectrum - (granularDisplayedLength/2));
+
+	lineIndicatorSelection.end = ((granularPositionInSpectrum + (granularDisplayedLength/2)) > 600) ?
+			600 : (granularPositionInSpectrum + (granularDisplayedLength/2));
+
+
 	grainLengthMs = editorInstrument->granular.grainLength/44.1f;
 
 	sprintf(grainLengthTextValue,"%0.1f ms", grainLengthMs);
+
+	display.refreshControl(granularCursor);
 
 	display.setControlText2(label[2], grainLengthTextValue);
 	display.setControlShow(label[2]);

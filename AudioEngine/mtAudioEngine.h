@@ -270,6 +270,13 @@ public:
 	void clearInterfaceEndReleaseFlag();
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
+
+	void setTrackIsDisplayed();
+	void clearTrackIsDisplayed();
+	bool getEndDisplayTrackFlag();
+	void clearEndDisplayTrackFlag();
+
+
 	uint32_t getEnvelopeGranPosMod();
 
 	uint32_t getEnvelopeWtPosMod();
@@ -319,7 +326,7 @@ public:
 		filterCutoff,
 		filterType,
 		filterEnable,
-		reverbSend,
+		delaySend,
 		panning,
 		ampAttack,
 		ampRelease,
@@ -458,7 +465,7 @@ public:
 	void changeVolumePerformanceMode(int8_t value);
 	void changePanningPerformanceMode(int8_t value);
 	void changeTunePerformanceMode(int8_t value);
-	void changeReverbSendPerformanceMode(int8_t value);
+	void changeDelaySendPerformanceMode(int8_t value);
 	void changeStartPointPerformanceMode(int32_t value);
 	void changeEndPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);
@@ -544,6 +551,8 @@ private:
 
 	uint8_t isActiveFlag = 0;
 
+	bool isTrackDisplayed;
+	bool onEndDisplay;
 
 //**********************FUNKCJE POMOCNICZE
 	uint8_t isFxVelocity(uint8_t fx_id);

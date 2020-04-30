@@ -65,6 +65,8 @@ public:
 		midiInVoiceMode_sequencer,
 		midiInVoiceMode_ignore,
 		midiInVoiceMode_SamplePlayback,
+		midiInVoiceMode_SampleEditor,
+		midiInVoiceMode_SampleRecorder,
 		midiInVoiceMode_default = midiInVoiceMode_sequencer,
 	};
 

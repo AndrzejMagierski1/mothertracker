@@ -32,6 +32,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	status = playMemPtr->play(instr_idx,note);
+	if(isTrackDisplayed) onEndDisplay = true;
 	envelopeAmpPtr->noteOn();
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
@@ -103,12 +104,13 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	seqFx(fx1_id,fx1_val,0);
 	seqFx(fx2_id,fx2_val,1);
 
-	for(uint8_t i = 0 ; i < ACTIVE_ENVELOPES; i++)
+	envelopeAmpPtr->noteOn(); // zawsze odpalamy nawet jak nie aktywny
+
+	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
 	{
 		if(isActiveEnvelope(i))
 		{
-			if(i == 0 ) envelopeAmpPtr->noteOn();
-			else envelopePtr[i]->start();
+			envelopePtr[i]->start();
 			setSyncParamsLFO(i);
 		}
 	}
@@ -116,6 +118,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 //*******
 	status = playMemPtr->play(instr_idx,note);
+	if(isTrackDisplayed) onEndDisplay = true;
 //******* start env
 	__enable_irq();
 	AudioInterrupts();
@@ -168,6 +171,8 @@ void playerEngine::noteOffCut()
 	}
 	playMemPtr->stop();
 
+	if(isTrackDisplayed) onEndDisplay = true;
+
 	AudioInterrupts();
 	__enable_irq();
 }
@@ -208,7 +213,7 @@ void playerEngine::noteOffOrdinary()
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 	{
 		playMemPtr->stop();
-
+		if(isTrackDisplayed) onEndDisplay = true;
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 		{
 			if((mtProject.instrument[currentInstrument_idx].envelope[i].enable && mtProject.instrument[currentInstrument_idx].envelope[i].loop)
@@ -225,6 +230,7 @@ void playerEngine::noteOffOrdinary()
 		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 		{
 			playMemPtr->stop();
+			if(isTrackDisplayed) onEndDisplay = true;
 			for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 			{
 				if((mtProject.instrument[currentInstrument_idx].envelope[i].enable && mtProject.instrument[currentInstrument_idx].envelope[i].loop)
@@ -534,12 +540,12 @@ void playerEngine::handleFxNoteOnDelaySend()
 {
 	if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
-		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 		{
-			changeReverbSendPerformanceMode(performanceMod.reverbSend);
+			changeDelaySendPerformanceMode(performanceMod.reverbSend);
 		}
-		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend])
-			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]))
+		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::delaySend])
+			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend]))
 		{
 			modDelaySend(currentSeqModValues.delaySend);
 		}
