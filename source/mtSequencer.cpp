@@ -581,8 +581,8 @@ void Sequencer::play_microStep(uint8_t row)
 
 		if (patternStep.note == STEP_NOTE_OFF)
 		{
-			playerRow.isOffset = 1;
-			playerRow.offsetValue = 10;
+//			playerRow.isOffset = 1;
+//			playerRow.offsetValue = 10;
 
 		}
 

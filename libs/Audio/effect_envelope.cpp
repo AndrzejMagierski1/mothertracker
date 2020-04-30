@@ -80,7 +80,7 @@ void  AudioEffectEnvelope::attack(float milliseconds)
 
 		if(x < 0) x = 0;
 
-		inc_hires = x ?  y /x : 0;
+		inc_hires = x ?  y /x : y;
 
 	}
 	AudioInterrupts();
@@ -119,7 +119,7 @@ void  AudioEffectEnvelope::decay(float milliseconds)
 		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (sustain_mult - mult_hires) / count : 0 ;
+		inc_hires = count ? (sustain_mult - mult_hires) / count : (sustain_mult - mult_hires) ;
 
 	}
 	AudioInterrupts();
@@ -152,7 +152,7 @@ void  AudioEffectEnvelope::release(float milliseconds)
 		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (-mult_hires) / count : 0;
+		inc_hires = count ? (-mult_hires) / count : -mult_hires;
 
 	}
 	AudioInterrupts();
@@ -179,7 +179,7 @@ void AudioEffectEnvelope::noteOn(void)
 		{
 			state = STATE_ATTACK;
 			count = attack_count;
-			inc_hires = count? 0x40000000 / count : 0;
+			inc_hires = count? 0x40000000 / count : 0x40000000;
 
 		}
 	}
@@ -187,7 +187,7 @@ void AudioEffectEnvelope::noteOn(void)
 	{
 		state = STATE_FORCED;
 		count = release_forced_count;
-		inc_hires = count ? (-mult_hires) / count : 0;
+		inc_hires = count ? (-mult_hires) / count : -mult_hires;
 //		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
 	}
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
@@ -198,7 +198,8 @@ void AudioEffectEnvelope::noteOff(void)
 {
 	__disable_irq();
 	pressedFlag = 0;
-	if (state != STATE_IDLE && state != STATE_FORCED) {
+	if (state != STATE_IDLE) // && state != STATE_FORCED) {
+	{
 		if(loopFlag)
 		{
 			state = STATE_IDLE; //todo: envelope jako lfo - tracker edit
@@ -269,7 +270,7 @@ void AudioEffectEnvelope::update(void)
 			{
 				state = STATE_DECAY;
 				count = decay_count;
-				inc_hires = count ? (sustain_mult - 0x40000000) / count : 0 ;
+				inc_hires = count ? (sustain_mult - 0x40000000) / count : (sustain_mult - 0x40000000) ;
 				continue;
 			}
 			else if (state == STATE_DECAY)
@@ -278,7 +279,7 @@ void AudioEffectEnvelope::update(void)
 				{
 					count = release_count;
 					state = STATE_RELEASE;
-					inc_hires = count ? (-mult_hires) / count : 0;
+					inc_hires = count ? (-mult_hires) / count : (-mult_hires);
 					continue;
 				}
 				else
@@ -300,7 +301,7 @@ void AudioEffectEnvelope::update(void)
 					//powinienem dać delay state, ale nie jest uzywany w trackerze, a moze tworzyc dodatkowe problemy
 					count = attack_count;
 					state = STATE_ATTACK;
-					inc_hires = count ? 0x40000000 / count : 0;
+					inc_hires = count ? 0x40000000 / count : 0x40000000 ;
 					continue;
 				}
 				else
@@ -331,7 +332,7 @@ void AudioEffectEnvelope::update(void)
 			{
 				state = STATE_ATTACK;
 				count = attack_count;
-				inc_hires = count ?  0x40000000 / count : 0;
+				inc_hires = count ?  0x40000000 / count : 0x40000000;
 				continue;
 			}
 		}

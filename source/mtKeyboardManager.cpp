@@ -19,8 +19,8 @@ void mtKeyboardManager::activateKeyboard()
 	editPosition = strlen(name);
 	keyboardPosition = BACKSPACE_PAD_1;
 	lastPressedPad = BACKSPACE_PAD_1;
-	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-	leds.setLED(BACKSPACE_PAD_2, 1, 31);
+	leds.setLED(BACKSPACE_PAD_1, 1, mtConfig.values.padsLightFront);
+	leds.setLED(BACKSPACE_PAD_2, 1, mtConfig.values.padsLightFront);
 
 	keyboardActiveFlag = 1;
 
@@ -66,8 +66,8 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 			{
 				if(keyboardShiftFlag)
 				{
-					leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-					leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
+					leds.setLED(CAPS_LOCK_PAD_1, 1, mtConfig.values.padsLightBack);
+					leds.setLED(CAPS_LOCK_PAD_2, 1, mtConfig.values.padsLightBack);
 				}
 				else
 				{
@@ -86,7 +86,7 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 			else
 			{
 				if( (lastPressedPad != F_PAD) && (lastPressedPad != J_PAD) ) leds.setLED(lastPressedPad,0,0);
-				else leds.setLED(lastPressedPad,1,10);
+				else leds.setLED(lastPressedPad,1,mtConfig.values.padsLightBack);
 			}
 
 
@@ -94,24 +94,24 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 
 			if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
 			{
-				leds.setLED(BACKSPACE_PAD_1, 1, 31);
-				leds.setLED(BACKSPACE_PAD_2, 1, 31);
+				leds.setLED(BACKSPACE_PAD_1, 1, mtConfig.values.padsLightFront);
+				leds.setLED(BACKSPACE_PAD_2, 1, mtConfig.values.padsLightFront);
 			}
 			else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
 			{
-				leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-				leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
+				leds.setLED(CAPS_LOCK_PAD_1, 1, mtConfig.values.padsLightFront);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, mtConfig.values.padsLightFront);
 			}
 			else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
 			{
 				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 				{
-					leds.setLED(i, 1, 31);
+					leds.setLED(i, 1, mtConfig.values.padsLightFront);
 				}
 			}
 			else
 			{
-				leds.setLED(pad,1,31);
+				leds.setLED(pad,1,mtConfig.values.padsLightFront);
 			}
 
 			keyboardPosition = valueMapPads[pad];
@@ -172,8 +172,8 @@ void mtKeyboardManager::confirmKey()
 		{
 			if(keyboardShiftFlag)
 			{
-				leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-				leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
+				leds.setLED(CAPS_LOCK_PAD_1, 1, mtConfig.values.padsLightBack);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, mtConfig.values.padsLightBack);
 			}
 			else
 			{
@@ -192,7 +192,7 @@ void mtKeyboardManager::confirmKey()
 		else
 		{
 			if(lastPressedPad != F_PAD && lastPressedPad != J_PAD) leds.setLED(lastPressedPad,0,0);
-			else leds.setLED(lastPressedPad,1,10);
+			else leds.setLED(lastPressedPad,1,mtConfig.values.padsLightBack);
 		}
 
 
@@ -200,24 +200,24 @@ void mtKeyboardManager::confirmKey()
 
 		if(keyPositionToPads[keyboardPosition] == BACKSPACE_PAD_1 || keyPositionToPads[keyboardPosition] == BACKSPACE_PAD_2) //backspace
 		{
-			leds.setLED(BACKSPACE_PAD_1, 1, 31);
-			leds.setLED(BACKSPACE_PAD_2, 1, 31);
+			leds.setLED(BACKSPACE_PAD_1, 1, mtConfig.values.padsLightFront);
+			leds.setLED(BACKSPACE_PAD_2, 1, mtConfig.values.padsLightFront);
 		}
 		else if(keyPositionToPads[keyboardPosition] == CAPS_LOCK_PAD_1 || keyPositionToPads[keyboardPosition] == CAPS_LOCK_PAD_2) //capslock
 		{
-			leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-			leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
+			leds.setLED(CAPS_LOCK_PAD_1, 1, mtConfig.values.padsLightFront);
+			leds.setLED(CAPS_LOCK_PAD_2, 1, mtConfig.values.padsLightFront);
 		}
 		else if(keyPositionToPads[keyboardPosition] >= SPACE_PAD_1 && keyPositionToPads[keyboardPosition] <=SPACE_PAD_5) //space
 		{
 			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 			{
-				leds.setLED(i, 1, 31);
+				leds.setLED(i, 1, mtConfig.values.padsLightFront);
 			}
 		}
 		else
 		{
-			leds.setLED(keyPositionToPads[keyboardPosition],1,31);
+			leds.setLED(keyPositionToPads[keyboardPosition],1,mtConfig.values.padsLightFront);
 		}
 		//////////////////////////////////////
 		if(smallKeyboard[keyboardPosition] > 1)
@@ -293,8 +293,8 @@ void mtKeyboardManager::showKeyboard()
 {
 	if(keyboardControl == nullptr) return;
 
-	leds.setLED(F_PAD, 1, 10);
-	leds.setLED(J_PAD, 1, 10);
+	leds.setLED(F_PAD, 1, mtConfig.values.padsLightBack);
+	leds.setLED(J_PAD, 1, mtConfig.values.padsLightBack);
 
 	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
 	else display.setControlValue(keyboardControl, keyboardPosition);
