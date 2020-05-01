@@ -17,7 +17,7 @@ static uint16_t framesPlaces[7][4] =
 
 static uint32_t granularColors[] =
 {
-	0x0a0a0a, // kolor zaznaczenia
+	0x1F1F1F, // kolor zaznaczenia
 	0x00FFFF  // kolor lini cyan
 };
 
