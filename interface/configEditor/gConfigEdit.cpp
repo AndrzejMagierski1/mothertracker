@@ -151,8 +151,6 @@ void cConfigEditor::initDisplayControls()
 	prop3.data = nullptr; //&textBoxData;
 	if(textBox == nullptr) textBox = display.createControl<cTextBox>(&prop3);
 
-
-
 }
 
 
@@ -191,6 +189,9 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(popoutWindowLabel);
 	popoutWindowLabel = nullptr;
+
+	display.destroyControl(textBox);
+	textBox = nullptr;
 }
 
 void cConfigEditor::showDefaultConfigScreen()
