@@ -80,7 +80,7 @@ uint8_t readStartState()
 
 void saveStartState(uint8_t state)
 {
-	//uint8_t startState = 0;
+//uint8_t startState = 0;
 
 //	save_micros = 0;
 #ifndef DEBUG
@@ -364,11 +364,7 @@ void checkConfig()
 	// debug ----------------------------------------
 	if(mtConfig.debug.debugLogState > 1)
 	{
-#ifdef DEBUG
-		mtConfig.debug.debugLogState = 0; //= 1
-#else
 		mtConfig.debug.debugLogState = 0;
-#endif
 	}
 
 
@@ -470,11 +466,7 @@ void resetConfig()
 
 
 	// debug ----------------------------------------
-#ifdef DEBUG
-	mtConfig.debug.debugLogState = 0; //= 1
-#else
 	mtConfig.debug.debugLogState = 0;
-#endif
 
 	// common ----------------------------------------
 	 mtConfig.common.equalSliceNumber = 8;

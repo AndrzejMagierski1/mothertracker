@@ -15,6 +15,8 @@
 #endif
 
 
+const uint8_t SD_DEBUGLOG =  1;
+
 //#define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_NEW | FA_OPEN_APPEND )
 #define  SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 #define  O_RDONLY FA_READ

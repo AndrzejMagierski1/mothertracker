@@ -122,26 +122,27 @@ void SdCard::stop()
 }
 
 
-#ifdef DEBUG
-static char errorText[100] = "SD report: ";
-static char errorNr[9];
-#endif
+
+
 
 void reportSdError(const char* text, uint16_t value)
 {
-#ifdef DEBUG
-	debugLog.setMaxLineCount(3);
-	strncpy(&errorText[11], text, 80);
-	if(value > 0)
+	if(SD_DEBUGLOG)
 	{
-		sprintf(errorNr, " (%d)", value);
-		strcat(errorText, errorNr);
+		static char errorText[100] = "SD report: ";
+		static char errorNr[9];
+
+		debugLog.setMaxLineCount(3);
+		strncpy(&errorText[11], text, 80);
+		if(value > 0)
+		{
+			sprintf(errorNr, " (%d)", value);
+			strcat(errorText, errorNr);
+		}
+		debugLog.addLine(errorText);
+
+		debugLog.forceRefresh();
 	}
-	debugLog.addLine(errorText);
-
-	debugLog.forceRefresh();
-
-#endif
 }
 
 
