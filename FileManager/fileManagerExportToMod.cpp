@@ -355,10 +355,23 @@ void cFileManager::exportItFile_ProcessInstruments()
 
 	uint8_t buff0x52[0x52] { 0 };
 	{
+		uint16_t attTicks = 0;
+		uint16_t decTicks = 0;
+		uint16_t relTicks = 0;
+		uint16_t sustainVal = 0;
+
+		if (instr->envelope[0].enable)
+		{
+			attTicks = (float) instr->envelope[0].attack / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			decTicks = (float) instr->envelope[0].decay / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			relTicks = (float) instr->envelope[0].release / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			sustainVal = map(instr->envelope[0].sustain, 0.0f, 1.0f, 0, 64);
+			if (sustainVal > 64) sustainVal = 64;
+		}
 
 		ptr = buff0x52;
 		ptr = writeLE(ptr,
-						(1 << 0) | // on/off
+						((instr->envelope[0].enable > 0) << 0) | // on/off
 						(0 << 1) | //loop
 						(1 << 2), // sus loop
 						1);	//Flg
@@ -374,19 +387,19 @@ void cFileManager::exportItFile_ProcessInstruments()
 
 		//node 1
 		ptr = writeLE(ptr, 64, 1);	//att max
-		ptr = writeLE(ptr, 10/*att*/, 2);	//att time
+		ptr = writeLE(ptr, attTicks/*att*/, 2);	//att time
 
 		//node 2
-		ptr = writeLE(ptr, 32, 1);	//sus val
-		ptr = writeLE(ptr, 20/*dec*/, 2);	//decay time
+		ptr = writeLE(ptr, sustainVal, 1);	//sus val
+		ptr = writeLE(ptr, attTicks + decTicks/*dec*/, 2);	//decay time
 
 		//node 3
-		ptr = writeLE(ptr, 32/*sus*/, 1);	//sus val
-		ptr = writeLE(ptr, 30, 2);	//time nie gra roli bo loop
+		ptr = writeLE(ptr, sustainVal/*sus*/, 1);	//sus val
+		ptr = writeLE(ptr, attTicks + decTicks + 10, 2);//time nie gra roli bo loop
 
 		//node 4
 		ptr = writeLE(ptr, 0, 1);	//release val 0
-		ptr = writeLE(ptr, 40/*rel*/, 2);	//time = release
+		ptr = writeLE(ptr, attTicks + decTicks + 10 + relTicks/*rel*/, 2);//time = release
 
 		exportedFile.write(buff0x52, sizeof(buff0x52));
 	}
@@ -398,9 +411,23 @@ void cFileManager::exportItFile_ProcessInstruments()
 
 		memset(buff0x52, 0, sizeof(buff0x52));
 
+		uint16_t attTicks = 0;
+		uint16_t decTicks = 0;
+		uint16_t relTicks = 0;
+		uint16_t sustainVal = 0;
+
+		if (instr->envelope[1].enable)
+		{
+			attTicks = (float) instr->envelope[1].attack / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			decTicks = (float) instr->envelope[1].decay / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			relTicks = (float) instr->envelope[1].release / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			sustainVal = map(instr->envelope[1].sustain, 0.0f, 1.0f, 0, 32);
+			if (sustainVal > 32) sustainVal = 32;
+		}
+
 		ptr = buff0x52;
 		ptr = writeLE(ptr,
-						(1 << 0) | // on/off
+						((instr->envelope[1].enable > 0) << 0) | // on/off
 						(0 << 1) | //loop
 						(1 << 2), // sus loop
 						1);	//Flg
@@ -415,20 +442,20 @@ void cFileManager::exportItFile_ProcessInstruments()
 		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
 
 		//node 1
-		ptr = writeLE(ptr, 64, 1);	//att max
-		ptr = writeLE(ptr, 10/*att*/, 2);	//att time
+		ptr = writeLE(ptr, 32, 1);	//att max
+		ptr = writeLE(ptr, attTicks/*att*/, 2);	//att time
 
 		//node 2
-		ptr = writeLE(ptr, 32, 1);	//sus val
-		ptr = writeLE(ptr, 20/*dec*/, 2);	//decay time
+		ptr = writeLE(ptr, sustainVal, 1);	//sus val
+		ptr = writeLE(ptr, attTicks + decTicks/*dec*/, 2);	//decay time
 
 		//node 3
-		ptr = writeLE(ptr, 32/*sus*/, 1);	//sus val
-		ptr = writeLE(ptr, 30, 2);	//time nie gra roli bo loop
+		ptr = writeLE(ptr, sustainVal/*sus*/, 1);	//sus val
+		ptr = writeLE(ptr, attTicks + decTicks + 10, 2);//time nie gra roli bo loop
 
 		//node 4
 		ptr = writeLE(ptr, 0, 1);	//release val 0
-		ptr = writeLE(ptr, 40/*rel*/, 2);	//time = release
+		ptr = writeLE(ptr, attTicks + decTicks + 10 + relTicks/*rel*/, 2);//time = release
 
 		exportedFile.write(buff0x52, sizeof(buff0x52));
 
@@ -439,15 +466,27 @@ void cFileManager::exportItFile_ProcessInstruments()
 	 */
 	{
 		memset(buff0x52, 0, sizeof(buff0x52));
+		uint16_t attTicks = 0;
+		uint16_t decTicks = 0;
+		uint16_t relTicks = 0;
+		uint16_t sustainVal = 0;
+
+		if (instr->envelope[2].enable)
+		{
+			attTicks = (float) instr->envelope[2].attack / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			decTicks = (float) instr->envelope[2].decay / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			relTicks = (float) instr->envelope[2].release / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			sustainVal = map(instr->envelope[2].sustain, 0.0f, 1.0f, 0, 64);
+			if (sustainVal > 64) sustainVal = 64;
+		}
 
 		ptr = buff0x52;
 		ptr = writeLE(ptr,
-						(1 << 0) | // on/off
+						((instr->envelope[2].enable > 0) << 0) | // on/off
 						(0 << 1) | //loop
-						(1 << 2) | //sus loop
-						(1 << 7), // For Pitch envelope only: Bit 7: Use pitch envelope as filter envelope instead.
+						(1 << 2) | // sus loop
+						(1 << 7), // Bit 7: Use pitch envelope as filter envelope instead.
 						1);	//Flg
-
 		ptr = writeLE(ptr, 5, 1);	//Num = Number of node points
 		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
 		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
@@ -459,20 +498,20 @@ void cFileManager::exportItFile_ProcessInstruments()
 		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
 
 		//node 1
-		ptr = writeLE(ptr, 64, 1);	//att max
-		ptr = writeLE(ptr, 10/*att*/, 2);	//att time
+		ptr = writeLE(ptr, 32, 1);	//att max
+		ptr = writeLE(ptr, attTicks/*att*/, 2);	//att time
 
 		//node 2
-		ptr = writeLE(ptr, 32, 1);	//sus val
-		ptr = writeLE(ptr, 20/*dec*/, 2);	//decay time
+		ptr = writeLE(ptr, sustainVal, 1);	//sus val
+		ptr = writeLE(ptr, attTicks + decTicks/*dec*/, 2);	//decay time
 
 		//node 3
-		ptr = writeLE(ptr, 32/*sus*/, 1);	//sus val
-		ptr = writeLE(ptr, 30, 2);	//time nie gra roli bo loop
+		ptr = writeLE(ptr, sustainVal/*sus*/, 1);	//sus val
+		ptr = writeLE(ptr, attTicks + decTicks + 10, 2);//time nie gra roli bo loop
 
 		//node 4
 		ptr = writeLE(ptr, 0, 1);	//release val 0
-		ptr = writeLE(ptr, 40/*rel*/, 2);	//time = release
+		ptr = writeLE(ptr, attTicks + decTicks + 10 + relTicks/*rel*/, 2);//time = release
 
 		exportedFile.write(buff0x52, sizeof(buff0x52));
 	}

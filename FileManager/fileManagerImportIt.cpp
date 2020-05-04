@@ -13,7 +13,7 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 
-const uint8_t debugMod = 1;
+const uint8_t debugMod = 0;
 
 extern Sequencer::strPattern fileManagerPatternBuffer;
 
