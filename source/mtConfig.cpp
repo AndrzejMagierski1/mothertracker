@@ -83,9 +83,10 @@ void saveStartState(uint8_t state)
 //uint8_t startState = 0;
 
 //	save_micros = 0;
-#ifndef DEBUG
-	EEPROM.put(sizeof(mtConfig), state);
-#endif
+	if(START_STATE_SAVE)
+	{
+		EEPROM.put(sizeof(mtConfig), state);
+	}
 //	debugLog.addLine("start state save: ");
 //	debugLog.addValue(save_micros);
 //	debugLog.forceRefresh();

@@ -315,19 +315,20 @@ void checkPowerState()
 {
 	TactSwitchInit();
 
-#ifndef DEBUG
-	if(!readStartState())
+	if(START_STATE_SAVE)
 	{
-		lowPower.goLowPower(0);
-		while(1)
+		if(!readStartState())
 		{
-			TactSwitchRead();
-			 asm("nop");
-		}
+			lowPower.goLowPower(0);
+			while(1)
+			{
+				TactSwitchRead();
+				 asm("nop");
+			}
 
+		}
+		else saveStartState(0);
 	}
-	else saveStartState(0);
-#endif
 }
 
 
