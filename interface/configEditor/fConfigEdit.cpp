@@ -773,6 +773,8 @@ static uint8_t prepareAndFlash()
 		SD.remove("/Firmware/_fwinfo");
 	}
 
+	saveStartState(1); // po zakonczwniu wgrywania firmaware zapewnia prawidlowy restart
+
 	SdFile fwinfo;
 
 	fwinfo = SD.open("/Firmware/_fwinfo", FILE_WRITE);

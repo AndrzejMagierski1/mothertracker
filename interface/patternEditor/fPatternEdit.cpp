@@ -156,7 +156,7 @@ void cPatternEditor::update()
 	// opozniania pokazywania step popupow
 	for(uint8_t i = 0; i<4; i++)
 	{
-		if(PTE->stepButtonsState[i] == 1 && PTE->stepButtonsTimer[i] > 180) // << wartosc w ms
+		if(mtPopups.getStepPopupState() == stepPopupNone && PTE->stepButtonsState[i] == 1 && PTE->stepButtonsTimer[i] > 180) // << wartosc w ms
 		{
 			switch(i)
 			{

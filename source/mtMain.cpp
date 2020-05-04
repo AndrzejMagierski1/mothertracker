@@ -34,7 +34,7 @@ void receiveAllMidi()
 	midiUpdate();
 }
 
-void setup()
+void setup()
 {
 	checkPowerState();
 
