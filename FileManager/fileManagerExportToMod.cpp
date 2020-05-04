@@ -59,7 +59,7 @@ uint8_t cFileManager::exportItFile()
 
 void cFileManager::exportItFile_Init()
 {
-	Serial.println("exportItFile_Init");
+//	Serial.println("exportItFile_Init");
 
 	waveTotalBytes = 0;
 	waveBytesLeft = 0;
@@ -125,7 +125,7 @@ uint8_t* writeLE(uint8_t *dest, uint32_t val, uint8_t size)
 }
 void cFileManager::exportItFile_InitHeader()
 {
-	Serial.println("exportItFile_InitHeader");
+//	Serial.println("exportItFile_InitHeader");
 
 	uint8_t buff32[0x20] { 0 };
 
@@ -828,7 +828,7 @@ void cFileManager::exportItFile_ProcessPatterns()
 }
 void cFileManager::exportItFile_Finish()
 {
-	Serial.println("exportItFile_Finish");
+//	Serial.println("exportItFile_Finish");
 	if (exportedFile.isOpen())
 	{
 		exportedFile.close();
@@ -838,7 +838,7 @@ void cFileManager::exportItFile_Finish()
 }
 void cFileManager::exportItFile_Error()
 {
-	Serial.println("exportItFile_Error");
+//	Serial.println("exportItFile_Error");
 	throwError(1);
 	if (exportedFile.isOpen())
 	{
