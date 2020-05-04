@@ -91,8 +91,8 @@ void cFileManager::importItFile_Init()
 
 	moveToNextOperationStep();
 }
-
-uint32_t readUint(uint8_t *buffStart, uint8_t size)
+// czytaj big endian
+uint32_t readLE(uint8_t *buffStart, uint8_t size)
 {
 	if (size > 4) return 0;
 
@@ -121,30 +121,32 @@ void cFileManager::importItFile_ProcessHeader()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint16_t PHiligt = readUint(&byteBuffer[0x1e], 2);
-		OrdNum = readUint(&byteBuffer[0x20], 2);
+		uint16_t PHiligt = readLE(&byteBuffer[0x1e], 2);
+		OrdNum = readLE(&byteBuffer[0x20], 2);
 
-		InsNum = readUint(&byteBuffer[0x22], 2);
-		SmpNum = readUint(&byteBuffer[0x24], 2);
-		PatNum = readUint(&byteBuffer[0x26], 2);
-		Cwt = readUint(&byteBuffer[0x28], 2);
-		Cmwt = readUint(&byteBuffer[0x2A], 2);
-		Flags = readUint(&byteBuffer[0x2C], 2);
-		Special = readUint(&byteBuffer[0x2E], 2);
-		GV = readUint(&byteBuffer[0x30], 1);
-		MV = readUint(&byteBuffer[0x31], 1);
-		IS = readUint(&byteBuffer[0x32], 1);
-		IT = readUint(&byteBuffer[0x33], 1);
-		Sep = readUint(&byteBuffer[0x34], 1);
-		PWD = readUint(&byteBuffer[0x35], 1);
-		MsgLgth = readUint(&byteBuffer[0x36], 1);
-		MessageOffset = readUint(&byteBuffer[0x38], 4);
+		InsNum = readLE(&byteBuffer[0x22], 2);
+		SmpNum = readLE(&byteBuffer[0x24], 2);
+		PatNum = readLE(&byteBuffer[0x26], 2);
+		Cwt = readLE(&byteBuffer[0x28], 2);
+		Cmwt = readLE(&byteBuffer[0x2A], 2);
+		Flags = readLE(&byteBuffer[0x2C], 2);
+		Special = readLE(&byteBuffer[0x2E], 2);
+		GV = readLE(&byteBuffer[0x30], 1);
+		MV = readLE(&byteBuffer[0x31], 1);
+		IS = readLE(&byteBuffer[0x32], 1);
+		IT = readLE(&byteBuffer[0x33], 1);
+		Sep = readLE(&byteBuffer[0x34], 1);
+		PWD = readLE(&byteBuffer[0x35], 1);
+		MsgLgth = readLE(&byteBuffer[0x36], 1);
+		MessageOffset = readLE(&byteBuffer[0x38], 4);
 		oldImpulseInstrumentFormat = Cmwt < 0x200;
 
 		if (debugMod)
 		{
 			Serial.println(PHiligt);
 			Serial.printf("OrdNum = %d\n", OrdNum);
+			Serial.print("Flags: ");
+			Serial.println(Flags, BIN);
 			Serial.printf("InsNum = %d\n", InsNum);
 			Serial.printf("SmpNum = %d\n", SmpNum);
 			Serial.printf("PatNum = %d\n", PatNum);
@@ -235,7 +237,7 @@ uint32_t cFileManager::getInstrumentOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, 4);
+		return readLE(byteBuffer, 4);
 	}
 
 	return 0;
@@ -258,7 +260,7 @@ uint32_t cFileManager::getSampleOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, 4);
+		return readLE(byteBuffer, 4);
 	}
 
 	return 0;
@@ -281,7 +283,7 @@ uint32_t cFileManager::getPatternOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, 4);
+		return readLE(byteBuffer, 4);
 	}
 
 	return 0;
@@ -304,7 +306,7 @@ uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readUint(byteBuffer, varSize);
+		return readLE(byteBuffer, varSize);
 	}
 
 	return 0;
@@ -367,11 +369,22 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	if (debugMod)
 	{
-		Serial.printf("###Instrument: %d, NoS: %d, smp no: %d, GbV %d\n",
+		Serial.printf("Instrument: %d,\nNoS: %d, smp no: %d, GbV %d\nNNA: %d, DCT: %d, DCA: %d, Fade: %d, PPS: %d, PPC: %d, DfP: %d, RV: %d, RP: %d, ver: %d, \n",
 						processedInstrument,
 						getFileVariable(fileOffset, 0x1e, 1),
 						sampleNumber,
-						GbV);
+						GbV,
+						getFileVariable(fileOffset, 0x11, 1),//nna
+						getFileVariable(fileOffset, 0x12, 1),//dct
+						getFileVariable(fileOffset, 0x13, 1),//dca
+						getFileVariable(fileOffset, 0x14, 2),//fade
+						getFileVariable(fileOffset, 0x16, 1),//pps
+						getFileVariable(fileOffset, 0x17, 1),//ppc
+						getFileVariable(fileOffset, 0x19, 1),//dfp
+						getFileVariable(fileOffset, 0x1a, 1),//rv
+						getFileVariable(fileOffset, 0x1b, 1),//rp
+						getFileVariable(fileOffset, 0x1c, 2)//ver
+										);
 	}
 
 	// pobieranie nazwy
@@ -481,7 +494,14 @@ void cFileManager::importItFile_LoadSamples()
 		bool isPTMLoad = Cvt & 0b00001000;
 		bool isTX12Bit = Cvt & 0b00010000;
 
+		char sampleName[30] { 0 };
+
 		if (debugMod)
+		{
+
+			strcpy(sampleName, (char*) &sampleHeader[0x14]);
+
+			Serial.printf("##sampleName: %.26s\n", sampleName);
 			Serial.printf(
 					"###SAMPLE/nflags: %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s \n",
 					isHeader ? "header" : "no header",
@@ -497,6 +517,7 @@ void cFileManager::importItFile_LoadSamples()
 					isPingPong ? "ping pong" : "forward",
 					isPingPongSustain ? "ping pong sutain" : "forward sustain");
 
+		}
 		if (debugMod)
 			Serial.printf(
 					"length: %d\nloopBegin: %d\tloopEnd %d\tC5Speed: %d\tSmpPoint %d\nsusLoopBegin: %d\tsusLoopEnd: %d\t GvL: %d\tVol: %d\n",
@@ -747,8 +768,8 @@ void cFileManager::importItFile_ProcessPatterns()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint16_t length = readUint(&byteBuffer[0], 2);
-		uint16_t rows = readUint(&byteBuffer[2], 2);
+		uint16_t length = readLE(&byteBuffer[0], 2);
+		uint16_t rows = readLE(&byteBuffer[2], 2);
 
 		if (debugMod) Serial.printf("patt %d, len: %d, rows: %d\n",
 									processedPattern,
@@ -877,7 +898,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 	uint8_t maskvariable = 0;
 	uint8_t note = 0;
 	uint8_t instrument = 0;
-	uint8_t volume = 0;
+	int16_t volume = -1;
 	uint8_t command = 0;
 	uint8_t commandValue = 0;
 	uint8_t row = 0;
@@ -970,7 +991,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 									0,
 									0);
 
-			volume = 0;
+			volume = -1;
 
 		}
 
@@ -985,7 +1006,7 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 void cFileManager::importItFile_setStep(uint8_t step,
 										uint8_t track,
 										uint8_t note,
-										uint8_t volume,
+										int16_t volume,
 										uint8_t instrument,
 										uint8_t fx,
 										uint8_t fxVal)
@@ -1002,7 +1023,7 @@ void cFileManager::importItFile_setStep(uint8_t step,
 	pattStep->instrument = instrument - 1;
 
 	// Volume ranges from 0->64
-	if (volume > 0 && volume <= 64)
+	if (volume >= 0 && volume <= 64)
 	{
 		pattStep->fx[0].type = sequencer.fx.FX_TYPE_VELOCITY;
 		pattStep->fx[0].value = map(volume, 0, 64, 0, 100);

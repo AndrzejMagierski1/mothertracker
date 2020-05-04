@@ -61,6 +61,7 @@ void cFileManager::update()
 
 
 	case fmImportModFile:				updateImportModFile(); 					break;
+	case fmExportModFile:				updateExportModFile(); 					break;
 
 	case fmReloadSamples:				updateReloadSamples(); 					break;
 
@@ -142,6 +143,24 @@ void cFileManager::updateImportModFile()
 		break;
 	}
 
+}
+
+void cFileManager::updateExportModFile()
+{
+	switch (currentOperationStep)
+	{
+	case 0:			exportItFile_Init();				break;
+	case 1:			exportItFile_InitHeader();			break;
+	case 2:			exportItFile_ProcessInstruments();	break;
+	case 3:			exportItFile_ProcessSamples();		break;
+	case 4:			exportItFile_ProcessWaves();		break;
+	case 5:			exportItFile_ProcessPatterns();		break;
+	case 6:			exportItFile_Finish();				break;
+
+	default:
+		stopOperationWithError(fmExportModError);
+		break;
+	}
 }
 float cFileManager::importMod_getProgress()
 {

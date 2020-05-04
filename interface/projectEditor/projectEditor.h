@@ -182,7 +182,8 @@ public:
 		stopActionOpen = 1,
 		stopActionNewProject,
 		stopActionExport,
-		stopActionImportMod
+		stopActionImportMod,
+		stopActionExportIt
 	};
 	uint8_t stopAction = 0;
 

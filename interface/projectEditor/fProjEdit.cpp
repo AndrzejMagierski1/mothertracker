@@ -941,10 +941,37 @@ static uint8_t functExportPatternStems()
 
 	return 1;
 }
+
+
 static uint8_t functExportToMOD()
 {
+	if (sequencer.isPlay())
+	{
+		PE->showStopPatternWindow();
+		PE->setStopPatternFunct();
+		PE->stopAction = cProjectEditor::stopActionExportIt;
+		return 1;
+	}
 
-
+	if (newFileManager.isProjectChanged() || (mtProject.values.projectNotSavedFlag & 1))
+	{
+		PE->functShowSaveLastWindowBeforeImportMod();
+		return 1;
+	}
+
+	debugLog.setMaxLineCount(5);
+
+	if (newFileManager.exportItFile())
+	{
+		PE->showDefaultScreen();
+		debugLog.addLine("Export to .it started");
+	}
+	else
+	{
+		debugLog.addLine("Export to .it failed to start");
+	}
+
+	debugLog.forceRefresh();
 	return 1;
 }
 
