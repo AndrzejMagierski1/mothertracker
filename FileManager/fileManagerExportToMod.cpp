@@ -534,10 +534,10 @@ void cFileManager::exportItFile_ProcessSamples()
 	sprintf((char*) buff0x50, "IMPSInstr%.3d.mts",
 			expSmp + 1);
 
-	bool isLoop = instr->playMode == loopPingPong ||
-			instr->playMode == loopForward ||
-			instr->playMode == loopBackward;
-	bool isLoopPingPong = instr->playMode == loopPingPong;
+	bool isLoop = instr->playMode == playModePingpong||
+			instr->playMode == playModeLoopForward ||
+			instr->playMode == playModeLoopBackward;
+	bool isLoopPingPong = instr->playMode == playModePingpong;
 
 	uint8_t instrVolume = map(instr->volume, 0, 100, 0, 64);
 

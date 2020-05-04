@@ -91,8 +91,7 @@ void cFileManager::importItFile_Init()
 
 	moveToNextOperationStep();
 }
-// czytaj big endian
-uint32_t readLE(uint8_t *buffStart, uint8_t size)
+uint32_t readUint(uint8_t *buffStart, uint8_t size)
 {
 	if (size > 4) return 0;
 
@@ -121,24 +120,24 @@ void cFileManager::importItFile_ProcessHeader()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint16_t PHiligt = readLE(&byteBuffer[0x1e], 2);
-		OrdNum = readLE(&byteBuffer[0x20], 2);
+		uint16_t PHiligt = readUint(&byteBuffer[0x1e], 2);
+		OrdNum = readUint(&byteBuffer[0x20], 2);
 
-		InsNum = readLE(&byteBuffer[0x22], 2);
-		SmpNum = readLE(&byteBuffer[0x24], 2);
-		PatNum = readLE(&byteBuffer[0x26], 2);
-		Cwt = readLE(&byteBuffer[0x28], 2);
-		Cmwt = readLE(&byteBuffer[0x2A], 2);
-		Flags = readLE(&byteBuffer[0x2C], 2);
-		Special = readLE(&byteBuffer[0x2E], 2);
-		GV = readLE(&byteBuffer[0x30], 1);
-		MV = readLE(&byteBuffer[0x31], 1);
-		IS = readLE(&byteBuffer[0x32], 1);
-		IT = readLE(&byteBuffer[0x33], 1);
-		Sep = readLE(&byteBuffer[0x34], 1);
-		PWD = readLE(&byteBuffer[0x35], 1);
-		MsgLgth = readLE(&byteBuffer[0x36], 1);
-		MessageOffset = readLE(&byteBuffer[0x38], 4);
+		InsNum = readUint(&byteBuffer[0x22], 2);
+		SmpNum = readUint(&byteBuffer[0x24], 2);
+		PatNum = readUint(&byteBuffer[0x26], 2);
+		Cwt = readUint(&byteBuffer[0x28], 2);
+		Cmwt = readUint(&byteBuffer[0x2A], 2);
+		Flags = readUint(&byteBuffer[0x2C], 2);
+		Special = readUint(&byteBuffer[0x2E], 2);
+		GV = readUint(&byteBuffer[0x30], 1);
+		MV = readUint(&byteBuffer[0x31], 1);
+		IS = readUint(&byteBuffer[0x32], 1);
+		IT = readUint(&byteBuffer[0x33], 1);
+		Sep = readUint(&byteBuffer[0x34], 1);
+		PWD = readUint(&byteBuffer[0x35], 1);
+		MsgLgth = readUint(&byteBuffer[0x36], 1);
+		MessageOffset = readUint(&byteBuffer[0x38], 4);
 		oldImpulseInstrumentFormat = Cmwt < 0x200;
 
 		if (debugMod)
@@ -237,7 +236,7 @@ uint32_t cFileManager::getInstrumentOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readLE(byteBuffer, 4);
+		return readUint(byteBuffer, 4);
 	}
 
 	return 0;
@@ -260,7 +259,7 @@ uint32_t cFileManager::getSampleOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readLE(byteBuffer, 4);
+		return readUint(byteBuffer, 4);
 	}
 
 	return 0;
@@ -283,7 +282,7 @@ uint32_t cFileManager::getPatternOffset(uint8_t index)
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readLE(byteBuffer, 4);
+		return readUint(byteBuffer, 4);
 	}
 
 	return 0;
@@ -306,7 +305,7 @@ uint32_t cFileManager::getFileVariable(uint32_t subFileOffset,
 
 	if (loadStatus == fileTransferEnd)
 	{
-		return readLE(byteBuffer, varSize);
+		return readUint(byteBuffer, varSize);
 	}
 
 	return 0;
@@ -768,8 +767,8 @@ void cFileManager::importItFile_ProcessPatterns()
 	if (loadStatus == fileTransferEnd)
 	{
 
-		uint16_t length = readLE(&byteBuffer[0], 2);
-		uint16_t rows = readLE(&byteBuffer[2], 2);
+		uint16_t length = readUint(&byteBuffer[0], 2);
+		uint16_t rows = readUint(&byteBuffer[2], 2);
 
 		if (debugMod) Serial.printf("patt %d, len: %d, rows: %d\n",
 									processedPattern,
