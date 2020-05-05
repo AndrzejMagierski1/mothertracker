@@ -3117,31 +3117,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		return 1;
 	}
 
-	// dalej tylko jesli edit (rec)
-	if (PTE->editMode != 1 && !sequencer.isRec())
-	{
-		sendSelection();
-		if (state == buttonPress)
-		{
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNoteOn(
-					Sequencer::GRID_INSIDE_PATTERN,
-					noteFromPad,
-					sequencer.getInstrumentVelo(
-							mtProject.values.lastUsedInstrument),
-					pad);
-		}
-		else if (state == buttonRelease)
-		{
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNoteOff(Sequencer::GRID_INSIDE_PATTERN,
-									noteFromPad,
-									0,
-									pad);
-		}
-		return 1;
-	}
-
 	// obsluga podswietlenia
 	if (state == buttonRelease)
 	{
@@ -3155,6 +3130,39 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		return 1;
 	}
+
+	// dalej tylko jesli edit (rec)
+	if (PTE->editMode != 1 && !sequencer.isRec())
+	{
+		sendSelection();
+		uint8_t noteToPlay = mtPadBoard.getNoteFromPad(pad);
+		if (PTE->editParam == 1)
+		{
+			mtProject.values.lastUsedInstrument = pad;
+			noteToPlay = sequencer.getSelectionFirstNote();
+		}
+
+		if (state == buttonPress)
+		{
+			sequencer.handleNoteOn(
+					Sequencer::GRID_INSIDE_PATTERN,
+					noteToPlay,
+					sequencer.getInstrumentVelo(
+							mtProject.values.lastUsedInstrument),
+					pad);
+		}
+		else if (state == buttonRelease)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNoteOff(Sequencer::GRID_INSIDE_PATTERN,
+									noteToPlay,
+									0,
+									pad);
+		}
+		return 1;
+	}
+
+
 
 	//obluga popupow fill/randomise
 	if(PTE->fillState > 0)

@@ -676,6 +676,7 @@ public:
 							uint8_t stepTo,
 							uint8_t trackTo);
 	uint8_t getCopySelectionHeight();
+	int8_t getSelectionFirstNote();
 
 	void clearSingleTrack(strPattern::strTrack *track);
 	void clearPattern(strPattern *patt);
