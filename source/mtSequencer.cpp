@@ -288,6 +288,8 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack::strSendStep &stepToSend = player.track[row].stepToSend;
 	strPlayer::strPlayerTrack::strSendStep &stepSent = player.track[row].stepSent;
 
+	bool forceFirstRollWhenNoNote = 0; // potrzebne jak rolka wchodzi jako efekt bez nuty
+
 	if (row == 0 &&
 			playerRow.uStep == 1 &&
 			isRec())
@@ -554,6 +556,9 @@ void Sequencer::play_microStep(uint8_t row)
 				case fx.FX_TYPE_ROLL:
 					killFxOnSlot(row, fxIndex);
 
+					playerRow.stepTimer = 1; // trza wyzerować na potrzeby przeliczania volume
+					forceFirstRollWhenNoNote = 1;
+
 					playerRow.rollIsOn = 1;
 					playerRow.rollFxId = fxIndex;
 					playerRow.rollVal = _fx.value;
@@ -804,8 +809,10 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		if (playerRow.rollPeriod != fx.ROLL_PERIOD_NONE && playerRow.rollIsOn)
 		{
+//			if(forceFirstRollWhenNoNote)
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) && playerRow.stepTimer != 1)
+			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) &&
+					(playerRow.stepTimer != 1 || forceFirstRollWhenNoNote))
 			{
 				playerRow.stepToSend = playerRow.stepSent;
 
