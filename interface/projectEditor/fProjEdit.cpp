@@ -55,6 +55,7 @@ static uint8_t functImportModConfirm();
 static uint8_t functSaveChangesCancelOpen();
 static uint8_t functSaveChangesDontSaveOpen();
 static uint8_t functSaveChangesDontSaveOpenMod();
+static uint8_t functSaveChangesDontSaveExportMod();
 static uint8_t functSaveChangesSaveOpen();
 static uint8_t functProjectListUp();
 static uint8_t functProjectListDown();
@@ -758,6 +759,13 @@ void cProjectEditor::functShowSaveLastWindowBeforeImportMod()
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesDontSaveOpenMod);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveOpen);
 	showSaveLastWindow();
+}void cProjectEditor::functShowSaveLastWindowBeforeExportToMod()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesDontSaveExportMod);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveOpen);
+	showSaveLastWindow();
 }
 
 static uint8_t functDeleteProject()
@@ -840,6 +848,35 @@ static uint8_t functSaveChangesDontSaveOpenMod()
 	newFileManager.clearChangeFlags();
 
 	functImportModConfirm();
+
+
+	return 1;
+}
+
+static uint8_t functSaveChangesDontSaveExportMod()
+{
+//	PE->projectListActiveFlag = 0;
+
+
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+
+
+	// ignorowanie neizapisanego
+	mtProject.values.projectNotSavedFlag = 0;
+	newFileManager.clearChangeFlags();
+
+	if (newFileManager.exportItFile())
+	{
+		PE->showDefaultScreen();
+		debugLog.addLine("Export to .it started");
+	}
+	else
+	{
+		debugLog.addLine("Export to .it failed to start");
+	}
+
+	debugLog.forceRefresh();
 
 
 	return 1;
@@ -955,7 +992,7 @@ static uint8_t functExportToMOD()
 
 	if (newFileManager.isProjectChanged() || (mtProject.values.projectNotSavedFlag & 1))
 	{
-		PE->functShowSaveLastWindowBeforeImportMod();
+		PE->functShowSaveLastWindowBeforeExportToMod();
 		return 1;
 	}
 
