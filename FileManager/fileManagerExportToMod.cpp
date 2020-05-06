@@ -534,7 +534,7 @@ void cFileManager::exportItFile_ProcessSamples()
 	sprintf((char*) buff0x50, "IMPSInstr%.3d.mts",
 			expSmp + 1);
 
-	bool isLoop = instr->playMode == playModePingpong||
+	bool isLoop = instr->playMode == playModePingpong ||
 			instr->playMode == playModeLoopForward ||
 			instr->playMode == playModeLoopBackward;
 	bool isLoopPingPong = instr->playMode == playModePingpong;
@@ -845,4 +845,11 @@ void cFileManager::exportItFile_Error()
 		exportedFile.close();
 	}
 
+}
+uint8_t cFileManager::exportItFile_getProgress()
+{
+	float retVal = expInst + expSmp + expWave + expPattern;
+	retVal = 100 * retVal / (INSTRUMENTS_COUNT * 3 + EXPORT_MAX_PATTERN);
+	retVal = constrain(retVal, 0.0f, 100.0f);
+	return (uint8_t) retVal;
 }
