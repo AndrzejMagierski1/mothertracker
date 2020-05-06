@@ -442,12 +442,14 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
-				killFxOnSlot(row, fxIndex);
-				noMoFx = 1;
+				if (patternStep.note >= 0)
+				{
+					killFxOnSlot(row, fxIndex);
+					noMoFx = 1;
 
-				stepToSend.velocity = _fx.value;
-				stepSent.velocity = stepToSend.velocity;
-
+					stepToSend.velocity = _fx.value;
+					stepSent.velocity = stepToSend.velocity;
+				}
 				break;
 			case fx.FX_TYPE_OFF:
 				killFxOnSlot(row, fxIndex);
@@ -532,14 +534,17 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
-				killFxOnSlot(row, fxIndex);
-				noMoFx = 1;
+				if (patternStep.note >= 0)
+				{
+					killFxOnSlot(row, fxIndex);
+					noMoFx = 1;
 
-				stepToSend.velocity = constrain(random(0,
-														_fx.value + 1),
-												0,
-												127);
-				stepSent.velocity = stepToSend.velocity;
+					stepToSend.velocity = constrain(random(0,
+															_fx.value + 1),
+													0,
+													127);
+					stepSent.velocity = stepToSend.velocity;
+				}
 				break;
 
 			default:
