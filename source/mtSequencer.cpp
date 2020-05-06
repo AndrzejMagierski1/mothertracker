@@ -288,6 +288,8 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack::strSendStep &stepToSend = player.track[row].stepToSend;
 	strPlayer::strPlayerTrack::strSendStep &stepSent = player.track[row].stepSent;
 
+	bool forceFirstRollWhenNoNote = 0; // potrzebne jak rolka wchodzi jako efekt bez nuty
+
 	if (row == 0 &&
 			playerRow.uStep == 1 &&
 			isRec())
@@ -440,12 +442,14 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
-				killFxOnSlot(row, fxIndex);
-				noMoFx = 1;
+				if (patternStep.note >= 0)
+				{
+					killFxOnSlot(row, fxIndex);
+					noMoFx = 1;
 
-				stepToSend.velocity = _fx.value;
-				stepSent.velocity = stepToSend.velocity;
-
+					stepToSend.velocity = _fx.value;
+					stepSent.velocity = stepToSend.velocity;
+				}
 				break;
 			case fx.FX_TYPE_OFF:
 				killFxOnSlot(row, fxIndex);
@@ -530,14 +534,17 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
-				killFxOnSlot(row, fxIndex);
-				noMoFx = 1;
+				if (patternStep.note >= 0)
+				{
+					killFxOnSlot(row, fxIndex);
+					noMoFx = 1;
 
-				stepToSend.velocity = constrain(random(0,
-														_fx.value + 1),
-												0,
-												127);
-				stepSent.velocity = stepToSend.velocity;
+					stepToSend.velocity = constrain(random(0,
+															_fx.value + 1),
+													0,
+													127);
+					stepSent.velocity = stepToSend.velocity;
+				}
 				break;
 
 			default:
@@ -553,6 +560,9 @@ void Sequencer::play_microStep(uint8_t row)
 					break;
 				case fx.FX_TYPE_ROLL:
 					killFxOnSlot(row, fxIndex);
+
+					playerRow.stepTimer = 1; // trza wyzerować na potrzeby przeliczania volume
+					forceFirstRollWhenNoNote = 1;
 
 					playerRow.rollIsOn = 1;
 					playerRow.rollFxId = fxIndex;
@@ -804,8 +814,10 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		if (playerRow.rollPeriod != fx.ROLL_PERIOD_NONE && playerRow.rollIsOn)
 		{
+//			if(forceFirstRollWhenNoNote)
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) && playerRow.stepTimer != 1)
+			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) &&
+					(playerRow.stepTimer != 1 || forceFirstRollWhenNoNote))
 			{
 				playerRow.stepToSend = playerRow.stepSent;
 

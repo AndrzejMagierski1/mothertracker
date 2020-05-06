@@ -1220,6 +1220,19 @@ uint8_t Sequencer::getCopySelectionHeight()
 		return 0;
 	}
 }
+
+int8_t Sequencer::getSelectionFirstNote()
+{
+	int8_t retNote = getActualPattern()->track[selection.firstTrack].step[selection.firstStep].note;
+
+	if (retNote < 0 ||
+			!isSelectionCorrect(&selection))
+	{
+		retNote = STEP_NOTE_DEFAULT;
+	}
+	return retNote;
+}
+
 void Sequencer::setSelection(uint8_t stepFrom,
 								uint8_t trackFrom,
 								uint8_t stepTo,

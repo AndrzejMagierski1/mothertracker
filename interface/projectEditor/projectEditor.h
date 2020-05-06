@@ -106,6 +106,7 @@ public:
 	void functShowSaveLastWindow();
 	void functShowSaveLastWindowBeforeOpen();
 	void functShowSaveLastWindowBeforeImportMod();
+	void functShowSaveLastWindowBeforeExportToMod();
 	void showSaveLastWindow();
 	void functShowOverwriteWindow();
 
