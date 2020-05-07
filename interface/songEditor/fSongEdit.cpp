@@ -773,6 +773,11 @@ void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 
 void cSongEditor::changeGlobalTempo(int16_t value)
 {
+//	nie zmieniaj jak external clock
+	if(!sequencer.isInternalClock())
+	{
+		return;
+	}
 	if(mtProject.values.globalTempo+value < Sequencer::MIN_TEMPO) mtProject.values.globalTempo = Sequencer::MIN_TEMPO;
 	else if(mtProject.values.globalTempo+value > Sequencer::MAX_TEMPO) mtProject.values.globalTempo = Sequencer::MAX_TEMPO;
 	else  mtProject.values.globalTempo += value;
