@@ -201,8 +201,15 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText2(label[6], "");
 
 	display.setControlText(label[7], "Tempo");
-	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
-
+	if (sequencer.isInternalClock())
+	{
+		display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
+	}
+	else
+	{
+		display.setControlColors(label[7],
+									interfaceGlobals.inactiveLabelsColors);
+	}
 	showTempoValue();
 	//showPatternLengthValue();
 
@@ -324,7 +331,14 @@ void cSongEditor::activateLabelsBorder()
 
 void cSongEditor::showTempoValue()
 {
-	sprintf(globalTempoVal,"%.1f BPM", mtProject.values.globalTempo);
+	if (sequencer.isInternalClock())
+	{
+		sprintf(globalTempoVal,"%.1f BPM", mtProject.values.globalTempo);
+	}
+	else
+	{
+		sprintf(globalTempoVal,"EXT");
+	}
 	display.setControlText2(label[7], globalTempoVal);
 	display.refreshControl(label[7]);
 

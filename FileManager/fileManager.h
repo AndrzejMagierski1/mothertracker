@@ -218,6 +218,7 @@ public:
 	void redoPattern();
 
 	float importMod_getProgress();
+	uint8_t exportItFile_getProgress();
 
 	uint8_t exportItFile();
 

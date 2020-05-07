@@ -363,8 +363,14 @@ void cFileManager::exportItFile_ProcessInstruments()
 		if (instr->envelope[0].enable)
 		{
 			attTicks = (float) instr->envelope[0].attack / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			if (attTicks < 1) attTicks = 1;
+
 			decTicks = (float) instr->envelope[0].decay / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			if (decTicks < 1) decTicks = 1;
+
 			relTicks = (float) instr->envelope[0].release / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			if (relTicks < 1) relTicks = 1;
+
 			sustainVal = map(instr->envelope[0].sustain, 0.0f, 1.0f, 0, 64);
 			if (sustainVal > 64) sustainVal = 64;
 		}
@@ -411,10 +417,10 @@ void cFileManager::exportItFile_ProcessInstruments()
 
 		memset(buff0x52, 0, sizeof(buff0x52));
 
-		uint16_t attTicks = 0;
-		uint16_t decTicks = 0;
-		uint16_t relTicks = 0;
-		uint16_t sustainVal = 0;
+		uint16_t attTicks = 1;
+		uint16_t decTicks = 1;
+		uint16_t relTicks = 1;
+		uint16_t sustainVal = 64;
 
 		if (instr->envelope[1].enable)
 		{
@@ -466,23 +472,28 @@ void cFileManager::exportItFile_ProcessInstruments()
 	 */
 	{
 		memset(buff0x52, 0, sizeof(buff0x52));
-		uint16_t attTicks = 0;
-		uint16_t decTicks = 0;
-		uint16_t relTicks = 0;
-		uint16_t sustainVal = 0;
+		uint16_t attTicks = 1;
+		uint16_t attVal = 64;
+		uint16_t decTicks = 1;
+		uint16_t relTicks = 1;
+		uint16_t relVal = 64;
+		uint16_t sustainVal = 64;
 
 		if (instr->envelope[2].enable)
 		{
 			attTicks = (float) instr->envelope[2].attack / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			attVal = 0;
 			decTicks = (float) instr->envelope[2].decay / (float) (10000.0f / (mtProject.values.globalTempo * 4));
 			relTicks = (float) instr->envelope[2].release / (float) (10000.0f / (mtProject.values.globalTempo * 4));
+			relVal = 0;
 			sustainVal = map(instr->envelope[2].sustain, 0.0f, 1.0f, 0, 64);
 			if (sustainVal > 64) sustainVal = 64;
 		}
 
 		ptr = buff0x52;
 		ptr = writeLE(ptr,
-						((instr->envelope[2].enable > 0) << 0) | // on/off
+						//						((instr->envelope[2].enable > 0) << 0) | // on/off
+						((1) << 0) | // on/off (z cutoffem jest problem, lepiej jak jest wlaczony)
 						(0 << 1) | //loop
 						(1 << 2) | // sus loop
 						(1 << 7), // Bit 7: Use pitch envelope as filter envelope instead.
@@ -494,7 +505,7 @@ void cFileManager::exportItFile_ProcessInstruments()
 		ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
 
 		//node 0
-		ptr = writeLE(ptr, 0, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, attVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
 		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
 
 		//node 1
@@ -510,7 +521,7 @@ void cFileManager::exportItFile_ProcessInstruments()
 		ptr = writeLE(ptr, attTicks + decTicks + 10, 2);//time nie gra roli bo loop
 
 		//node 4
-		ptr = writeLE(ptr, 0, 1);	//release val 0
+		ptr = writeLE(ptr, relVal, 1);	//release val 0
 		ptr = writeLE(ptr, attTicks + decTicks + 10 + relTicks/*rel*/, 2);//time = release
 
 		exportedFile.write(buff0x52, sizeof(buff0x52));
@@ -534,7 +545,7 @@ void cFileManager::exportItFile_ProcessSamples()
 	sprintf((char*) buff0x50, "IMPSInstr%.3d.mts",
 			expSmp + 1);
 
-	bool isLoop = instr->playMode == playModePingpong||
+	bool isLoop = instr->playMode == playModePingpong ||
 			instr->playMode == playModeLoopForward ||
 			instr->playMode == playModeLoopBackward;
 	bool isLoopPingPong = instr->playMode == playModePingpong;
@@ -845,4 +856,11 @@ void cFileManager::exportItFile_Error()
 		exportedFile.close();
 	}
 
+}
+uint8_t cFileManager::exportItFile_getProgress()
+{
+	float retVal = expInst + expSmp + expWave + expPattern;
+	retVal = 100 * retVal / (INSTRUMENTS_COUNT * 3 + EXPORT_MAX_PATTERN);
+	retVal = constrain(retVal, 0.0f, 100.0f);
+	return (uint8_t) retVal;
 }
