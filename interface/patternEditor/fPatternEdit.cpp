@@ -3147,8 +3147,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			sequencer.handleNoteOn(
 					Sequencer::GRID_INSIDE_PATTERN,
 					noteToPlay,
-					sequencer.getInstrumentVelo(
-							mtProject.values.lastUsedInstrument),
+					-1,
 					pad);
 		}
 		else if (state == buttonRelease)

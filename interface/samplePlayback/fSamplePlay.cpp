@@ -473,7 +473,7 @@ void cSamplePlayback::noteOnHandle(uint8_t channel, uint8_t note, uint8_t veloci
 {
 	sequencer.handleNoteOn(channel,
 						 note,
-						 sequencer.getInstrumentVelo( mtProject.values.lastUsedInstrument),
+						-1,
 						 source);
 
 	if(displayedTrack == engine.getLastUsedVoice())
