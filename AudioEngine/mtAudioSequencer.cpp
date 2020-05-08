@@ -1254,8 +1254,8 @@ void playerEngine::endFxFinetuneLFO(uint8_t fx_n)
 uint8_t playerEngine::isFxVelocity(uint8_t fx_id)
 {
 	return (fx_id == fx_t::FX_TYPE_VELOCITY) ||
-			(fx_id == fx_t::FX_TYPE_ROLL) ||
-			(fx_id == fx_t::FX_TYPE_NONE); // jeśli kontynuacja rolki to brak fxow w komunikacie
+			(fx_id == fx_t::FX_TYPE_ROLL);// ||
+//			(fx_id == fx_t::FX_TYPE_NONE); // jeśli kontynuacja rolki to brak fxow w komunikacie
 }
 float playerEngine::getMostSignificantAmount()
 {
@@ -1300,7 +1300,7 @@ uint8_t playerEngine::getMostSignificantVolume()
 			localVol = currentPerformanceValues.volume;
 		}
 		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]) ||
-			(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]))
+			(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]))
 		{
 			localVol = currentSeqModValues.volume;
 		}
