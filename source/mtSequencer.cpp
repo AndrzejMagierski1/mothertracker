@@ -752,6 +752,7 @@ void Sequencer::play_microStep(uint8_t row)
 			if (playerRow.rollIsOn && playerRow.rollVolumeOption != rollVolumeOption_const)
 			{
 				stepToSend.velocity = getRollVelo(row);
+//				Serial.println(stepToSend.velocity);
 			}
 
 			sendNoteOn(row, &stepToSend);
@@ -820,6 +821,7 @@ void Sequencer::play_microStep(uint8_t row)
 					(playerRow.stepTimer != 1 || forceFirstRollWhenNoNote))
 			{
 				playerRow.stepToSend = playerRow.stepSent;
+				playerRow.stepToSend.fx[0].type = fx.FX_TYPE_ROLL;
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
@@ -852,6 +854,7 @@ void Sequencer::play_microStep(uint8_t row)
 				if (playerRow.rollIsOn && playerRow.rollVolumeOption != rollVolumeOption_const)
 				{
 					stepToSend.velocity = getRollVelo(row);
+//					Serial.println(stepToSend.velocity);
 				}
 
 //				sendNoteOn(row,
