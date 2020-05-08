@@ -1300,7 +1300,7 @@ uint8_t playerEngine::getMostSignificantVolume()
 			localVol = currentPerformanceValues.volume;
 		}
 		else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]) ||
-			(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]))
+			(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]))
 		{
 			localVol = currentSeqModValues.volume;
 		}
