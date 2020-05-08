@@ -591,16 +591,22 @@ void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 			step = &seq[player.ramBank].track[t].step[s];
 			// jeśli off
 
-			uint8_t name = interfaceGlobals.fxIdToName(step->fx[index].type);
-			name += value;
+			if (step->fx[index].type != fx.FX_TYPE_NONE)
+			{
 
-			step->fx[index].type = constrain(interfaceGlobals.fxNameToId(name),
-												0,
-												47);
-			step->fx[index].value = constrain(
-												step->fx[index].value,
-												getFxMin(step->fx[index].type),
-												getFxMax(step->fx[index].type));
+				uint8_t name = interfaceGlobals.fxIdToName(
+						step->fx[index].type);
+				name += value;
+
+				step->fx[index].type = constrain(
+						interfaceGlobals.fxNameToId(name),
+						0,
+						47);
+				step->fx[index].value = constrain(
+						step->fx[index].value,
+						getFxMin(step->fx[index].type),
+						getFxMax(step->fx[index].type));
+			}
 		}
 	}
 }
