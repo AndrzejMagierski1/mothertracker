@@ -5,10 +5,9 @@
 struct strEffectWavetableSmootherParams
 {
 	int windowSize;
-	int windowLength;
+	int windowsNumber;
 };
 
-constexpr uint8_t MAX_DELAY_VOICE_NUMBER = 99;
 
 class mtEffectWavetableSmoother : public mtEffect
 {
@@ -27,6 +26,12 @@ private:
 	strEffectWavetableSmootherParams effectWavetableSmootherParams;
 	uint32_t processedSamples = 0;
 	uint32_t length;
+
+	uint32_t sourceNumberOfWindows;
+
+	float smoothWindowStep;
+
+	float currentWindowNumber;
 
 	int16_t * dstAddr;
 	int16_t * srcAddr;
