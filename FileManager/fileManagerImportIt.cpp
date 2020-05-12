@@ -57,6 +57,8 @@ uint8_t processedPattern = 0;
 uint8_t processedInstrument = 0;
 uint8_t processedSample = 0;
 
+int8_t instrumentTuneCorrection[INSTRUMENTS_COUNT] { 0 };
+
 uint8_t waveWriteFlag = 0;
 uint32_t saveLength = 0;
 int16_t *waveSrcPtr;
@@ -79,6 +81,8 @@ void cFileManager::importItFile_Init()
 	InsNum = 100;
 	SmpNum = 100;
 	PatNum = 100;
+
+	memset(instrumentTuneCorrection, 0, sizeof(instrumentTuneCorrection));
 
 	sampleNumber = 0;
 
@@ -368,22 +372,23 @@ void cFileManager::importItFile_ProcessInstruments()
 
 	if (debugMod)
 	{
-		Serial.printf("Instrument: %d,\nNoS: %d, smp no: %d, GbV %d\nNNA: %d, DCT: %d, DCA: %d, Fade: %d, PPS: %d, PPC: %d, DfP: %d, RV: %d, RP: %d, ver: %d, \n",
-						processedInstrument,
-						getFileVariable(fileOffset, 0x1e, 1),
-						sampleNumber,
-						GbV,
-						getFileVariable(fileOffset, 0x11, 1),//nna
-						getFileVariable(fileOffset, 0x12, 1),//dct
-						getFileVariable(fileOffset, 0x13, 1),//dca
-						getFileVariable(fileOffset, 0x14, 2),//fade
-						getFileVariable(fileOffset, 0x16, 1),//pps
-						getFileVariable(fileOffset, 0x17, 1),//ppc
-						getFileVariable(fileOffset, 0x19, 1),//dfp
-						getFileVariable(fileOffset, 0x1a, 1),//rv
-						getFileVariable(fileOffset, 0x1b, 1),//rp
-						getFileVariable(fileOffset, 0x1c, 2)//ver
-										);
+		Serial.printf(
+				"Instrument: %d,\nNoS: %d, smp no: %d, GbV %d\nNNA: %d, DCT: %d, DCA: %d, Fade: %d, PPS: %d, PPC: %d, DfP: %d, RV: %d, RP: %d, ver: %d, \n",
+				processedInstrument,
+				getFileVariable(fileOffset, 0x1e, 1),
+				sampleNumber,
+				GbV,
+				getFileVariable(fileOffset, 0x11, 1), //nna
+				getFileVariable(fileOffset, 0x12, 1), //dct
+				getFileVariable(fileOffset, 0x13, 1), //dca
+				getFileVariable(fileOffset, 0x14, 2), //fade
+				getFileVariable(fileOffset, 0x16, 1), //pps
+				getFileVariable(fileOffset, 0x17, 1), //ppc
+				getFileVariable(fileOffset, 0x19, 1), //dfp
+				getFileVariable(fileOffset, 0x1a, 1), //rv
+				getFileVariable(fileOffset, 0x1b, 1), //rp
+				getFileVariable(fileOffset, 0x1c, 2) //ver
+								);
 	}
 
 	// pobieranie nazwy
@@ -619,16 +624,27 @@ void cFileManager::importItFile_LoadSamples()
 				{
 					float noteTune = 12 * log2((float) C5Speed / (float) 44100);
 
-					instr->tune = constrain(noteTune,
-											-24,
-											24);
+					if (abs(noteTune) >= 25)
+					{
+						instrumentTuneCorrection[processedInstrument] = noteTune;
+					}
+					else
+					{
+						instr->tune = constrain(noteTune,
+												-24,
+												24);
+					}
+
 					instr->fineTune = constrain(
 							(noteTune - ((int8_t ) noteTune)) * 100,
 							-100,
 							100);
-					if (debugMod) Serial.printf("tune= %d, fine= %d\n",
-												instr->tune,
-												instr->fineTune);
+					if (debugMod)
+						Serial.printf(
+								"tune= %d, fine= %d, instr corr=%d\n",
+								instr->tune,
+								instr->fineTune,
+								instrumentTuneCorrection[processedInstrument]);
 				}
 
 				instr->sample.address = itFile_sampleDest_ptr;
@@ -981,6 +997,13 @@ void cFileManager::importItFile_ProcessPattern(uint32_t patternOffset,
 //							instrument,
 //							command,
 //							commandValue);
+
+			if ((instrument - 1) <= INSTRUMENTS_MAX)
+			{
+				note = constrain(
+						note + instrumentTuneCorrection[instrument - 1], 0,
+						127);
+			}
 
 			importItFile_setStep(row,
 									channel,
