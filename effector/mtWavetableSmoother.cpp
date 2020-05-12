@@ -26,19 +26,24 @@ bool mtEffectWavetableSmoother::startProcess()
 		return false;
 	}
 
-	sourceNumberOfWindows = confirmed.selection.length/effectWavetableSmootherParams.windowSize;
-	if(sourceNumberOfWindows > (uint32_t)effectWavetableSmootherParams.windowsNumber)
+	sourceWindowMax = (confirmed.selection.length/effectWavetableSmootherParams.windowSize) - 1;
+	if(sourceWindowMax > ((uint32_t)effectWavetableSmootherParams.windowsNumber - 1 ))
 	{
-		sourceNumberOfWindows = effectWavetableSmootherParams.windowsNumber;
+		sourceWindowMax = effectWavetableSmootherParams.windowsNumber - 1;
 	}
-	smoothWindowStep = sourceNumberOfWindows/(float)effectWavetableSmootherParams.windowsNumber;
+	smoothWindowStep = sourceWindowMax/(float)effectWavetableSmootherParams.windowsNumber;
 	currentWindowNumber = 0;
+	iCurrentWindowNumber = 0;
+	iLastWindowNumber = 0;
 
 	dstAddr = processed.selection.addr;
 	srcAddr = confirmed.selection.addr;
 
 	processedSamples = 0;
 	length = effectWavetableSmootherParams.windowsNumber * effectWavetableSmootherParams.windowSize;
+
+	currentCrossfadeCoef =  1.0;
+	crossfadeStep = 1.0 / getSmoothStepNumber();
 
 	state = true;
 	return true;
@@ -51,7 +56,7 @@ int32_t mtEffectWavetableSmoother::updateProcess()
 	uint32_t dif = length - processedSamples;
 	uint32_t processedBlockLength = dif > 8192 ? 8192 : dif;
 
-	if(sourceNumberOfWindows == (uint32_t)effectWavetableSmootherParams.windowsNumber )
+	if(sourceWindowMax == (uint32_t)effectWavetableSmootherParams.windowsNumber )
 	{
 		for(uint32_t i = 0; i < processedBlockLength; i++)
 		{
@@ -65,10 +70,23 @@ int32_t mtEffectWavetableSmoother::updateProcess()
 		{
 			uint32_t currentSampleInWindow = processedSamples % effectWavetableSmootherParams.windowSize;
 
-			dstAddr[processedSamples] = srcAddr[(int)( ((int)currentWindowNumber * (effectWavetableSmootherParams.windowSize - 1))  + currentSampleInWindow)];
 
 
-			if(!(processedSamples % (effectWavetableSmootherParams.windowSize -1))) currentWindowNumber += smoothWindowStep;
+			dstAddr[processedSamples] = (currentCrossfadeCoef * srcAddr[(int)( ((int)currentWindowNumber * (effectWavetableSmootherParams.windowSize - 1))  + currentSampleInWindow)])
+			+ (((uint32_t)currentWindowNumber == sourceWindowMax) ? 0 : (1.0 - currentCrossfadeCoef) * srcAddr[(int)( (((int)currentWindowNumber+1) * (effectWavetableSmootherParams.windowSize - 1))  + currentSampleInWindow)]);
+
+
+			if(!(processedSamples % (effectWavetableSmootherParams.windowSize -1)))
+			{
+
+				currentWindowNumber += smoothWindowStep;
+				currentCrossfadeCoef -= crossfadeStep;
+				if(detectChangeSourceWindow())
+				{
+					currentCrossfadeCoef =  1.0;
+					crossfadeStep = 1.0 / getSmoothStepNumber();
+				}
+			}
 			processedSamples++;
 
 		}
@@ -90,5 +108,46 @@ bool mtEffectWavetableSmoother::getProcessState()
 uint32_t mtEffectWavetableSmoother::getExpectedProcessLength()
 {
 	return  effectWavetableSmootherParams.windowsNumber * effectWavetableSmootherParams.windowSize;
+}
+
+bool  mtEffectWavetableSmoother::detectChangeSourceWindow()
+{
+	bool result = false;
+
+	iCurrentWindowNumber = (int)currentWindowNumber;
+
+	if(iCurrentWindowNumber != iLastWindowNumber )
+	{
+		result = true;
+	}
+
+	iLastWindowNumber = iCurrentWindowNumber;
+
+	return result;
+}
+
+uint32_t mtEffectWavetableSmoother::getSmoothStepNumber()
+{
+	float localCurrentWindow = currentWindowNumber;
+
+	int iLocalCurrentWindow = (int) localCurrentWindow;
+	int iLocalLastWindow = iLocalCurrentWindow;
+
+	uint32_t result = 0;
+
+	while(1)
+	{
+		result++;
+		localCurrentWindow += smoothWindowStep;
+
+		iLocalCurrentWindow = (int) localCurrentWindow;
+
+		if(iLocalCurrentWindow != iLocalLastWindow)
+		{
+			return result;
+		}
+
+		iLocalLastWindow = iLocalCurrentWindow;
+	}
 }
 
