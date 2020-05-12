@@ -827,6 +827,34 @@ void cFileManager::importSampleFromSampleEditorFinish()
 	mtProject.instrument[importStartSlot].sample.length = importFromSampleEditorLength/2;
 	memcpy(mtProject.instrument[importStartSlot].sample.address, importFromSampleEditorAddress, importFromSampleEditorLength);
 
+	if(mtProject.instrument[currentSample].playMode == playModeWavetable)
+	{
+		mtProject.instrument[currentSample].sample.type = mtSampleTypeWavetable;
+		uint32_t lastCurrentWindow = mtProject.instrument[currentSample].wavetableCurrentWindow;
+		uint32_t lastWindowNumber = mtProject.instrument[currentSample].sample.wavetableWindowNumber;
+		mtProject.instrument[currentSample].sample.wavetable_window_size =
+				(mtProject.instrument[currentSample].sample.length >= mtProject.instrument[currentSample].sample.wavetable_window_size) ?
+				mtProject.instrument[currentSample].sample.wavetable_window_size : mtProject.instrument[currentSample].sample.length;
+
+		//*******************************wavetable window size moze byc tylko potęgą 2
+		// Jezeli length nie jest potega 2 trzeba go zrownac do najwiekszej mozliwej potegi 2
+		uint16_t localMask = 2048;
+		while( !(mtProject.instrument[currentSample].sample.wavetable_window_size & localMask) )
+		{
+			if((mtProject.instrument[currentSample].sample.wavetable_window_size == 0 )) break;
+			localMask>>=1;
+		}
+
+		mtProject.instrument[currentSample].sample.wavetable_window_size &= localMask;
+		//**************************************************************************
+		mtProject.instrument[currentSample].sample.wavetableWindowNumber =
+				mtProject.instrument[currentSample].sample.wavetable_window_size
+				? mtProject.instrument[currentSample].sample.length/mtProject.instrument[currentSample].sample.wavetable_window_size
+				: 0;
+		mtProject.instrument[currentSample].wavetableCurrentWindow =
+				map(lastCurrentWindow, 0, mtProject.instrument[currentSample].sample.wavetableWindowNumber, 0, lastWindowNumber);
+	}
+
 
 	status = fmImportSampleFromSampleEditorEnd;
 	currentOperationStep = 0;

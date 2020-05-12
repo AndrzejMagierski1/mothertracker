@@ -70,8 +70,6 @@ int32_t mtEffectWavetableSmoother::updateProcess()
 		{
 			uint32_t currentSampleInWindow = processedSamples % effectWavetableSmootherParams.windowSize;
 
-
-
 			dstAddr[processedSamples] = (currentCrossfadeCoef * srcAddr[(int)( ((int)currentWindowNumber * (effectWavetableSmootherParams.windowSize - 1))  + currentSampleInWindow)])
 			+ (((uint32_t)currentWindowNumber == sourceWindowMax) ? 0 : (1.0 - currentCrossfadeCoef) * srcAddr[(int)( (((int)currentWindowNumber+1) * (effectWavetableSmootherParams.windowSize - 1))  + currentSampleInWindow)]);
 
