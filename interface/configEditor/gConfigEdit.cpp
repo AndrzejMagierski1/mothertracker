@@ -20,11 +20,25 @@ static uint32_t popUpLabelColors[] =
 	one_true_red, // ramka
 };
 
-const char creditsText[100] =
+const char creditsText[1500] =
 {
-"Credits"
-"\nPolyend Team"
-"\nBema & Struga"
+	"Polyend Team 2020:"
+	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Andrzej Magierski, Maciej Pancer, Michal Pilat, Piotr Raczynski,"
+	"\nDaniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz, Krzysztof Ziejewski, Krzysztof Zwolinski."
+	"\n"
+	"\nSpecial thanks to the beta testers & artists for feedback, tests, demo tracks, tutorials,videos and reviews: "
+	"\nSam Barker, Gui Boratto, Cuckoo, Mike Coakley, Alfred Darlington (Daedelus), Matthew Dear, Richard Devine,"
+	"\nZiv Eliraz (Loopop), Darren Emerson (Underworld),Derrick Estrada (Baseck), Aaron Funk (Venetian Snares), "
+	"\nPaul Geissinger (Starkey), John Greenwood (Radiohead), Julien Guillot (The Junglechrist), Scott Harper (Knobs),"
+	"\nAndrew Huang, Richard D. James (Aphex Twin), Benn Jordan (The Flashbulb), Tim Koch, Jeremy Leaird-Koch "
+	"\n(Red Means Recording), Jamie Lidell, Robert Lippok, Sarah Longfield,Ricky Martinez, Jonathan Miller, Bryan Noll"
+	"\n(Lightbath), Terrence O'Brien (Endgadget), Bogdan Raczynski, Tom Rowlands (Chemical Brothers), Sam Shepherd"
+	"\n(Floating Points), Cenk Sayinli (mr. Dataline), Lukasz Seliga (SLG), Jacek Sienkiewicz, Sam Slater, Travis Stewart"
+	"\n(Machinedrum), Jimi Tenor, Si Truss (Future Music), Brain Waltzera, Axel Willner (The Field), Danny Wolfers (Legowelt)."
+	"\n"
+	"\nMany thanks for the sample packs to:"
+	"\nAlex Cummings / ARC noise, Julien Guillot / Stazma, Jamie Lidell / Isolation Loops, Plughugger /"
+	"\nEP16 Techno, Alex Restis / 8-Bit Essentials & Crude Drums, Scot Solida /"
 };
 
 
@@ -142,9 +156,9 @@ void cConfigEditor::initDisplayControls()
 	prop.h = 394;
 	if(configListControl == nullptr)  configListControl = display.createControl<cList>(&prop);
 
-	prop3.style = 0;
-	prop3.value = 0;
-	prop3.x = 10;
+	prop3.style = controlStyleFont5;
+	prop3.value = 3;
+	prop3.x = 0;
 	prop3.y = 35;
 	prop3.w = 780;
 	prop3.h = 400;
@@ -447,6 +461,9 @@ void cConfigEditor::hideFirmwareUpdatePopout()
 
 void cConfigEditor::showCreditsControls()
 {
+	display.setControlText(titleLabel, "Credits");
+	display.refreshControl(titleLabel);
+
 	for(uint8_t i = 0; i<7; i++)
 	{
 		display.setControlHide(label[i]);
@@ -465,6 +482,7 @@ void cConfigEditor::showCreditsControls()
 	display.refreshControl(bgLabel);
 
 	display.setControlShow(textBox);
+	//display.setControlValue(textBox, 5);
 	display.setControlText(textBox, creditsText);
 	display.refreshControl(textBox);
 
@@ -475,7 +493,10 @@ void cConfigEditor::showCreditsControls()
 
 void cConfigEditor::hideCreditsControls()
 {
+	display.setControlText(titleLabel, "Config");
+	display.refreshControl(titleLabel);
 
+	display.setControlHide(textBox);
 	display.setControlText(label[7], "");
 	display.refreshControl(label[7]);
 }

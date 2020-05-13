@@ -89,6 +89,7 @@ void mtSleep::resetMCU()
 {
 	saveStartState(1);
 
+
 	__DSB();
 	CM4_SCB_AIRCR = (uint32_t)((0x5FAUL << CM4_SCB_AIRCR_VECTKEY_POS) | CM4_SCB_AIRCR_SYSRESETREQ_MASK);
 	__DSB();

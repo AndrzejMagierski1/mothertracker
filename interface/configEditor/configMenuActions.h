@@ -13,6 +13,7 @@ void setMetronomValues();
 
 void openCreditsAction();
 
+void openManualAction();
 
 
 #endif /* INTERFACE_CONFIGEDITOR_CONFIGMENUACTIONS_H_ */

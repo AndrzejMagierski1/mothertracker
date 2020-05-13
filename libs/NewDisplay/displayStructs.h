@@ -83,6 +83,8 @@ enum controlsStyle
 
 	controlStyleBottomShadow 			= (1<<21),
 
+	controlStyleTransformImg 			= (1<<22),
+
 };
 
 

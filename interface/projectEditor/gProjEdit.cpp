@@ -143,7 +143,7 @@ void cProjectEditor::initDisplayControls()
 	prop8.x = 500;
 	prop8.y = 220;
 	prop8.value = coverRamAddres;
-	prop8.style = (controlStyleCenterX | controlStyleCenterY);
+	prop8.style = (controlStyleCenterX | controlStyleCenterY | controlStyleTransformImg);
 
 	if(coverImg == nullptr)  coverImg = display.createControl<cImg>(&prop8);
 }
