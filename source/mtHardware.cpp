@@ -317,8 +317,10 @@ void checkPowerState()
 
 	if(START_STATE_SAVE)
 	{
-		if(!readStartState())
+		if(readStartState() == 0)
 		{
+			//lowPower.setLowPowerState(shutdownStateSleep);
+
 			lowPower.goLowPower(0);
 			while(1)
 			{

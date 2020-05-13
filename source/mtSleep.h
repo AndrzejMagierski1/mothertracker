@@ -30,6 +30,7 @@ public:
 	uint8_t getShutdownProgress();
 
 	inline uint8_t getLowPowerState() { return shutdownState; }
+	inline void setLowPowerState(uint8_t state) { shutdownState =  state; }
 
 	void goLowPower(uint8_t isMCUInicialized = 1);
 	void wakeUp();
