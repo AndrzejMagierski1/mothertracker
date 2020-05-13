@@ -7,7 +7,7 @@
 
 
 // baza baz
-cMenuGroup menuBase(menuBase, 0, 0, 5);
+cMenuGroup menuBase(menuBase, 0, 0, 6);
 //=====================================================================================================================================
 //=====================================================================================================================================
 //=====================================================================================================================================
@@ -19,8 +19,8 @@ cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	4);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
-//cMenuGroup menuHelp		(menuBase, 4, "Help", 		1);
-cMenuGroup menuCredits	(menuBase, 4, "Credits", 	1);
+cMenuGroup menuManual	(menuBase, 4, "Manual", 	1);
+cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
 
 
 // elementy/////////
@@ -113,18 +113,18 @@ cMenuItem melCC5(menuCCOut, 		4, "CC E", 	menuItemTypeValueU8, &setupCC5);
 const strItemTypeActionButton updateFirmwareSetup 	{ firmwareUpgradeActivate, firmwareUpgradeDeactivate };
 const strItemTypeLabel currentVerisonSetup 			{ interfaceGlobals.currentFirmwareVersion };
 
-cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Firmware Update", 		menuTypeItemActionButton, &updateFirmwareSetup);
-cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 		menuTypeItemLabel, &currentVerisonSetup);
+cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Firmware Update", 	menuTypeItemActionButton, &updateFirmwareSetup);
+cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 	menuTypeItemLabel, &currentVerisonSetup);
 
 /////////
-//const strItemTypeLabel helpSetup 			{ (char*)"" };
+const strItemTypeActionButton manualSetup 		{ openManualAction, nullptr};
 
-//cMenuItem melOpenManual		(menuHelp, 		0, "Open Manual", 			menuTypeItemLabel, &helpSetup);
+cMenuItem melOpenManual		(menuManual, 		0, "Open Manual", 	menuTypeItemActionButton, &manualSetup);
 
 ///////////
 const strItemTypeActionButton creditsSetup 		{ openCreditsAction, nullptr};
 
-cMenuItem melOpenCredits	(menuCredits, 	0, "Credits", 				menuTypeItemActionButton, &creditsSetup);
+cMenuItem melOpenCredits	(menuCredits, 	0, "Show Credits", 			menuTypeItemActionButton, &creditsSetup);
 
 
 

@@ -110,7 +110,7 @@ uint8_t cTextBox::update()
 
     int16_t border_x = posX;//, border_y = posY-2;
     int16_t border_y = posY;
-    int16_t lines_step =  font->height+10;
+    int16_t lines_step =  font->height+value;
     uint8_t lines_max = height/lines_step;
     int16_t lines_space = font->height;
 
@@ -210,16 +210,13 @@ uint8_t cTextBox::update()
 			int16_t length  = getNextLineLength();
 			if(length > 0) API_CMD_TEXT(posX+5, posY+5+(line*lines_step), font->handle, textStyle, position, length);
 			else if(length  < 0) break;
+			// 0 = pusta linia
 
 			position += length+1;
 		}
 
 
 	}
-
-
-
-
 
 
     API_LIB_EndCoProList();
@@ -294,7 +291,7 @@ int16_t cTextBox::getNextLineLength()
 	int16_t last_length = -1;
 	//int8_t
 
-	for(uint8_t i = 0; i<10; i++)
+	for(uint8_t i = 0; i<30; i++) // 30 wystapien na linie max
 	{
 		//gdzie jest enter
 		char* enter_pos = strchr(temp_pos,'\n');

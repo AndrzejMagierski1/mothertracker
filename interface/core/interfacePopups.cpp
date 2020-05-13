@@ -555,6 +555,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 
 void cInterfacePopups::refreshFxDescription()
 {
+
+	display.setControlValue(textBox, 10);
 	display.setControlText(textBox, interfaceGlobals.fxDescPtr(selectedActualItem));
 	//display.setControlShow(textBox);
 	display.refreshControl(textBox);

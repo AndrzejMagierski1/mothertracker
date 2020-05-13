@@ -356,18 +356,30 @@ uint8_t cLabel::update()
 		{
 			if(data->bitmaps[i].bitmapIndex)
 			{
-				API_SAVE_CONTEXT();
+				//API_SAVE_CONTEXT();
 
-				API_BITMAP_HANDLE(0);
-				API_BITMAP_LAYOUT(bitmaps[data->bitmaps[i].bitmapIndex].format, bitmaps[data->bitmaps[i].bitmapIndex].linestride, bitmaps[data->bitmaps[i].bitmapIndex].height);
-				API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[data->bitmaps[i].bitmapIndex].width, bitmaps[data->bitmaps[i].bitmapIndex].height);
+				API_CMD_SETBITMAP(	bitmaps[data->bitmaps[i].bitmapIndex].address,
+									bitmaps[data->bitmaps[i].bitmapIndex].format,
+									bitmaps[data->bitmaps[i].bitmapIndex].width,
+									bitmaps[data->bitmaps[i].bitmapIndex].height);
+
+/*				API_BITMAP_HANDLE(0);
+				API_BITMAP_LAYOUT(	bitmaps[data->bitmaps[i].bitmapIndex].format,
+									bitmaps[data->bitmaps[i].bitmapIndex].linestride,
+									bitmaps[data->bitmaps[i].bitmapIndex].height);
+
+				API_BITMAP_SIZE(NEAREST, BORDER, BORDER,
+						bitmaps[data->bitmaps[i].bitmapIndex].width,
+						bitmaps[data->bitmaps[i].bitmapIndex].height);
+
 				API_BITMAP_SOURCE(bitmaps[data->bitmaps[i].bitmapIndex].address);
+*/
 
 				API_BEGIN(BITMAPS);
 				API_VERTEX2F(data->bitmaps[i].xValue-(bitmaps[data->bitmaps[i].bitmapIndex].width/2), data->bitmaps[i].yValue);
 				API_END();
 
-				API_RESTORE_CONTEXT();
+				//API_RESTORE_CONTEXT();
 			}
 		}
 	}

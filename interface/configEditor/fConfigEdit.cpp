@@ -855,6 +855,15 @@ void openCreditsAction()
 
 //==============================================================================================================
 
+void openManualAction()
+{
+
+
+	CE->eventFunct(eventActivateImageViewer,CE,0,0);
+
+}
+
+
 
 void cConfigEditor::saveConfigToEeprom()
 {
