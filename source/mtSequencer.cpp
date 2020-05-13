@@ -1777,7 +1777,7 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 	{
 		for (uint8_t tr = sel->firstTrack; tr < 8; tr++)
 		{
-			if (!player.track[tr].noteOpen)
+			if (!player.track[tr].noteOpen && !isTrackEngineMuted(tr))
 			{
 
 				//					player.track[tr].stepSent.note = note;
