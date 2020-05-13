@@ -100,14 +100,14 @@ AudioConnection          connect96(&amp[6], &trackRMS[6]);
 AudioConnection          connect97(&amp[7], &trackRMS[7]);
 
 
-AudioConnection          connect41(&amp[0], 0, &mixerDelay, 0);
-AudioConnection          connect42(&amp[1], 0, &mixerDelay, 1);
-AudioConnection          connect43(&amp[2], 0, &mixerDelay, 2);
-AudioConnection          connect44(&amp[3], 0, &mixerDelay, 3);
-AudioConnection          connect45(&amp[4], 0, &mixerDelay, 4);
-AudioConnection          connect46(&amp[5], 0, &mixerDelay, 5);
-AudioConnection          connect47(&amp[6], 0, &mixerDelay, 6);
-AudioConnection          connect48(&amp[7], 0, &mixerDelay, 7);
+AudioConnection          connect41(&envelopeAmp[0], 0, &mixerDelay, 0);
+AudioConnection          connect42(&envelopeAmp[1], 0, &mixerDelay, 1);
+AudioConnection          connect43(&envelopeAmp[2], 0, &mixerDelay, 2);
+AudioConnection          connect44(&envelopeAmp[3], 0, &mixerDelay, 3);
+AudioConnection          connect45(&envelopeAmp[4], 0, &mixerDelay, 4);
+AudioConnection          connect46(&envelopeAmp[5], 0, &mixerDelay, 5);
+AudioConnection          connect47(&envelopeAmp[6], 0, &mixerDelay, 6);
+AudioConnection          connect48(&envelopeAmp[7], 0, &mixerDelay, 7);
 
 AudioConnection          connect49(&mixerDelay,&shortDelay);
 
