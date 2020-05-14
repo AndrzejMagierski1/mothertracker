@@ -302,7 +302,32 @@ static  uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
+static  uint8_t changeTracksOnSelected(int8_t delta)
+{
 
+	for (uint8_t i = 0; i < 8; i++)
+	{
+//		if ((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(
+//				i))
+		if (tactButtons.isButtonPressed(i))
+		{
+			PM->trackPatternChange[i] = 0;
+
+			mtProject.values.perfTracksPatterns[i] = constrain(
+					mtProject.values.perfTracksPatterns[i] + delta,
+					1,
+					255);
+
+			sequencer.setTrackToLoadNow(
+										i,
+										mtProject.values.perfTracksPatterns[i]);
+
+		}
+	}
+	PM->refreshTrackPattern = 1;
+
+	return 1;
+}
 
 //=========================================================================================================
 static  uint8_t functLeft()
@@ -322,6 +347,10 @@ static  uint8_t functLeft()
 	{
 		if(PM->performanceEditPlace > 0) PM->performanceEditPlace--;
 		PM->showEditFrame(PM->performanceEditPlace);
+	}
+	else
+	{
+		changeTracksOnSelected(-1);
 	}
 
 	return 1;
@@ -345,6 +374,10 @@ static  uint8_t functRight()
 	{
 		if(PM->performanceEditPlace < 11) PM->performanceEditPlace++;
 		PM->showEditFrame(PM->performanceEditPlace);
+	}
+	else
+	{
+		changeTracksOnSelected(1);
 	}
 
 	return 1;
@@ -569,6 +602,11 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 //							mtProject.values.perfTracksPatterns[button],
 //							button);
 				PM->refreshBlinkingTrack = 1;
+			}
+			else if(PM->trackPatternChange[button] == 0)
+			{
+				//do nothing
+				// tu sie trafia jak zmienia sie track w trybie natychmiastowym
 			}
 			else
 			{

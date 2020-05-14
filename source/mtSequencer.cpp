@@ -1960,6 +1960,18 @@ void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 
 	player.track[track].performanceSourcePattern = sourcePattern;
 }
+// laduje track do bufora i przelacza od razu
+void Sequencer::setTrackToLoadNow(uint8_t track, uint8_t sourcePattern)
+{
+	if (!player.performanceMode)
+	{
+		enterPerformanceMode();
+	}
+
+	newFileManager.loadPerformanceTrackToBuffer(sourcePattern, track);
+
+	switchPerformanceTrackNow(track);
+}
 
 uint8_t Sequencer::getRollType(uint8_t value)
 {

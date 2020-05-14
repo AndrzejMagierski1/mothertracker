@@ -631,6 +631,7 @@ public:
 	void switchRamPatternsNow();
 	void switchPerformanceTrackNow(uint8_t trackToSwitch);
 	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
+	void setTrackToLoadNow(uint8_t track, uint8_t sourcePattern);
 
 // SEQUENCER
 
