@@ -386,6 +386,9 @@ public:
 		bool performanceMode = 0;
 		bool selectionMode = 0;
 
+		uint16_t sequencialSwitch_pattern = 0;
+		uint8_t sequencialSwitch_isArmed = 0;
+
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
@@ -632,6 +635,11 @@ public:
 	void switchPerformanceTrackNow(uint8_t trackToSwitch);
 	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
 	void setTrackToLoadNow(uint8_t track, uint8_t sourcePattern);
+
+	void sequencialSwitch_changeNextPattern(int8_t delta);
+	void sequencialSwitch_SetReady();
+	void sequencialSwitch_Reset();
+	uint16_t sequencialSwitch_GetNext();
 
 // SEQUENCER
 

@@ -599,7 +599,12 @@ void Sequencer::play_microStep(uint8_t row)
 		// jeśli ostatni step, zażądaj ładowania kolejnego patternu
 		if (player.isPlay && row == 0)
 		{
-			if (((playerRow.actual_pos == patternRow.length)) && player.songMode)
+
+			if (((playerRow.actual_pos == patternRow.length)) && player.sequencialSwitch_isArmed > 0)
+			{
+				loadNextPattern(player.sequencialSwitch_pattern);
+			}
+			else if (((playerRow.actual_pos == patternRow.length)) && player.songMode)
 			{
 				loadNextPattern(newFileManager.getNextSongPattern());
 			}
@@ -1144,6 +1149,8 @@ void Sequencer::stop(void)
 
 	player.breakPattern = 0;
 
+	sequencialSwitch_Reset();
+
 	nanoStep = 1;
 	nanoStepMultiplier = 0;
 
@@ -1263,7 +1270,16 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 				bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 				player.breakPattern = 0;
 
-				if (player.songMode)
+				if (player.sequencialSwitch_isArmed > 0)
+				{
+					player.songMode = 0;
+
+					reset_actual_pos();
+					switchRamPatternsNow();
+					player.sequencialSwitch_pattern = 0;
+					player.sequencialSwitch_isArmed = 0;
+				}
+				else if (player.songMode)
 				{
 					reset_actual_pos();
 					switchRamPatternsNow();
@@ -2083,4 +2099,41 @@ void Sequencer::setMidiInVoiceMode(enMidiInVoiceMode mode)
 uint8_t Sequencer::getMidiInVoiceMode()
 {
 	return player.midiInVoiceMode;
+}
+
+// zmiania wartosc sequencialSwitch, potrzebuje uzbrojenia setReady()
+void Sequencer::sequencialSwitch_changeNextPattern(int8_t delta)
+{
+	if (player.sequencialSwitch_pattern == 0)
+	{
+		player.sequencialSwitch_pattern = mtProject.values.actualPattern;
+	}
+
+	player.sequencialSwitch_pattern = constrain(
+			player.sequencialSwitch_pattern + delta,
+			PATTERN_INDEX_MIN,
+			PATTERN_INDEX_MAX);
+
+	Serial.printf("sequentialPatternChange: %d\n",
+					player.sequencialSwitch_pattern);
+
+}
+
+// uzbraja sequencialSwitch
+void Sequencer::sequencialSwitch_SetReady()
+{
+	player.sequencialSwitch_isArmed = 1;
+}
+
+// anuluje sequencialSwitch
+void Sequencer::sequencialSwitch_Reset()
+{
+	player.sequencialSwitch_pattern = 0;
+	player.sequencialSwitch_isArmed = 0;
+}
+
+// getuje nastepny pattern, jesli 0 to nie ma zmiany
+uint16_t Sequencer::sequencialSwitch_GetNext()
+{
+	return player.sequencialSwitch_pattern;
 }
