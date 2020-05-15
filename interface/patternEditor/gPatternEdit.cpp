@@ -32,11 +32,28 @@ static uint16_t framesPopupPlaces[9][4] =
 
 
 static uint32_t patternLabelColors[] =
-{
-	0xFFFFFF, // tekst
-	0x000000, // tło
-	0xFF0000, // ramka
-};
+		{
+				0xFFFFFF, // tekst
+				0x000000, // tło
+				0xFF0000, // ramka
+		};
+
+static uint32_t paternBlinkLabelColors[4] =
+		{
+				one_true_red, // tekst
+				one_true_red, //0x323132, // tło
+				one_true_red, // ramka
+				one_true_red, // tekst2
+		};
+
+static uint32_t noPatternBlinkLabelColors[4] =
+		{
+				0x777777, // tekst
+				one_true_red, // tło
+				one_true_red, // ramka
+				0xFFFFFF, // tekst2
+		};
+
 
 volatile uint32_t patternTrackerColors[] =
 {
@@ -502,15 +519,58 @@ void cPatternEditor::hideEditModeLabels()
 	display.synchronizeRefresh();
 }
 
+static elapsedMillis lastShownPattern_blinkTimer;
+
 void cPatternEditor::showPattern(uint8_t forceShow)
 {
-	if(fillState) return;
-	if(lastPlayedPattern != mtProject.values.actualPattern || forceShow)
-	{
-		lastPlayedPattern = mtProject.values.actualPattern;
+	if (fillState) return;
 
-		sprintf(cPattern,"%d", mtProject.values.actualPattern);
+
+	// blink czy nie?
+	uint16_t patternToShow = mtProject.values.actualPattern;
+	if (sequencer.sequencialSwitch_GetNext() > 0)
+	{
+		patternToShow = sequencer.sequencialSwitch_GetNext();
+
+		if (lastShownPattern_blinkState == 0)
+		{
+			lastShownPattern_blinkState = 1;
+		}
+	}
+	else if (sequencer.sequencialSwitch_GetNext() == 0)
+	{
+		lastShownPattern_blinkState = 0;
+	}
+
+	// refresh value
+	if (lastShownPattern != patternToShow || forceShow)
+	{
+		lastShownPattern = patternToShow;
+
+		sprintf(cPattern, "%d", patternToShow);
 		display.setControlText2(label[0], cPattern);
+		display.refreshControl(label[0]);
+	}
+
+	// refresh colors
+	if (lastShownPattern_blinkTimer >= 200)
+	{
+		lastShownPattern_blinkTimer = 0;
+
+		if (lastShownPattern_blinkState == 1)
+		{
+			lastShownPattern_blinkState = 2;
+			display.setControlColors(label[0], paternBlinkLabelColors);
+		}
+		else if (lastShownPattern_blinkState == 2)
+		{
+			lastShownPattern_blinkState = 1;
+			display.setControlColors(label[0], noPatternBlinkLabelColors);
+		}
+		else
+		{
+			display.setControlColors(label[0], noPatternBlinkLabelColors);
+		}
 		display.refreshControl(label[0]);
 	}
 }

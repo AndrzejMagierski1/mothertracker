@@ -168,6 +168,8 @@ void cPatternEditor::update()
 		}
 	}
 
+		showPattern();
+
 
 	if(sequencer.isStop())
 	{
@@ -184,7 +186,7 @@ void cPatternEditor::update()
 
 	readPatternState();
 
-	showPattern();
+//	showPattern();
 	showLength();
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
@@ -236,6 +238,8 @@ void cPatternEditor::stop()
 //	}
 	keyboardManager.deinit();
 	sequencer.stopManualNotes();
+	sequencer.sequencialSwitch_Reset();
+
 	if(fillState) fillState = 0;
 
 	padsBacklight.clearAllPads(1, 1, 1);

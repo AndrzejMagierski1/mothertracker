@@ -154,7 +154,9 @@ public:
 	uint16_t lastPatternPosition;
 	uint8_t isPleyheadOnScreen();
 
-	uint16_t lastPlayedPattern = 0;
+	uint16_t lastShownPattern = 0;
+	uint16_t lastShownPattern_blinkState = 0;
+
 	uint16_t lastLength = 0;
 
 	uint8_t isCursorInSelection();

@@ -2123,6 +2123,11 @@ void Sequencer::sequencialSwitch_changeNextPattern(int8_t delta)
 void Sequencer::sequencialSwitch_SetReady()
 {
 	player.sequencialSwitch_isArmed = 1;
+
+	if (player.sequencialSwitch_pattern == mtProject.values.actualPattern)
+	{
+		sequencialSwitch_Reset();
+	}
 }
 
 // anuluje sequencialSwitch
