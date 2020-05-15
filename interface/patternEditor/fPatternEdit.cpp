@@ -168,6 +168,8 @@ void cPatternEditor::update()
 		}
 	}
 
+		showPattern();
+
 
 	if(sequencer.isStop())
 	{
@@ -184,7 +186,7 @@ void cPatternEditor::update()
 
 	readPatternState();
 
-	showPattern();
+//	showPattern();
 	showLength();
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
@@ -236,6 +238,8 @@ void cPatternEditor::stop()
 //	}
 	keyboardManager.deinit();
 	sequencer.stopManualNotes();
+	sequencer.sequencialSwitch_Reset();
+
 	if(fillState) fillState = 0;
 
 	padsBacklight.clearAllPads(1, 1, 1);
@@ -819,6 +823,8 @@ uint8_t cPatternEditor::isPleyheadOnScreen()
 
 void cPatternEditor::changeActualPattern(int16_t value)
 {
+	sequencer.sequencialSwitch_Reset();
+
 	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
 	{
 		newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
@@ -1569,15 +1575,18 @@ static  uint8_t functLeft()
 		return 1;
 	}
 
-	if(PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
+	if (PTE->selectedPlace >= 0 && PTE->selectedPlace < 8)
 	{
-//		if(PTE->selectedPlace > 0)
-//		{
-//			PTE->selectedPlace--;
-//			PTE->activateLabelsBorder();
-//		}
+		switch (PTE->selectedPlace)
+		{
+		case 0:
+			sequencer.sequencialSwitch_changeNextPattern(-1);
+			return 1;
+		}
 		return 1;
 	}
+
+
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
@@ -1642,13 +1651,14 @@ static  uint8_t functRight()
 		return 1;
 	}
 
-	if(PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
+	if (PTE->selectedPlace >= 0 && PTE->selectedPlace < 8)
 	{
-//		if(PTE->selectedPlace < 3)
-//		{
-//			PTE->selectedPlace++;
-//			PTE->activateLabelsBorder();
-//		}
+		switch (PTE->selectedPlace)
+		{
+		case 0:
+			sequencer.sequencialSwitch_changeNextPattern(1);
+			return 1;
+		}
 		return 1;
 	}
 
@@ -2433,6 +2443,11 @@ static  uint8_t functChangePattern(uint8_t state)
 		if(PTE->selectedPlace == 0)
 		{
 			PTE->focusOnPattern();
+		}
+
+		if (sequencer.sequencialSwitch_GetNext() > 0)
+		{
+			sequencer.sequencialSwitch_SetReady();
 		}
 	}
 
