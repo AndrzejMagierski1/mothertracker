@@ -545,7 +545,7 @@ private:
 			.sustain 	= 1.0,
 			.release 	= 0,
 			.loop		= 0,
-			.enable		= 1
+			.enable		= 0
 	};
 
 	uint8_t isActiveFlag = 0;
