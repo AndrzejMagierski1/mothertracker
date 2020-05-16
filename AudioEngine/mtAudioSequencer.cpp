@@ -1317,6 +1317,9 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 {
 	if(n == envAmp)
 	{
+		if(env->enable) envelopeAmpPtr->setPassFlag(0);
+		else envelopeAmpPtr->setPassFlag(1);
+
 		envelopeAmpPtr->delay(env->delay);
 		envelopeAmpPtr->attack(env->attack);
 		envelopeAmpPtr->hold(env->hold);

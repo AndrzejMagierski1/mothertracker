@@ -67,6 +67,7 @@ public:
 	void releaseNoteOn(float milliseconds) {
 		release_forced_count = milliseconds2count(milliseconds);
 		if (release_forced_count == 0) release_forced_count = 1;
+//		release_forced_count = 16;
 	}
 	void setLoop(uint8_t state)
 	{
@@ -78,7 +79,6 @@ public:
 		passFlag = state;
 	}
 
-//	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
 	void clearEndReleaseFlag();
@@ -90,7 +90,7 @@ public:
 	void setSyncRate(float sync);
 
 private:
-
+	void switchPhase(uint8_t nextPhase);
 	uint8_t endReleaseFlag=0;
 	uint16_t milliseconds2count(float milliseconds) {
 		if (milliseconds < 0.0) milliseconds = 0.0;
@@ -118,21 +118,23 @@ private:
 	uint8_t passFlag = 0;
 	uint32_t sample12, sample34, sample56, sample78;
 	uint32_t tmp1, tmp2;
-	int16_t * tmp1Shifted = ((int16_t *)&tmp1) + 1;
-	int16_t * tmp2Shifted = ((int16_t *)&tmp2) + 1;
-	int16_t * sample1 = (int16_t *)&sample12;
-	int16_t * sample2 = ((int16_t *)&sample12) + 1;
-	int16_t * sample3 = (int16_t *)&sample34;
-	int16_t * sample4 = ((int16_t *)&sample34) + 1;
-	int16_t * sample5 = (int16_t *)&sample56;
-	int16_t * sample6 = ((int16_t *)&sample56) + 1;
-	int16_t * sample7 = (int16_t *)&sample78;
-	int16_t * sample8 = ((int16_t *)&sample78) + 1;
 
 	uint16_t startStep = 0;
 	int8_t phaseNumber[2] = {-1,-1};
 	float syncRate = 1;
 	uint16_t periodTime = 0;
+
+	enum enEnvelopePhase
+	{
+		envelopePhaseIdle,
+		envelopePhaseDelay,
+		envelopePhaseAttack,
+		envelopePhaseHold,
+		envelopePhaseDecay,
+		envelopePhaseSustain,
+		envelopePhaseRelease,
+		envelopePhaseForced
+	};
 
 };
 
