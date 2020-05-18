@@ -996,6 +996,13 @@ uint16_t Sequencer::stutterValToPeriod(int8_t rollVal)
 
 void Sequencer::play(void)
 {
+	play(0);
+
+}
+void Sequencer::play(uint8_t fromPos)
+{
+	fromPos = constrain(fromPos, 0, MAXSTEP);
+
 	songTimer.start();
 	engine.endAllFx();
 	engine.clearDelay();
@@ -1011,6 +1018,7 @@ void Sequencer::play(void)
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		player.track[a].uStep = 1;
+		player.track[a].actual_pos = fromPos;
 	}
 
 	sendMidiStart();
@@ -1065,8 +1073,12 @@ float Sequencer::getPlaySelectionProgress(void) // potrzebuje aktualnego zaznacz
 
 void Sequencer::playPattern(void)
 {
+	playPattern(0);
+}
+void Sequencer::playPattern(uint8_t fromPos)
+{
 	player.songMode = 0;
-	play();
+	play(fromPos);
 }
 void Sequencer::playSong(void)
 {

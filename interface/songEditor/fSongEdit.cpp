@@ -575,11 +575,16 @@ static uint8_t functPlayAction()
 
 	if (tactButtons.isButtonPressed(interfaceButtonShift))
 	{
-		functPlaySong();
+		functPlayPattern();
 	}
 	else
 	{
-		functPlayPattern();
+		functPlaySong();
+
+		if (tactButtons.isButtonPressed(interfaceButtonSong))
+		{
+			SE->exitOnButtonRelease = 1;
+		}
 	}
 
 
