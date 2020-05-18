@@ -644,7 +644,9 @@ public:
 // SEQUENCER
 
 	void play(void);
+	void play(uint8_t fromPos);
 	void playPattern(void);
+	void playPattern(uint8_t fromPos);
 	void playSelection(void);
 	float getPlaySelectionProgress(void);
 	void playSong(void);

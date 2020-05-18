@@ -2123,9 +2123,7 @@ static  uint8_t functPlayAction()
 		}
 		else if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			sequencer.playSong();
-			PTE->refreshPatternParams();
-			PTE->shiftAction = 1;
+			sequencer.playPattern(getActualStep());
 		}
 		else
 		{
