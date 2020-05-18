@@ -687,11 +687,18 @@ void Sequencer::play_microStep(uint8_t row)
 
 			case fx.FX_TYPE_RANDOM_NOTE:
 				killFxOnSlot(row, fxIndex);
-				stepToSend.note = constrain(
-						random(patternStep.note - _fx.value,
-								patternStep.note + _fx.value + 1),
-						0,
-						127);
+				for (uint8_t a = 0; a < 100; a++)
+				{
+					stepToSend.note = constrain(
+							random(patternStep.note - _fx.value,
+									patternStep.note + _fx.value + 1),
+							0,
+							127);
+					if (isInScale(stepToSend.note,
+									mtConfig.values.padBoardRootNote,
+									mtConfig.values.padBoardRootNote))
+						break;
+				}
 				break;
 			case fx.FX_TYPE_RANDOM_INSTRUMENT:
 				killFxOnSlot(row, fxIndex);
