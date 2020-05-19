@@ -636,7 +636,7 @@ void Sequencer::play_microStep(uint8_t row)
 	// **************************
 	if (startStep)
 	{
-		if (playerRow.stepOpen || playerRow.stepOpen)
+		if (playerRow.stepOpen && playerRow.stepToSend.note >= 0)
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
