@@ -102,16 +102,18 @@ void mtSongStemsExporter::updateSave()
 
 void mtSongStemsExporter::cancel()
 {
-	trackExporter.localSongExporter.finishReceiving();
+
 	status = 0;
 	sequencer.stop();
+	trackExporter.localSongExporter.finishReceiving();
+	trackExporter.localSongExporter.finishSave();
 	char currentPath[PATCH_SIZE];
 
 	for(uint8_t i = 0; i < 10; i ++ )
 	{
 		if(i == 8)
 		{
-			sprintf(currentPath,"%s/reverb.wav",folderPath);
+			sprintf(currentPath,"%s/delay.wav",folderPath);
 			if(SD.exists(currentPath)) SD.remove(currentPath);
 		}
 		else if(i == 9)
