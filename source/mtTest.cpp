@@ -290,16 +290,19 @@ void cTest::runRAMTest()
 	{
 		ramErrorsCounter = 0;
 
-		for(int16_t i = 0; i<32000; i++)
+		uint32_t* ptrMem = (uint32_t*)sdram_ptrSampleBank;
+
+		for(uint32_t i = 0; i<SAMPLE_MEMORY_SIZE/4; i++)
 		{
-			*(sdram_ptrEffectsBank+i) = i;
+			*(ptrMem+i) = i;
 		}
 
 		delay(10);
 
-		for(int16_t i = 0; i<32000; i++)
+		for(uint32_t i = 0; i<SAMPLE_MEMORY_SIZE/4; i++)
 		{
-			if(*(sdram_ptrEffectsBank+i) != i)
+			uint32_t read = *(ptrMem+i);
+			if(read != i)
 			{
 				ramErrorsCounter++;
 			}
@@ -568,7 +571,9 @@ void cTest::showRAMTest()
 	}
 	else if(testPhase == 1)
 	{
-		showMessage("RAM test failed", "", "Ok", "");
+		char errors[50];
+		sprintf(errors, "RAM test failed with %u errors", (unsigned int)ramErrorsCounter);
+		showMessage(errors, "", "Ok", "");
 	}
 	else if(testPhase == 2)
 	{
@@ -680,7 +685,7 @@ void cTest::showStatus()
 }
 
 
-void cTest::showMessage(char* question1, char* question2, char* answer1, char* answer2)
+void cTest::showMessage(const char* question1, const char* question2, const char* answer1, const char* answer2)
 {
 	API_COLOR(0xFFFFFF);
 	API_CMD_TEXT(5,350,28,0,question1);
@@ -733,7 +738,7 @@ void cTest::AcceptButton()
 	}
 	case checkRAM:
 	{
-		if(testPhase == 1) results[checkUSB] = 1;
+		if(testPhase == 1) results[checkRAM] = 1;
 		if(testPhase > 0) nextTest();
 		break;
 	}
@@ -797,7 +802,7 @@ void cTest::DeclineButton()
 	}
 	case checkRAM:
 	{
-		if(testPhase == 1) results[checkUSB] = 1;
+		if(testPhase == 1) results[checkRAM] = 1;
 		//nextTest();
 		break;
 	}

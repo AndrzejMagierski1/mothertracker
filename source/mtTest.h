@@ -70,7 +70,7 @@ public:
 	char radioFreq[10];
 
 	//ram
-	uint16_t ramErrorsCounter;
+	uint32_t ramErrorsCounter;
 
 private:
 	void drawGui();
@@ -79,9 +79,8 @@ private:
 	void nextTest();
 
 	void showStatus();
-	void showMessage(char* question1, char* question2, char* answer1, char* answer2);
-	void showMessage(const char* question1, const char* question2, const char* answer1, const char* answer2)
-	{ showMessage((char*)question1, (char*)question2, (char*)answer1, (char*)answer2); }
+	void showMessage(const char* question1, const char* question2, const char* answer1, const char* answer2);
+
 
 	void showStart();
 	void showEnd();
