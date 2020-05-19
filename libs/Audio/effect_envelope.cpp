@@ -197,7 +197,12 @@ void AudioEffectEnvelope::noteOn(void)
 	__disable_irq();
 
 	pressedFlag = 1;
-	if (state == envelopePhaseIdle || state == envelopePhaseDelay)
+
+	if(passFlag)
+	{
+		switchPhase(envelopePhaseIdle);
+	}
+	else if (state == envelopePhaseIdle || state == envelopePhaseDelay)
 	{
 		switchPhase(envelopePhaseDelay);
 	}
@@ -205,6 +210,7 @@ void AudioEffectEnvelope::noteOn(void)
 	{
 		switchPhase(envelopePhaseForced);
 	}
+	else endKillReleaseFlag = 1;
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
 	__enable_irq();
 }
@@ -215,7 +221,10 @@ void AudioEffectEnvelope::noteOff(void)
 	if (state != envelopePhaseIdle)
 	{
 		if(loopFlag) switchPhase(envelopePhaseIdle);
-		else	switchPhase(envelopePhaseRelease);
+		else
+		{
+			switchPhase(envelopePhaseRelease);
+		}
 
 	}
 	__enable_irq();
@@ -234,19 +243,23 @@ void AudioEffectEnvelope::update(void)
 	__disable_irq();
 	audio_block_t *block;
 	uint32_t *p, *end;
-	uint32_t counterBlock = 0;
 
 	block = receiveWritable();
-	if (!block) return;
-
-	if (state == envelopePhaseIdle)
+	if (!block)
 	{
-		AudioStream::release(block);
-		return;
+		block = allocate();
+		if(!block) return;
+		else memset(block->data,0,AUDIO_BLOCK_SAMPLES * 2);
 	}
+
 	if(passFlag)
 	{
 		transmit(block);
+		AudioStream::release(block);
+		return;
+	}
+	if (state == envelopePhaseIdle)
+	{
 		AudioStream::release(block);
 		return;
 	}
@@ -319,6 +332,7 @@ void AudioEffectEnvelope::update(void)
 			else if (state == envelopePhaseForced)
 			{
 				switchPhase(envelopePhaseDelay);
+				endKillReleaseFlag = 1;
 				continue;
 
 			}
@@ -518,10 +532,20 @@ void AudioEffectEnvelope::update(void)
 //		*sample7 = *tmp1Shifted;
 //		*sample8 = *tmp2Shifted;
 //
+//		if(state == envelopePhaseForced)
+//		{
+//			sample12 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
+//			sample34 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
+//			sample56 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
+//			sample78 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
+//		}
+
 		*p++ = sample12;
 		*p++ = sample34;
 		*p++ = sample56;
 		*p++ = sample78;
+
+
 
 		// adjust the long-term gain using 30 bit resolution (fix #102)
 		// https://github.com/PaulStoffregen/Audio/issues/102
@@ -564,13 +588,20 @@ void AudioEffectEnvelope::update(void)
 
 uint8_t AudioEffectEnvelope::endRelease()
 {
-	if(endReleaseFlag==1) return 1;
-	else return 0;
-	}
-
+	return  endReleaseFlag;
+}
 void AudioEffectEnvelope::clearEndReleaseFlag()
 {
 	endReleaseFlag = 0;
+}
+
+uint8_t AudioEffectEnvelope::getEndReleaseKill()
+{
+	return endKillReleaseFlag;
+}
+void AudioEffectEnvelope::clearEndReleaseKill()
+{
+	endKillReleaseFlag = 0;
 }
 
 uint8_t AudioEffectEnvelope:: getState()
