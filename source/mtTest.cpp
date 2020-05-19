@@ -77,7 +77,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM->setPadsGlobal(functPads);
 	FM->setPowerButtonObj(functPowerButton);
 
-	mainStatus = 4;//checkStart;
+	mainStatus = checkStart;
 	//mainStatus = checkAudio;//checkInputs;
 	procedureRunning = 1;
 }
