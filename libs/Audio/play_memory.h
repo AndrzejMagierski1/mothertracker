@@ -247,6 +247,7 @@ private:
 	void setStartPitch(uint8_t note);
 	void applyFinetuneOnPitch(uint8_t note);
 	void calculateGlidePitch(uint8_t note);
+	float getChangeVolumeCoef();
 //	PLAY Z PODZIALEM NA TRYBY
 	void playSingleShot(uint8_t instrIdx, int8_t note);
 	void playLoopForward(uint8_t instrIdx, int8_t note);
@@ -306,6 +307,8 @@ private:
 	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
 
 	uint8_t currentInstrIdx;
+	int8_t currentInstrIdxInPlay = -1;
+	int8_t lastInstrIdxInPlay = - 1;
 	//*******
 	//********* Pitch
 	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch

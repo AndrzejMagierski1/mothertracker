@@ -10,6 +10,8 @@ void AudioPlayMemory::playSingleShot(uint8_t instrIdx, int8_t note)
 	if( instrIdx > INSTRUMENTS_MAX ) instrIdx = INSTRUMENTS_MAX;
 	if( note > MAX_NOTE ) note = MAX_NOTE;
 
+	lastInstrIdxInPlay = currentInstrIdxInPlay;
+	currentInstrIdxInPlay = instrIdx;
 	currentInstrIdx = instrIdx;
 
 	refreshStartParamiters();
@@ -108,6 +110,7 @@ void AudioPlayMemory::updateSingleShot()
 				if(needSmoothingFlag && (i == 0))
 				{
 					needSmoothingFlag = 0;
+
 					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
 					{
 						if(iPitchCounter <= length)

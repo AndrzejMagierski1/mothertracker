@@ -11,6 +11,8 @@ void AudioPlayMemory::playSlice(uint8_t instrIdx, int8_t note)
 	if( instrIdx > INSTRUMENTS_MAX ) instrIdx = INSTRUMENTS_MAX;
 	if( note > MAX_NOTE ) note = MAX_NOTE;
 
+	lastInstrIdxInPlay = currentInstrIdxInPlay;
+	currentInstrIdxInPlay = instrIdx;
 	currentInstrIdx = instrIdx;
 
 	refreshStartParamiters();

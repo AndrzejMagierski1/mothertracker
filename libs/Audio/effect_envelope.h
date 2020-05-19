@@ -82,16 +82,30 @@ public:
 	virtual void update(void);
 	uint8_t endRelease();
 	void clearEndReleaseFlag();
+
+	uint8_t getEndReleaseKill();
+	void clearEndReleaseKill();
 	uint8_t getState();
 
 	void syncTrackerSeq(uint32_t val, float seqSpeed);
 	void setSyncStartStep(uint16_t n);
 	void setPhaseNumbers(int8_t n1, int8_t n2);
 	void setSyncRate(float sync);
-
+	enum enEnvelopePhase
+	{
+		envelopePhaseIdle,
+		envelopePhaseDelay,
+		envelopePhaseAttack,
+		envelopePhaseHold,
+		envelopePhaseDecay,
+		envelopePhaseSustain,
+		envelopePhaseRelease,
+		envelopePhaseForced
+	};
 private:
 	void switchPhase(uint8_t nextPhase);
-	uint8_t endReleaseFlag=0;
+	uint8_t endReleaseFlag = 0;
+	uint8_t endKillReleaseFlag = 0;
 	uint16_t milliseconds2count(float milliseconds) {
 		if (milliseconds < 0.0) milliseconds = 0.0;
 		uint32_t c = ((uint32_t)(milliseconds*SAMPLES_PER_MSEC)+7)>>3;
@@ -124,17 +138,7 @@ private:
 	float syncRate = 1;
 	uint16_t periodTime = 0;
 
-	enum enEnvelopePhase
-	{
-		envelopePhaseIdle,
-		envelopePhaseDelay,
-		envelopePhaseAttack,
-		envelopePhaseHold,
-		envelopePhaseDecay,
-		envelopePhaseSustain,
-		envelopePhaseRelease,
-		envelopePhaseForced
-	};
+
 
 };
 

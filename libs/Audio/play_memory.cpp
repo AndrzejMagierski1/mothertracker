@@ -1,7 +1,7 @@
 #include "play_memory.h"
 #include "Audio.h"
 #include "utility/dspinst.h"
-
+#include "mtAudioEngine.h"
 
 
 //**************************************************************************************UPDATE START
@@ -1038,5 +1038,16 @@ void AudioPlayMemory::calculateGlidePitch(uint8_t note)
 			glideControl=0;
 		}
 	}
+}
+// w
+float AudioPlayMemory::getChangeVolumeCoef()
+{
+	if(lastInstrIdxInPlay == -1) return 1.0f;
+
+	float currentVol = ampLogValues[mtProject.instrument[currentInstrIdxInPlay].volume];
+	float lastVol = ampLogValues[mtProject.instrument[lastInstrIdxInPlay].volume];
+	float volCoef = lastVol/currentVol;
+
+	return volCoef;
 }
 
