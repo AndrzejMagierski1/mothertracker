@@ -48,8 +48,9 @@ void mtSongStemsExporter::start(char * path)
 
 	sprintf(currentPath,"%s/track%d.wav", path, currentTrack + 1);
 
-	status = 1;
+
 	trackExporter.start(currentPath, currentTrack); // tablica żyje podczas korzystania z tego wskaznika
+	status = 1;
 
 }
 
@@ -130,6 +131,8 @@ void mtSongStemsExporter::cancel()
 	if(SD.exists(folderPath)) SD.rmdir(folderPath);
 	trackExporter.clearSoloTrack(currentTrack);
 
+	currentTrackState = 0;
+	lastTrackState = 0;
 }
 uint8_t mtSongStemsExporter::getStatus()
 {

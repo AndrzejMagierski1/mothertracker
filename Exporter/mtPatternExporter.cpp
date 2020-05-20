@@ -190,6 +190,7 @@ void mtPatternExporter::switchBuffer()
 void mtPatternExporter::cancel()
 {
 	finishReceiving();
+	finishSave();
 	sequencer.stop();
 
 	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
