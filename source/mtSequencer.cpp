@@ -1036,17 +1036,8 @@ void Sequencer::play(uint8_t fromPos)
 
 void Sequencer::playSelection(void) // potrzebuje aktualnego zaznaczenia
 {
-	player.songMode = 0;
-	player.selectionMode = 1;
+	if (!isSelectionCorrect(&selection)) return;;
 
-	reset_actual_pos();
-
-	player.isStop = 0;
-	player.isPlay = 1;
-	nanoStep = 1;
-	nanoStepMultiplier = 0;
-
-	player.uStep = 1;
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		player.track[a].uStep = 1;
@@ -1058,9 +1049,20 @@ void Sequencer::playSelection(void) // potrzebuje aktualnego zaznaczenia
 	{
 		player.track[a].isActive = 1;
 	}
+	player.songMode = 0;
+	player.selectionMode = 1;
+
+	reset_actual_pos();
+
+	nanoStep = 1;
+	nanoStepMultiplier = 0;
+
+	player.uStep = 1;
 
 	player.globalPos = selection.firstStep;
 
+	player.isStop = 0;
+	player.isPlay = 1;
 }
 
 float Sequencer::getPlaySelectionProgress(void) // potrzebuje aktualnego zaznaczenia
