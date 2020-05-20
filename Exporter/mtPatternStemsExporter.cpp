@@ -61,8 +61,8 @@ void mtPatternStemsExporter::start(char * path)
 	}
 	sprintf(currentPath,"%s/track%d.wav",folderPath, currentTrack + 1);
 
-	status = 1;
 	trackExporter.start(currentPath, currentTrack); // tablica żyje podczas korzystania z tego wskaznika
+	status = 1;
 
 }
 void mtPatternStemsExporter::updateReceiving()
@@ -114,6 +114,7 @@ void mtPatternStemsExporter::updateSave()
 void mtPatternStemsExporter::cancel()
 {
 	trackExporter.localPatternExporter.finishReceiving();
+	trackExporter.localPatternExporter.finishSave();
 	status = 0;
 	sequencer.stop();
 	char currentPath[PATCH_SIZE];
@@ -122,7 +123,7 @@ void mtPatternStemsExporter::cancel()
 	{
 		if(i == 8)
 		{
-			sprintf(currentPath,"%s/reverb.wav",folderPath);
+			sprintf(currentPath,"%s/delay.wav",folderPath);
 			if(SD.exists(currentPath)) SD.remove(currentPath);
 		}
 		else if(i == 9)
@@ -138,6 +139,9 @@ void mtPatternStemsExporter::cancel()
 	}
 	if(SD.exists(folderPath)) SD.rmdir(folderPath);
 	trackExporter.clearSoloTrack(currentTrack);
+
+	currentTrackState = 0;
+	lastTrackState = 0;
 }
 uint8_t mtPatternStemsExporter::getStatus()
 {
