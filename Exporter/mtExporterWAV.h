@@ -7,10 +7,8 @@
 #include "mtSongStemsExporter.h"
 #include "mtRenderWAV.h"
 
-static constexpr uint32_t SEND_BUF_SIZE = 20 * 1024;
+static constexpr uint32_t SEND_BUF_SIZE = 100 * 1024;
 
-extern int16_t exportBuffer1[SEND_BUF_SIZE];
-extern int16_t exportBuffer2[SEND_BUF_SIZE];
 
 
 enum enExportType

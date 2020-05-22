@@ -13,7 +13,6 @@ extern int16_t exportBuffer1[];
 extern int16_t exportBuffer2[];
 
 
-
 class mtPatternExporter
 {
 
@@ -40,10 +39,12 @@ public:
 	friend class mtRenderWAV;
 private:
 	void switchBuffer();
+	void swapBuffer(int16_t ** a, int16_t ** b);
 	void refreshReceiving();
 	void refreshSave();
 	int16_t * recBuf = nullptr;
 	int16_t * sendBuf = nullptr;
+	int16_t * lastSendBuf = nullptr;
 	int16_t * const buf1 = exportBuffer1;
 	int16_t * const buf2 = exportBuffer2;
 	strWavFileHeader header;
@@ -51,7 +52,7 @@ private:
 	uint32_t byteRecorded;
 	SdFile wavExport;
 	uint32_t position;
-	bool requiredSave;
+	volatile bool requiredSave;
 	uint8_t lastStep = 0;
 	uint32_t microsTime;
 	uint32_t localTime;
@@ -59,6 +60,7 @@ private:
 	bool headerIsNotSaved = false;
 	int16_t * const packageL = (int16_t *) (&packageLR);
 	int16_t * const packageR = (int16_t *) ((int16_t *)&packageLR + 1);
+	bool duringUpdateReceive;
 };
 
 
