@@ -153,6 +153,12 @@ void cPatternEditor::update()
 	if(patternRefreshTimer < 20) return;
 	patternRefreshTimer = 0;
 
+	if(refreshAfterReleaseFx == true)
+	{
+		refreshAfterReleaseFx = false;
+		lightUpPadBoard();
+	}
+
 	// opozniania pokazywania step popupow
 	for(uint8_t i = 0; i<4; i++)
 	{
@@ -197,7 +203,6 @@ void cPatternEditor::update()
 		refreshPattern();
 		lastPatternPosition = trackerPattern.playheadPosition;
 	}
-
 
 
 }
@@ -2038,6 +2043,7 @@ static  uint8_t functFx1(uint8_t state)
 		PTE->dontShowPopupsUntilButtonRelease = 0;
 
 		PTE->showFxInfo();
+		PTE->refreshAfterReleaseFx = true;
 	}
 
 	return 1;
@@ -2083,6 +2089,7 @@ static  uint8_t functFx2(uint8_t state)
 		PTE->dontShowPopupsUntilButtonRelease = 0;
 
 		PTE->showFxInfo();
+		PTE->refreshAfterReleaseFx = true;
 	}
 
 	return 1;
