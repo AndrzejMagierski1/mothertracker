@@ -845,6 +845,30 @@ void cPatternEditor::showFillFx()
 
 void cPatternEditor::showFillPopup()
 {
+
+	if(editParam == 1)
+	{
+		if(fillData[editParam].type == 0)
+		{
+			if(fillPlace > 2 ) fillPlace = 2;
+		}
+		else
+		{
+			if(fillPlace > 3 ) fillPlace = 3;
+		}
+	}
+	else
+	{
+		if(fillData[editParam].type == 0)
+		{
+			if(fillPlace > 4 ) fillPlace = 4;
+		}
+		else
+		{
+			if(fillPlace > 5 ) fillPlace = 5;
+		}
+	}
+
 	frameData.places[0] = &framesPopupPlaces[0][0];
 	frameData.places[1] = &framesPopupPlaces[1][0];
 	frameData.places[2] = &framesPopupPlaces[2][0];
