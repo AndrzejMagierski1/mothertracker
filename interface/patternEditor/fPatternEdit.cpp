@@ -1904,7 +1904,7 @@ static  uint8_t functNote(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->setStepButtonState(0,1);
-		PTE->wasNotesEditBefore = 0;
+//		PTE->wasNotesEditBefore = 0;
 		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 0;
 		PTE->trackerPattern.selectedParam = 0;
@@ -1948,7 +1948,7 @@ static  uint8_t functInstrument(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->setStepButtonState(1,1);
-		if(PTE->editParam  == 0) PTE->wasNotesEditBefore = 1;
+//		if(PTE->editParam  == 0) PTE->wasNotesEditBefore = 1;
 		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 1;
 		PTE->trackerPattern.selectedParam = 1;
@@ -1964,7 +1964,7 @@ static  uint8_t functInstrument(uint8_t state)
 
 		if(PTE->fillState > 0)
 		{
-			PTE->wasNotesEditBefore = 0;
+//			PTE->wasNotesEditBefore = 0;
 			PTE->showFillPopup();
 			PTE->trackerPattern.popupMode |= 1;
 			return 1;
@@ -1980,16 +1980,16 @@ static  uint8_t functInstrument(uint8_t state)
 	{
 		PTE->setStepButtonState(1,0);
 		// powrot do nuty po wybraniu instrumentu
-		if(PTE->wasNotesEditBefore && mtPopups.getStepPopupState() != stepPopupNone)
-		{
-			PTE->wasNotesEditBefore = 0;
-			PTE->editParam = 0;
-			PTE->trackerPattern.selectedParam = 0;
-			display.refreshControl(PTE->patternControl);
-
-			PTE->focusOnPattern();
-			PTE->lightUpPadBoard();
-		}
+//		if(PTE->wasNotesEditBefore && mtPopups.getStepPopupState() != stepPopupNone)
+//		{
+//			PTE->wasNotesEditBefore = 0;
+//			PTE->editParam = 0;
+//			PTE->trackerPattern.selectedParam = 0;
+//			display.refreshControl(PTE->patternControl);
+//
+//			PTE->focusOnPattern();
+//			PTE->lightUpPadBoard();
+//		}
 
 		PTE->cancelPopups();
 		PTE->dontShowPopupsUntilButtonRelease = 0;
@@ -2004,7 +2004,7 @@ static  uint8_t functFx1(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->setStepButtonState(2,1);
-		PTE->wasNotesEditBefore = 0;
+//		PTE->wasNotesEditBefore = 0;
 		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 2;
 		PTE->trackerPattern.selectedParam = 2;
@@ -2049,7 +2049,7 @@ static  uint8_t functFx2(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->setStepButtonState(3,1);
-		PTE->wasNotesEditBefore = 0;
+//		PTE->wasNotesEditBefore = 0;
 		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 3;
 		PTE->trackerPattern.selectedParam = 3;

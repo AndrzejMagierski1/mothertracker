@@ -257,7 +257,7 @@ public:
 	uint8_t dontShowPopupsUntilButtonRelease = 0;
 	uint8_t insertOnPopupHideDisabled = 0;
 
-	uint8_t wasNotesEditBefore = 0;
+//	uint8_t wasNotesEditBefore = 0;
 
 	uint8_t stepButtonsState[4] = {0,0,0,0};
 	elapsedMillis stepButtonsTimer[4];
