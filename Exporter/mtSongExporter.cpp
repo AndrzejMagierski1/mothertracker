@@ -26,7 +26,7 @@ void mtSongExporter::start(char * path)
 
 	if(wavExport)
 	{
-		wavExport.write(recBuf,44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
+		wavExport.write((int16_t*)recBuf,44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 

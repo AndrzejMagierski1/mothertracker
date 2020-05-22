@@ -3,6 +3,7 @@
 #include "mtSequencer.h"
 //#include "mtFileManager.h"
 #include "fileManager.h"
+#include "debugLog.h"
 void setOnLastExportStep();
 
 void mtPatternExporter::setOnLastStep()
@@ -36,7 +37,7 @@ void mtPatternExporter::finishSave()
 		uint32_t saveLenBytes = 2 * position;
 		position = 0;
 		switchBuffer();
-		byteRecorded += wavExport.write(sendBuf,saveLenBytes);
+		byteRecorded += wavExport.write((int16_t*)sendBuf,saveLenBytes);
 	}
 
 	if(headerIsNotSaved && (status == exportStatus::exportFinishedReceiving))
@@ -78,7 +79,6 @@ void mtPatternExporter::start(char * path)
 	recBuf = buf1;
 	sendBuf = buf2;
 	requiredSave = false;
-
 	strcpy(currentSongExportPath, path);
 
 	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
@@ -86,7 +86,7 @@ void mtPatternExporter::start(char * path)
 
 	if(wavExport)
 	{
-		wavExport.write(recBuf,44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
+		wavExport.write((int16_t*)recBuf,44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 		headerIsNotSaved = true;
@@ -109,6 +109,13 @@ void mtPatternExporter::refreshReceiving()
 	if(status == exportStatus::exportDuring)
 	{
 		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
+
+
+		if((requiredSave) && (position == SEND_BUF_SIZE - 256  ))
+		{
+			debugLog.addLine("Wait for save");
+			return;
+		}
 		if ((exportL.available() >= 1) || (exportR.available() >= 1 ))
 		{
 			int16_t * srcL = exportL.readBuffer();
@@ -124,16 +131,18 @@ void mtPatternExporter::refreshReceiving()
 				else *packageR = *srcR++;
 				*dest++ = packageLR;
 			}
-			position+=256;
+			position += 256;
 
 			exportL.freeBuffer();
 			exportR.freeBuffer();
 
-			if(position >= SEND_BUF_SIZE)
+			if(position == SEND_BUF_SIZE)
 			{
-				position-=SEND_BUF_SIZE;
-				requiredSave = true;
+				__disable_irq();
+				position = 0;
 				switchBuffer();
+				requiredSave = true;
+				__enable_irq();
 			}
 		}
 	}
@@ -147,14 +156,18 @@ void mtPatternExporter::refreshSave()
 
 		if(requiredSave)
 		{
-			requiredSave = false;
+			if(sendBuf == lastSendBuf) return;
 			byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
+			requiredSave = false;
+			lastSendBuf = sendBuf;
 		}
 	}
 
 }
 void mtPatternExporter::updateReceiving()
 {
+	if(duringUpdateReceive) return;
+	duringUpdateReceive = true;
 	refreshReceiving();
 	if(lastStep)
 	{
@@ -172,6 +185,7 @@ void mtPatternExporter::updateReceiving()
 			}
 		}
 	}
+	duringUpdateReceive = false;
 }
 void mtPatternExporter::updateSave()
 {
@@ -181,11 +195,18 @@ void mtPatternExporter::updateSave()
 
 void mtPatternExporter::switchBuffer()
 {
-	int16_t * tmp = recBuf;
+	swapBuffer(&recBuf, &sendBuf);
 
-	recBuf = sendBuf;
-	sendBuf = tmp;
 }
+
+void mtPatternExporter::swapBuffer(int16_t ** a, int16_t ** b)
+{
+	int16_t * tmp = *a;
+
+	*a = *b;
+	*b = tmp;
+}
+
 
 void mtPatternExporter::cancel()
 {
