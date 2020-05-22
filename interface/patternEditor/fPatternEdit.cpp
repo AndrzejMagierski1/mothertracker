@@ -1215,7 +1215,8 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 		}
 		else if(dir > 0)
 		{
-			if(place == 2) fillPlace = 3;
+			if((fillData[editParam].type == 0) && (place > 4)) fillPlace = 4;
+			else if(place == 2) fillPlace = 3;
 			else  fillPlace = place;
 		}
 		else if(dir < 0)
@@ -1233,7 +1234,8 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 		}
 		else if(dir > 0)
 		{
-			if(place > 3) fillPlace = 3;
+			if((fillData[editParam].type == 0) && (place > 2)) fillPlace = 2;
+			else if(place > 3) fillPlace = 3;
 			else  fillPlace = place;
 		}
 		else if(dir < 0)
@@ -1259,7 +1261,8 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 		}
 		else if(dir > 0)
 		{
-			if(place == 2) fillPlace = 3;
+			if((fillData[editParam].type == 0) && (place > 4)) fillPlace = 4;
+			else if(place == 2) fillPlace = 3;
 			else  fillPlace = place;
 		}
 		else if(dir < 0)
