@@ -8,7 +8,9 @@
 
 #include "mtPadsBacklight.h"
 
+#include "imageViewerDefs.h"
 
+#include "core/songTimer.h"
 
 #include "SD.h"
 
@@ -62,8 +64,8 @@ void cImageViewer::update()
 	{
 		if(display.getImgLoadState() == 0 || display.getImgLoadState() == 3)
 		{
-			char path[40];
-			sprintf(path,"Manual/manual%d", imageNumber);
+			char path[100];
+			sprintf(path,"Manual/%s/%d", actualFolderName, imageNumber);
 
 			if(display.readImgFromSd(path, 300000, 800, 390))
 			{
@@ -91,6 +93,14 @@ void cImageViewer::start(uint32_t options)
 	moduleRefresh = 1;
 
 
+	if(options > MANUAL_CHAPTERS_COUNT)
+	{
+		IV->eventFunct(eventSwitchToPreviousModule,IV,0,0);
+	}
+
+	strcpy(actualFolderName, &manualFolderNames[options][0]);
+
+	songTimer.hide();
 	// ustawienie funkcji
 
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
@@ -120,6 +130,9 @@ void cImageViewer::stop()
 	moduleRefresh = 0;
 	mtPadBoard.releaseAllInstrument();
 	padsBacklight.clearAllPads(1, 1, 1);
+
+	songTimer.show();
+
 }
 
 void cImageViewer::setDefaultScreenFunct()
@@ -159,7 +172,7 @@ void cImageViewer::refreshImage()
 {
 	if(imagesCount == 0)
 	{
-		sprintf(titleText, "Manual - no data on SD card");  //, imageNumber, imagesCount);
+		sprintf(titleText, "Manual - no data on SD card", actualFolderName);  //, imageNumber, imagesCount);
 		display.setControlText(titleLabel, titleText);
 		display.refreshControl(titleLabel);
 
@@ -171,7 +184,7 @@ void cImageViewer::refreshImage()
 	display.setControlHide(image);
 	refreshImageState = 1;
 
-	sprintf(titleText, "Manual %d/%d", imageNumber, imagesCount);
+	sprintf(titleText, "%s %d/%d", actualFolderName, imageNumber, imagesCount);
 	display.setControlText(titleLabel,titleText);
 	display.refreshControl(titleLabel);
 }
@@ -180,18 +193,18 @@ void cImageViewer::nextImage()
 {
 	if(imagesCount <= 1) return;
 
-	char path[40];
+	char path[100];
 	uint8_t loop_start = imageNumber;
 
 	imageNumber++;
-	sprintf(path, "Manual/manual%d.jpg", imageNumber);
+	sprintf(path, "Manual/%s/%d.jpg", actualFolderName, imageNumber);
 
 	while(!SD.exists(path))
 	{
 		imageNumber++;
-		if(imageNumber > 48) imageNumber = 0;
+		if(imageNumber > 48) imageNumber = 1;
 		if(imageNumber == loop_start) break;
-		sprintf(path, "Manual/manual%d.jpg", imageNumber);
+		sprintf(path, "Manual/%s/%d.jpg", actualFolderName, imageNumber);
 	}
 }
 
@@ -200,29 +213,29 @@ void cImageViewer::previouseImage()
 {
 	if(imagesCount <= 1) return;
 
-	char path[40];
+	char path[100];
 	uint8_t loop_start = imageNumber;
 
 	imageNumber--;
-	sprintf(path, "Manual/manual%d.jpg", imageNumber);
+	sprintf(path, "Manual/%s/%d.jpg", actualFolderName, imageNumber);
 
 	while(!SD.exists(path))
 	{
 		imageNumber--;
 		if(imageNumber < 1) imageNumber = 48;
 		if(imageNumber == loop_start) break;
-		sprintf(path,"Manual/manual%d.jpg", imageNumber);
+		sprintf(path,"Manual/%s/%d.jpg", actualFolderName, imageNumber);
 	}
 }
 
 void cImageViewer::countImages()
 {
 	imagesCount = 0;
-	char path[40];
+	char path[100];
 
 	for(uint8_t i = 0; i<48; i++)
 	{
-		sprintf(path,"Manual/manual%d.jpg", i);
+		sprintf(path,"Manual/%s/%d.jpg", actualFolderName, i);
 
 		if(SD.exists(path))
 		{
@@ -236,9 +249,9 @@ void cImageViewer::countImages()
 void cImageViewer::setImage(uint8_t number)
 {
 	if(imagesCount == 0) return;
-	char path[40];
+	char path[100];
 
-	sprintf(path,"Manual/manual%d.jpg", number);
+	sprintf(path,"Manual/%s/%d.jpg",actualFolderName, number);
 
 	if(SD.exists(path))
 	{

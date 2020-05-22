@@ -435,7 +435,7 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		case eventActivateImageViewer:
 		{
 			mtInterface.deactivateModule((hModule)param1);
-			mtInterface.activateModule(&imageViewer,0);
+			mtInterface.activateModule(&imageViewer, *((uint8_t*)param2));
 			break;
 		}
 		case eventToggleActiveModule:

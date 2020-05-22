@@ -4,6 +4,7 @@
 
 #include "configEditor/configMenuActions.h"
 
+#include "imageViewer/imageViewerDefs.h"
 
 
 // baza baz
@@ -19,7 +20,7 @@ cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	4);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
-cMenuGroup menuManual	(menuBase, 4, "Manual", 	1);
+cMenuGroup menuManual	(menuBase, 4, "Manual", 	15);
 cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
 
 
@@ -117,9 +118,37 @@ cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Firmware Update", 	menuTypeItemA
 cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 	menuTypeItemLabel, &currentVerisonSetup);
 
 /////////
-const strItemTypeActionButton manualSetup 		{ openManualAction, nullptr};
+const strItemTypeActionButton manual1Setup 			{ openManual1Action, nullptr};
+const strItemTypeActionButton manual2Setup 			{ openManual2Action, nullptr};
+const strItemTypeActionButton manual3Setup 			{ openManual3Action, nullptr};
+const strItemTypeActionButton manual4Setup 			{ openManual4Action, nullptr};
+const strItemTypeActionButton manual5Setup 			{ openManual5Action, nullptr};
+const strItemTypeActionButton manual6Setup 			{ openManual6Action, nullptr};
+const strItemTypeActionButton manual7Setup 			{ openManual7Action, nullptr};
+const strItemTypeActionButton manual8Setup 			{ openManual8Action, nullptr};
+const strItemTypeActionButton manual9Setup 			{ openManual9Action, nullptr};
+const strItemTypeActionButton manual10Setup 		{ openManual10Action, nullptr};
+const strItemTypeActionButton manual11Setup 		{ openManual11Action, nullptr};
+const strItemTypeActionButton manual12Setup 		{ openManual12Action, nullptr};
+const strItemTypeActionButton manual13Setup 		{ openManual13Action, nullptr};
+const strItemTypeActionButton manual14Setup 		{ openManual14Action, nullptr};
+const strItemTypeActionButton manual15Setup 		{ openManual15Action, nullptr};
 
-cMenuItem melOpenManual		(menuManual, 		0, "Open Manual", 	menuTypeItemActionButton, &manualSetup);
+cMenuItem melOpenManual1		(menuManual, 0,  &manualFolderNames[0][0], menuTypeItemActionButton, &manual1Setup);
+cMenuItem melOpenManual2		(menuManual, 1,  &manualFolderNames[1][0], menuTypeItemActionButton, &manual2Setup);
+cMenuItem melOpenManual3		(menuManual, 2,  &manualFolderNames[2][0], menuTypeItemActionButton, &manual3Setup);
+cMenuItem melOpenManual4		(menuManual, 3,  &manualFolderNames[3][0], menuTypeItemActionButton, &manual4Setup);
+cMenuItem melOpenManual5		(menuManual, 4,  &manualFolderNames[4][0], menuTypeItemActionButton, &manual5Setup);
+cMenuItem melOpenManual6		(menuManual, 5,  &manualFolderNames[5][0], menuTypeItemActionButton, &manual6Setup);
+cMenuItem melOpenManual7		(menuManual, 6,  &manualFolderNames[6][0], menuTypeItemActionButton, &manual7Setup);
+cMenuItem melOpenManual8		(menuManual, 7,  &manualFolderNames[7][0], menuTypeItemActionButton, &manual8Setup);
+cMenuItem melOpenManual9		(menuManual, 8,  &manualFolderNames[8][0], menuTypeItemActionButton, &manual9Setup);
+cMenuItem melOpenManual10		(menuManual, 9,  &manualFolderNames[9][0], menuTypeItemActionButton, &manual10Setup);
+cMenuItem melOpenManual11		(menuManual, 10, &manualFolderNames[10][0], menuTypeItemActionButton, &manual11Setup);
+cMenuItem melOpenManual12		(menuManual, 11, &manualFolderNames[11][0], menuTypeItemActionButton, &manual12Setup);
+cMenuItem melOpenManual13		(menuManual, 12, &manualFolderNames[12][0], menuTypeItemActionButton, &manual13Setup);
+cMenuItem melOpenManual14		(menuManual, 13, &manualFolderNames[13][0], menuTypeItemActionButton, &manual14Setup);
+cMenuItem melOpenManual15		(menuManual, 14, &manualFolderNames[14][0], menuTypeItemActionButton, &manual15Setup);
 
 ///////////
 const strItemTypeActionButton creditsSetup 		{ openCreditsAction, nullptr};
@@ -155,7 +184,7 @@ void cConfigEditor::hideConfigMenu()
 
 void cConfigEditor::createMenuBaseList()
 {
-	basemenuList.linesCount = 13;
+	basemenuList.linesCount = 14;
 	basemenuList.start = menuBase.getSelectedItem();
 	basemenuList.length = menuBase.getCount();
 	basemenuList.data = menuBase.getNames();
@@ -168,7 +197,7 @@ void cConfigEditor::createMenuBaseList()
 
 void cConfigEditor::reloadSubmenu()
 {
-	submenuList.linesCount = 13;
+	submenuList.linesCount = 14;
  	submenuList.start = menuBase.getSelChild()->getSelectedItem();
 	submenuList.length = menuBase.getSelChild()->getCount();
 	submenuList.params = menuBase.getSelChild()->getNames();
@@ -187,7 +216,7 @@ void cConfigEditor::reloadSecondSubmenu()
 {
 	if(menuBase.getSelChild()->getSelChild()->type == menuTypeGroup)
 	{
-		secondSubmenuList.linesCount = 13;
+		secondSubmenuList.linesCount = 14;
 		secondSubmenuList.start = menuBase.getSelChild()->getSelChild()->getSelectedItem();
 		secondSubmenuList.length = menuBase.getSelChild()->getSelChild()->getCount();
 		secondSubmenuList.params = menuBase.getSelChild()->getSelChild()->getNames();

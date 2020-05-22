@@ -41,7 +41,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
-	char titleText[32];
+	char titleText[100];
 
 	strLabelData doubleArrow[2];
 	strFrameData frameData;
@@ -57,6 +57,10 @@ public:
 	uint8_t imagesCount = 0;
 
 	uint8_t refreshImageState = 0;
+
+
+	char actualFolderName[50];
+
 };
 
 extern cImageViewer imageViewer;

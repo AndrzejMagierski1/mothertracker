@@ -121,7 +121,8 @@ void cConfigEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 
-	selectedPlace = 0;
+	// powraca tylko do 1 i 2 kolumny
+	if(selectedPlace > 1) selectedPlace = 1;
 
 	showDefaultConfigScreen();
 	setConfigScreenFunct();
@@ -855,21 +856,110 @@ void openCreditsAction()
 
 //==============================================================================================================
 
-void openManualAction()
-{
+//==============================================================================================================
 
-
-	CE->eventFunct(eventActivateImageViewer,CE,0,0);
-
-}
-
-
+//==============================================================================================================
 
 void cConfigEditor::saveConfigToEeprom()
 {
 	saveConfig();
 }
 
+//==============================================================================================================
+
+//==============================================================================================================
+
+//==============================================================================================================
+
+void openManual1Action()
+{
+	uint8_t folderIndex = 0;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual2Action()
+{
+	uint8_t folderIndex = 1;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual3Action()
+{
+	uint8_t folderIndex = 2;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual4Action()
+{
+	uint8_t folderIndex = 3;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual5Action()
+{
+	uint8_t folderIndex = 4;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual6Action()
+{
+	uint8_t folderIndex = 5;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual7Action()
+{
+	uint8_t folderIndex = 6;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual8Action()
+{
+	uint8_t folderIndex = 7;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual9Action()
+{
+	uint8_t folderIndex = 8;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual10Action()
+{
+	uint8_t folderIndex = 9;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual11Action()
+{
+	uint8_t folderIndex = 10;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual12Action()
+{
+	uint8_t folderIndex = 11;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual13Action()
+{
+	uint8_t folderIndex = 12;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual14Action()
+{
+	uint8_t folderIndex = 13;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
+
+void openManual15Action()
+{
+	uint8_t folderIndex = 14;
+	CE->eventFunct(eventActivateImageViewer,CE,&folderIndex,0);
+}
 
 
 
