@@ -217,7 +217,7 @@ public:
 	char cLength[5];
 	char cStep[5];
 
-
+	bool refreshAfterReleaseFx;
 
 //------------------------------------------------------
 // fill
