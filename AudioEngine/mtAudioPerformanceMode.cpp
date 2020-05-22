@@ -4,11 +4,27 @@
 void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] != 1) && (value == 0)) return;
-
-	uint8_t volume = getMostSignificantVolume();
+	performanceMod.volume  = value;
+	uint8_t volume;
 	float localAmount = getMostSignificantAmount();
 
-	ampPtr->gain(ampLogValues[volume] * localAmount);
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]	)
+	{
+		volume = currentSeqModValues.volume;
+	}
+	else
+	{
+		volume = mtProject.instrument[currentInstrument_idx].volume;
+	}
+
+	if(volume + value > 100) currentPerformanceValues.volume = 100;
+	else if(volume + value < 0) currentPerformanceValues.volume = 0;
+	else currentPerformanceValues.volume = volume + value;
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
+
+	ampPtr->gain(ampLogValues[currentPerformanceValues.volume] * localAmount);
 
 
 }
