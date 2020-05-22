@@ -13,7 +13,21 @@ void setMetronomValues();
 
 void openCreditsAction();
 
-void openManualAction();
+void openManual1Action();
+void openManual2Action();
+void openManual3Action();
+void openManual4Action();
+void openManual5Action();
+void openManual6Action();
+void openManual7Action();
+void openManual8Action();
+void openManual9Action();
+void openManual10Action();
+void openManual11Action();
+void openManual12Action();
+void openManual13Action();
+void openManual14Action();
+void openManual15Action();
 
 
 #endif /* INTERFACE_CONFIGEDITOR_CONFIGMENUACTIONS_H_ */
