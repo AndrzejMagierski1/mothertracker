@@ -1776,7 +1776,8 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 			if (step->note == STEP_NOTE_EMPTY &&
 					step->fx[0].type == 0 &&
 					step->fx[1].type == 0 &&
-					(source < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
+					(source < 0 ? !player.track[tr].noteOpen : 1)&& // jesli nagrywamy instrument, nie patrz na otwarte nuty
+					!isTrackEngineMuted(tr)) // omijamy zmutowane tracki // stop mutantom
 			{
 				step->note = note;
 				if (source < 0)
