@@ -521,7 +521,8 @@ struct strMtValues
 struct strSong
 {
 	uint8_t playlist[SONG_MAX] { 1 };
-	int8_t playlistPos = 0;
+	uint8_t playlistPos = 0;
+
 };
 
 //-------------------------------------------------
