@@ -22,13 +22,15 @@ static uint32_t popUpLabelColors[] =
 
 const char creditsText[1500] =
 {
+
+/*
 	"Polyend Team 2020:"
 	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Andrzej Magierski, Maciej Pancer, Michal Pilat, Piotr Raczynski,"
 	"\nDaniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz, Krzysztof Ziejewski, Krzysztof Zwolinski."
 	"\n"
 	"\nSpecial thanks to the beta testers & artists for feedback, tests, demo tracks, tutorials,videos and reviews: "
 	"\nSam Barker, Gui Boratto, Cuckoo, Mike Coakley, Alfred Darlington (Daedelus), Matthew Dear, Richard Devine,"
-	"\nZiv Eliraz (Loopop), Darren Emerson (Underworld),Derrick Estrada (Baseck), Aaron Funk (Venetian Snares), "
+	"\nZiv Eliraz (Loopop), Darren Emerson (Underworld), Derrick Estrada (Baseck), Aaron Funk (Venetian Snares), "
 	"\nPaul Geissinger (Starkey), John Greenwood (Radiohead), Julien Guillot (The Junglechrist), Scott Harper (Knobs),"
 	"\nAndrew Huang, Richard D. James (Aphex Twin), Benn Jordan (The Flashbulb), Tim Koch, Jeremy Leaird-Koch "
 	"\n(Red Means Recording), Jamie Lidell, Robert Lippok, Sarah Longfield,Ricky Martinez, Jonathan Miller, Bryan Noll"
@@ -39,6 +41,33 @@ const char creditsText[1500] =
 	"\nMany thanks for the sample packs to:"
 	"\nAlex Cummings / ARC noise, Julien Guillot / Stazma, Jamie Lidell / Isolation Loops, Plughugger /"
 	"\nEP16 Techno, Alex Restis / 8-Bit Essentials & Crude Drums, Scot Solida /"
+*/
+
+	"Polyend Team 2020:"
+	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Andrzej Magierski, Maciej Pancer, Michal Pilat, Piotr Raczynski,"
+	"\nDaniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz, Krzysztof Ziejewski, Krzysztof Zwolinski."
+	"\n"
+	"\nSpecial thanks to the beta testers & artists for feedback, tests, demo tracks, tutorials, videos and reviews: "
+	"\nSam Barker, Gui Boratto, Cuckoo, Mike Coakley, Alfred Darlington (Daedelus), Matthew Dear, Richard Devine,"
+	"\nZiv Eliraz (Loopop), Darren Emerson (Underworld), Derrick Estrada (Baseck), Paul Geissinger (Starkey),"
+	"\nJulien Guillot (The Junglechrist), Scott Harper (Knobs), Andrew Huang, Richard D. James (Aphex Twin),"
+	"\nBenn Jordan (The Flashbulb), Tim Koch, Jeremy Leaird-Koch (Red Means Recording), Jamie Lidell, Robert Lippok,"
+	"\nSarah Longfield, Ricky Martinez, Bryan Noll (Lightbath), Terrence OʼBrien (Endgadget), Bogdan Raczynski,"
+	"\nSam Shepherd (Floating Points), Cenk Sayinli (Dataline), Lukasz Seliga (SLG), Jacek Sienkiewicz, Sam Slater,"
+	"\nTravis Stewart (Machinedrum), Jimi Tenor, Si Truss (Future Music), Brain Waltzera, Axel Willner (The Field),"
+	"\nDanny Wolfers (Legowelt)."
+	"\n"
+	"\nMany thanks for the provided sample packs to:"
+	"\nAlex Cummings, The Flashbulb, Jamie Lidell, Legowelt, Sarah Longfield, Plughugger, Alex Restis, Scot Solida, Stazma. "
+
+
+
+
+
+
+
+
+
 };
 
 

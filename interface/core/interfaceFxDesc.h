@@ -139,7 +139,14 @@ const char fxDescriptions[FX_COUNT][300] =
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_POSITION_LFO,
 	{
-			"Sets the LFO rate for the selected playback type (Wavetable, Granular) Position in respect to the project tempo (BPM)."
+			"Sets the LFO rate for the selected playback type (Wavetable, Granular). Position in respect to the project tempo (BPM)."
+			"\n"
+			"\n"
+			"Values: 6; 4; 3; 2; 3/2; 1; 3/4; 1/2; 3/8; 1/3; 1/4; 316 (3/16); 1/6; 1/8; /12 (1/12); /16 (1/16); /24 (1/24); /32 (1/32); /48 (1/48); /64 (1/64)."
+	},
+	//Sequencer::strFxConsts::enFxType::FX_TYPE_POSITION_LFO,
+	{
+			"Sets the LFO rate for instrument Finetune. LFO is synced to project Tempo."
 			"\n"
 			"\n"
 			"Values: 6; 4; 3; 2; 3/2; 1; 3/4; 1/2; 3/8; 1/3; 1/4; 316 (3/16); 1/6; 1/8; /12 (1/12); /16 (1/16); /24 (1/24); /32 (1/32); /48 (1/48); /64 (1/64)."
