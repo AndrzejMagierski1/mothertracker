@@ -8,7 +8,7 @@ const uint8_t MANUAL_CHAPTERS_COUNT = 15;
 
 const char manualFolderNames[MANUAL_CHAPTERS_COUNT][40] =
 {
-		"Quick start, Tips & tricks",
+		"Quick start", //, Tips & tricks",
 		"Intro",
 		"Interface",
 		"Back panel",

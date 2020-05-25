@@ -20,7 +20,7 @@ cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	4);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
-cMenuGroup menuManual	(menuBase, 4, "Manual", 	15);
+cMenuGroup menuManual	(menuBase, 4, "Manual", 	1);
 cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
 
 
@@ -135,20 +135,20 @@ const strItemTypeActionButton manual14Setup 		{ openManual14Action, nullptr};
 const strItemTypeActionButton manual15Setup 		{ openManual15Action, nullptr};
 
 cMenuItem melOpenManual1		(menuManual, 0,  &manualFolderNames[0][0], menuTypeItemActionButton, &manual1Setup);
-cMenuItem melOpenManual2		(menuManual, 1,  &manualFolderNames[1][0], menuTypeItemActionButton, &manual2Setup);
-cMenuItem melOpenManual3		(menuManual, 2,  &manualFolderNames[2][0], menuTypeItemActionButton, &manual3Setup);
-cMenuItem melOpenManual4		(menuManual, 3,  &manualFolderNames[3][0], menuTypeItemActionButton, &manual4Setup);
-cMenuItem melOpenManual5		(menuManual, 4,  &manualFolderNames[4][0], menuTypeItemActionButton, &manual5Setup);
-cMenuItem melOpenManual6		(menuManual, 5,  &manualFolderNames[5][0], menuTypeItemActionButton, &manual6Setup);
-cMenuItem melOpenManual7		(menuManual, 6,  &manualFolderNames[6][0], menuTypeItemActionButton, &manual7Setup);
-cMenuItem melOpenManual8		(menuManual, 7,  &manualFolderNames[7][0], menuTypeItemActionButton, &manual8Setup);
-cMenuItem melOpenManual9		(menuManual, 8,  &manualFolderNames[8][0], menuTypeItemActionButton, &manual9Setup);
-cMenuItem melOpenManual10		(menuManual, 9,  &manualFolderNames[9][0], menuTypeItemActionButton, &manual10Setup);
-cMenuItem melOpenManual11		(menuManual, 10, &manualFolderNames[10][0], menuTypeItemActionButton, &manual11Setup);
-cMenuItem melOpenManual12		(menuManual, 11, &manualFolderNames[11][0], menuTypeItemActionButton, &manual12Setup);
-cMenuItem melOpenManual13		(menuManual, 12, &manualFolderNames[12][0], menuTypeItemActionButton, &manual13Setup);
-cMenuItem melOpenManual14		(menuManual, 13, &manualFolderNames[13][0], menuTypeItemActionButton, &manual14Setup);
-cMenuItem melOpenManual15		(menuManual, 14, &manualFolderNames[14][0], menuTypeItemActionButton, &manual15Setup);
+//cMenuItem melOpenManual2		(menuManual, 1,  &manualFolderNames[1][0], menuTypeItemActionButton, &manual2Setup);
+//cMenuItem melOpenManual3		(menuManual, 2,  &manualFolderNames[2][0], menuTypeItemActionButton, &manual3Setup);
+//cMenuItem melOpenManual4		(menuManual, 3,  &manualFolderNames[3][0], menuTypeItemActionButton, &manual4Setup);
+//cMenuItem melOpenManual5		(menuManual, 4,  &manualFolderNames[4][0], menuTypeItemActionButton, &manual5Setup);
+//cMenuItem melOpenManual6		(menuManual, 5,  &manualFolderNames[5][0], menuTypeItemActionButton, &manual6Setup);
+//cMenuItem melOpenManual7		(menuManual, 6,  &manualFolderNames[6][0], menuTypeItemActionButton, &manual7Setup);
+//cMenuItem melOpenManual8		(menuManual, 7,  &manualFolderNames[7][0], menuTypeItemActionButton, &manual8Setup);
+//cMenuItem melOpenManual9		(menuManual, 8,  &manualFolderNames[8][0], menuTypeItemActionButton, &manual9Setup);
+//cMenuItem melOpenManual10		(menuManual, 9,  &manualFolderNames[9][0], menuTypeItemActionButton, &manual10Setup);
+//cMenuItem melOpenManual11		(menuManual, 10, &manualFolderNames[10][0], menuTypeItemActionButton, &manual11Setup);
+//cMenuItem melOpenManual12		(menuManual, 11, &manualFolderNames[11][0], menuTypeItemActionButton, &manual12Setup);
+//cMenuItem melOpenManual13		(menuManual, 12, &manualFolderNames[12][0], menuTypeItemActionButton, &manual13Setup);
+//cMenuItem melOpenManual14		(menuManual, 13, &manualFolderNames[13][0], menuTypeItemActionButton, &manual14Setup);
+//cMenuItem melOpenManual15		(menuManual, 14, &manualFolderNames[14][0], menuTypeItemActionButton, &manual15Setup);
 
 ///////////
 const strItemTypeActionButton creditsSetup 		{ openCreditsAction, nullptr};
