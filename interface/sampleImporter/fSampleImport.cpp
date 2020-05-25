@@ -1191,7 +1191,7 @@ void cSampleImporter::stopPlaying()
 	}
 	else if(playMode == playModeSampleBank)
 	{
-		instrumentPlayer[0].noteOff();
+		instrumentPlayer[0].noteOff(-3);
 	}
 
 	playMode = playModeStop;
