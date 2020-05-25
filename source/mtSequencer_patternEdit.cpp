@@ -1448,8 +1448,8 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 		return value;
 	}
 }
-const uint8_t MAX_LFOSPEED_LABELS_AMP = 23;
-const uint8_t MAX_LFOSPEED_LABELS = 24;
+const uint8_t MAX_LFOSPEED_LABELS_AMP = 24;
+const uint8_t MAX_LFOSPEED_LABELS = 25;
 const char seqlfoSpeedLabels_ampOnly[MAX_LFOSPEED_LABELS_AMP+1][4] =
 {
 		" 24",
