@@ -30,8 +30,8 @@ void cProjectEditor::initDisplayControls()
 	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX | controlStyleFont4);
-	prop2.x = 769;
-	prop2.y = 12;
+	prop2.x = 790;
+	prop2.y = 13;
 	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 2;
@@ -207,7 +207,10 @@ void cProjectEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 	strcpy(projectCoverName, newFileManager.getCurrentProjectName());
-	display.setControlText(titleLabelProjectName, newFileManager.getCurrentProjectName());
+
+	static char projNameTitleLabel[PROJECT_NAME_SIZE+1];
+	strncpy(projNameTitleLabel, newFileManager.getCurrentProjectName(), 26);
+	display.setControlText(titleLabelProjectName, projNameTitleLabel);
 	display.refreshControl(titleLabelProjectName);
 
 	display.setControlData(label[0], &labelArrow);
