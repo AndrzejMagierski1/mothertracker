@@ -129,12 +129,12 @@ protected:
 	};
 
 
-	strMemoryAreaWithSelection processed =
+	strMemoryAreaWithSelection confirmed =
 	{ .area = { sdram_ptrEffectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
 	  .selection = { sdram_ptrEffectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
 	};
 
-	strMemoryAreaWithSelection confirmed =
+	strMemoryAreaWithSelection processed =
 	{ .area = { sdram_ptrEffectsBank, 0},
 	  .selection = { sdram_ptrEffectsBank, 0},
 	};
