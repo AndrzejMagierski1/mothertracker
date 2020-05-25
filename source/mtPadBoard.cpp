@@ -88,7 +88,7 @@ void cMtPadBoard::stopInstrument(int16_t source)
 	voices[voiceToClear] = -1;
 	//mtPrint("stop: ");
 	//mtPrintln(voiceToClear);
-	instrumentPlayer[voiceToClear].noteOff();
+	instrumentPlayer[voiceToClear].noteOff(-3); // zmienione na cut ze wzgledu na to ze i tak nie jest uzywane nigdzie oprocz miejsc gdzie nie ma envelopow
 }
 
 void cMtPadBoard::cutInstrument(uint8_t pad)
