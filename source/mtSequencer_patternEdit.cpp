@@ -1448,70 +1448,80 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 		return value;
 	}
 }
+const uint8_t MAX_LFOSPEED_LABELS_AMP = 23;
+const uint8_t MAX_LFOSPEED_LABELS = 24;
+const char seqlfoSpeedLabels_ampOnly[MAX_LFOSPEED_LABELS_AMP+1][4] =
+{
+		" 24",
+		" 16",
+		" 12",
+		"  8",
+		"  6",
+		"  4",
+		"  3",
+		"  2",
+		"3/2",
+		"  1",
+		"3/4",
+		"1/2",
+		"3/8",
+		"1/3",
+		"1/4",
+		"316",
+		"1/6",
+		"1/8",
+		"/12",
+		"/16",
+		"/24",
+		"/32",
+		"/48",
+		"/64",
+		"???"
+};
+const char seqlfoSpeedLabels[MAX_LFOSPEED_LABELS+1][4] =
+{
+		" 32",
+		" 24",
+		" 16",
+		" 12",
+		"  8",
+		"  6",
+		"  4",
+		"  3",
+		"  2",
+		"3/2",
+		"  1",
+		"3/4",
+		"1/2",
+		"3/8",
+		"1/3",
+		"1/4",
+		"316",
+		"1/6",
+		"1/8",
+		"/12",
+		"/16",
+		"/24",
+		"/32",
+		"/48",
+		"/64",
+		"???"
+};
 
-const char lfoSpeedLabels_ampOnly[24][4] =
-		{
-				" 24",
-				" 16",
-				" 12",
-				"  8",
-				"  6",
-				"  4",
-				"  3",
-				"  2",
-				"3/2",
-				"  1",
-				"3/4",
-				"1/2",
-				"3/8",
-				"1/3",
-				"1/4",
-				"316",
-				"1/6",
-				"1/8",
-				"/12",
-				"/16",
-				"/24",
-				"/32",
-				"/48",
-				"/64"
-		};
 
-const char lfoSpeedLabels[25][4] =
-		{
-				" 32",
-				" 24",
-				" 16",
-				" 12",
-				"  8",
-				"  6",
-				"  4",
-				"  3",
-				"  2",
-				"3/2",
-				"  1",
-				"3/4",
-				"1/2",
-				"3/8",
-				"1/3",
-				"1/4",
-				"316",
-				"1/6",
-				"1/8",
-				"/12",
-				"/16",
-				"/24",
-				"/32",
-				"/48",
-				"/64"
-		};
 
 void Sequencer::makeFxValLabel(char *ptr, uint8_t fxID, uint8_t track,
 								uint8_t step)
 {
+	if (track > MAXTRACK) return;
+	if (step > MAXSTEP) return;
+	char buffer[10]{0};
+
 	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
 
-	makeFxValLabel(ptr, actualStep->fx[fxID].type, actualStep->fx[fxID].value);
+	makeFxValLabel(buffer, actualStep->fx[fxID].type, actualStep->fx[fxID].value);
+
+	strncpy(ptr, buffer, 3);
 
 }
 void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value)
@@ -1538,11 +1548,13 @@ void Sequencer::makeFxValLabel(char *ptr, uint8_t fxType, uint8_t value,
 		case fx.FX_TYPE_PANNING_LFO:
 		case fx.FX_TYPE_POSITION_LFO:
 		case fx.FX_TYPE_FINETUNE_LFO:
-		strcpy(ptr, lfoSpeedLabels[val]);
+		constrain(val, 0, MAX_LFOSPEED_LABELS);
+		strcpy(ptr, seqlfoSpeedLabels[val]);
 		break;
 
 	case fx.FX_TYPE_VOLUME_LFO:
-		strcpy(ptr, lfoSpeedLabels_ampOnly[val]);
+		constrain(val, 0, MAX_LFOSPEED_LABELS_AMP);
+		strcpy(ptr, seqlfoSpeedLabels_ampOnly[val]);
 		break;
 
 	case fx.FX_TYPE_OFF:
