@@ -269,7 +269,7 @@ void cSampleEditor::update()
 		}
 		else
 		{
-			newFileManager.reloadSamplesFromWorkspace(true);
+			newFileManager.reloadSamplesFromWorkspace(false);
 		}
 	}
 	else if(fileManagerStatus == fmReloadSamplesEnd)

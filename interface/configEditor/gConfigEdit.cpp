@@ -52,7 +52,7 @@ const char creditsText[1500] =
 	"\nZiv Eliraz (Loopop), Darren Emerson (Underworld), Derrick Estrada (Baseck), Paul Geissinger (Starkey),"
 	"\nJulien Guillot (The Junglechrist), Scott Harper (Knobs), Andrew Huang, Richard D. James (Aphex Twin),"
 	"\nBenn Jordan (The Flashbulb), Tim Koch, Jeremy Leaird-Koch (Red Means Recording), Jamie Lidell, Robert Lippok,"
-	"\nSarah Longfield, Ricky Martinez, Bryan Noll (Lightbath), Terrence OʼBrien (Endgadget), Bogdan Raczynski,"
+	"\nSarah Longfield, Ricky Martinez, Bryan Noll (Lightbath), Terrence O'Brien (Endgadget), Bogdan Raczynski,"
 	"\nSam Shepherd (Floating Points), Cenk Sayinli (Dataline), Lukasz Seliga (SLG), Jacek Sienkiewicz, Sam Slater,"
 	"\nTravis Stewart (Machinedrum), Jimi Tenor, Si Truss (Future Music), Brain Waltzera, Axel Willner (The Field),"
 	"\nDanny Wolfers (Legowelt)."
