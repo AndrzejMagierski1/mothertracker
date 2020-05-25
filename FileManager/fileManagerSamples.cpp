@@ -404,7 +404,7 @@ void cFileManager::completeLoadedSampleStruct(bool success)
 				? mtProject.instrument[currentSample].sample.length/mtProject.instrument[currentSample].sample.wavetable_window_size
 				: 0;
 		mtProject.instrument[currentSample].wavetableCurrentWindow =
-				map(lastCurrentWindow, 0, mtProject.instrument[currentSample].sample.wavetableWindowNumber, 0, lastWindowNumber);
+				map(lastCurrentWindow, 0, lastWindowNumber, 0,mtProject.instrument[currentSample].sample.wavetableWindowNumber - 1 );
 	}
 }
 
