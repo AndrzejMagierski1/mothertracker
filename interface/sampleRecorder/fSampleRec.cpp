@@ -182,7 +182,7 @@ void cSampleRecorder::update()
 
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
-			newFileManager.reloadSamplesFromWorkspace(true);
+			newFileManager.reloadSamplesFromWorkspace(false);
 		}
 		else
 		{
@@ -1038,7 +1038,7 @@ static  uint8_t functActionButton7()
 		else if(SR->changesLostSource == cSampleRecorder::enChangesLostSource::switchModuleFunct)
 		{
 			SR->FM->blockAllInputs();
-			newFileManager.reloadSamplesFromWorkspace(true);
+			newFileManager.reloadSamplesFromWorkspace(false);
 			SR->selectionWindowFlag = 0;
 			return 1;
 		}
@@ -1841,7 +1841,7 @@ static uint8_t functSwitchModule(uint8_t button)
 	else
 	{
 		SR->FM->blockAllInputs();
-		newFileManager.reloadSamplesFromWorkspace(true);
+		newFileManager.reloadSamplesFromWorkspace(false);
 	}
 
 	return 1;
