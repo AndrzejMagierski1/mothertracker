@@ -790,6 +790,8 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	}
 
 	status = playMemPtr->playForPrev(instr_idx,note);
+
+	envelopeAmpPtr->setIsRandom(false);
 	envelopeAmpPtr->noteOn();
 
 	return status;
@@ -827,6 +829,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	bitDepthControl[1].setBitDepth(16);
 
 	status = playMemPtr->playForPrev(addr,len,type);
+
+	envelopeAmpPtr->setIsRandom(false);
 	envelopeAmpPtr->noteOn();
 
 	return status;
@@ -860,6 +864,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	bitDepthControl[1].setBitDepth(16);
 
 	status = playMemPtr->playForPrev(addr,len,note,type);
+
+	envelopeAmpPtr->setIsRandom(false);
 	envelopeAmpPtr->noteOn();
 
 	return status;

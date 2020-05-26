@@ -1820,5 +1820,7 @@ void playerEngine::syncFxAmpLFO()
 {
 	envelopeAmpPtr->noteOff();
 	envelopeAmpPtr->setIdle();
+	bool isAmpRandom = (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) && (mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape == lfoShapeRandom);
+	envelopeAmpPtr->setIsRandom(isAmpRandom);
 	envelopeAmpPtr->noteOn();
 }
