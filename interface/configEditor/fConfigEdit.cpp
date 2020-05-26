@@ -349,7 +349,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	if(mtTest.runTestByCombinaion(pad)) 	CE->eventFunct(eventActivateTestingProcedure,CE,0,0);
 
 
-	if(pad == 0)
+	if(pad == 0 && DEBUG_LOG_FROM_CONFIG_PAD)
 	{
 		mtPopups.config(4, (strPopupStyleConfig*)&popupDebugConfig);
 		if(debugLog.toggleState())
@@ -363,7 +363,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		CE->saveConfigToEeprom();
 	}
 
-	else if(pad == 11)
+	else if(pad == 11 && FILE_TRANS_FROM_CONFIG_PAD)
 	{
 		mtPopups.config(4, (strPopupStyleConfig*)&popupDebugConfig);
 		if(mtpd.toggleState())
