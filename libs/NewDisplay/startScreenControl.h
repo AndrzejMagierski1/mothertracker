@@ -9,7 +9,7 @@
 
 struct strStartScreenData
 {
-	char versionLabel[15] = {0};
+	char versionLabel[18] = {0};
 };
 
 //--------------------------------------------------------------------

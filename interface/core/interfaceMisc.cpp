@@ -76,12 +76,23 @@ void cInterface::openNewProject()
 //=====================================================================================
 void cInterface::initStartScreen()
 {
-	char beta[2];
-	if(mtConfig.firmware.beta)	beta[0] = 'b';
-	else 						beta[0] = 0;
-	beta[1] = 0;
-
-	sprintf(startScreenData.versionLabel, "v%d.%d.%d%s", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3, beta);
+	if (mtConfig.firmware.beta)
+	{
+		sprintf(startScreenData.versionLabel,
+				"v%d.%d.%d b%d",
+				mtConfig.firmware.ver_1,
+				mtConfig.firmware.ver_2,
+				mtConfig.firmware.ver_3,
+				mtConfig.firmware.beta);
+	}
+	else
+	{
+		sprintf(startScreenData.versionLabel,
+				"v%d.%d.%d",
+				mtConfig.firmware.ver_1,
+				mtConfig.firmware.ver_2,
+				mtConfig.firmware.ver_3);
+	}
 
 	strControlProperties prop;
 	prop.x = 190;

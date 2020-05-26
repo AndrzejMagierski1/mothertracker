@@ -1,0 +1,68 @@
+	
+	
+	
+	
+	
+	1.0.1 	Co nowego?
+
+			- 
+			
+	1.0 	Pierwszy release
+	
+			-	:champagne_showers:
+
+			
+			
+			
+			
+			
+
+###############################################################################################################################################################
+###############################################################################################################################################################
+###############################################################################################################################################################			
+			
+	KONTROLA WERSJI:
+	
+	1. tworzymy nowy brancz 'release' gdzie będziemy merdżować mastera wtedy i tylko wtedy,
+	 gdy idzie rilis z indeksem 'nie beta', czyli na masterze robimy tak jak dawniej i merdżujemy do release jak idzie nowy indeks wersji bez bety. 
+	 
+	 
+	 
+	2. wprowadzamy changelog.txt w gicie projektu, gdzie będziemy wpisywać czym różni się wersja od poprzedniej, git ładnie pokaże co kiedy wpisane no i Jacek i Piotrek będą wiedzieli co się dzieje między wersjami. Np:
+		
+		1.0.1
+		
+		- przycisk A i B od teraz robi C
+		- dodany fx 'random everything'
+		- dodany krótki delay 
+		- fix crasha którego nigdy nie dało się powtórzyć
+		
+		1.0 First Release
+		
+		
+		
+		
+		
+	3. Wersjonowanie
+	
+	
+	przykład:
+	1.0.1 b1	// beta do testów 
+	1.0.1 b2	// beta do testów 2.
+	1.0.1 b3	// beta do testów 3.
+	1.0.1 		// release do publikacji, koniec 1.0.1
+	
+	1.0.2 b1 	// beta do testów  
+	1.0.2 b250 	// beta do testów  
+	1.0.2 		// release do publikacji, koniec 1.0.2
+	
+	1.1 b1 		// beta do testów  
+	1.1 b2 		// beta do testów  
+	1.1			// release do publikacji
+	
+	
+	1.x.y b
+	
+	x mówi o nowych funkcjach, bardziej szumny release
+	y mówi o fixach, czyli powiedzmy nie chwalimy się ale publikujemy
+	b jeśli zmienna beta>0 
