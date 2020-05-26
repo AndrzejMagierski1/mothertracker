@@ -70,7 +70,9 @@ public:
 	char radioFreq[10];
 
 	//ram
-	uint32_t ramErrorsCounter;
+
+	uint32_t ramErrorsMax;
+	uint32_t ramTestsPassed;
 
 private:
 	void drawGui();

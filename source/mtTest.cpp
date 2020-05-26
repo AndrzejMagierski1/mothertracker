@@ -66,8 +66,6 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	display.clear();
 	memset(&results,0,checkCount);
 
-	ramErrorsCounter  = 0;
-
 	for(uint8_t button = 0; button<interfaceButtonsCount; button++)
 	{
 		FM->setButtonObj(button, functButtons);
@@ -288,27 +286,39 @@ void cTest::runRAMTest()
 {
 	if(testPhase == 0)
 	{
-		ramErrorsCounter = 0;
+		ramErrorsMax = 0;
+		ramTestsPassed = 0;
+		uint32_t tests_result[10];
 
-		uint32_t* ptrMem = (uint32_t*)sdram_ptrSampleBank;
 
-		for(uint32_t i = 0; i<SAMPLE_MEMORY_SIZE/4; i++)
+		for(uint8_t test = 0; test < 10; test++)
 		{
-			*(ptrMem+i) = i;
-		}
+			uint32_t ramErrorsCounter = 0;
+			uint32_t* ptrMem = (uint32_t*)sdram_ptrSampleBank;
 
-		delay(10);
-
-		for(uint32_t i = 0; i<SAMPLE_MEMORY_SIZE/4; i++)
-		{
-			uint32_t read = *(ptrMem+i);
-			if(read != i)
+			for(uint32_t i = 0; i<SAMPLE_MEMORY_SIZE/4; i++)
 			{
-				ramErrorsCounter++;
+				*(ptrMem+i) = i;
 			}
+
+			delay(10);
+
+			for(uint32_t i = 0; i<SAMPLE_MEMORY_SIZE/4; i++)
+			{
+				uint32_t read = *(ptrMem+i);
+				if(read != i)
+				{
+					ramErrorsCounter++;
+				}
+			}
+
+			tests_result[test] = ramErrorsCounter;
+			if(ramErrorsCounter == 0) ramTestsPassed++;
+			if(ramErrorsCounter > ramErrorsMax) ramErrorsMax = ramErrorsCounter;
+
 		}
 
-		if(ramErrorsCounter == 0 ) testPhase = 2;
+		if(ramTestsPassed > 0) testPhase = 2;
 		else testPhase = 1;
 	}
 
@@ -572,12 +582,14 @@ void cTest::showRAMTest()
 	else if(testPhase == 1)
 	{
 		char errors[50];
-		sprintf(errors, "RAM test failed with %u errors", (unsigned int)ramErrorsCounter);
-		showMessage(errors, "", "Ok", "");
+		sprintf(errors, "passed: %u/10, max errors: %u", (unsigned int)ramTestsPassed, (unsigned int)ramErrorsMax);
+		showMessage("RAM test failed", errors, "Ok", "Retry");
 	}
 	else if(testPhase == 2)
 	{
-		showMessage("RAM test ended successfully", "", "Ok", "");
+		char errors[50];
+		sprintf(errors, "passed: %u/10, max errors: %u", (unsigned int)ramTestsPassed, (unsigned int)ramErrorsMax);
+		showMessage("RAM test ended successfully", errors, "Ok", "Retry");
 	}
 }
 
@@ -802,7 +814,8 @@ void cTest::DeclineButton()
 	}
 	case checkRAM:
 	{
-		if(testPhase == 1) results[checkRAM] = 1;
+		//if(testPhase == 1) results[checkRAM] = 1;
+		if(testPhase > 0) testPhase = 0;
 		//nextTest();
 		break;
 	}

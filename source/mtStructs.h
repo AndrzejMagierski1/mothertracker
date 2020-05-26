@@ -11,10 +11,10 @@
 
 
 
-const uint8_t FV_VER_1	=					0;		// device version
-const uint8_t FV_VER_2 =					9;		// official update
-const uint8_t FV_VER_3 =					84;		// fix version  100 = brak 3 litery
-const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
+const uint8_t FV_VER_1	=					1;		// device version
+const uint8_t FV_VER_2 =					0;		// official update
+const uint8_t FV_VER_3 =					0;		// fix version  100 = brak 3 litery
+const uint8_t FV_BETA 	=					0;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		2;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	3;		// wersja struktury pliku instrumentu
@@ -22,7 +22,13 @@ const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			2;
 
 
-const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				true;	// wlaczanie urzadzenia dopiero po wcisnieciu przycisku itp
+
+
+
+const bool DEBUG_LOG_FROM_CONFIG_PAD	=	false;	// debug log wl/wyl z pod 1 pada w configu
+const bool FILE_TRANS_FROM_CONFIG_PAD	=	false;	// mtp  wl/wyl z pod 12 pada w configu
+
 
 
 

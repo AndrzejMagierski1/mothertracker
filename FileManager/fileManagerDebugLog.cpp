@@ -19,15 +19,22 @@ void cFileManager::saveDebugLogToSd()
 
 	if(debugLog.isSdBufferChanged())
 	{
-		if(!SD.exists("debugLog")) SD.mkdir(0, "debugLog");
+		if(!SD.exists("trackerLog")) SD.mkdir(0, "trackerLog");
 
 		uint8_t fileNum = 0;
 		do
 		{
+			if(fileNum > 200)
+			{
+				logFile.close();
+				debugLog.clearSdBuffer();
+				return;
+			}
+
 			fileNum++;
 			logFile.close();
 			char fileName[50];
-			sprintf(fileName, "debugLog/log%d.txt", fileNum);
+			sprintf(fileName, "trackerLog/log%d.ptl", fileNum);
 			logFile.open(fileName, FA_READ | FA_WRITE | FA_OPEN_APPEND);
 
 			size = logFile.size();
@@ -35,7 +42,6 @@ void cFileManager::saveDebugLogToSd()
 		while(size > 1000000);
 
 
-		//logFile.seek(size);
 
 		debugLog.saveLogToFileNow(&logFile);
 
