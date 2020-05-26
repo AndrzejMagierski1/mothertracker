@@ -22,7 +22,13 @@ const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			2;
 
 
-const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				true;	// wlaczanie urzadzenia dopiero po wcisnieciu przycisku itp
+
+
+
+const bool DEBUG_LOG_FROM_CONFIG_PAD	=	false;	// debug log wl/wyl z pod 1 pada w configu
+const bool FILE_TRANS_FROM_CONFIG_PAD	=	false;	// mtp  wl/wyl z pod 12 pada w configu
+
 
 
 

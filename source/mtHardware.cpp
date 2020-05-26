@@ -197,7 +197,7 @@ void initHardware()
 	//  inne
 	hid.set_sendButtonState(hidSendButtonState);
 
-	BlinkLed.blinkOnce();
+	//BlinkLed.blinkOnce();
 
 	//display.turnOn();
 
