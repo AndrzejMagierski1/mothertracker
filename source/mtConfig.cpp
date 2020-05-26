@@ -336,7 +336,7 @@ void checkConfig()
 		mtConfig.general.radioRegion = 0;
 	}
 
-	if(mtConfig.general.mtpState > 1)
+	if(mtConfig.general.mtpState > 0)
 	{
 		mtConfig.general.mtpState = 0;
 	}

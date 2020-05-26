@@ -336,7 +336,7 @@ void cDisplay::update()
 				}
 			}
 
-			if(memoryUsed > 7000)
+			if(memoryUsed > 7400)
 			{
 				debugLog.addLine("Graphic memory used: ");
 				debugLog.addValue(memoryUsed);
