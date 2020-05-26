@@ -363,7 +363,7 @@ void checkConfig()
 
 
 	// debug ----------------------------------------
-	if(mtConfig.debug.debugLogState > 1)
+	if(mtConfig.debug.debugLogState > 0)
 	{
 		mtConfig.debug.debugLogState = 0;
 	}
