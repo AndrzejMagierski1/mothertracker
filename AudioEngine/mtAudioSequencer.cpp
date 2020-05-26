@@ -437,6 +437,9 @@ void playerEngine::fxCutoffLFO(uint8_t fx_val, uint8_t fx_n)
 		initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
 		if((envelopePtr[envCutoff]->isKeyPressed() != 1) && (envelopePtr[envCutoff]->getPhase() == 0))
 		{
+			bool isRandom = (mtProject.instrument[currentInstrument_idx].envelope[envCutoff].loop) &&
+					(mtProject.instrument[currentInstrument_idx].lfo[envCutoff].shape == lfoShapeRandom);
+			envelopePtr[envCutoff]->setIsRandom(isRandom);
 			envelopePtr[envCutoff]->start();
 		}
 		else if( (!mtProject.instrument[currentInstrument_idx].envelope[envCutoff].loop) &&
@@ -491,6 +494,9 @@ void playerEngine::fxPositionGranularLFO(uint8_t fx_val, uint8_t fx_n)
 		initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 		if((envelopePtr[envGranPos]->isKeyPressed() != 1) && (envelopePtr[envGranPos]->getPhase() == 0))
 		{
+			bool isRandom = (mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop) &&
+					(mtProject.instrument[currentInstrument_idx].lfo[envGranPos].shape == lfoShapeRandom);
+			envelopePtr[envGranPos]->setIsRandom(isRandom);
 			envelopePtr[envGranPos]->start();
 		}
 	}
@@ -527,6 +533,9 @@ void playerEngine::fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n)
 		initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 		if((envelopePtr[envWtPos]->isKeyPressed() != 1) && (envelopePtr[envWtPos]->getPhase() == 0))
 		{
+			bool isRandom = (mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop) &&
+					(mtProject.instrument[currentInstrument_idx].lfo[envWtPos].shape == lfoShapeRandom);
+			envelopePtr[envWtPos]->setIsRandom(isRandom);
 			envelopePtr[envWtPos]->start();
 		}
 	}
@@ -563,6 +572,9 @@ void playerEngine::fxPanningLFO(uint8_t fx_val, uint8_t fx_n)
 		initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 		if((envelopePtr[envPan]->isKeyPressed() != 1) && (envelopePtr[envPan]->getPhase() == 0))
 		{
+			bool isRandom = (mtProject.instrument[currentInstrument_idx].envelope[envPan].loop) &&
+					(mtProject.instrument[currentInstrument_idx].lfo[envPan].shape == lfoShapeRandom);
+			envelopePtr[envPan]->setIsRandom(isRandom);
 			envelopePtr[envPan]->start();
 		}
 	}
@@ -599,6 +611,10 @@ void playerEngine::fxFinetuneLFO(uint8_t fx_val, uint8_t fx_n)
 		initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
 		if((envelopePtr[envFinetune]->isKeyPressed() != 1) && (envelopePtr[envFinetune]->getPhase() == 0))
 		{
+
+			bool isRandom = (mtProject.instrument[currentInstrument_idx].envelope[envFinetune].loop) &&
+					(mtProject.instrument[currentInstrument_idx].lfo[envFinetune].shape == lfoShapeRandom);
+			envelopePtr[envFinetune]->setIsRandom(isRandom);
 			envelopePtr[envFinetune]->start();
 		}
 	}
@@ -1405,6 +1421,7 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 			case (int)lfoShapeType::lfoShapeReverseSaw: envelopePtr[type]->setPhaseNumbers(4, -1);		break;
 			case (int)lfoShapeType::lfoShapeTriangle: envelopePtr[type]->setPhaseNumbers(2, 4);			break;
 			case (int)lfoShapeType::lfoShapeSquare: envelopePtr[type]->setPhaseNumbers(3, 6);			break;
+			case (int)lfoShapeType::lfoShapeRandom: envelopePtr[type]->setPhaseNumbers(3, -1);			break;
 			default:	break;
 			}
 		}
@@ -1447,6 +1464,7 @@ void playerEngine::setSyncParamsAmpLFO()
 		case (int)lfoShapeType::lfoShapeReverseSaw: envelopeAmpPtr->setPhaseNumbers(4, -1);			break;
 		case (int)lfoShapeType::lfoShapeTriangle: envelopeAmpPtr->setPhaseNumbers(2, 4);			break;
 		case (int)lfoShapeType::lfoShapeSquare: envelopeAmpPtr->setPhaseNumbers(3, 6);				break;
+		case (int)lfoShapeType::lfoShapeRandom: envelopeAmpPtr->setPhaseNumbers(3, -1);				break;
 		default:	break;
 		}
 	}

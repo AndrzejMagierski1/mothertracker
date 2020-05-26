@@ -37,7 +37,12 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
 	{
-		if(mtProject.instrument[instr_idx].envelope[i].enable) envelopePtr[i]->start();
+		if(mtProject.instrument[instr_idx].envelope[i].enable)
+		{
+			bool isRandom = (mtProject.instrument[instr_idx].envelope[i].loop) && (mtProject.instrument[instr_idx].lfo[i].shape == lfoShapeRandom);
+			envelopePtr[i]->setIsRandom(isRandom);
+			envelopePtr[i]->start();
+		}
 	}
 
 	__enable_irq();
@@ -110,6 +115,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	{
 		if(isActiveEnvelope(i))
 		{
+			bool isRandom = (mtProject.instrument[instr_idx].envelope[i].loop) && (mtProject.instrument[instr_idx].lfo[i].shape == lfoShapeRandom);
+			envelopePtr[i]->setIsRandom(isRandom);
 			envelopePtr[i]->start();
 			setSyncParamsLFO(i);
 		}
