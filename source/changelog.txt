@@ -5,7 +5,7 @@
 	
 	1.0.1 	Co nowego?
 
-			- 
+			- random shape LFO 
 			
 	1.0 	Pierwszy release
 	
