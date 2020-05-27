@@ -17,7 +17,8 @@ char * const effectNamesLabels[editorEffectMax] =
 		(char*)"Flanger",
 		(char*)"Limiter",
 		(char*)"Compressor",
-		(char*)"WT Smoother"
+		(char*)"WT Smoother",
+		(char*)"Normalizer"
 };
 
 class cSampleEditor: public cModuleBase
@@ -377,6 +378,14 @@ public:
 				wavetableSmootherParams::iDownConstrain,wavetableSmootherParams::fDownConstrain,
 				wavetableSmootherParams::changeStep,wavetableSmootherParams::displayMult,
 				wavetableSmootherParams::afterValueText,wavetableSmootherParams::displayType
+			},
+			{
+				{100,0,0,0,0,0},{0,0,0,0,0,0}, //start values
+				1,normalizerParams::labelText,normalizerParams::paramsType,
+				normalizerParams::iUpConstrain,normalizerParams::fUpConstrain,
+				normalizerParams::iDownConstrain,normalizerParams::fDownConstrain,
+				normalizerParams::changeStep,normalizerParams::displayMult,
+				normalizerParams::afterValueText,normalizerParams::displayType
 			}
 	};
 
