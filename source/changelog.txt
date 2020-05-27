@@ -6,6 +6,7 @@
 	1.0.1 	Co nowego?
 
 			- fix: bug który zatrzymywal voisy w przechodzeniu między SONG a INSTRUMENT PARAMETERS 
+			- fix: bug który nie pozwalal kopiowac/wklejac w otwartych starych projektach
 			- random shape LFO 
 			
 	1.0 	Pierwszy release
