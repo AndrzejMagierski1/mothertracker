@@ -20,7 +20,8 @@ public:
 	int8_t getVoiceTakenByPad(int16_t pad);
 	void clearVoice(uint8_t voice);
 
-	void releaseAllInstrument();
+	void releaseAllInstruments();
+	void releaseInstrumentsTakenByPads();
 	void cutAllInstrument();
 
 

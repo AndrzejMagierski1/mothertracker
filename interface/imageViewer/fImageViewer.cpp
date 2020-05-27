@@ -128,7 +128,7 @@ void cImageViewer::start(uint32_t options)
 void cImageViewer::stop()
 {
 	moduleRefresh = 0;
-	mtPadBoard.releaseAllInstrument();
+	mtPadBoard.releaseAllInstruments();
 	padsBacklight.clearAllPads(1, 1, 1);
 
 	songTimer.show();

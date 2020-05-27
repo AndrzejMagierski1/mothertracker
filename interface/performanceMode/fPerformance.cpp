@@ -146,7 +146,7 @@ void cPerformanceMode::stop()
 	{
 		performance.turnOff();
 
-		mtPadBoard.releaseAllInstrument();
+		mtPadBoard.releaseAllInstruments();
 	}
 
 	moduleRefresh = 0;

@@ -291,7 +291,7 @@ void cSamplePlayback::stop()
 	sequencer.stopManualNotes();
 	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 	moduleRefresh = 0;
-	mtPadBoard.releaseAllInstrument();
+//	mtPadBoard.releaseAllInstruments();
 }
 
 void cSamplePlayback::setDefaultScreenFunct()
