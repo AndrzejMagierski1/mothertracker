@@ -598,6 +598,14 @@ public:
 		else
 			return SEQ_STATE_STOP;
 	}
+
+	// == true jeśli seq gra
+	uint8_t isRunning()
+	{
+		return player.isPlay;
+	}
+
+
 	uint8_t isPerformanceMode()
 	{
 		return player.performanceMode;

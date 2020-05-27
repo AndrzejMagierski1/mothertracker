@@ -224,7 +224,7 @@ void cInstrumentEditor::stop()
 {
 	sequencer.stopManualNotes();
 	moduleRefresh = 0;
-	mtPadBoard.releaseAllInstrument();
+	mtPadBoard.releaseInstrumentsTakenByPads();
 	padsBacklight.clearAllPads(1, 1, 1);
 }
 

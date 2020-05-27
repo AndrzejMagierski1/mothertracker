@@ -107,14 +107,28 @@ void cMtPadBoard::clearVoice(uint8_t voice)
 	voices[voice] = -1;
 }
 
-void cMtPadBoard::releaseAllInstrument()
+// wylacza WSZYSTKIE INSTRUMENTY
+void cMtPadBoard::releaseAllInstruments()
 {
+	// todo: poniżej jest raczej bez sensu
 	if(sequencer.getSeqState() == 1) return;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
 		voices[i] = -1;
 		instrumentPlayer[i].noteOff();
+	}
+}
+
+void cMtPadBoard::releaseInstrumentsTakenByPads()
+{
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		if (voices[i] >= 0)
+		{
+			voices[i] = -1;
+			instrumentPlayer[i].noteOff();
+		}
 	}
 }
 

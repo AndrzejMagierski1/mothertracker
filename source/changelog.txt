@@ -5,6 +5,7 @@
 	
 	1.0.1 	Co nowego?
 
+			- fix: bug który zatrzymywal voisy w przechodzeniu między SONG a INSTRUMENT PARAMETERS 
 			- random shape LFO 
 			
 	1.0 	Pierwszy release
