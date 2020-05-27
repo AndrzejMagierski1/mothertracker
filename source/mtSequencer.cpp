@@ -2136,8 +2136,8 @@ void Sequencer::sequencialSwitch_changeNextPattern(int8_t delta)
 			PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
 
-	Serial.printf("sequentialPatternChange: %d\n",
-					player.sequencialSwitch_pattern);
+//	Serial.printf("sequentialPatternChange: %d\n",
+//					player.sequencialSwitch_pattern);
 
 }
 
