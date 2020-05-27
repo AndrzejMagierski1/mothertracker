@@ -23,17 +23,12 @@ const uint8_t EEPROM_STRUCT_VER =			2;
 
 
 const bool START_STATE_SAVE	=				false;	// wlaczanie dopiero po wcisnieciu przycisku itp
-<<<<<<< Updated upstream
+
 
 
 
 const bool DEBUG_LOG_FROM_CONFIG_PAD	=	false;	// debug log wl/wyl z pod 1 pada w configu
 const bool FILE_TRANS_FROM_CONFIG_PAD	=	false;	// mtp  wl/wyl z pod 12 pada w configu
-
-=======
->>>>>>> Stashed changes
-
-
 
 
 const float DEFAULT_TEMPO = 130;
