@@ -118,27 +118,33 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 
 
 			if(editPosition > 31) return;
+
+
+			char localName[MAX_NAME_LENGTH];
 			if(smallKeyboard[keyboardPosition] > 1)
 			{
-				if(editPosition == 31) return;
 				uint8_t localNameLen = strlen(name);
-				if(editPosition < localNameLen)
-				{
-					for(uint8_t i = localNameLen; i >= editPosition ; i-- )
-					{
-						name[i+1] = name[i];
-					}
-				}
+				if(localNameLen == 32) return;
 
-				name[editPosition] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
-				name[editPosition + 1] = 0;
+				strncpy(localName,name,editPosition);
+				localName[editPosition] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
+				localName[editPosition + 1] = 0;
+				strncat(localName,&name[editPosition], localNameLen - editPosition);
+				strcpy(name,localName);
 				editPosition++;
 			}
 			else if(smallKeyboard[keyboardPosition] == 0)
 			{
 				if(editPosition == 0 ) return;
 
-				name[editPosition-1] = 0;
+				uint8_t localNameLen = strlen(name);
+
+				strncpy(localName,name, editPosition - 1);
+				localName[editPosition - 1] = 0;
+				if(localNameLen != editPosition) strcat(localName,&name[editPosition]);
+				strcpy(name,localName);
+
+
 				editPosition--;
 
 
@@ -160,8 +166,8 @@ void mtKeyboardManager::confirmKey()
 {
 	if(keyboardActiveFlag)
 	{
-		if(editPosition > 31) return;
-
+		if(strlen(name) > 31) return;
+		if(isNameSelected) return;
 		//****************************************************ledy
 		if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2) //backspace
 		{
@@ -220,28 +226,32 @@ void mtKeyboardManager::confirmKey()
 			leds.setLED(keyPositionToPads[keyboardPosition],1,mtConfig.values.padsLightFront);
 		}
 		//////////////////////////////////////
+
+		char localName[MAX_NAME_LENGTH];
 		if(smallKeyboard[keyboardPosition] > 1)
 		{
-			if(editPosition == 31) return;
 			uint8_t localNameLen = strlen(name);
-			if(editPosition < localNameLen)
-			{
-				for(uint8_t i = localNameLen; i >= editPosition ; i-- )
-				{
-					name[i+1] = name[i];
-				}
-			}
+			if(localNameLen == 32) return;
 
-			name[editPosition] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
-			name[editPosition + 1] = 0;
-
+			strncpy(localName,name,editPosition);
+			localName[editPosition] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
+			localName[editPosition + 1] = 0;
+			strncat(localName,&name[editPosition], localNameLen - editPosition);
+			strcpy(name,localName);
 			editPosition++;
 		}
 		else if(smallKeyboard[keyboardPosition] == 0)
 		{
 			if(editPosition == 0 ) return;
 
-			name[editPosition-1] = 0;
+			uint8_t localNameLen = strlen(name);
+
+			strncpy(localName,name, editPosition - 1);
+			localName[editPosition - 1] = 0;
+			if(localNameLen != editPosition) strcat(localName,&name[editPosition]);
+			strcpy(name,localName);
+
+
 			editPosition--;
 		}
 		else if(smallKeyboard[keyboardPosition] == 1)
@@ -261,7 +271,14 @@ void mtKeyboardManager::makeBackspace()
 	{
 		if(editPosition == 0 ) return;
 
-		name[editPosition-1] = 0;
+		uint8_t localNameLen = strlen(name);
+		char localName[MAX_NAME_LENGTH];
+
+		strncpy(localName,name, editPosition - 1);
+		localName[editPosition - 1] = 0;
+		if(localNameLen != editPosition) strcat(localName,&name[editPosition]);
+		strcpy(name,localName);
+
 		editPosition--;
 		showKeyboardEditName();
 	}
@@ -271,15 +288,43 @@ void mtKeyboardManager::makeMove(char c)
 {
 	if(keyboardActiveFlag)
 	{
-		switch(c)
+		if(isNameSelected)
 		{
-			case 'w': 	keyboardPosition = valueMap[valueMapDirectionUp][keyboardPosition];		break;
-			case 's':	keyboardPosition = valueMap[valueMapDirectionDown][keyboardPosition];	break;
-			case 'a':	keyboardPosition = valueMap[valueMapDirectionLeft][keyboardPosition];	break;
-			case 'd':	keyboardPosition = valueMap[valueMapDirectionRight][keyboardPosition];	break;
-			default: break;
+			if(c == 's')
+			{
+				isNameSelected = false;
+				keyboardPosition = 0;
+			}
+			else if(c == 'a')
+			{
+				if(editPosition > 0) editPosition--;
+			}
+			else if(c == 'd')
+			{
+				if(editPosition < strlen(name)) editPosition++;
+			}
 		}
+		else
+		{
+			if((c == 'w') && (keyboardPosition <= 10))
+			{
+				isNameSelected = true;
+			}
+			else
+			{
+				switch(c)
+				{
+					case 'w': 	keyboardPosition = valueMap[valueMapDirectionUp][keyboardPosition];		break;
+					case 's':	keyboardPosition = valueMap[valueMapDirectionDown][keyboardPosition];	break;
+					case 'a':	keyboardPosition = valueMap[valueMapDirectionLeft][keyboardPosition];	break;
+					case 'd':	keyboardPosition = valueMap[valueMapDirectionRight][keyboardPosition];	break;
+					default: break;
+				}
+			}
+		}
+
 		showKeyboard();
+		showKeyboardEditName();
 	}
 
 }
@@ -296,8 +341,15 @@ void mtKeyboardManager::showKeyboard()
 	leds.setLED(F_PAD, 1, mtConfig.values.padsLightBack);
 	leds.setLED(J_PAD, 1, mtConfig.values.padsLightBack);
 
-	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
-	else display.setControlValue(keyboardControl, keyboardPosition);
+	if(isNameSelected)
+	{
+		display.setControlValue(keyboardControl, -1);
+	}
+	else
+	{
+		if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
+		else display.setControlValue(keyboardControl, keyboardPosition);
+	}
 
 	display.setControlShow(keyboardControl);
 	display.refreshControl(keyboardControl);
@@ -337,6 +389,8 @@ void mtKeyboardManager::showKeyboardEditName()
 	if(editName == nullptr) return;
 
 	display.setControlValue(editName, editPosition);
+
+	display.setControlData(editName,&isNameSelected);
 
 	display.setControlText(editName, name);
 	display.setControlShow(editName);

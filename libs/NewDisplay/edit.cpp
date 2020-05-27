@@ -99,8 +99,9 @@ void cEdit::setDefaultColors(uint32_t colors[])
 
 void cEdit::setData(void* data)
 {
-
+	isFrame = *((uint8_t *)(data));
 }
+
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -160,6 +161,22 @@ uint8_t cEdit::update()
 		//text_x = posX + 2;
 		//text_y = posY + 2;
 	}
+
+	if(isFrame)
+	{
+		API_COLOR(colors[2]);
+
+		API_LINE_WIDTH(8);
+
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(border_x-1 , posY-1);
+		API_VERTEX2F(border_x+width+1 , posY-1);
+		API_VERTEX2F(border_x+width+1 , posY+height+1);
+		API_VERTEX2F(border_x-1 , posY+height+1);
+		API_VERTEX2F(border_x-1 , posY-1);
+		API_END();
+	}
+
 
 	API_COLOR(colors[2]);
 	API_LINE_WIDTH(16);

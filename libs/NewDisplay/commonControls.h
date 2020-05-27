@@ -105,7 +105,8 @@ public:
 
 	uint16_t textStyle;
 	const strFont* font;
-
+private:
+	uint8_t isFrame;
 };
 
 //--------------------------------------------------------------------

@@ -155,6 +155,8 @@ private:
 	uint8_t keyboardShiftFlag;
 	uint8_t keyboardPosition;
 	uint8_t editPosition;
+	uint8_t isNameSelected;
+
 	char name[MAX_NAME_LENGTH];
 };
 
