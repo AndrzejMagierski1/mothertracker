@@ -779,10 +779,19 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
 	{
-		if(mtProject.instrument[instr_idx].envelope[i].enable) envelopePtr[i]->start();
+		if(mtProject.instrument[instr_idx].envelope[i].enable)
+		{
+			bool isRandom = (mtProject.instrument[instr_idx].envelope[i].loop) && (mtProject.instrument[instr_idx].lfo[i].shape == lfoShapeRandom);
+			envelopePtr[i]->setIsRandom(isRandom);
+
+			envelopePtr[i]->start();
+		}
+
 	}
 
 	status = playMemPtr->playForPrev(instr_idx,note);
+
+	envelopeAmpPtr->setIsRandom(false);
 	envelopeAmpPtr->noteOn();
 
 	return status;
@@ -820,6 +829,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	bitDepthControl[1].setBitDepth(16);
 
 	status = playMemPtr->playForPrev(addr,len,type);
+
+	envelopeAmpPtr->setIsRandom(false);
 	envelopeAmpPtr->noteOn();
 
 	return status;
@@ -853,6 +864,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	bitDepthControl[1].setBitDepth(16);
 
 	status = playMemPtr->playForPrev(addr,len,note,type);
+
+	envelopeAmpPtr->setIsRandom(false);
 	envelopeAmpPtr->noteOn();
 
 	return status;
@@ -1112,6 +1125,14 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 		env->sustain = 0.0f;
 		env->hold = periodTime/2;
 		env->release = periodTime/2;
+		break;
+	case lfoShapeRandom:
+		env->attack = 0;
+		env->decay = 0 ;
+		env->delay = 0;
+		env->sustain = 0.0f;
+		env->hold = periodTime;
+		env->release = 0;
 		break;
 	}
 }

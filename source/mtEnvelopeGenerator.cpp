@@ -123,6 +123,11 @@ void envelopeGenerator::calc()
 			// etap skończony
 			else
 			{
+				if(isRandom)
+				{
+					randomSeed(micros());
+					randomValue = random(0 , envelope->amount * 1000)/1000.0;
+				}
 				envTemp.timer = 0;
 				envTemp.phase++;
 			}
@@ -152,7 +157,15 @@ void envelopeGenerator::calc()
 			else
 			{
 				envTemp.timer = 0;
-				envTemp.phase++;
+				if(isRandom)
+				{
+					randomSeed(micros());
+					randomValue = random(0 , envelope->amount * 1000)/1000.0;
+				}
+				else
+				{
+					envTemp.phase++;
+				}
 			}
 		}
 		else
@@ -279,7 +292,8 @@ void envelopeGenerator::calc()
 		// #ifdef ADSR_DEBUG
 		// 		Serial.print(" hold");
 		// #endif
-		envTemp.tempOutput = amount;
+
+		envTemp.tempOutput = isRandom ? randomValue : amount;
 		envTemp.maxOutput = envTemp.tempOutput;
 		break;
 
@@ -448,9 +462,26 @@ void envelopeGenerator::calcSyncSeq()
 		{
 			decay = periodTime;
 		}
+		else if(phaseNumber[0] == phase_hold)
+		{
+			hold = periodTime;
+		}
 
 		envTemp.phase = phaseNumber[0];
 		envTemp.timer = (periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod);
+		if(phaseNumber[0] == phase_hold)
+		{
+			if(lastTimer > envTemp.timer)
+			{
+				if(isRandom)
+				{
+					randomSeed(micros());
+					randomValue = random(0 , envelope->amount * 1000)/1000.0;
+				}
+			}
+		}
+		lastTimer = envTemp.timer;
+
 	}
 }
 void envelopeGenerator::setSyncStartStep(uint16_t n)
@@ -467,6 +498,10 @@ void envelopeGenerator::setSyncRate(float sync)
 	syncRate = sync;
 }
 
+void envelopeGenerator::setIsRandom(bool value)
+{
+	isRandom = value;
+}
 
 
 

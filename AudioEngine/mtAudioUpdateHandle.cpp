@@ -465,6 +465,12 @@ void playerEngine::handleUpdateRefreshAmpLFO()
 			{
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp],mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed, 1);
 				initEnvelopesParamiters(envAmp, &lfoBasedEnvelope[envAmp]);
+				bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape == lfoShapeRandom);
+				envelopeAmpPtr->setIsRandom(isRandom);
+			}
+			else
+			{
+				envelopeAmpPtr->setIsRandom(false);
 			}
 		}
 	}
@@ -487,6 +493,13 @@ void playerEngine::handleUpdateRefreshCutoffLFO()
 					calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[currentInstrument_idx].lfo[envCutoff],mtProject.instrument[currentInstrument_idx].lfo[envCutoff].speed,0);
 					initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
 					setSyncParamsLFO(envCutoff);
+
+					bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envCutoff].shape == lfoShapeRandom);
+					envelopePtr[envCutoff]->setIsRandom(isRandom);
+				}
+				else
+				{
+					envelopePtr[envCutoff]->setIsRandom(false);
 				}
 			}
 		}
@@ -511,6 +524,13 @@ void playerEngine::handleUpdateRefreshWtPosLFO()
 					calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],mtProject.instrument[currentInstrument_idx].lfo[envWtPos].speed,0);
 					initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 					setSyncParamsLFO(envWtPos);
+
+					bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envWtPos].shape == lfoShapeRandom);
+					envelopePtr[envWtPos]->setIsRandom(isRandom);
+				}
+				else
+				{
+					envelopePtr[envWtPos]->setIsRandom(false);
 				}
 			}
 		}
@@ -533,6 +553,13 @@ void playerEngine::handleUpdateRefreshGranPosLFO()
 					calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],mtProject.instrument[currentInstrument_idx].lfo[envGranPos].speed, 0);
 					initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 					setSyncParamsLFO(envGranPos);
+
+					bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envGranPos].shape == lfoShapeRandom);
+					envelopePtr[envGranPos]->setIsRandom(isRandom);
+				}
+				else
+				{
+					envelopePtr[envGranPos]->setIsRandom(false);
 				}
 			}
 
@@ -555,6 +582,13 @@ void playerEngine::handleUpdateRefreshPanningLFO()
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],mtProject.instrument[currentInstrument_idx].lfo[envPan].speed, 0);
 				initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 				setSyncParamsLFO(envPan);
+
+				bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envPan].shape == lfoShapeRandom);
+				envelopePtr[envPan]->setIsRandom(isRandom);
+			}
+			else
+			{
+				envelopePtr[envPan]->setIsRandom(false);
 			}
 		}
 
@@ -577,6 +611,13 @@ void playerEngine::handleUpdateRefreshFinetuneLFO()
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFinetune], &mtProject.instrument[currentInstrument_idx].lfo[envFinetune],mtProject.instrument[currentInstrument_idx].lfo[envFinetune].speed, 0);
 				initEnvelopesParamiters(envFinetune, &lfoBasedEnvelope[envFinetune]);
 				setSyncParamsLFO(envFinetune);
+
+				bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envFinetune].shape == lfoShapeRandom);
+				envelopePtr[envFinetune]->setIsRandom(isRandom);
+			}
+			else
+			{
+				envelopePtr[envFinetune]->setIsRandom(false);
 			}
 		}
 

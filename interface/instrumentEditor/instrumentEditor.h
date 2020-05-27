@@ -62,7 +62,8 @@ const char lfoShapeLabels[lfoShapeMax][11]=
 		"Rev Saw",
 		"Saw",
 		"Triangle",
-		"Square"
+		"Square",
+		"Random"
 };
 
 const char lfoSpeedLabels[25][7]=
@@ -267,7 +268,8 @@ public:
 		&lfoShapeLabels[0][0],
 		&lfoShapeLabels[1][0],
 		&lfoShapeLabels[2][0],
-		&lfoShapeLabels[3][0]
+		&lfoShapeLabels[3][0],
+		&lfoShapeLabels[4][0]
 	};
 
 	const char * lfoSpeedNamesAmp[24] =

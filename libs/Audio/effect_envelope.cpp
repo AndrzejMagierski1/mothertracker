@@ -284,11 +284,22 @@ void AudioEffectEnvelope::update(void)
 			if (state == envelopePhaseAttack)
 			{
 				switchPhase(envelopePhaseHold);
+				if(isRandom)
+				{
+					randomSeed(micros());
+					mult_hires = random(0,0x3FFFFFFF);
+				}
 				continue;
 			}
 			else if (state == envelopePhaseHold)
 			{
-				switchPhase(envelopePhaseDecay);
+				if(isRandom)
+				{
+					switchPhase(envelopePhaseHold);
+					randomSeed(micros());
+					mult_hires = random(0,0x3FFFFFFF);
+				}
+				else switchPhase(envelopePhaseDecay);
 				continue;
 			}
 			else if (state == envelopePhaseDecay)

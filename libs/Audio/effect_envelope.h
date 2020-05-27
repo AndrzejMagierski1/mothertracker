@@ -79,6 +79,11 @@ public:
 		passFlag = state;
 	}
 
+	void setIsRandom(bool value)
+	{
+		isRandom = value;
+	}
+
 	virtual void update(void);
 	uint8_t endRelease();
 	void clearEndReleaseFlag();
@@ -104,14 +109,15 @@ public:
 	};
 private:
 	void switchPhase(uint8_t nextPhase);
-	uint8_t endReleaseFlag = 0;
-	uint8_t endKillReleaseFlag = 0;
 	uint16_t milliseconds2count(float milliseconds) {
 		if (milliseconds < 0.0) milliseconds = 0.0;
 		uint32_t c = ((uint32_t)(milliseconds*SAMPLES_PER_MSEC)+7)>>3;
 		if (c > 65535) c = 65535; // allow up to 11.88 seconds
 		return c;
 	}
+	uint8_t endReleaseFlag = 0;
+	uint8_t endKillReleaseFlag = 0;
+	bool isRandom;
 	audio_block_t *inputQueueArray[1];
 	// state
 	uint8_t  state;      // idle, delay, attack, hold, decay, sustain, release, forced

@@ -65,7 +65,7 @@ public:
 	void setSyncStartStep(uint16_t n);
 	void setPhaseNumbers(int8_t n1, int8_t n2);
 	void setSyncRate(float sync);
-	
+	void setIsRandom(bool value);
 private:
 	float fMap(float x, float in_min, float in_max, float out_min, float out_max);
 
@@ -74,6 +74,10 @@ private:
 	bool keyPressed = 0;	// triggeruje cały envelope
 	
 	strEnv * envelope;
+	bool isRandom;
+	float randomValue;
+
+
 
 	struct strEnvelopeTemp
 	{
@@ -96,6 +100,7 @@ private:
 	float currentSeqSpeed = 0;
 	uint8_t syncState = 0;
 	
+	uint32_t lastTimer;
 
 	float amount;
 	float sustain;
