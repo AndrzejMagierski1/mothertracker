@@ -10,6 +10,7 @@
 #include "mtEffectLimiter.h"
 #include "mtEffectCompresor.h"
 #include "mtWavetableSmoother.h"
+#include "mtEffectNormalizer.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
@@ -22,7 +23,8 @@ mtEffect * sampleEditorEffect[editorEffectMax] =
 		&sampleEditorFlanger,
 		&sampleEditorLimiter,
 		&sampleEditorCompresor,
-		&sampleEditorWavetableSmoother
+		&sampleEditorWavetableSmoother,
+		&sampleEditorNormalizer
 };
 
 //******************************DELAY
@@ -258,4 +260,31 @@ namespace wavetableSmootherParams
 
 	const char displayType[2] = {'d','d'};
 }
+
+namespace normalizerParams
+{
+	const char * const labelText[1] =
+	{
+		(const char * const)"Level"
+	};
+
+	const char paramsType[1] = {'d'};
+
+	int iUpConstrain[1] = {100};
+	float fUpConstrain[1]= {0.0};
+
+	int iDownConstrain[1] = {0};
+	float fDownConstrain[1]= {0.0};
+
+	float changeStep[1] = {1};
+	float displayMult[1] = {1};
+
+	const char * const afterValueText[1] =
+	{
+		"%",
+	};
+
+	const char displayType[1] = {'d'};
+}
+
 //******************************

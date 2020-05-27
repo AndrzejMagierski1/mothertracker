@@ -14,6 +14,7 @@ enum enSampleEditorEffect
 	editorEffectLimiter,
 	editorEffectCompresor,
 	editorEffectWavetableSmoother,
+	editorEffectNormalizer,
 
 //**********************//
 	editorEffectMax
@@ -145,6 +146,20 @@ namespace wavetableSmootherParams
 	extern const char * const afterValueText[2];
 	extern const char displayType[2];
 //*********************
+}
+
+namespace normalizerParams
+{
+	extern const char * const labelText[1];
+	extern const char paramsType[1];
+	extern int iUpConstrain[1];
+	extern float fUpConstrain[1];
+	extern int iDownConstrain[1];
+	extern float fDownConstrain[1];
+	extern float changeStep[1];
+	extern float displayMult[1];
+	extern const char * const afterValueText[1];
+	extern const char displayType[1];
 }
 
 #endif /* EFFECTOR_MTSAMPLEEDITORENGINE_H_ */
