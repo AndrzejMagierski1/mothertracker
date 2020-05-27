@@ -209,7 +209,8 @@ public:
 
 	mtKeyboardManager keyboardManager;
 
-	int8_t selectedPlace = -1;
+	int8_t selectedPlace = -1; // przytrzymany przycisk pod ekranem
+	bool undoRedoOpen = 0; // true jesli operujemy jogiem na undoRedo
 
 	// parametry
 	char cTempo[7];
