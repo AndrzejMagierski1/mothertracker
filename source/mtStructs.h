@@ -289,6 +289,7 @@ enum lfoShapeType
 	lfoShapeSaw,
 	lfoShapeTriangle,
 	lfoShapeSquare,
+	lfoShapeRandom,
 
 
 	lfoShapeMax
