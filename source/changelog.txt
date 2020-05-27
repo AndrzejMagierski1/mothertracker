@@ -7,7 +7,8 @@
 
 			- fix: bug który zatrzymywal voisy w przechodzeniu między SONG a INSTRUMENT PARAMETERS 
 			- fix: bug który nie pozwalal kopiowac/wklejac w otwartych starych projektach
-			- random shape LFO 
+			- random shape LFO
+			- sample editor normalizer 
 			
 	1.0 	Pierwszy release
 	
