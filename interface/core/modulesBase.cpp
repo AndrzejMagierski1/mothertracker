@@ -107,6 +107,11 @@ void cFunctionMachine::unblockAllInputs()
 	blockPowerButton = 0;
 }
 
+void cFunctionMachine::unblockPads()
+{
+	memset((uint8_t *)blockPads,	0,	padsCount);
+}
+
 
 //==================================================================================================================
 void cFunctionMachine::setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control)
