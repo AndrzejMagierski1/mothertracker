@@ -7,7 +7,9 @@
 
 			- fix: bug który zatrzymywal voisy w przechodzeniu między SONG a INSTRUMENT PARAMETERS 
 			- fix: bug który nie pozwalal kopiowac/wklejac w otwartych starych projektach
-			- random shape LFO
+			- random shape LFO 
+			- poprawione dzialanie undo w patternie
+			- dodane redo w patternie - undo+(lewo/prawo/jog)
 			- sample editor normalizer 
 			- można zaznaczyć pole edycji w klawiaturze ekranowej i wtedy poruszać się pozycją w tekscie
 			

@@ -30,7 +30,8 @@ static  uint8_t functRamTest(uint8_t state);
 static  uint8_t functFill();
 static  uint8_t functPreview();
 static  uint8_t functTranspose(uint8_t state);
-static  uint8_t functUndo();
+static  uint8_t functUndo(uint8_t state);
+static  uint8_t functUndoRedo(int8_t dir);
 uint8_t functInvert();
 
 
@@ -241,6 +242,9 @@ void cPatternEditor::stop()
 //		newFileManager.savePattern(mtProject.values.actualPattern);
 //
 //	}
+
+	undoRedoOpen = 0; // na wszelki
+
 	keyboardManager.deinit();
 	sequencer.stopManualNotes();
 	sequencer.sequencialSwitch_Reset();
@@ -695,7 +699,7 @@ void cPatternEditor::cancelPopups()
 	uint8_t popup_type = mtPopups.getStepPopupState();
 	if(popup_type != stepPopupNone)
 	{
-		newFileManager.storePatternUndoRevision();
+
 
 		if(PTE->editMode == 1 && !insertOnPopupHideDisabled)
 		{
@@ -704,6 +708,7 @@ void cPatternEditor::cancelPopups()
 			case stepPopupNote:
 				if (!isMultiSelection())
 				{
+					newFileManager.storePatternUndoRevision();
 					sendSelection();
 					sequencer.setSelectionNote(mtProject.values.lastUsedNote);
 				}
@@ -717,7 +722,7 @@ void cPatternEditor::cancelPopups()
 					//		sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
 					//if (fx_name > 0 && fx_name < FX_COUNT-FX_COUNT_HIDDEN_FXes) // tylko jesli na stepie jest juz jakis fx
 					//{
-
+						newFileManager.storePatternUndoRevision();
 						sendSelection();
 						sequencer.setSelectionFxType(
 								fx_index,
@@ -728,6 +733,7 @@ void cPatternEditor::cancelPopups()
 			case stepPopupInstr:
 				if (!isMultiSelection())
 				{
+					newFileManager.storePatternUndoRevision();
 					sendSelection();
 					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
 				}
@@ -1022,7 +1028,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 		FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 		FM->setButtonObj(interfaceButton6, buttonPress, functExportSelection);
-		FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
+		FM->setButtonObj(interfaceButton7, functUndo);
 
 		lightUpPadBoard();
 	}
@@ -1307,7 +1313,7 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 			FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 			FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 			FM->setButtonObj(interfaceButton6, buttonPress, functExportSelection);
-			FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
+			FM->setButtonObj(interfaceButton7, functUndo);
 		}
 	}
 	else
@@ -1454,7 +1460,6 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
-		newFileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
 		{
@@ -1462,6 +1467,7 @@ uint8_t functEncoder(int16_t value)
 		case 0: PTE->changeActualPattern(value); break;
 		case 1: PTE->changeActualPatternLength(value); break;
 		case 2: PTE->changeActualPatternEditStep(value); break;
+		case 7: functUndoRedo(value); 						break;
 		}
 
 		PTE->lightUpPadBoard();
@@ -1590,6 +1596,9 @@ static  uint8_t functLeft()
 		case 0:
 			sequencer.sequencialSwitch_changeNextPattern(-1);
 			return 1;
+		case 7:
+			functUndoRedo(-1);
+			return 1;
 		}
 		return 1;
 	}
@@ -1666,6 +1675,9 @@ static  uint8_t functRight()
 		case 0:
 			sequencer.sequencialSwitch_changeNextPattern(1);
 			return 1;
+		case 7:
+			functUndoRedo(1);
+			return 1;
 		}
 		return 1;
 	}
@@ -1736,7 +1748,6 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		newFileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
 		//case 0: PTE->changeActualTempo(1); 			 return 1;
@@ -1832,7 +1843,6 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		newFileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
 		//case 0: PTE->changeActualTempo(-1); 			return 1;
@@ -2299,6 +2309,8 @@ static uint8_t functDeleteBackspace(uint8_t state)
 	{
 		if (PTE->editMode == 1)
 		{
+			newFileManager.storePatternUndoRevision();
+
 			// backspace
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
@@ -2354,7 +2366,7 @@ static uint8_t functDeleteBackspace(uint8_t state)
 			}
 
 			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
-			newFileManager.storePatternUndoRevision();
+
 		}
 
 		PTE->refreshPattern();
@@ -2926,23 +2938,55 @@ static uint8_t functTranspose(uint8_t state)
 //##############################################################################################
 //###############################            UNDO		   #################################
 //##############################################################################################
-static uint8_t functUndo()
+static uint8_t functUndo(uint8_t state)
 {
-	if (tactButtons.isButtonPressed(interfaceButtonShift))
+	if(state == buttonPress)
+	{
+		PTE->selectedPlace = 7;
+		PTE->unfocusPattern();
+		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
+	}
+	else if (state == buttonRelease)
+	{
+		if (PTE->selectedPlace == 7)
+		{
+			PTE->focusOnPattern();
+		}
+		if (PTE->undoRedoOpen)
+		{
+			PTE->undoRedoOpen = 0; // zerujemy na release
+		}
+		else
+		{
+			newFileManager.undoPattern();
+		}
+
+		PTE->refreshPattern();
+		PTE->showPattern();
+		PTE->showLength();
+	}
+	return 1;
+}
+
+static uint8_t functUndoRedo(int8_t dir)
+{
+	if (dir > 0)
 	{
 		newFileManager.redoPattern();
+		PTE->undoRedoOpen = 1;
 	}
-	else
+	else if (dir < 0)
 	{
 		newFileManager.undoPattern();
+		PTE->undoRedoOpen = 1;
 	}
+
 	PTE->refreshPattern();
 	PTE->showPattern();
 	PTE->showLength();
 	return 1;
 }
-
-
 
 
 
@@ -3115,7 +3159,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// obsługa przycisków pod ekranem (na poczatku bo dziala tez bez editmode)
 	if (PTE->selectedPlace >= 0)
 	{
-		newFileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
 		{

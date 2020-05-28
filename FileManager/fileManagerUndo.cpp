@@ -9,7 +9,7 @@
 
 #include "fileManager.h"
 
-#define UNDO_CAPACITY 20
+const uint8_t UNDO_CAPACITY = 20;
 __NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY] { 0 };
 __NOINIT(EXTERNAL_RAM) uint8_t undoPatternBufferIndexes[UNDO_CAPACITY] { 0 };
 
@@ -19,7 +19,7 @@ struct strUndo
 	uint8_t storedCount = 0; // ile razy zrzuciliśmy
 	uint8_t redoPossibility = 0; // ile razy zrzuciliśmy
 	strPopupStyleConfig popupConfig {
-			2,					// time
+			1,					// time
 			800 / 2 - 150,		// x
 			480 / 2 - 50,		// y
 			400,				// w
@@ -52,12 +52,21 @@ struct strUndoSong
 
 void cFileManager::storePatternUndoRevision()
 {
+	if (undo.actualIndex > (UNDO_CAPACITY - 1))
+	{
+		// zabezpieczenie przed kraksą
+		undo.actualIndex = 0;
+		undo.storedCount = 0;
+	}
+
 	undoPatternBuffer[undo.actualIndex] = *sequencer.getActualPattern();
 	undoPatternBufferIndexes[undo.actualIndex] = mtProject.values.actualPattern;
 
+	uint8_t storedTo = undo.actualIndex;
+
 
 	undo.redoPossibility = 0;
-	if (undo.actualIndex >= UNDO_CAPACITY)
+	if (undo.actualIndex >= (UNDO_CAPACITY-1))
 	{
 		undo.actualIndex = 0;
 		undo.storedCount++;
@@ -67,13 +76,14 @@ void cFileManager::storePatternUndoRevision()
 		undo.actualIndex++;
 		undo.storedCount++;
 	}
-	if (undo.storedCount > UNDO_CAPACITY) undo.storedCount = UNDO_CAPACITY;
+	if (undo.storedCount >= (UNDO_CAPACITY-1)) undo.storedCount = UNDO_CAPACITY-1; // jeden slot musi zostać na zbuforowanie ostatniego REDO
 
 //	Serial.printf(
-//			">>>pattern stored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
-//			undo.actualIndex,
-//			undo.storedCount,
-//			undo.redoPossibility);
+//					">>>pattern stored to %d:\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//					storedTo,
+//					undo.actualIndex,
+//					undo.storedCount,
+//					undo.redoPossibility);
 
 }
 
@@ -184,6 +194,7 @@ void cFileManager::undoPattern()
 {
 	bool doUndo = 0;
 	uint8_t oldIndex = undo.actualIndex;
+
 	if (undo.actualIndex > 0 && undo.storedCount > 0)
 	{
 		undo.actualIndex--;
@@ -193,6 +204,7 @@ void cFileManager::undoPattern()
 	else if (undo.actualIndex == 0 && undo.storedCount > 0)
 	{
 		undo.actualIndex = UNDO_CAPACITY - 1;
+		undo.storedCount--;
 		doUndo = 1;
 	}
 	else
@@ -223,6 +235,7 @@ void cFileManager::undoPattern()
 void cFileManager::redoPattern()
 {
 	bool doRedo = 0;
+
 	if (undo.actualIndex < UNDO_CAPACITY - 1 && undo.redoPossibility > 0)
 	{
 		undo.actualIndex++;
@@ -232,6 +245,7 @@ void cFileManager::redoPattern()
 	else if (undo.actualIndex == UNDO_CAPACITY - 1 && undo.redoPossibility > 0)
 	{
 		undo.actualIndex = 0;
+		undo.storedCount++;
 		doRedo = 1;
 	}
 	else
