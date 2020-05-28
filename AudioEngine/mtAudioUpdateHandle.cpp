@@ -2,6 +2,7 @@
 
 void playerEngine:: update()
 {
+	if(currentInstrument_idx == currentLoadInstrument) return;
 //**************HANDLE UPDATE END RELEASE
 	//obsluga tego zdarzenia jako pierwsza zeby zapobiec zawieszaniu nut
 	handleUpdateEndReleaseAction();
