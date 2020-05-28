@@ -399,6 +399,21 @@ void audioEngine::makeMetronomeTick(uint8_t accent)
 	//Pykniecie jest probkowane 8kHz(oszczednosc pamieci), nuta 30 i finetune 45 wynikaja z koniecznosci zamienienia pitcha na odpowiedni dla 44.1 kHz
 }
 
+void audioEngine::setCurrentLoadInstrument(int8_t idx)
+{
+	for(uint8_t i = 0 ; i < 8 ; i++)
+	{
+		instrumentPlayer[i].setCurrentLoadInstrument(idx);
+	}
+}
+void audioEngine::clearCurrentLoadInstrument()
+{
+	for(uint8_t i = 0 ; i < 8 ; i++)
+	{
+		instrumentPlayer[i].clearCurrentLoadInstrument();
+	}
+}
+
 playerEngine::playerEngine()
 {
 	// bazuje na zadeklarowanych wyzej obiektach silnika i na tym ze obiekty playerEngine beda umieszczone w tablicy(instrumentPlayer)
@@ -636,7 +651,6 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 {
 	__disable_irq();
 	uint8_t status;
-	float gainL=0,gainR=0;
 //	engine.clearDelay();
 	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
 	{
@@ -1145,6 +1159,18 @@ float playerEngine::getRMSValue()
 		localVal = rmsPtr->read();
 	}
 	return localVal;
+}
+
+
+void playerEngine::setCurrentLoadInstrument(int8_t idx)
+{
+	currentLoadInstrument = idx;
+	playMemPtr->setCurrentLoadInstrument(idx);
+}
+void playerEngine::clearCurrentLoadInstrument()
+{
+	currentLoadInstrument = -1;
+	playMemPtr->clearCurrentLoadInstrument();
 }
 
 void playerEngine::setPassEnvelope(uint8_t state)

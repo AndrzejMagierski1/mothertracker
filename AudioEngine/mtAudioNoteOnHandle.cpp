@@ -533,8 +533,6 @@ void playerEngine::handleFxNoteOnGain()
 
 void playerEngine::handleFxNoteOnPanning()
 {
-	float gainL = 0, gainR = 0;
-
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
 	{
 		changePanningPerformanceMode(performanceMod.panning);

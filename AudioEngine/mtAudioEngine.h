@@ -220,6 +220,8 @@ public:
 	void setLastUsedVoice(uint8_t v);
 	uint8_t getLastUsedVoice();
 	void makeMetronomeTick(uint8_t);
+	void setCurrentLoadInstrument(int8_t idx);
+	void clearCurrentLoadInstrument();
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;
@@ -508,6 +510,9 @@ public:
 	void setPassEnvelope(uint8_t state);
 //*****************
 	float getRMSValue();
+
+	void setCurrentLoadInstrument(int8_t idx);
+	void clearCurrentLoadInstrument();
 private:
 
 	friend 						audioEngine;
@@ -552,6 +557,8 @@ private:
 
 	bool isTrackDisplayed;
 	bool onEndDisplay;
+
+	int8_t currentLoadInstrument = -1;
 
 //**********************FUNKCJE POMOCNICZE
 	uint8_t isFxVelocity(uint8_t fx_id);
