@@ -15,7 +15,8 @@
 #include "sdCardDetect.h"
 
 #include "debugLog.h"
-
+#include "mtPadsBacklight.h"
+#include "mtPadBoard.h"
 
 cSampleImporter sampleImporter;
 static cSampleImporter* SI = &sampleImporter;
@@ -49,7 +50,7 @@ static uint8_t functCopyPaste();
 
 static uint8_t functConfirmKey();
 
-static uint8_t previeFile(uint8_t state);
+static uint8_t previewFile(uint8_t state);
 
 
 
@@ -223,7 +224,9 @@ void cSampleImporter::start(uint32_t options)
 
 void cSampleImporter::stop()
 {
-	stopPlaying();
+
+
+	stopPlayingAll();
 	Encoder.setAcceleration(3);
 	keyboardManager.deinit();
 
@@ -256,7 +259,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
 	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentAddNext);
-	FM->setButtonObj(interfaceButton4, previeFile);
+	FM->setButtonObj(interfaceButton4, previewFile);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	//FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
@@ -350,8 +353,7 @@ static  uint8_t functInstrumentAdd()
 		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAdd;
 		return 1;
 	}
-
-	SI->stopPlaying();
+	SI->stopPlayingAll();
 
 	if(SI->explorerNames != nullptr && *SI->explorerNames[SI->selectedFile] != '/')
 	{
@@ -393,7 +395,7 @@ static  uint8_t functInstrumentDelete()
 		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrDelete;
 		return 1;
 	}
-	SI->stopPlaying();
+	SI->stopPlayingAll();
 
 	uint8_t deleteStart = SI->getSelectionStart(listInstruments);
 	uint8_t deleteEnd = SI->getSelectionEnd(listInstruments);
@@ -461,7 +463,7 @@ static uint8_t functInstrumentAddNext()
 		return 1;
 	}
 
-	SI->stopPlaying();
+	SI->stopPlayingAll();
 
 
 	if(SI->explorerNames != nullptr  && *SI->explorerNames[SI->selectedFile] != '/')
@@ -577,7 +579,7 @@ static uint8_t functCopyPaste()
 		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrCopy;
 		return 1;
 	}
-	SI->stopPlaying();
+	SI->stopPlayingAll();
 
 
 	if(tactButtons.isButtonPressed(interfaceButtonShift))
@@ -803,7 +805,7 @@ static  uint8_t functUp()
 	case 0: SI->changeFileSelection(-1); break;
 	case 1: SI->changeInstrumentSelection(-1); break;
 	}
-	SI->stopPlaying();
+	SI->stopPlayingAll();
 	return 1;
 }
 
@@ -816,7 +818,7 @@ static  uint8_t functDown()
 	case 0: SI->changeFileSelection(1); break;
 	case 1: SI->changeInstrumentSelection(1); break;
 	}
-	SI->stopPlaying();
+	SI->stopPlayingAll();
 	return 1;
 }
 
@@ -1146,11 +1148,12 @@ void cSampleImporter::playSdFile()
 //		return;
 //	}
 
-	stopPlaying();
+	stopPlayingAll();
 
 	if(newFileManager.previevSamplefromSD(selectedFile))
 	{
 		FM->blockAllInputsExcept(interfaceButton4);
+		FM->unblockPads();
 	}
 
 	playMode = playModeSdFile;
@@ -1159,30 +1162,34 @@ void cSampleImporter::playSdFile()
 }
 
 
-void cSampleImporter::playSampleFromBank()
+void cSampleImporter::playSampleFromBank(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 	if(!mtProject.instrument[selectedSlot].isActive) return;
 
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		showStopPatternPopup();
-		setStopPatternFunction();
-		stopPatternAction = enStopPatternAction::previewBank;
-		return;
-	}
-
-	stopPlaying();
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		showStopPatternPopup();
+//		setStopPatternFunction();
+//		stopPatternAction = enStopPatternAction::previewBank;
+//		return;
+//	}
+//
+//	stopPlaying();
 
 	playMode = playModeSampleBank;
 
-	instrumentPlayer[0].noteOnforPrev(mtProject.instrument[selectedSlot].sample.address,
-									  mtProject.instrument[selectedSlot].sample.length,
-									  0);
+
+	uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+	sequencer.handleNoteOn(
+						Sequencer::GRID_OUTSIDE_PATTERN,
+						noteFromPad,
+						-1,
+						pad);
 }
 
 
-void cSampleImporter::stopPlaying()
+void cSampleImporter::stopPlaying(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(playMode == playModeSdFile)
 	{
@@ -1191,27 +1198,47 @@ void cSampleImporter::stopPlaying()
 	}
 	else if(playMode == playModeSampleBank)
 	{
-		instrumentPlayer[0].noteOff(-3);
+//		mtPadBoard.stopInstrument(pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNoteOff(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
 	}
 
-	playMode = playModeStop;
+//	playMode = playModeStop;
 }
 
-static uint8_t previeFile(uint8_t state)
+void cSampleImporter::stopPlayingAll()
 {
-	if(state == 0)  SI->stopPlaying();
+
+	if(playMode == playModeSdFile)
+	{
+		stopPlaying(0, 0, 0);
+	}
+	else if( playMode == playModeSampleBank)
+	{
+		sequencer.stopManualNotes();
+	}
+
+}
+
+static uint8_t previewFile(uint8_t state)
+{
+	SI->playFromPads(INTERFACE_BUTTON_PREVIEW,state,-1);
+	return 1;
+}
+
+void cSampleImporter::playFromPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(state == 0)  SI->stopPlaying(pad,state,velo);
 	else if (state == 1)
 	{
 
 		switch(SI->selectedPlace)
 		{
-		case 0: SI->playSdFile(); 			break;
-		case 1: SI->playSampleFromBank(); 	break;
+		case 0: SI->playSdFile(); 							break;
+		case 1: SI->playSampleFromBank(pad,state,velo); 	break;
 
 		}
 	}
-
-	return 1;
 }
 
 void cSampleImporter::updateSelection()
@@ -1479,7 +1506,21 @@ static uint8_t functDeleteBackspace(uint8_t state)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	SI->keyboardManager.onPadChange(pad, state);
+	if(SI->keyboardManager.getState())
+	{
+		SI->keyboardManager.onPadChange(pad, state);
+	}
+	else
+	{
+		if((state == 1) || (state == 0))
+		{
+			SI->playFromPads(pad,state,velo);
+			if(state) padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
+			else padsBacklight.setFrontLayer(0,0,pad);
+		}
+	}
+
+
 	return 1;
 }
 
