@@ -162,8 +162,10 @@ public:
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
-	void playSampleFromBank();
-	void stopPlaying();
+	void playSampleFromBank(uint8_t pad, uint8_t state, int16_t velo);
+	void stopPlaying(uint8_t pad, uint8_t state, int16_t velo);
+	void stopPlayingAll();
+	void playFromPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 	uint8_t playMode;

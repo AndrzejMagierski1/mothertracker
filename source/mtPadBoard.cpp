@@ -210,6 +210,7 @@ uint8_t cMtPadBoard::getPadsWithNote(int8_t note, uint8_t* pads)
 
 uint8_t cMtPadBoard::getNoteFromPad(int8_t pad)
 {
+	if(pad == INTERFACE_BUTTON_PREVIEW) return 60;
 	return padNotes[padBoard[pad]];
 }
 

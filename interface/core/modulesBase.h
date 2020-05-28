@@ -89,6 +89,7 @@ public:
 	void blockAllInputsExcept(uint8_t n);
 	void blockAllInputsExcept(uint8_t n, uint8_t o);
 	void unblockAllInputs();
+	void unblockPads();
 	uint8_t isPowerButtonBlocked() {  return blockPowerButton; }
 
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
