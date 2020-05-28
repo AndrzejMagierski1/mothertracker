@@ -9,6 +9,7 @@
 			- fix: bug który nie pozwalal kopiowac/wklejac w otwartych starych projektach
 			- random shape LFO
 			- sample editor normalizer 
+			- można zaznaczyć pole edycji w klawiaturze ekranowej i wtedy poruszać się pozycją w tekscie
 			
 	1.0 	Pierwszy release
 	
