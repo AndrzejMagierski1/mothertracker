@@ -20,7 +20,7 @@ static cInstrumentEditor* IE = &instrumentEditor;
 
 
 static  uint8_t functPlayAction();
-
+static  uint8_t functDelete(uint8_t state);
 
 static  uint8_t functInstrument(uint8_t state);
 
@@ -173,7 +173,7 @@ void cInstrumentEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
-
+	FM->setButtonObj(interfaceButtonDelete, functDelete);
 
 	if(mtProject.values.lastUsedInstrument >= INSTRUMENTS_COUNT)
 	{
@@ -289,7 +289,7 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 	{
 		if( (button == 5) || (button == 6) )
 		{
-			if(!IE->editorInstrument->filterEnable) return 1;
+			if((!IE->selectNodes[button].isActive) && (!IE->editorInstrument->filterEnable)) return 1;
 		}
 	}
 
@@ -395,9 +395,17 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 				{
 					IE->selectedPlace[IE->mode] = (button > 0) && (IE->mode == mtInstEditModeEnv) ? button - 1 : button;
 					if( (IE->mode == mtInstEditModeEnv) && (IE->selectedPlace[IE->mode] > 4) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
+
+					if( (!IE->editorInstrument->filterEnable) && ((button == 5) || (button == 6)) && (IE->mode == mtInstEditModeParams))
+					{
+						IE->selectedPlace[IE->mode] = 4;
+					}
 				}
+
 			}
 		}
+
+
 	}
 
 	IE->activateLabelsBorder();
@@ -668,6 +676,34 @@ static  uint8_t functPlayAction()
 		sequencer.stop();
 	}
 
+	return 1;
+}
+
+static  uint8_t functDelete(uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		if(IE->frameData.multiSelActiveNum != 0)
+		{
+			for(uint8_t i = 0 ; i < 8 ; i++)
+			{
+				if(IE->selectNodes[i].isActive)
+				{
+					uint8_t mode_places = i + IE->mode*10;
+					if(IE->paramsMode == mtInstEditMidi) mode_places = i+20;
+					if(IE->mode == mtInstEditModeEnv) mode_places--;
+					IE->setDefaultValue(mode_places);
+				}
+			}
+		}
+		else
+		{
+			uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+			if(IE->paramsMode == mtInstEditMidi) mode_places = IE->selectedPlace[IE->mode]+20;
+			IE->setDefaultValue(mode_places);
+		}
+
+	}
 	return 1;
 }
 
@@ -1258,3 +1294,243 @@ static uint8_t functStepNote(uint8_t value)
 
 	return 1;
 }
+
+void cInstrumentEditor::setDefaultValue(uint8_t place)
+{
+	switch(place)
+	{
+		case 0:  	setDefaultVolume(); 		break;
+		case 1:  	setDefaultPanning(); 		break;
+		case 2:  	setDefaultTune(); 			break;
+		case 3:  	setDefaultFinetune(); 		break;
+		case 4:  	setDefaultFilterType(); 	break;
+		case 5:  	setDefaultCutoff(); 		break;
+		case 6:  	setDefaultResonance(); 		break;
+		case 7:  	setDefaultSend(); 			break;
+		case 12:
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) setDefaultLfoShape();
+			else setDefaultEnvAttack();
+		break;
+		case 13:
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) setDefaultLfoSpeed();
+			else setDefaultEnvDecay();
+			break;
+		case 14:
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) setDefaultLfoAmount();
+			else setDefaultEnvSustain();
+			break;
+		case 15:
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) setDefaultEnvRelease();
+			break;
+		case 16:
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) setDefaultEnvAmount();
+			break;
+		case 20: 	setDefaultMidiVelocity(); 	break;
+		default: break;
+	}
+}
+
+void cInstrumentEditor::setDefaultVolume()
+{
+	IE->editorInstrument->volume = defaultInstrumentParams.volume;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		   instrumentPlayer[i].setStatusBytes(VOLUME_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showParamsVolume();
+}
+void cInstrumentEditor::setDefaultPanning()
+{
+	IE->editorInstrument->panning = defaultInstrumentParams.panning;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(PANNING_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showParamsPanning();
+}
+void cInstrumentEditor::setDefaultTune()
+{
+	IE->editorInstrument->tune = defaultInstrumentParams.tune;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(TUNE_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showParamsTune();
+}
+void cInstrumentEditor::setDefaultFinetune()
+{
+	IE->editorInstrument->fineTune = defaultInstrumentParams.fineTune;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(FINETUNE_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showParamsFineTune();
+}
+void cInstrumentEditor::setDefaultFilterType()
+{
+	IE->editorInstrument->filterEnable = defaultInstrumentParams.filterEnable;
+	IE->editorInstrument->filterType = defaultInstrumentParams.filterType;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	IE->showFilterType();
+}
+void cInstrumentEditor::setDefaultCutoff()
+{
+	if(!IE->editorInstrument->filterEnable) return;
+	IE->editorInstrument->cutOff = defaultInstrumentParams.cutOff;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(CUTOFF_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showFilterCutOff();
+}
+void cInstrumentEditor::setDefaultResonance()
+{
+	if(!IE->editorInstrument->filterEnable) return;
+	IE->editorInstrument->resonance = defaultInstrumentParams.resonance;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(RESONANCE_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showFilterResonance();
+}
+void cInstrumentEditor::setDefaultSend()
+{
+	IE->editorInstrument->delaySend = defaultInstrumentParams.delaySend;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(DELAY_SEND_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showParamsDelaySend();
+}
+//env screen
+void cInstrumentEditor::setDefaultEnvAttack()
+{
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].attack = defaultInstrumentParams.envelope[IE->selectedEnvelope].attack;
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showEnvAttack();
+}
+void cInstrumentEditor::setDefaultEnvDecay()
+{
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].decay = defaultInstrumentParams.envelope[IE->selectedEnvelope].decay;
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showEnvDecay();
+}
+void cInstrumentEditor::setDefaultEnvSustain()
+{
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = defaultInstrumentParams.envelope[IE->selectedEnvelope].sustain;
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showEnvSustain();
+}
+void cInstrumentEditor::setDefaultEnvRelease()
+{
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].release = defaultInstrumentParams.envelope[IE->selectedEnvelope].release;
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showEnvRelease();
+}
+void cInstrumentEditor::setDefaultEnvAmount()
+{
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].amount = defaultInstrumentParams.envelope[IE->selectedEnvelope].amount;
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	IE->showEnvAmount();
+}
+//lfo
+void cInstrumentEditor::setDefaultLfoShape()
+{
+	IE->editorInstrument->lfo[IE->selectedEnvelope].shape = defaultInstrumentParams.lfo[IE->selectedEnvelope].shape;
+	uint32_t statusByte = 0;
+	switch(IE->selectedEnvelope)
+	{
+		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
+		case envCutoff:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
+		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
+		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		case envFinetune:	statusByte = LFO_FINETUNE_SEND_MASK; 			break;
+		default: break;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(statusByte);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showLfoShape();
+}
+void cInstrumentEditor::setDefaultLfoSpeed()
+{
+	IE->editorInstrument->lfo[IE->selectedEnvelope].speed = defaultInstrumentParams.lfo[IE->selectedEnvelope].speed;
+
+	uint32_t statusByte = 0;
+	switch(IE->selectedEnvelope)
+	{
+		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
+		case envCutoff:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
+		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
+		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		case envFinetune:	statusByte = LFO_FINETUNE_SEND_MASK; 			break;
+		default: break;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(statusByte);
+	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	IE->showLfoSpeed();
+}
+void cInstrumentEditor::setDefaultLfoAmount()
+{
+	IE->editorInstrument->lfo[IE->selectedEnvelope].amount = defaultInstrumentParams.lfo[IE->selectedEnvelope].amount;
+
+	uint32_t statusByte = 0;
+	switch(IE->selectedEnvelope)
+	{
+		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
+		case envCutoff:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
+		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
+		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		case envFinetune:	statusByte = LFO_FINETUNE_SEND_MASK; 			break;
+		default: break;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(statusByte);
+	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	IE->showLfoAmount();
+}
+void cInstrumentEditor::setDefaultMidiVelocity()
+{
+	uint8_t* temp_velocity =  &mtProject.values.midiInstrument[mtProject.values.lastUsedInstrument-INSTRUMENTS_COUNT].velocity;
+
+	*temp_velocity = DEFAULT_MIDI_VELOCITY;
+
+	IE->showParamsVelocity();
+
+	newFileManager.setProjectStructChanged();
+}
+

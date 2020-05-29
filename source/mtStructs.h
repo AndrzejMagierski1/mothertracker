@@ -448,6 +448,51 @@ struct strInstrument
     	uint8_t		type;
     } granular;
 };
+
+const strInstrument defaultInstrumentParams =
+{
+		.isActive = 0,
+		.sample = {0,{},nullptr,0,2048,0},
+		.name = {},
+		.playMode = playModeSingleShot,
+		.startPoint = 0,
+		.loopPoint1 = 1,
+		.loopPoint2 = MAX_16BIT - 1,
+		.endPoint = MAX_16BIT,
+		.wavetableCurrentWindow = 0,
+		.envelope =
+		{
+				{1.0,0,0,0,0,1.0,1000,0,1},
+				{1.0,0,3000,0,0,1.0,1000,0,0},
+				{1.0,0,3000,0,0,1.0,1000,0,0},
+				{1.0,0,3000,0,0,1.0,1000,0,0},
+				{1.0,0,3000,0,0,1.0,1000,0,0},
+				{1.0,0,3000,0,0,1.0,1000,0,0}
+		},
+		.lfo =
+		{
+				{0,0,0.5},
+				{0,0,0.5},
+				{0,0,0.5},
+				{0,0,0.5},
+				{0,0,0.5},
+				{0,0,0.5}
+		},
+		.cutOff = 1.0,
+		.resonance = 0,
+		.filterType = lowPass,
+		.filterEnable = 0,
+		.tune = 0,
+		.fineTune = 0,
+		.volume = 50,
+		.glide = 0,
+		.panning = 50,
+		.delaySend = 0,
+		.slices = {},
+		.sliceNumber = 0,
+		.selectedSlice = 0,
+		.granular = {441,0,0,0}
+};
 //-------------------------------------------------
 struct strMtValues
 {
