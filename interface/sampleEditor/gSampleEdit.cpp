@@ -81,9 +81,9 @@ void cSampleEditor::initDisplayControls()
 	strControlProperties spectrumProperties;
 
 	spectrumProperties.x = 0;
-	spectrumProperties.y = 75;
+	spectrumProperties.y = 75 + ( (300 - (MAX_16BIT/300) ) /2);
 	spectrumProperties.w = 600;
-	spectrumProperties.h = 300;
+	spectrumProperties.h = MAX_16BIT/300;
 	if(playhead == nullptr) playhead = display.createControl<cProgressCursor>(&spectrumProperties);
 
 	spectrumProperties.data = &spectrumData;

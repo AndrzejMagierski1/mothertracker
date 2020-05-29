@@ -94,11 +94,12 @@ void cSampleRecorder::initDisplayControls()
 	points.pointsType = 0;
 	points.endPoint = MAX_16BIT;
 	points.startPoint = 0;
+
 	strControlProperties prop;
 	prop.x = 100;
-	prop.y = 75;
+	prop.y = 75 + ( (300 - (MAX_16BIT/300) ) /2);
 	prop.w = 600;
-	prop.h = 300;
+	prop.h = MAX_16BIT/300;
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
