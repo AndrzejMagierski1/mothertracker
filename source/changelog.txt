@@ -13,6 +13,7 @@
 			- sample editor normalizer 
 			- można zaznaczyć pole edycji w klawiaturze ekranowej i wtedy poruszać się pozycją w tekscie
 			- granie z padów w Sample Importerze: SD mono z bazowym pitchem, z banku jak w innych modulach
+			- tlo pod wav'em wyrownane do maxymalnego poziomu wyswietlanego sygnalu
 			
 	1.0 	Pierwszy release
 	

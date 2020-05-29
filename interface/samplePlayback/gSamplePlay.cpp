@@ -119,13 +119,12 @@ void cSamplePlayback::initDisplayControls()
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
 
-
 	// spectrum + points
 	prop.style = 0;
 	prop.x = 0;
-	prop.y = 75;
+	prop.y = 75 + ( (300 - (MAX_16BIT/300) ) /2);
 	prop.w = 600;
-	prop.h = 300;
+	prop.h = MAX_16BIT/300;
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 
 	lineIndicatorSelection.start = 0;
