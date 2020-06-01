@@ -35,6 +35,16 @@ struct strRecorderConfig
 	float radioFreq = 87.5;
 };
 
+const strRecorderConfig defaultRecorderConfig =
+{
+	.source = 0,
+	.gainLineIn = 0,
+	.gainMicLow = 0,
+	.gainMicHigh = 0,
+	.gainRadio = 0,
+	.radioFreq = 87.5
+};
+
 struct strUndoCrop
 {
 	int16_t * address;
@@ -266,6 +276,16 @@ uint8_t cropCounter = 0;
 	void changeRadioFreqBar(int16_t val);
 	void changeLevelBar();
 	void changeGainBar(int16_t val);
+
+	void setDefaultSource();
+	void setDefaultGain();
+	void setDefaultMonitorEnable();
+	void setDefaultRadioFreq();
+
+	void setDefaultStartPoint();
+	void setDefaultEndPoint();
+	void setDefaultZoom();
+
 
 	mtKeyboardManager keyboardManager;
 //save
