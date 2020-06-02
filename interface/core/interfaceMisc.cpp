@@ -79,7 +79,7 @@ void cInterface::initStartScreen()
 	if (mtConfig.firmware.beta)
 	{
 		sprintf(startScreenData.versionLabel,
-				"v%d.%d.%d b%d",
+				firmwareVersionLabelFormatBeta,
 				mtConfig.firmware.ver_1,
 				mtConfig.firmware.ver_2,
 				mtConfig.firmware.ver_3,
@@ -88,7 +88,7 @@ void cInterface::initStartScreen()
 	else
 	{
 		sprintf(startScreenData.versionLabel,
-				"v%d.%d.%d",
+				firmwareVersionLabelFormat,
 				mtConfig.firmware.ver_1,
 				mtConfig.firmware.ver_2,
 				mtConfig.firmware.ver_3);
