@@ -165,11 +165,30 @@ public:
 	void setInstrumentEnvFunct();
 
 	void setInstrumentParamsFunct();
-
 //----------------------------------
-
 	void setProjectSaveFlags();
-
+	void setDefaultValue(uint8_t place);
+//first screen
+	void setDefaultVolume();
+	void setDefaultPanning();
+	void setDefaultTune();
+	void setDefaultFinetune();
+	void setDefaultFilterType();
+	void setDefaultCutoff();
+	void setDefaultResonance();
+	void setDefaultSend();
+//env screen
+	void setDefaultEnvAttack();
+	void setDefaultEnvDecay();
+	void setDefaultEnvSustain();
+	void setDefaultEnvRelease();
+	void setDefaultEnvAmount();
+//lfo
+	void setDefaultLfoShape();
+	void setDefaultLfoSpeed();
+	void setDefaultLfoAmount();
+//MIDI
+	void setDefaultMidiVelocity();
 //----------------------------------
 
 	strLabelData labelArrow;

@@ -45,6 +45,7 @@ static  uint8_t functMainScreenRight();
 static  uint8_t functMainScreenUp();
 static  uint8_t functMainScreenDown();
 static  uint8_t functMainScreenEncoder(int16_t value);
+static 	uint8_t functMainScreenDelete();
 
 static  uint8_t functSelectStartPoint();
 static  uint8_t functSelectEndPoint();
@@ -59,6 +60,7 @@ static  uint8_t functParamsScreenRight();
 static  uint8_t functParamsScreenUp();
 static  uint8_t functParamsScreenDown();
 static  uint8_t functParamsScreenEncoder(int16_t value);
+static  uint8_t functParamsScreenDelete();
 static  uint8_t functSelectParamiter(uint8_t button);
 static 	uint8_t functBack();
 static  uint8_t functPreview();
@@ -324,6 +326,7 @@ void cSampleEditor::setMainScreenFunctions()
 	FM->clearButton(interfaceButtonRight);
 	FM->clearButton(interfaceButtonUp);
 	FM->clearButton(interfaceButtonDown);
+	FM->clearButton(interfaceButtonDelete);
 	FM->clearAllPots();
 
 	if(!editorInstrument->isActive) return;
@@ -333,6 +336,8 @@ void cSampleEditor::setMainScreenFunctions()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functMainScreenRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functMainScreenUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functMainScreenDown);
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functMainScreenDelete);
+
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStartPoint);
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectEndPoint);
@@ -352,6 +357,7 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->clearButton(interfaceButtonRight);
 	FM->clearButton(interfaceButtonUp);
 	FM->clearButton(interfaceButtonDown);
+	FM->clearButton(interfaceButtonDelete);
 	FM->clearAllPots();
 
 	if(!editorInstrument->isActive) return;
@@ -361,7 +367,7 @@ void cSampleEditor::setParamsScreenFunctions()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functParamsScreenRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functParamsScreenUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functParamsScreenDown);
-
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functParamsScreenDelete);
 
 	for(uint8_t i = interfaceButton0 ; i <= interfaceButton4 ; i++)
 	{
@@ -966,6 +972,61 @@ void cSampleEditor::modSelectedEffect(int16_t val)
 		currentEffect->clearIsProcessedData();
 	}
 }
+
+void cSampleEditor::setDefaultStartPoint()
+{
+	selection.startPoint = 0;
+
+	if(selection.startPoint > selection.endPoint)
+	{
+		selection.startPoint = selection.endPoint - 1;
+	}
+
+	bool isZoomActive = (zoom.zoomValue > 1) ;
+	bool isNewPointChanged = zoom.lastChangedPoint != 1;
+	bool isPointDisplayed = (selection.startPoint < zoom.zoomStart || selection.startPoint > zoom.zoomEnd);
+
+	if(isZoomActive && (isNewPointChanged || isPointDisplayed))
+	{
+		needRefreshSpectrum = 1;
+	}
+
+	zoom.zoomPosition = selection.startPoint;
+
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
+	refreshStartPoint();
+}
+void cSampleEditor::setDefaultEndPoint()
+{
+	selection.endPoint = MAX_16BIT;
+
+	if(selection.startPoint > selection.endPoint)
+	{
+		selection.endPoint = selection.startPoint + 1;
+	}
+
+	bool isZoomActive = (zoom.zoomValue > 1) ;
+	bool isNewPointChanged = zoom.lastChangedPoint != 2;
+	bool isPointDisplayed = (selection.endPoint < zoom.zoomStart || selection.endPoint > zoom.zoomEnd);
+
+	if(isZoomActive && (isNewPointChanged || isPointDisplayed))
+	{
+		needRefreshSpectrum = 1;
+	}
+
+	zoom.zoomPosition = selection.endPoint;
+
+	currentEffect->changeSelectionRange(selection.startPoint,selection.endPoint);
+
+	refreshEndPoint();
+}
+void cSampleEditor::setDefaultZoom()
+{
+	resetZoom();
+}
+
+
 //*******************
 //ParamiterScreen
 void cSampleEditor::modParamiter(int16_t val, uint8_t n)
@@ -1013,7 +1074,23 @@ void cSampleEditor::modParamiter(int16_t val, uint8_t n)
 	currentEffect->clearIsProcessedData();
 	refreshParamiter(n);
 }
+void cSampleEditor::setDefaultParamiter(uint8_t n)
+{
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		effectDisplayParams[currentEffectIdx].fParameter[n] = effectDefaultParams[currentEffectIdx].fParameter[n];
+		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].fParameter[n], n);
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		effectDisplayParams[currentEffectIdx].iParameter[n] = effectDefaultParams[currentEffectIdx].iParameter[n];
+		currentEffect->setParamiter(&effectDisplayParams[currentEffectIdx].iParameter[n], n);
+	}
 
+	setPreviewFunction();
+	currentEffect->clearIsProcessedData();
+	refreshParamiter(n);
+}
 
 void cSampleEditor::setPreviewFunction()
 {
@@ -1188,6 +1265,19 @@ static  uint8_t functMainScreenEncoder(int16_t value)
 	return 1;
 }
 
+static 	uint8_t functMainScreenDelete()
+{
+	switch(SE->selectedPlace[cSampleEditor::mainScreen])
+	{
+		case cSampleEditor::startPointPlace : 	SE->setDefaultStartPoint();		break;
+		case cSampleEditor::endPointPlace : 	SE->setDefaultEndPoint();		break;
+		case cSampleEditor::zoomPlace : 		SE->setDefaultZoom();			break;
+		default: break;
+	}
+
+	return 1;
+}
+
 static  uint8_t functSelectStartPoint()
 {
 	SE->selectedPlace[cSampleEditor::mainScreen] = cSampleEditor::startPointPlace;
@@ -1310,6 +1400,13 @@ static  uint8_t functParamsScreenEncoder(int16_t value)
 	SE->modParamiter(value, SE->selectedPlace[cSampleEditor::effectParamsScreen]);
 	return 1;
 }
+
+static  uint8_t functParamsScreenDelete()
+{
+	SE->setDefaultParamiter(SE->selectedPlace[cSampleEditor::effectParamsScreen]);
+	return 1;
+}
+
 static  uint8_t functSelectParamiter(uint8_t button)
 {
 	SE->selectedPlace[cSampleEditor::effectParamsScreen] = button;

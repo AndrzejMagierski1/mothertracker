@@ -81,6 +81,7 @@ static  uint8_t functActionZoom();
 static  uint8_t functConfirmKey();
 static  uint8_t functInsert();
 
+
 static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
@@ -1112,9 +1113,54 @@ static  uint8_t functActionButton7()
 static uint8_t functDeleteBackspace(uint8_t state)
 {
 	if(SR->patternIsPlayingFlag == 1) return 1;
-	if((state == buttonPress) || (state == buttonHold))
+	if(SR->selectionWindowFlag == 1) return 1;
+
+	if(SR->keyboardManager.getState())
 	{
-		SR->keyboardManager.makeBackspace();
+		if((state == buttonPress) || (state == buttonHold))
+		{
+			SR->keyboardManager.makeBackspace();
+		}
+	}
+	else
+	{
+		if(state == buttonPress)
+		{
+			if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
+			{
+				switch(SR->selectedPlace)
+				{
+				case 0: 	SR->setDefaultSource();			break;
+				case 1: 	SR->setDefaultRadioFreq();		break;
+				case 2: 	 								break;
+				case 3: 									break;
+				case 5: 	SR->setDefaultGain();			break;
+				case 6: 	SR->setDefaultMonitorEnable();	break;
+				}
+			}
+			else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+			{
+
+				if(SR->frameData.multiSelActiveNum)
+				{
+					if(SR->frameData.multisel[1].isActive) SR->setDefaultStartPoint();
+					if(SR->frameData.multisel[2].isActive) SR->setDefaultEndPoint();
+				}
+				else
+				{
+					switch(SR->selectedPlace)
+					{
+					case 0: 	break;
+					case 1:		SR->setDefaultStartPoint();	break;
+					case 2:		SR->setDefaultEndPoint();	break;
+					case 3: 	SR->setDefaultZoom();		break;
+					case 5: 	break;
+					case 6: 	break;
+					}
+				}
+			}
+
+		}
 	}
 	return 1;
 }
@@ -1993,6 +2039,128 @@ void cSampleRecorder::changeGainBar(int16_t val)
 	//mtProject.values.projectNotSavedFlag = 1;
 	newFileManager.setProjectStructChanged();
 }
+
+
+void cSampleRecorder::setDefaultSource()
+{
+	//wyciagniete z ifow parametry dla LineIn
+	digitalWrite(SI4703_KLUCZ,HIGH);
+	hideRadio();
+	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+	recorderConfig.source = defaultRecorderConfig.source;
+	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
+	audioShield.lineInLevel(map(recorderConfig.gainLineIn,0,100,0,15));
+    display.setControlValue(sourceListControl, recorderConfig.source);
+    display.refreshControl(sourceListControl);
+    calcGainBarVal();
+    drawGainBar();
+
+    showSource();
+    showGain();
+
+    display.synchronizeRefresh();
+    mtProject.values.source =  sampleRecorder.recorderConfig.source;
+	newFileManager.setProjectStructChanged();
+}
+void cSampleRecorder::setDefaultGain()
+{
+	if(recorderConfig.source == sourceTypeLineIn)
+	{
+		recorderConfig.gainLineIn = defaultRecorderConfig.gainLineIn;
+		refreshGain();
+		mtProject.values.gainLineIn = sampleRecorder.recorderConfig.gainLineIn;
+	}
+	else if(recorderConfig.source == sourceTypeRadio)
+	{
+		recorderConfig.gainRadio = defaultRecorderConfig.gainRadio;
+		refreshGain();
+		mtProject.values.gainRadio = sampleRecorder.recorderConfig.gainRadio;
+	}
+	else if(recorderConfig.source == sourceTypeMicLG)
+	{
+		recorderConfig.gainMicLow = defaultRecorderConfig.gainMicLow;
+		refreshGain();
+		mtProject.values.gainMicLow = sampleRecorder.recorderConfig.gainMicLow;
+	}
+	else if(recorderConfig.source == sourceTypeMicHG)
+	{
+		recorderConfig.gainMicHigh = defaultRecorderConfig.gainMicHigh;
+		refreshGain();
+		mtProject.values.gainMicHigh = sampleRecorder.recorderConfig.gainMicHigh;
+	}
+
+	calcGainBarVal();
+	drawGainBar();
+
+	showGain();
+	newFileManager.setProjectStructChanged();
+}
+void cSampleRecorder::setDefaultMonitorEnable()
+{
+	recorderConfig.monitor = defaultRecorderConfig.monitor;
+
+	if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+	else audioShield.headphoneSourceSelect(1);
+
+	display.setControlValue(monitorListControl, recorderConfig.monitor);
+	display.refreshControl(monitorListControl);
+
+	mtProject.values.monitor = sampleRecorder.recorderConfig.monitor;
+	showMonitor();
+
+	newFileManager.setProjectStructChanged();
+}
+void cSampleRecorder::setDefaultRadioFreq()
+{
+	if(radio.getInitializationStatus())
+	{
+		recorderConfig.radioFreq = defaultRecorderConfig.radioFreq;
+
+		calcRadioFreqBarVal();
+		drawRadioFreqBar();
+
+		radio.clearRDS();
+		SR->displayEmptyRDS();
+
+		radio.setFrequency(recorderConfig.radioFreq);
+		mtProject.values.radioFreq = sampleRecorder.recorderConfig.radioFreq;
+		newFileManager.setProjectStructChanged();
+	}
+}
+
+void cSampleRecorder::setDefaultStartPoint()
+{
+	SR->startPoint = 0;
+
+	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
+	if(SR->zoom.zoomValue > 1 && (SR->zoom.lastChangedPoint != 1 || (SR->startPoint < SR->zoom.zoomStart || SR->startPoint > SR->zoom.zoomEnd)))SR-> refreshSpectrum = 1;
+	SR->zoom.zoomPosition = SR->startPoint;
+	SR->zoom.lastChangedPoint = 1;
+	SR->refreshPoints = 1;
+
+	SR->showStartPointValue();
+}
+void cSampleRecorder::setDefaultEndPoint()
+{
+	SR->endPoint = MAX_16BIT;
+	if(SR->zoom.zoomValue > 1 && (SR->zoom.lastChangedPoint != 2 || (SR->endPoint < SR->zoom.zoomStart ||SR-> endPoint > SR->zoom.zoomEnd))) SR->refreshSpectrum = 1;
+	SR->zoom.zoomPosition = SR->endPoint;
+	SR->zoom.lastChangedPoint = 2;
+	SR->refreshPoints = 1;
+
+	SR->showEndPointValue();
+}
+void cSampleRecorder::setDefaultZoom()
+{
+	// max zmiana w lewo daje pewnosc ze bedzie to wartosc 1.0
+	GP.spectrumChangeZoom(-MAX_SIGNED_16BIT, recorder.getLength(), &zoom);
+
+	refreshSpectrum = 1;
+	refreshPoints = 1;
+
+	showZoomValue();
+}
+
 
 void cSampleRecorder::changeZoom(int16_t value)
 {

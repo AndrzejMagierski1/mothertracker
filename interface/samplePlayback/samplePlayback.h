@@ -126,6 +126,21 @@ public:
 	bool isEqualSliceActive();
 	void equalSlice();
 
+	void setDefault(uint8_t pos);
+	void setDefaultStartPoint();
+	void setDefaultLoopPoint1();
+	void setDefaultLoopPoint2();
+	void setDefaultEndPoint();
+	void setDefaultZoom();
+	void setDefaultSelectedSlice();
+	void setDefaultEqualSliceNumber();
+	void setDefaultWavetablePosition();
+	void setDefaultWavetableWindow();
+	void setDefaultGranularPosition();
+	void setDefaultGranularLength();
+	void setDefaultGranularShape();
+	void setDefaultGranularLoop();
+
 	strFrameData frameData;
 
 	strLabelData labelArrow;

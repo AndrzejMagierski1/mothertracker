@@ -23,7 +23,7 @@ static  uint8_t functRecAction();
 
 
 static  uint8_t functInstrument(uint8_t state);
-
+static	uint8_t functDelete();
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -263,6 +263,8 @@ void cSamplePlayback::start(uint32_t options)
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
+
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functDelete);
 
 	if(mtProject.values.lastUsedInstrument >= INSTRUMENTS_COUNT)
 	{
@@ -2029,6 +2031,353 @@ void cSamplePlayback::modEqualSliceNumber(int16_t val)
 
 	saveConfig();
 }
+
+
+void cSamplePlayback::setDefault(uint8_t pos)
+{
+	if(isEqualSliceActive())
+	{
+		setDefaultEqualSliceNumber();
+		return ;
+	}
+
+	switch(pos)
+	{
+	case 0:
+		if((editorInstrument->playMode == playModeSlice) || (editorInstrument->playMode == playModeBeatSlice) ) setDefaultSelectedSlice();
+		break;
+	case 1:
+		if(loadedInstrumentType == mtSampleTypeWavetable)
+		{
+			setDefaultWavetablePosition();
+		}
+		else if(loadedInstrumentType == mtSampleTypeWaveFile)
+		{
+			if((editorInstrument->playMode == playModeSlice) || (editorInstrument->playMode == playModeBeatSlice)) ;
+			else if(editorInstrument->playMode == playModeGranular) setDefaultGranularPosition();
+			else setDefaultStartPoint();
+		}
+		break;
+	case 2:
+		if(loadedInstrumentType == mtSampleTypeWavetable)
+		{
+			setDefaultWavetableWindow();
+		}
+		else if(loadedInstrumentType == mtSampleTypeWaveFile)
+		{
+			if((editorInstrument->playMode != playModeSlice) && (editorInstrument->playMode != playModeBeatSlice) &&
+			   (editorInstrument->playMode != playModeGranular)) setDefaultLoopPoint1();
+			else if(editorInstrument->playMode == playModeGranular) setDefaultGranularLength();
+		}
+		break;
+	case 3:
+		if(editorInstrument->playMode != playModeGranular) setDefaultLoopPoint2();
+		else setDefaultGranularShape();
+		break;
+	case 4:
+		if(editorInstrument->playMode != playModeGranular) setDefaultEndPoint();
+		else setDefaultGranularLoop();
+	break;
+	case 5: setDefaultZoom(); break;
+	case 6: break;
+	}
+
+}
+
+void cSamplePlayback::setDefaultStartPoint()
+{
+	uint16_t dif;
+	editorInstrument->startPoint = defaultInstrumentParams.startPoint;
+
+	if( (editorInstrument->playMode != playModeSingleShot) && (editorInstrument->playMode != playModeWavetable) )
+	{
+		if(editorInstrument->startPoint >= editorInstrument->loopPoint1)
+		{
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+			editorInstrument->loopPoint1 = editorInstrument->startPoint + 1;
+
+			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+			{
+				editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				editorInstrument->startPoint = editorInstrument->loopPoint1 - 1;
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP1_MASK);
+					instrumentPlayer[i].setStatusBytes(LP2_MASK);
+				}
+
+			}
+			else
+			{
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP2_MASK);
+				}
+			}
+
+			showLoopPoint1Value();
+			showLoopPoint2Value();
+		}
+	}
+
+	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1
+	   || (editorInstrument->startPoint < zoom.zoomStart || editorInstrument->startPoint > zoom.zoomEnd)))
+	{
+		refreshSpectrum = 1;
+	}
+
+	zoom.zoomPosition = editorInstrument->startPoint;
+	zoom.lastChangedPoint = 1;
+	refreshPoints = 1;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	showStartPointValue();
+}
+void cSamplePlayback::setDefaultLoopPoint1()
+{
+	SP->editorInstrument->loopPoint1 = defaultInstrumentParams.loopPoint1;
+
+	if(SP->editorInstrument->loopPoint1 <= SP->editorInstrument->startPoint) SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint + 1;
+	if(SP->editorInstrument->loopPoint1 >= SP->editorInstrument->loopPoint2) SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - 1;
+
+	if(SP->zoom.zoomValue > 1 && (SP-> zoom.lastChangedPoint != 3
+			|| (SP->editorInstrument->loopPoint1 < SP->zoom.zoomStart || SP->editorInstrument->loopPoint1 > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(LP1_MASK);
+	}
+
+	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint1;
+	SP->zoom.lastChangedPoint = 3;
+	SP->refreshPoints = 1;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	SP->showLoopPoint1Value();
+}
+void cSamplePlayback::setDefaultLoopPoint2()
+{
+	SP->editorInstrument->loopPoint2 = defaultInstrumentParams.loopPoint2;
+
+	if(SP->editorInstrument->loopPoint2 >= SP->editorInstrument->endPoint) SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint - 1;
+	if(SP->editorInstrument->loopPoint2 <= SP->editorInstrument->loopPoint1) SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1 + 1;
+
+	if(SP->zoom.zoomValue > 1 && ( SP->zoom.lastChangedPoint != 4
+			|| (SP->editorInstrument->loopPoint2 < SP->zoom.zoomStart || SP->editorInstrument->loopPoint2 > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(LP2_MASK);
+	}
+
+	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
+	SP->zoom.lastChangedPoint = 4;
+	SP->refreshPoints = 1;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	SP->showLoopPoint2Value();
+}
+void cSamplePlayback::setDefaultEndPoint()
+{
+	uint16_t dif;
+
+	SP->editorInstrument->endPoint = defaultInstrumentParams.endPoint;
+
+	if(SP->editorInstrument->playMode != playModeSingleShot)
+	{
+		if(SP->editorInstrument->endPoint < SP->editorInstrument->loopPoint2)
+		{
+			dif = SP->editorInstrument->loopPoint2 - SP->editorInstrument->loopPoint1;
+
+			SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint - 1;
+
+			if(SP->editorInstrument->loopPoint2 - dif < SP->editorInstrument->startPoint)
+			{
+				SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint + 1;
+
+				SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1 + dif;
+				SP->editorInstrument->endPoint = SP->editorInstrument->loopPoint2 + 1;
+
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP1_MASK);
+					instrumentPlayer[i].setStatusBytes(LP2_MASK);
+				}
+
+			}
+			else
+			{
+				SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - dif;
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP1_MASK);
+				}
+
+
+			}
+
+			SP->showLoopPoint1Value();
+			SP->showLoopPoint2Value();
+		}
+	}
+
+	if(SP->zoom.zoomValue > 1 && (SP->zoom.lastChangedPoint != 2
+			|| (SP->editorInstrument->endPoint < SP->zoom.zoomStart || SP->editorInstrument->endPoint > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
+
+	SP->zoom.zoomPosition = SP->editorInstrument->endPoint;
+	SP->zoom.lastChangedPoint = 2;
+	SP->refreshPoints = 1;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	SP->showEndPointValue();
+}
+void cSamplePlayback::setDefaultZoom()
+{
+	GP.spectrumChangeZoom(MIN_SIGNED_16BIT, SP->editorInstrument->sample.length, &SP->zoom);
+
+	SP->refreshSpectrum = 1;
+	SP->refreshPoints = 1;
+	SP->refreshSlicePoints = 1;
+
+	SP->showZoomValue();
+}
+void cSamplePlayback::setDefaultSelectedSlice()
+{
+	SP->editorInstrument->selectedSlice = defaultInstrumentParams.selectedSlice;
+
+	if((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice) )
+	{
+		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	SP->showSlicesSelectValue();
+	SP->showSlicesAdjustValue();
+	SP->refreshSlicePoints = 1;
+}
+void cSamplePlayback::setDefaultEqualSliceNumber()
+{
+	mtConfig.common.equalSliceNumber = 8;
+	showSlicesEqualNumberValue();
+
+	saveConfig();
+}
+void cSamplePlayback::setDefaultWavetablePosition()
+{
+	SP->editorInstrument->wavetableCurrentWindow = defaultInstrumentParams.wavetableCurrentWindow;
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(WT_POS_SEND_MASK);
+	}
+
+	SP->currentEnvelopeWtPos = SP->editorInstrument->wavetableCurrentWindow;
+	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
+	SP->showWavetablePosition();
+	SP->refreshSpectrum = 1;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+}
+void cSamplePlayback::setDefaultWavetableWindow()
+{
+	if(SP->isPlayingWavetable)
+	{
+		mtPadBoard.cutAllInstrument();
+		SP->isPlayingWavetable = 0;
+	}
+
+	uint8_t lastWavetableWindowsCounter = SP->wavetableWindowsCounter;
+	int8_t localDif;
+	uint8_t localMaxWavetableWindowsCounter = MAX_WAVETABLE_WINDOWS_COUNTER;
+
+	uint16_t tmpWindowSize = 2048;
+
+	while((tmpWindowSize > SP->editorInstrument->sample.length) && (localMaxWavetableWindowsCounter > MIN_WAVETABLE_WINDOWS_COUNTER) )
+	{
+		tmpWindowSize>>=1;
+		localMaxWavetableWindowsCounter--;
+	}
+
+	SP->wavetableWindowsCounter = localMaxWavetableWindowsCounter;
+
+	localDif = lastWavetableWindowsCounter - SP->wavetableWindowsCounter;
+
+	if(localDif > 0) 			SP->editorInstrument->wavetableCurrentWindow <<= localDif;
+	else if(localDif < 0)		SP->editorInstrument->wavetableCurrentWindow >>= (-localDif);
+
+	if(localDif != 0) SP->showWavetablePosition();
+
+	SP->editorInstrument->sample.wavetable_window_size = SP->convertWavetableWindowsCounterToSize(SP->wavetableWindowsCounter);
+	SP->editorInstrument->sample.wavetableWindowNumber = SP->editorInstrument->sample.wavetable_window_size ? SP->editorInstrument->sample.length/SP->editorInstrument->sample.wavetable_window_size : 0;
+
+	if(SP->editorInstrument->wavetableCurrentWindow >= SP->editorInstrument->sample.wavetableWindowNumber )
+	{
+		SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
+		SP->showWavetablePosition();
+	}
+
+	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
+	SP->showWavetableWindowSize();
+	SP->refreshSpectrum = 1;
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+}
+void cSamplePlayback::setDefaultGranularPosition()
+{
+	SP->editorInstrument->granular.currentPosition = defaultInstrumentParams.granular.currentPosition;
+	SP->currentEnvelopeGranPos = SP->isPlayingSample ? instrumentPlayer[0].getEnvelopeGranPosMod() : SP->editorInstrument->granular.currentPosition;
+	SP->showGranularPositionValue();
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_POS_SEND_MASK);
+	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+}
+void cSamplePlayback::setDefaultGranularLength()
+{
+	SP->editorInstrument->granular.grainLength = defaultInstrumentParams.granular.grainLength;
+
+	SP->showGrainLengthValue();
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_LEN_SEND_MASK);
+	}
+
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+}
+void cSamplePlayback::setDefaultGranularShape()
+{
+	SP->editorInstrument->granular.shape = defaultInstrumentParams.granular.shape;
+	SP->showShapeText();
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+}
+void cSamplePlayback::setDefaultGranularLoop()
+{
+	SP->editorInstrument->granular.type = defaultInstrumentParams.granular.type;
+	SP->showLoopTypeText();
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_LOOP_SEND_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+}
+
+
+
 bool cSamplePlayback::isEqualSliceActive()
 {
 	return (((SP->editorInstrument->playMode == playModeSlice) || (SP->editorInstrument->playMode == playModeBeatSlice))
@@ -2049,6 +2398,35 @@ static  uint8_t functInstrument(uint8_t state)
 		SP->hideUselessControls();
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 	}
+
+	return 1;
+}
+
+static	uint8_t functDelete()
+{
+	if(SP->overwriteSlicePopupVisible) return 1;
+
+	if(SP->frameData.multiSelActiveNum)
+	{
+		for(uint8_t i = 1; i < 5 ; i++)
+		{
+			if(SP->frameData.multisel[i].isActive)
+			{
+				SP->setDefault(i);
+			}
+		}
+		//Jezeli endPoint i loopPoint2 sa razem zaznaczone to najpierw musi sie wykonac endPoint potem loopPoint2
+		if(SP->frameData.multisel[3].isActive && SP->frameData.multisel[4].isActive)
+		{
+			SP->setDefault(3);
+		}
+
+	}
+	else
+	{
+		SP->setDefault(SP->selectedPlace);
+	}
+
 
 	return 1;
 }
