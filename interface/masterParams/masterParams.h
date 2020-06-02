@@ -131,6 +131,12 @@ public:
 	void changeDelayFeedback(int16_t val);
 
 
+	void setDefaultDelayPingPongEnable();
+	void setDefaultDelaySyncEnable();
+	void setDefaultDelayRate();
+	void setDefaultDelayTime();
+	void setDefaultDelayFeedback();
+
 
 	//
 	void activateLabelsBorder();

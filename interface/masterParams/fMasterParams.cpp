@@ -36,6 +36,7 @@ static  uint8_t functLeft();
 static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
+static 	uint8_t functDelete();
 
 
 
@@ -69,6 +70,12 @@ void changeLimiterAttack(int16_t value);
 void changeLimiterRelease(int16_t value);
 void changeLimiterTreshold(int16_t value);
 void changeBitDepth(int16_t value);
+
+void setDefaultMasterVolume();
+void setDefaultLimiterAttack();
+void setDefaultLimiterRelease();
+void setDefaultLimiterTreshold();
+void setDefaultBithDepth();
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
@@ -156,7 +163,7 @@ void cMasterParams::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
-
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functDelete);
 
 	FM->setButtonObj(interfaceButton0, functSelectVolume);
 
@@ -171,6 +178,7 @@ void cMasterParams::setMasterScreenFunct()
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
 }
 
 void cMasterParams::setDelayScreenFunct()
@@ -340,7 +348,36 @@ static  uint8_t functDown()
 }
 
 
+static 	uint8_t functDelete()
+{
+	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 
+	if(MP->isDelayScreen)
+	{
+		switch(MP->selectedPlaceDelay)
+		{
+		case 0: 	MP->setDefaultDelayPingPongEnable();		break;
+		case 1: 	MP->setDefaultDelaySyncEnable();			break;
+		case 2: 	MP->setDefaultDelayRate();					break;
+		case 3: 	MP->setDefaultDelayTime();					break;
+		case 4: 	MP->setDefaultDelayFeedback();				break;
+		default: break;
+		}
+	}
+	else
+	{
+		switch(MP->selectedPlace)
+		{
+			case 0: setDefaultMasterVolume();		break;
+			case 1: setDefaultBithDepth();			break;
+			case 2: setDefaultLimiterAttack();		break;
+			case 3: setDefaultLimiterRelease();		break;
+			case 4: setDefaultLimiterTreshold();	break;
+			default: break;
+		}
+	}
+	return 1;
+}
 
 static  uint8_t functPlayAction()
 {
@@ -797,6 +834,54 @@ void changeBitDepth(int16_t value)
 	MP->showBitDepth();
 }
 
+void setDefaultMasterVolume()
+{
+	mtProject.values.volume = 50;
+	engine.setHeadphonesVolume(mtProject.values.volume);
+
+	newFileManager.setProjectStructChanged();
+
+	MP->showVolume();
+}
+void setDefaultLimiterAttack()
+{
+	mtProject.values.limiterAttack = 100;
+	engine.setLimiterAttack(mtProject.values.limiterAttack);
+
+	newFileManager.setProjectStructChanged();
+
+	MP->showLimiterAttack();
+}
+void setDefaultLimiterRelease()
+{
+	mtProject.values.limiterRelease = 0.512;
+
+	engine.setLimiterRelease(mtProject.values.limiterRelease);
+
+	newFileManager.setProjectStructChanged();
+
+	MP->showLimiterRelease();
+}
+void setDefaultLimiterTreshold()
+{
+	mtProject.values.limiterTreshold = 16384;
+	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
+
+	newFileManager.setProjectStructChanged();
+
+	MP->showLimiterTreshold();
+}
+void setDefaultBithDepth()
+{
+	mtProject.values.bitDepth = 16;
+	engine.setBitDepth(mtProject.values.bitDepth);
+
+	newFileManager.setProjectStructChanged();
+	MP->showBitDepth();
+}
+
+
+
 void cMasterParams::changeDelayPingPongEnable(int16_t val)
 {
 	if(val > 0) mtProject.values.delayParams &= 0b01111111;
@@ -865,6 +950,45 @@ void cMasterParams::changeDelayFeedback(int16_t val)
 
 	showDelayFeedback();
 }
+
+void cMasterParams::setDefaultDelayPingPongEnable()
+{
+	mtProject.values.delayParams &= 0b01111111;
+	engine.setDelayParams(mtProject.values.delayParams);
+	newFileManager.setProjectStructChanged();
+	showDelayPingPongEnable();
+}
+void cMasterParams::setDefaultDelaySyncEnable()
+{
+	mtProject.values.delayParams &= 0b10111111;
+	engine.setDelayParams(mtProject.values.delayParams);
+	newFileManager.setProjectStructChanged();
+	showDelaySyncEnable();
+}
+void cMasterParams::setDefaultDelayRate()
+{
+	mtProject.values.delayParams &= 0b11000000;
+	engine.setDelayParams(mtProject.values.delayParams);
+	newFileManager.setProjectStructChanged();
+	showDelayRate();
+}
+void cMasterParams::setDefaultDelayTime()
+{
+	mtProject.values.delayTime = 500;
+	engine.setDelayTime(mtProject.values.delayTime);
+	newFileManager.setProjectStructChanged();
+	showDelayTime();
+}
+void cMasterParams::setDefaultDelayFeedback()
+{
+	mtProject.values.delayFeedback = 50;
+	engine.setDelayFeedback(mtProject.values.delayFeedback);
+
+	newFileManager.setProjectStructChanged();
+
+	showDelayFeedback();
+}
+
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {

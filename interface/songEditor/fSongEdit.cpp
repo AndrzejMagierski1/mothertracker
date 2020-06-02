@@ -792,6 +792,20 @@ void cSongEditor::changeGlobalTempo(int16_t value)
 	showTempoValue();
 }
 
+void cSongEditor::setDefaultGlobalTempo()
+{
+//	nie zmieniaj jak external clock
+	if(!sequencer.isInternalClock())
+	{
+		return;
+	}
+
+	mtProject.values.globalTempo = DEFAULT_TEMPO;
+	//TODO: podpiąć afektowanie aktulanego odtwarzania
+
+	showTempoValue();
+}
+
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(SE->isBusy) return 1;
@@ -1299,6 +1313,7 @@ static uint8_t functDelete()
 
 		SE->showHorizontalBar("Deleting", SE->deleteElementMax, SE->currentDeleteElement);
 	}
+	else if(SE->selectedPlace == 9) SE->setDefaultGlobalTempo();
 
 	return 1;
 }

@@ -89,7 +89,7 @@ public:
 	void readSong();
 
 	void changeGlobalTempo(int16_t value);
-
+	void setDefaultGlobalTempo();
 
 
 //--------------------------------------------------------------
