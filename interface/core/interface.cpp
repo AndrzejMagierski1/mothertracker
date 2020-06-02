@@ -200,13 +200,26 @@ void cInterface::doStartTasks()
 							mtConfig.values.padBoardNoteOffset,
 							mtConfig.values.padBoardRootNote);
 
-
+	////////////////////////////
 	//readSdConfig();
-	char beta = (mtConfig.firmware.beta == 1) ? 'b' : 0;
-	sprintf(interfaceGlobals.currentFirmwareVersion,"%d.%d.%d%c",mtConfig.firmware.ver_1,
-										mtConfig.firmware.ver_2,
-										mtConfig.firmware.ver_3,
-										beta);
+
+	if (mtConfig.firmware.beta)
+	{
+		sprintf(interfaceGlobals.currentFirmwareVersion,
+				firmwareVersionLabelFormatBeta,
+				mtConfig.firmware.ver_1,
+				mtConfig.firmware.ver_2,
+				mtConfig.firmware.ver_3,
+				mtConfig.firmware.beta);
+	}
+	else
+	{
+		sprintf(interfaceGlobals.currentFirmwareVersion,
+				firmwareVersionLabelFormat,
+				mtConfig.firmware.ver_1,
+				mtConfig.firmware.ver_2,
+				mtConfig.firmware.ver_3);
+	}
 
 	songTimer.initControls();
 	mtPopups.initPopupsDisplayControls();

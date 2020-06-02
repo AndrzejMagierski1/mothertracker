@@ -223,6 +223,8 @@ public:
 //------------------------------------------------------
 // fill
 	uint8_t fillState = 0;
+	uint8_t fillButton7ReleaseBlocker = 0; // zeby blokowac akcje na release przycisku 7
+
 	uint8_t fillPlace = 0;
 	//
 	strList fillTypeList;

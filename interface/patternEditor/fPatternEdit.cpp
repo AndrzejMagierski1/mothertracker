@@ -2549,6 +2549,7 @@ static  uint8_t functPreview()
 static  uint8_t functFill()
 {
 	PTE->fillState = 1;
+	PTE->fillButton7ReleaseBlocker = 1;
 	PTE->trackerPattern.popupMode |= 1;
 	PTE->focusOnPattern();
 
@@ -2949,6 +2950,12 @@ static uint8_t functUndo(uint8_t state)
 	}
 	else if (state == buttonRelease)
 	{
+
+		if(PTE->fillButton7ReleaseBlocker)
+		{
+			PTE->fillButton7ReleaseBlocker = 0;
+			return 1;
+		}
 		if (PTE->selectedPlace == 7)
 		{
 			PTE->focusOnPattern();
