@@ -62,7 +62,7 @@ void cFileManager::storePatternUndoRevision()
 	undoPatternBuffer[undo.actualIndex] = *sequencer.getActualPattern();
 	undoPatternBufferIndexes[undo.actualIndex] = mtProject.values.actualPattern;
 
-	uint8_t storedTo = undo.actualIndex;
+//	uint8_t storedTo = undo.actualIndex;
 
 
 	undo.redoPossibility = 0;
