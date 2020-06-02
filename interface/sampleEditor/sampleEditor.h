@@ -167,8 +167,14 @@ public:
 	void modZoom(int16_t val);
 	void resetZoom();
 	void modSelectedEffect(int16_t val);
+
+	void setDefaultStartPoint();
+	void setDefaultEndPoint();
+	void setDefaultZoom();
+
 //ParamiterScreen
 	void modParamiter(int16_t val, uint8_t n);
+	void setDefaultParamiter(uint8_t n);
 //*******************
 	cSampleEditor()
 	{
@@ -292,6 +298,28 @@ public:
 	uint8_t selectedEffect = editorEffectDelay;
 	uint8_t selectedPlace[2];
 
+
+	struct strEffectDefaultParams
+	{
+		int iParameter[6];
+		float fParameter[6];
+	};
+
+	const strEffectDefaultParams effectDefaultParams[editorEffectMax] =
+	{
+		{},//cut - brak drugiego ekranu
+		{},//reverse - brak drugiego ekranu
+		{{0,0,0,0,0,0},{1.0,0,0,0,0,0}}, //amplifier
+		{{0,50,0,0,0,0},{0.95,0,0,0,0,0}}, //delay
+		{{4,44100,0,0,0,0},{0,0,0,0,0,0}}, //bitcrusher
+		{{128,1,0,0,0,0},{0,0,0,0,0,0}}, //chorus
+		{{128,50,1,0,0,0},{0,0,0,1.0,0,0}}, //flanger
+		{{(32767+1)/2,0,0,0,0,0},{0,100.0,1.0,0,0,0}}, //limiter
+		{{(32767+1)/2,1,100,100,0,0},{0,0,0,0,0,0}}, //compressor
+		{{256,2048,0,0,0,0},{0,0,0,0,0,0}}, //wt smoother
+		{{100,0,0,0,0,0},{0,0,0,0,0,0}} //normalizer
+
+	};
 	struct strEffectDisplayParams
 	{
 		int iParameter[6];
