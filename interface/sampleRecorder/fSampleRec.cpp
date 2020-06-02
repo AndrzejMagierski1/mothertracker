@@ -1143,8 +1143,8 @@ static uint8_t functDeleteBackspace(uint8_t state)
 
 				if(SR->frameData.multiSelActiveNum)
 				{
-					 SR->setDefaultStartPoint();
-					 SR->setDefaultEndPoint();
+					if(SR->frameData.multisel[1].isActive) SR->setDefaultStartPoint();
+					if(SR->frameData.multisel[2].isActive) SR->setDefaultEndPoint();
 				}
 				else
 				{

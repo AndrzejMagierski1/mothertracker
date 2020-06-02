@@ -2041,7 +2041,7 @@ void cSamplePlayback::setDefault(uint8_t pos)
 		return ;
 	}
 
-	switch(selectedPlace)
+	switch(pos)
 	{
 	case 0:
 		if((editorInstrument->playMode == playModeSlice) || (editorInstrument->playMode == playModeBeatSlice) ) setDefaultSelectedSlice();
@@ -2408,13 +2408,19 @@ static	uint8_t functDelete()
 
 	if(SP->frameData.multiSelActiveNum)
 	{
-		for(uint8_t i = 0; i < 4 ; i++)
+		for(uint8_t i = 1; i < 5 ; i++)
 		{
-			if(SP->selectNodes[i].isActive)
+			if(SP->frameData.multisel[i].isActive)
 			{
 				SP->setDefault(i);
 			}
 		}
+		//Jezeli endPoint i loopPoint2 sa razem zaznaczone to najpierw musi sie wykonac endPoint potem loopPoint2
+		if(SP->frameData.multisel[3].isActive && SP->frameData.multisel[4].isActive)
+		{
+			SP->setDefault(3);
+		}
+
 	}
 	else
 	{
