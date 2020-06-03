@@ -807,6 +807,14 @@ struct strMtDispTrackTable
 	uint8_t state[5];  // czy step lezy w sekwencji
 };
 
+struct strGridPad
+{
+	uint8_t note;
+	int8_t microtune;
+	bool ledEnable;
+};
+
+
 const char mtNotes[128][5] =
 {
 	"C0",	"C#0",	"D0",	"D#0",	"E0",	"F0",	"F#0",	"G0",	"G#0",	"A0",	"A#0",	"B0",

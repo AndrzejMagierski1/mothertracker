@@ -1,7 +1,7 @@
 
 
 #include "configEditor.h"
-
+#include "mtGridEditor.h"
 
 
 static uint16_t framesPlacesConfig[4][4]=
@@ -194,6 +194,24 @@ void cConfigEditor::initDisplayControls()
 	prop3.data = nullptr; //&textBoxData;
 	if(textBox == nullptr) textBox = display.createControl<cTextBox>(&prop3);
 
+	strControlProperties gridPadsProp;
+
+	for(uint8_t i = 0; i < 48; i++)
+	{
+		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[gridPad[i].note];
+	}
+
+	padNamesStruct.length = 5;
+	padNamesStruct.name = interfaceGlobals.padNamesPointer;
+	gridPadsProp.style = 0;
+	gridPadsProp.x = 13;
+	gridPadsProp.y = 130;
+	gridPadsProp.w = 780;
+	gridPadsProp.h = 260;
+	gridPadsProp.colors = nullptr;
+	gridPadsProp.value = gridEditor.getSelectedPad();
+	gridPadsProp.data = &padNamesStruct;
+	if(gridPadsControl == nullptr)  gridPadsControl = display.createControl<cNotePopout>(&gridPadsProp);
 }
 
 
@@ -235,11 +253,15 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(textBox);
 	textBox = nullptr;
+
+	display.destroyControl(gridPadsControl);
+	gridPadsControl = nullptr;
 }
 
 void cConfigEditor::showDefaultConfigScreen()
 {
-
+	display.setControlHide(gridPadsControl);
+	display.refreshControl(gridPadsControl);
 	for(uint8_t i = 0; i<8; i++)
 	{
 		//display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
@@ -530,4 +552,56 @@ void cConfigEditor::hideCreditsControls()
 	display.refreshControl(label[7]);
 }
 
+void cConfigEditor::showGridScreen()
+{
+	display.setControlHide(configBasemenuListControl);
+	display.refreshControl(configBasemenuListControl);
+	display.setControlHide(configSubmenuListControl);
+	display.refreshControl(configSubmenuListControl);
+	display.setControlHide(configSecondSubmenuListControl);
+	display.refreshControl(configSecondSubmenuListControl);
+
+	display.setControlValue(bgLabel, 7);
+	display.refreshControl(bgLabel);
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	for(uint8_t i = 0; i < 48; i++)
+	{
+		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[gridPad[i].note];
+	}
+
+	display.setControlShow(gridPadsControl);
+	display.setControlValue(gridPadsControl,gridEditor.getSelectedPad());
+	display.refreshControl(gridPadsControl);
+
+	for(uint8_t i = 0 ; i < 6; i++)
+	{
+		display.setControlHide(label[i]);
+		display.refreshControl(label[i]);
+	}
+
+	display.setControlText(label[6], "Cancel");
+	display.setControlShow(label[6]);
+	display.refreshControl(label[6]);
+	display.setControlText(label[7], "Confirm");
+	display.setControlShow(label[7]);
+	display.refreshControl(label[7]);
+
+	display.synchronizeRefresh();
+}
+void cConfigEditor::hideGridScreen()
+{
+	display.setControlHide(gridPadsControl);
+	display.refreshControl(gridPadsControl);
+}
+void cConfigEditor::showPadScreen()
+{
+
+}
+void cConfigEditor::hidePadScreen()
+{
+
+}
 

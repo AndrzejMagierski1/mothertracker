@@ -12,7 +12,7 @@
 
 
 #include "configEditor/configMenuDefs.h"
-
+#include "mtGridEditor.h"
 
 
 #undef MAX_SELECT_NODES
@@ -40,7 +40,6 @@ public:
 		editorInstrument = nullptr;
 		frameControl = nullptr;
 		popoutWindowLabel = nullptr;
-
 	}
 	virtual ~cConfigEditor() {}
 
@@ -78,6 +77,17 @@ public:
 	void getSelectedItemInfo(void (**actionFunct)(void), void** menu_item, uint8_t* item_level);
 
 	void reloadSecondSubmenu();
+
+	void setGridScreenFunction();
+	void setPadScreenFunction();
+
+	void showGridScreen();
+	void hideGridScreen();
+	void showPadScreen();
+	void hidePadScreen();
+
+
+
 	//
 
 	//-----------------------------------------
@@ -126,6 +136,10 @@ public:
 	void resizeLabelConfigMaster();
 	void resizeFirmwareLabel(uint8_t control); // 0 - revert to normal, 1 - rescale to double label;
 
+
+
+
+
 	uint8_t processUpdate = 0;
 
 //----------------------------------
@@ -146,7 +160,7 @@ public:
 
 	hControl bgLabel;
 	hControl frameControl;
-
+	hControl gridPadsControl = nullptr;
 
 	uint8_t selectedPlace = 0;
 
@@ -158,6 +172,8 @@ public:
 	strLabelData labelArrow[3];
 
 	strTextBoxData textBoxData;
+
+	strPadNames padNamesStruct;
 
 //----------------------------------
 // listy

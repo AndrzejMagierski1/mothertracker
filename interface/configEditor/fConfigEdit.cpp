@@ -21,7 +21,8 @@
 
 #include "core/interfacePopups.h"
 #include "debugLog.h"
-
+#include "configEditor.h"
+#include "mtGridEditor.h"
 
 cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;
@@ -29,6 +30,13 @@ static cConfigEditor* CE = &configEditor;
 extern strMtProject mtProject;
 extern AudioControlSGTL5000 audioShield;
 
+
+static 	uint8_t	functCancelGridScreen();
+static 	uint8_t	functConfirmGridScreen();
+static 	uint8_t	functUpGridScreen();
+static 	uint8_t	functDownGridScreen();
+static 	uint8_t	functLeftGridScreen();
+static 	uint8_t	functRightGridScreen();
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
@@ -183,11 +191,49 @@ void cConfigEditor::setConfigScreenFunct()
 
 }
 
+void cConfigEditor::setGridScreenFunction()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearButton(interfaceButtonUp);
+	FM->clearButton(interfaceButtonDown);
+	FM->clearButton(interfaceButtonLeft);
+	FM->clearButton(interfaceButtonRight);
+	FM->clearAllPads();
+	FM->clearAllPots();
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functCancelGridScreen);
+	FM->setButtonObj(interfaceButton7, buttonPress, functConfirmGridScreen);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftGridScreen);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightGridScreen);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpGridScreen);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownGridScreen);
+
+}
+
+void cConfigEditor::setPadScreenFunction()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearButton(interfaceButtonUp);
+	FM->clearButton(interfaceButtonDown);
+	FM->clearButton(interfaceButtonLeft);
+	FM->clearButton(interfaceButtonRight);
+}
+
+
 //##############################################################################################
 //###############################        ACTION BUTTONS        #################################
 //##############################################################################################
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
+////////////////////////TEST GRID EDITOR//////////////////////
+	if((state == buttonPress) && (button == 7))
+	{
+		CE->setGridScreenFunction();
+		CE->showGridScreen();
+		return 1;
+	}
+
+////////////////////////TEST GRID EDITOR//////////////////////
 	if(CE->updatePopupShown)
 	{
 		if(state != buttonPress) return 1;
@@ -566,7 +612,39 @@ static  uint8_t functDown()
 	return 1;
 }
 
-
+static 	uint8_t	functCancelGridScreen()
+{
+	CE->hideGridScreen();
+	display.setControlShow(CE->configBasemenuListControl);
+	display.refreshControl(CE->configBasemenuListControl);
+	display.setControlShow(CE->configSubmenuListControl);
+	display.refreshControl(CE->configSubmenuListControl);
+	display.setControlShow(CE->configSecondSubmenuListControl);
+	display.refreshControl(CE->configSecondSubmenuListControl);
+	CE->showDefaultConfigScreen();
+	CE->setConfigScreenFunct();
+	return 1;
+}
+static 	uint8_t	functConfirmGridScreen()
+{
+	return 1;
+}
+static 	uint8_t	functUpGridScreen()
+{
+	return 1;
+}
+static 	uint8_t	functDownGridScreen()
+{
+	return 1;
+}
+static 	uint8_t	functLeftGridScreen()
+{
+	return 1;
+}
+static 	uint8_t	functRightGridScreen()
+{
+	return 1;
+}
 
 static  uint8_t functPlayAction()
 {
