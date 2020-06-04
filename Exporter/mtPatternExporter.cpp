@@ -78,6 +78,7 @@ void mtPatternExporter::start(char * path)
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
+	lastSendBuf = sendBuf;
 	requiredSave = false;
 	strcpy(currentSongExportPath, path);
 
@@ -157,12 +158,13 @@ void mtPatternExporter::refreshSave()
 		if(requiredSave)
 		{
 			if(sendBuf == lastSendBuf) return;
+			elapsedMicros apoloniuszTajmer = 0;
 			byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
+			Serial.println(apoloniuszTajmer);
 			requiredSave = false;
 			lastSendBuf = sendBuf;
 		}
 	}
-
 }
 void mtPatternExporter::updateReceiving()
 {

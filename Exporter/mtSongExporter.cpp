@@ -14,6 +14,7 @@ void mtSongExporter::start(char * path)
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
+	lastSendBuf = sendBuf;
 	requiredSave = false;
 
 	songLength = 0;
