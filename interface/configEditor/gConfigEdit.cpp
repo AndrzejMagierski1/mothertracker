@@ -77,6 +77,12 @@ const char creditsText[1500] =
 void cConfigEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
+	strControlProperties gridNameLabelProp;
+	gridNameLabelProp.style = ( controlStyleHide | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
+	gridNameLabelProp.x = 790;
+	gridNameLabelProp.y = 13;
+	if(gridNameLabel == nullptr) gridNameLabel = display.createControl<cLabel>(&gridNameLabelProp);
+
 
 	strControlProperties prop9;
 	prop9.x = 400;
@@ -107,6 +113,7 @@ void cConfigEditor::initDisplayControls()
 	prop2.w = 795;
 	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+
 
 	labelArrow[0].bitmaps[0].bitmapIndex = displayArrowU;
 	labelArrow[0].bitmaps[0].xValue =  (800/8)*0+(800/16);
@@ -156,7 +163,6 @@ void cConfigEditor::initDisplayControls()
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
-
 	strControlProperties prop;
 
 	prop.style = controlStyleBackground;
@@ -164,18 +170,21 @@ void cConfigEditor::initDisplayControls()
 	prop.y = 29;
 	prop.w = 800/4-3;
 	prop.h = 394;
+	prop.data = &basemenuList;
 	if(configBasemenuListControl == nullptr)  configBasemenuListControl = display.createControl<cList>(&prop);
 
 	prop.x = (800/8)*2+1;
 	prop.y = 29;
 	prop.w = 600/2-3;
 	prop.h = 394;
+	prop.data = &submenuList;
 	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
 	prop.x = (800/8)*5+1;
 	prop.y = 29;
 	prop.w = 600/2-3;
 	prop.h = 394;
+	prop.data = &secondSubmenuList;
 	if(configSecondSubmenuListControl == nullptr) configSecondSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
 	prop.style = controlStyleBackground;
@@ -198,7 +207,7 @@ void cConfigEditor::initDisplayControls()
 
 	for(uint8_t i = 0; i < 48; i++)
 	{
-		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[gridPad[i].note];
+		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtGrid.pad[i].note];
 	}
 
 	padNamesStruct.length = 5;
@@ -220,6 +229,9 @@ void cConfigEditor::destroyDisplayControls()
 {
 	display.destroyControl(titleBar);
 	titleBar = nullptr;
+
+	display.destroyControl(gridNameLabel);
+	gridNameLabel = nullptr;
 
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
@@ -558,10 +570,14 @@ void cConfigEditor::showGridScreen()
 	display.refreshControl(configBasemenuListControl);
 	display.setControlHide(configSubmenuListControl);
 	display.refreshControl(configSubmenuListControl);
-	display.setControlHide(configSecondSubmenuListControl);
-	display.refreshControl(configSecondSubmenuListControl);
 
-	display.setControlValue(bgLabel, 7);
+	hideSecondSubmenu();
+
+	display.setControlText(gridNameLabel, mtGrid.name);
+	display.setControlShow(gridNameLabel);
+	display.refreshControl(gridNameLabel);
+
+	display.setControlValue(bgLabel, 0b11100000);
 	display.refreshControl(bgLabel);
 
 	display.setControlHide(frameControl);
@@ -569,19 +585,24 @@ void cConfigEditor::showGridScreen()
 
 	for(uint8_t i = 0; i < 48; i++)
 	{
-		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[gridPad[i].note];
+		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtGrid.pad[i].note];
 	}
 
 	display.setControlShow(gridPadsControl);
 	display.setControlValue(gridPadsControl,gridEditor.getSelectedPad());
 	display.refreshControl(gridPadsControl);
 
-	for(uint8_t i = 0 ; i < 6; i++)
+	for(uint8_t i = 0 ; i < 5; i++)
 	{
 		display.setControlHide(label[i]);
 		display.refreshControl(label[i]);
 	}
 
+	display.setControlStyle(label[5], ( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY));
+	display.setControlText(label[5], "Save");
+	display.setControlShow(label[5]);
+	display.refreshControl(label[5]);
+	display.setControlStyle(label[6], ( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY));
 	display.setControlText(label[6], "Cancel");
 	display.setControlShow(label[6]);
 	display.refreshControl(label[6]);
@@ -591,10 +612,19 @@ void cConfigEditor::showGridScreen()
 
 	display.synchronizeRefresh();
 }
+
+void cConfigEditor::refreshGridScreen()
+{
+	display.setControlValue(gridPadsControl,gridEditor.getSelectedPad());
+	display.refreshControl(gridPadsControl);
+}
+
 void cConfigEditor::hideGridScreen()
 {
 	display.setControlHide(gridPadsControl);
 	display.refreshControl(gridPadsControl);
+	display.setControlHide(gridNameLabel);
+	display.refreshControl(gridNameLabel);
 }
 void cConfigEditor::showPadScreen()
 {

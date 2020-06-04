@@ -2,10 +2,16 @@
 #include "mtStructs.h"
 
 mtGridEditor gridEditor;
-extern strGridPad gridPad[48];
+extern strGrid mtGrid;
 constexpr uint8_t GRID_ROW_SIZE = 12;
 
-void  mtGridEditor::open()
+void mtGridEditor::open()
+{
+	selectedPad = 0;
+	isConfirmedPad = false;
+}
+
+void mtGridEditor::close()
 {
 	selectedPad = 0;
 	isConfirmedPad = false;
@@ -47,24 +53,24 @@ void mtGridEditor::changeNote(int16_t val)
 {
 	if(!isConfirmedPad) return;
 
-	if(gridPad[selectedPad].note + val > MAX_NOTE) gridPad[selectedPad].note = MAX_NOTE;
-	else if(gridPad[selectedPad].note + val < MIN_NOTE) gridPad[selectedPad].note = MIN_NOTE;
-	else gridPad[selectedPad].note += val;
+	if(mtGrid.pad[selectedPad].note + val > MAX_NOTE) mtGrid.pad[selectedPad].note = MAX_NOTE;
+	else if(mtGrid.pad[selectedPad].note + val < MIN_NOTE) mtGrid.pad[selectedPad].note = MIN_NOTE;
+	else mtGrid.pad[selectedPad].note += val;
 }
 void mtGridEditor::changeMicrotune(int16_t val)
 {
 	if(!isConfirmedPad) return;
 
-	if(gridPad[selectedPad].microtune + val > MAX_INSTRUMENT_FINETUNE) gridPad[selectedPad].microtune = MAX_INSTRUMENT_FINETUNE;
-	else if(gridPad[selectedPad].microtune + val < MIN_INSTRUMENT_FINETUNE) gridPad[selectedPad].microtune = MIN_INSTRUMENT_FINETUNE;
-	else gridPad[selectedPad].microtune += val;
+	if(mtGrid.pad[selectedPad].microtune + val > MAX_INSTRUMENT_FINETUNE) mtGrid.pad[selectedPad].microtune = MAX_INSTRUMENT_FINETUNE;
+	else if(mtGrid.pad[selectedPad].microtune + val < MIN_INSTRUMENT_FINETUNE) mtGrid.pad[selectedPad].microtune = MIN_INSTRUMENT_FINETUNE;
+	else mtGrid.pad[selectedPad].microtune += val;
 }
 void mtGridEditor::changeLedEnable(int16_t val)
 {
 	if(!isConfirmedPad) return;
 
-	if(val > 0) gridPad[selectedPad].ledEnable =  true;
-	else if(val < 0) gridPad[selectedPad].ledEnable = false;
+	if(val > 0) mtGrid.pad[selectedPad].ledEnable =  true;
+	else if(val < 0) mtGrid.pad[selectedPad].ledEnable = false;
 }
 
 bool mtGridEditor::getIsConfirmedPad()

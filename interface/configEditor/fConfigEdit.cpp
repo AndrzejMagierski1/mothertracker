@@ -23,6 +23,7 @@
 #include "debugLog.h"
 #include "configEditor.h"
 #include "mtGridEditor.h"
+#include "mtPadsBacklight.h"
 
 cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;
@@ -30,13 +31,14 @@ static cConfigEditor* CE = &configEditor;
 extern strMtProject mtProject;
 extern AudioControlSGTL5000 audioShield;
 
-
+static 	uint8_t	functSaveGridScreen();
 static 	uint8_t	functCancelGridScreen();
 static 	uint8_t	functConfirmGridScreen();
 static 	uint8_t	functUpGridScreen();
 static 	uint8_t	functDownGridScreen();
 static 	uint8_t	functLeftGridScreen();
 static 	uint8_t	functRightGridScreen();
+static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo);
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
@@ -201,6 +203,7 @@ void cConfigEditor::setGridScreenFunction()
 	FM->clearAllPads();
 	FM->clearAllPots();
 
+	FM->setButtonObj(interfaceButton5, buttonPress, functSaveGridScreen);
 	FM->setButtonObj(interfaceButton6, buttonPress, functCancelGridScreen);
 	FM->setButtonObj(interfaceButton7, buttonPress, functConfirmGridScreen);
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftGridScreen);
@@ -208,6 +211,7 @@ void cConfigEditor::setGridScreenFunction()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpGridScreen);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownGridScreen);
 
+	FM->setPadsGlobal(functPadsGridScreen);
 }
 
 void cConfigEditor::setPadScreenFunction()
@@ -230,6 +234,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	{
 		CE->setGridScreenFunction();
 		CE->showGridScreen();
+		gridEditor.open();
 		return 1;
 	}
 
@@ -611,40 +616,76 @@ static  uint8_t functDown()
 
 	return 1;
 }
+////////////////////////////////////////////////GRID SCREEN
+static 	uint8_t	functSaveGridScreen()
+{
+	return 1;
+}
 
 static 	uint8_t	functCancelGridScreen()
 {
+	gridEditor.close();
+	CE->setConfigScreenFunct();
+
 	CE->hideGridScreen();
 	display.setControlShow(CE->configBasemenuListControl);
 	display.refreshControl(CE->configBasemenuListControl);
 	display.setControlShow(CE->configSubmenuListControl);
 	display.refreshControl(CE->configSubmenuListControl);
-	display.setControlShow(CE->configSecondSubmenuListControl);
-	display.refreshControl(CE->configSecondSubmenuListControl);
 	CE->showDefaultConfigScreen();
-	CE->setConfigScreenFunct();
+	CE->hideSecondSubmenu();
+
 	return 1;
 }
 static 	uint8_t	functConfirmGridScreen()
 {
+	gridEditor.confirmSelectedPad();
+	CE->setPadScreenFunction();
+
+	CE->hideGridScreen();
+	CE->showPadScreen();
 	return 1;
 }
 static 	uint8_t	functUpGridScreen()
 {
+	gridEditor.changeSelectedPad(mtGridEditor::enChangePadDirectionUp);
+	CE->refreshGridScreen();
 	return 1;
 }
 static 	uint8_t	functDownGridScreen()
 {
+	gridEditor.changeSelectedPad(mtGridEditor::enChangePadDirectionDown);
+	CE->refreshGridScreen();
 	return 1;
 }
 static 	uint8_t	functLeftGridScreen()
 {
+	gridEditor.changeSelectedPad(mtGridEditor::enChangePadDirectionLeft);
+	CE->refreshGridScreen();
 	return 1;
 }
 static 	uint8_t	functRightGridScreen()
 {
+	gridEditor.changeSelectedPad(mtGridEditor::enChangePadDirectionRight);
+	CE->refreshGridScreen();
 	return 1;
 }
+static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(state == buttonPress)
+	{
+		padsBacklight.setFrontLayer(1, mtConfig.values.padsLightFront, pad);
+		gridEditor.changeSelectedPad(pad);
+		CE->refreshGridScreen();
+	}
+	else if(state == buttonRelease)
+	{
+		padsBacklight.setFrontLayer(0, 0, pad);
+	}
+
+	return 1;
+}
+//////////////////////////////////////////////////////////
 
 static  uint8_t functPlayAction()
 {

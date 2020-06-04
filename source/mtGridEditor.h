@@ -14,6 +14,7 @@ public:
 	};
 
 	void open();
+	void close();
 	void changeSelectedPad(enChangePadDirection dir);
 	void changeSelectedPad(uint8_t pad);
 	void confirmSelectedPad();
@@ -29,6 +30,6 @@ private:
 };
 
 extern mtGridEditor gridEditor;
-extern strGridPad gridPad[48];
+extern strGrid mtGrid;
 
 #endif /* SOURCE_MTGRIDEDITOR_H_ */

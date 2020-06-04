@@ -37,7 +37,7 @@ cInterface mtInterface(&uiFM);
 strMtConfig mtConfig;
 strMtProject mtProject;
 strInterfaceGlobals interfaceGlobals;
-strGridPad gridPad[48];
+strGrid mtGrid;
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_soundMemory[SOUND_MEMORY_TOTAL/2];
 

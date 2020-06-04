@@ -82,6 +82,7 @@ public:
 	void setPadScreenFunction();
 
 	void showGridScreen();
+	void refreshGridScreen();
 	void hideGridScreen();
 	void showPadScreen();
 	void hidePadScreen();
@@ -156,6 +157,7 @@ public:
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
+	hControl gridNameLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
 	hControl bgLabel;
