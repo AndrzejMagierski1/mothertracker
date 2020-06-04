@@ -781,6 +781,8 @@ public:
 	void handleNoteOn(byte channel, byte pitch, byte velocity, int16_t source);
 	void handleNoteOff(byte channel, byte pitch, byte velocity, int16_t source);
 
+	uint8_t noMoreRecOpen();
+
 	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);

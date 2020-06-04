@@ -1811,7 +1811,7 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 			}
 		}
 	}
-	else // czyli playMode
+	else // czyli playMode / dogrywanie / wgrywanie akordów w edit
 	{
 		for (uint8_t tr = sel->firstTrack; tr < 8; tr++)
 		{
@@ -1834,6 +1834,18 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 											0, 0); //magiczne zera
 
 				engine.setLastUsedVoice(tr);
+
+				if (isMultiSelectionOnOneLine() &&
+						isEditMode() &&
+						tr >= sel->firstTrack &&
+						tr <= sel->lastTrack)
+				{
+					strPattern::strTrack::strStep *step =
+							&getActualPattern()->track[tr].step[sel->firstStep];
+
+					step->note = note;
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 
 				//					Serial.printf("noteON tr %d\n", tr);
 				break;
@@ -1920,9 +1932,27 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 				break;
 			}
 		}
+
+
 	}
 
 }
+
+// 1 jesli jest najmniej jedna otwarta nuta recOpen
+uint8_t Sequencer::noMoreRecOpen()
+{
+	uint8_t noMore = 1;
+	for (uint8_t a = 0; a < 8; a++)
+	{
+		if (player.track[a].recOpen)
+		{
+			noMore = 0;
+			break;
+		}
+	}
+	return noMore;
+}
+
 //void Sequencer::handleNote(byte channel, // channel jesli midi, albo pochodzenie grida np. GRID_OUTSIDE_PATTERN itd
 //		byte note,
 //		byte velocity,
