@@ -2565,6 +2565,8 @@ static  uint8_t functRamTest(uint8_t state)
 
 static  uint8_t functPreview()
 {
+	PTE->refreshEditState();
+
 	sendSelection();
 	sequencer.playSelection();
 
