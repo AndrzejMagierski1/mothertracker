@@ -234,15 +234,17 @@ void cConfigEditor::setPadScreenFunction()
 	FM->clearAllPads();
 	FM->clearAllPots();
 
+	FM->setButtonObj(interfaceButton0, functActionButtonPadScreen);
 	FM->setButtonObj(interfaceButton1, functActionButtonPadScreen);
 	FM->setButtonObj(interfaceButton2, functActionButtonPadScreen);
-	FM->setButtonObj(interfaceButton3, functActionButtonPadScreen);
 
 	FM->setButtonObj(interfaceButton7, buttonPress, functConfirmPadScreen);
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPadScreen);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPadScreen);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPadScreen);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPadScreen);
+
+	FM->setPotObj(interfacePot0, functEncoderPadScreen, nullptr);
 
 	FM->setPadsGlobal(functPadsPadScreen);
 }
@@ -253,7 +255,7 @@ void cConfigEditor::reloadPadScreenDisplayedValue(uint8_t value)
 	{
 	case 0:
 		padScreenDisplayedValue[value] = map(mtGrid.pad[gridEditor.getSelectedPad()].note,MIN_NOTE,MAX_NOTE, 0, 100);
-		interfaceGlobals.padNamesPointer[gridEditor.getSelectedPad()] = (char*)mtNotes[gridEditor.getSelectedPad()];
+		interfaceGlobals.padNamesPointer[gridEditor.getSelectedPad()] = (char*)mtNotes[mtGrid.pad[gridEditor.getSelectedPad()].note];
 		break;
 	case 1:
 		padScreenDisplayedValue[value] = mtGrid.pad[gridEditor.getSelectedPad()].microtune;
@@ -730,26 +732,71 @@ static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo)
 //PAD SCREEN
 static 	uint8_t	functConfirmPadScreen()
 {
+	CE->setGridScreenFunction();
+	CE->hidePadScreen();
+	CE->showGridScreen();
+	gridEditor.cancelSelectedPad();
 	return 1;
 }
 static 	uint8_t	functUpPadScreen()
 {
+	switch(CE->selectedPlacePadScreen)
+	{
+		case 0: gridEditor.changeNote(1); 			break;
+		case 1: gridEditor.changeMicrotune(1);		break;
+		case 2: gridEditor.changeLedEnable(1);		break;
+		default: break;
+	}
+	CE->reloadPadScreenDisplayedValue(CE->selectedPlacePadScreen);
+	CE->refreshPadScreenValue(CE->selectedPlacePadScreen);
 	return 1;
 }
 static 	uint8_t	functDownPadScreen()
 {
+	switch(CE->selectedPlacePadScreen)
+	{
+		case 0: gridEditor.changeNote(-1);			break;
+		case 1: gridEditor.changeMicrotune(-1);		break;
+		case 2: gridEditor.changeLedEnable(-1);		break;
+		default: break;
+	}
+	CE->reloadPadScreenDisplayedValue(CE->selectedPlacePadScreen);
+	CE->refreshPadScreenValue(CE->selectedPlacePadScreen);
 	return 1;
 }
 static 	uint8_t	functLeftPadScreen()
 {
+	if(CE->selectedPlacePadScreen > 0) CE->selectedPlacePadScreen--;
+	CE->refreshPadScreenFrame();
 	return 1;
 }
 static 	uint8_t	functRightPadScreen()
 {
+	if(CE->selectedPlacePadScreen < 2) CE->selectedPlacePadScreen++;
+	CE->refreshPadScreenFrame();
 	return 1;
 }
 static  uint8_t functPadsPadScreen(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(state == buttonPress)
+	{
+		padsBacklight.setFrontLayer(1, mtConfig.values.padsLightFront, pad);
+		gridEditor.changeSelectedPad(pad);
+		for(uint8_t i = 0 ; i < 3; i++)
+		{
+			CE->reloadPadScreenDisplayedValue(i);
+			CE->refreshPadScreenValue(i);
+		}
+		sprintf(CE->padScreenTitleLabelName,"Grid Editor Pad %d", gridEditor.getSelectedPad() + 1);
+
+		display.setControlText(CE->titleLabel, CE->padScreenTitleLabelName);
+		display.refreshControl(CE->titleLabel);
+	}
+	else if(state == buttonRelease)
+	{
+		padsBacklight.setFrontLayer(0, 0, pad);
+	}
+
 	return 1;
 }
 static  uint8_t functActionButtonPadScreen(uint8_t button, uint8_t state)
@@ -758,10 +805,20 @@ static  uint8_t functActionButtonPadScreen(uint8_t button, uint8_t state)
 	{
 		CE->selectedPlacePadScreen = button;
 	}
+	CE->refreshPadScreenFrame();
 	return 1;
 }
 static 	uint8_t functEncoderPadScreen(int16_t value)
 {
+	switch(CE->selectedPlacePadScreen)
+	{
+		case 0: gridEditor.changeNote(value);			break;
+		case 1: gridEditor.changeMicrotune(value);		break;
+		case 2: gridEditor.changeLedEnable(-value);		break;
+		default: break;
+	}
+	CE->reloadPadScreenDisplayedValue(CE->selectedPlacePadScreen);
+	CE->refreshPadScreenValue(CE->selectedPlacePadScreen);
 	return 1;
 }
 //////////////

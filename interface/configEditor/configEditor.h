@@ -90,7 +90,7 @@ public:
 
 
 	void refreshPadScreenValue(uint8_t value);
-
+	void refreshPadScreenFrame();
 
 	//
 
@@ -185,7 +185,7 @@ public:
 
 	strList padListData;
 
-	uint8_t padScreenDisplayedValue[3];
+	int16_t padScreenDisplayedValue[3];
 	char microtuneValue[6];
 	char padScreenTitleLabelName[20];
 

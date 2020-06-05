@@ -12,6 +12,13 @@ static uint16_t framesPlacesConfig[4][4]=
 	{(800/8)*5+1, 29, 600/2-3, 391},
 };
 
+static uint16_t framesPlacesConfigPadScreen[3][4]=
+{
+	{(800/8)*0+1, 29, 800/8-3, 391},
+	{(800/8)*1+1, 29, 800/8-3, 391},
+	{(800/8)*2+1, 29, 800/8-3, 391}
+};
+
 
 static uint32_t popUpLabelColors[] =
 {
@@ -652,9 +659,10 @@ void cConfigEditor::showGridScreen()
 	display.setControlText(label[6], "Cancel");
 	display.setControlShow(label[6]);
 	display.refreshControl(label[6]);
-	display.setControlText(label[7], "Confirm");
+	display.setControlText(label[7], "Select");
 	display.setControlShow(label[7]);
 	display.refreshControl(label[7]);
+
 
 	display.synchronizeRefresh();
 }
@@ -725,6 +733,14 @@ void cConfigEditor::showPadScreen()
 	display.refreshControl(padBar[1]);
 	display.refreshControl(padList);
 
+	frameData.placesCount = 3;
+	frameData.startPlace = selectedPlacePadScreen;
+	frameData.places[0] = &framesPlacesConfigPadScreen[0][0];
+	frameData.places[1] = &framesPlacesConfigPadScreen[1][0];
+	frameData.places[2] = &framesPlacesConfigPadScreen[2][0];
+
+	refreshPadScreenFrame();
+	display.setControlShow(frameControl);
 	display.synchronizeRefresh();
 }
 void cConfigEditor::hidePadScreen()
@@ -738,6 +754,12 @@ void cConfigEditor::hidePadScreen()
 	display.refreshControl(padList);
 }
 
+void cConfigEditor::refreshPadScreenFrame()
+{
+	display.setControlValue(frameControl,selectedPlacePadScreen);
+	display.refreshControl(frameControl);
+}
+
 void cConfigEditor::refreshPadScreenValue(uint8_t value)
 {
 	switch(value)
@@ -745,7 +767,7 @@ void cConfigEditor::refreshPadScreenValue(uint8_t value)
 	case 0 :
 		display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
 		display.refreshControl(padBar[value]);
-		display.setControlText2(label[value],interfaceGlobals.padNamesPointer[mtGrid.pad[gridEditor.getSelectedPad()].note]);
+		display.setControlText2(label[value],mtNotes[mtGrid.pad[gridEditor.getSelectedPad()].note]);
 		display.refreshControl(label[value]);
 		break;
 	case 1:
