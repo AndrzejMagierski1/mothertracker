@@ -10,6 +10,7 @@
 
 
 uint8_t isMultiSelection();
+uint8_t isMultiSelectionOnOneLine();
 int16_t getActualStep();
 int16_t getActualTrack();
 
@@ -60,6 +61,7 @@ public:
 	void focusOnActual();
 	void moveCursorByStep();
 	void moveCursorByStep(uint8_t);
+	void moveCursorByStepParallel();
 
 	void refreshPattern();
 	void readPatternState();

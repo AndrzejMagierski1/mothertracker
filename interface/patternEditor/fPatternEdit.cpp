@@ -692,6 +692,28 @@ void cPatternEditor::moveCursorByStep(uint8_t val)
 
 }
 
+void cPatternEditor::moveCursorByStepParallel( )
+{
+	if (mtProject.values.patternEditStep <= 0) return;
+
+	int16_t patternLength = sequencer.getPatternToUI()->track[0].length;
+
+	if (trackerPattern.actualStep + mtProject.values.patternEditStep <= patternLength)
+	{
+		trackerPattern.actualStep += mtProject.values.patternEditStep;
+	}
+	else
+	{
+		trackerPattern.actualStep = mtProject.values.patternEditStep - ((patternLength + 1) - trackerPattern.actualStep);
+	}
+	PTE->trackerPattern.selectStartStep = trackerPattern.actualStep;
+	PTE->trackerPattern.selectEndStep = trackerPattern.actualStep;
+
+	PTE->trackerPattern.selectState = 2;
+	PTE->trackerPattern.selectColumn = 0;
+	PTE->isSelectingNow = 0;
+
+}
 
 
 void cPatternEditor::cancelPopups()
@@ -2432,6 +2454,14 @@ uint8_t isMultiSelection()
 {
 	return PTE->trackerPattern.selectState == 2;
 }
+uint8_t isMultiSelectionOnOneLine()
+{
+	if (isMultiSelection() && PTE->trackerPattern.selectStartStep == PTE->trackerPattern.selectEndStep)
+	{
+		return 1;
+	}
+	return 0;
+}
 int16_t getActualStep()
 {
 	return PTE->trackerPattern.actualStep;
@@ -2535,6 +2565,8 @@ static  uint8_t functRamTest(uint8_t state)
 
 static  uint8_t functPreview()
 {
+	PTE->refreshEditState();
+
 	sendSelection();
 	sequencer.playSelection();
 
@@ -3225,7 +3257,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		}
 		else if (state == buttonRelease)
 		{
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+//			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 			sequencer.handleNoteOff(Sequencer::GRID_INSIDE_PATTERN,
 									noteToPlay,
 									0,
@@ -3283,12 +3315,40 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			else
 			{
-				if (state == buttonPress)
+
+				sendSelection();
+				if (isMultiSelectionOnOneLine())
 				{
-					sendSelection();
+					if (state == buttonPress)
+					{
+						uint8_t noteFromPad = mtPadBoard.getNoteFromPad(
+																		pad);
+
+						sequencer.handleNoteOn(
+								Sequencer::GRID_OUTSIDE_PATTERN,
+								noteFromPad,
+								sequencer.getInstrumentVelo(
+										mtProject.values.lastUsedInstrument),
+								pad);
+					}
+					else if (state == buttonRelease)
+					{
+						uint8_t noteFromPad = mtPadBoard.getNoteFromPad(
+																		pad);
+
+						sequencer.handleNoteOff(
+												Sequencer::GRID_OUTSIDE_PATTERN,
+												noteFromPad,
+												0,
+												pad);
+					}
+				}
+				else
+				{
 					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
 					sequencer.setSelectionNote(noteFromPad);
 				}
+
 			}
 			break;
 		}
@@ -3362,7 +3422,18 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		if (state == buttonPress)
 		{
-			if(!isMultiSelection()) PTE->moveCursorByStep();
+			if (!isMultiSelection()) PTE->moveCursorByStep();
+
+			PTE->lightUpPadBoard();
+			PTE->refreshPattern();
+		}
+		else if (state == buttonRelease)
+		{
+			if (isMultiSelectionOnOneLine() && sequencer.noMoreRecOpen())
+			{
+				PTE->moveCursorByStepParallel();
+			}
+
 			PTE->lightUpPadBoard();
 			PTE->refreshPattern();
 		}
