@@ -80,6 +80,7 @@ public:
 
 	void setGridScreenFunction();
 	void setPadScreenFunction();
+	void reloadPadScreenDisplayedValue(uint8_t value);
 
 	void showGridScreen();
 	void refreshGridScreen();
@@ -87,6 +88,8 @@ public:
 	void showPadScreen();
 	void hidePadScreen();
 
+
+	void refreshPadScreenValue(uint8_t value);
 
 
 	//
@@ -164,8 +167,11 @@ public:
 	hControl frameControl;
 	hControl gridPadsControl = nullptr;
 
-	uint8_t selectedPlace = 0;
+	hControl padBar[2] = {nullptr, nullptr};
+	hControl padList = nullptr;
 
+	uint8_t selectedPlace = 0;
+	uint8_t selectedPlacePadScreen = 0;
 	// typ trybu/ekranu
 	uint8_t mode = 0;
 
@@ -176,6 +182,18 @@ public:
 	strTextBoxData textBoxData;
 
 	strPadNames padNamesStruct;
+
+	strList padListData;
+
+	uint8_t padScreenDisplayedValue[3];
+	char microtuneValue[6];
+	char padScreenTitleLabelName[20];
+
+	const char* padListNames[2] =
+	{
+			(char*)"On",
+			(char*)"Off"
+	};
 
 //----------------------------------
 // listy

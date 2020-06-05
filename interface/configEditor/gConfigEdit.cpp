@@ -221,6 +221,40 @@ void cConfigEditor::initDisplayControls()
 	gridPadsProp.value = gridEditor.getSelectedPad();
 	gridPadsProp.data = &padNamesStruct;
 	if(gridPadsControl == nullptr)  gridPadsControl = display.createControl<cNotePopout>(&gridPadsProp);
+
+
+	strControlProperties gridPadBarProp;
+
+
+	gridPadBarProp.x = (800/8)*0+1;
+	gridPadBarProp.y = 29;
+	gridPadBarProp.w = 800/8-3;
+	gridPadBarProp.style =  controlStyleValue_0_100 | controlStyleBackground;
+	gridPadBarProp.h = 394;
+	if(padBar[0] == nullptr)  padBar[0] = display.createControl<cBar>(&gridPadBarProp);
+
+	gridPadBarProp.x = (800/8)*1+1;
+	gridPadBarProp.y = 29;
+	gridPadBarProp.w = 800/8-3;
+	gridPadBarProp.style =  controlStyleValueLeftRight_100_100 | controlStyleBackground;
+	gridPadBarProp.h = 394;
+	if(padBar[1] == nullptr)  padBar[1] = display.createControl<cBar>(&gridPadBarProp);
+
+
+	strControlProperties gridPadListProp;
+
+	padListData.linesCount = 5;
+	padListData.start = 0;
+	padListData.length = 2;
+	padListData.data = (char**)padListNames;
+
+	gridPadListProp.style = controlStyleBackground;
+	gridPadListProp.x = (800/8)*(2)+1;
+	gridPadListProp.y = 29;
+	gridPadListProp.w = 800/8-3;
+	gridPadListProp.h = 394;
+	gridPadListProp.data = &padListData;
+	if(padList == nullptr)  padList = display.createControl<cList>(&gridPadListProp);
 }
 
 
@@ -268,6 +302,15 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(gridPadsControl);
 	gridPadsControl = nullptr;
+
+	display.destroyControl(padList);
+	padList = nullptr;
+
+	for(uint8_t i = 0 ; i < 2 ; i++)
+	{
+		display.destroyControl(padBar[i]);
+		padBar[i] = nullptr;
+	}
 }
 
 void cConfigEditor::showDefaultConfigScreen()
@@ -573,6 +616,9 @@ void cConfigEditor::showGridScreen()
 
 	hideSecondSubmenu();
 
+	display.setControlText(titleLabel, "Grid Editor");
+	display.refreshControl(titleLabel);
+
 	display.setControlText(gridNameLabel, mtGrid.name);
 	display.setControlShow(gridNameLabel);
 	display.refreshControl(gridNameLabel);
@@ -628,10 +674,96 @@ void cConfigEditor::hideGridScreen()
 }
 void cConfigEditor::showPadScreen()
 {
+	display.setControlShow(padBar[0]);
+	display.setControlShow(padBar[1]);
+	display.setControlShow(padList);
 
+	display.setControlText(label[0],"Note");
+	display.setControlText(label[1],"Microtune");
+	display.setControlText(label[2],"LED");
+
+	for(uint8_t i = 0 ; i < 3 ; i++)
+	{
+		display.setControlStyle(label[i], ( controlStyleCenterX | controlStyleFont3));
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlShow(label[i]);
+		display.setControlValue(label[i],1);
+
+		reloadPadScreenDisplayedValue(i);
+		refreshPadScreenValue(i);
+	}
+
+	for(uint8_t i = 3 ; i < 7; i++)
+	{
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+		display.setControlHide(label[i]);
+	}
+
+	display.setControlText(label[7],"Confirm");
+
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	sprintf(padScreenTitleLabelName,"Grid Editor Pad %d", gridEditor.getSelectedPad() + 1);
+
+	display.setControlText(titleLabel, padScreenTitleLabelName);
+	display.refreshControl(titleLabel);
+
+
+
+	display.setControlText(gridNameLabel, mtGrid.name);
+	display.setControlShow(gridNameLabel);
+	display.refreshControl(gridNameLabel);
+
+	display.setControlValue(bgLabel, 0b10001111);
+	display.refreshControl(bgLabel);
+
+	display.refreshControl(padBar[0]);
+	display.refreshControl(padBar[1]);
+	display.refreshControl(padList);
+
+	display.synchronizeRefresh();
 }
 void cConfigEditor::hidePadScreen()
 {
+	display.setControlHide(padBar[0]);
+	display.setControlHide(padBar[1]);
+	display.setControlHide(padList);
+
+	display.refreshControl(padBar[0]);
+	display.refreshControl(padBar[1]);
+	display.refreshControl(padList);
+}
+
+void cConfigEditor::refreshPadScreenValue(uint8_t value)
+{
+	switch(value)
+	{
+	case 0 :
+		display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
+		display.refreshControl(padBar[value]);
+		display.setControlText2(label[value],interfaceGlobals.padNamesPointer[mtGrid.pad[gridEditor.getSelectedPad()].note]);
+		display.refreshControl(label[value]);
+		break;
+	case 1:
+		display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
+		display.refreshControl(padBar[value]);
+
+		sprintf(microtuneValue, "%d", mtGrid.pad[gridEditor.getSelectedPad()].microtune);
+		display.setControlText2(label[value], microtuneValue);
+		display.refreshControl(label[value]);
+		break;
+	case 2:
+		display.setControlValue(padList,padScreenDisplayedValue[value]);
+		display.refreshControl(padList);
+		display.setControlText2(label[value], padListNames[padScreenDisplayedValue[value]]);
+		display.refreshControl(label[value]);
+		break;
+	default: break;
+	}
 
 }
 

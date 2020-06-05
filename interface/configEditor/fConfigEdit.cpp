@@ -31,6 +31,7 @@ static cConfigEditor* CE = &configEditor;
 extern strMtProject mtProject;
 extern AudioControlSGTL5000 audioShield;
 
+//GRID SCREEN
 static 	uint8_t	functSaveGridScreen();
 static 	uint8_t	functCancelGridScreen();
 static 	uint8_t	functConfirmGridScreen();
@@ -39,7 +40,16 @@ static 	uint8_t	functDownGridScreen();
 static 	uint8_t	functLeftGridScreen();
 static 	uint8_t	functRightGridScreen();
 static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo);
-
+//PAD SCREEN
+static 	uint8_t	functConfirmPadScreen();
+static 	uint8_t	functUpPadScreen();
+static 	uint8_t	functDownPadScreen();
+static 	uint8_t	functLeftPadScreen();
+static 	uint8_t	functRightPadScreen();
+static  uint8_t functPadsPadScreen(uint8_t pad, uint8_t state, int16_t velo);
+static  uint8_t functActionButtonPadScreen(uint8_t button, uint8_t state);
+static 	uint8_t functEncoderPadScreen(int16_t value);
+//////////////
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 
@@ -221,8 +231,39 @@ void cConfigEditor::setPadScreenFunction()
 	FM->clearButton(interfaceButtonDown);
 	FM->clearButton(interfaceButtonLeft);
 	FM->clearButton(interfaceButtonRight);
+	FM->clearAllPads();
+	FM->clearAllPots();
+
+	FM->setButtonObj(interfaceButton1, functActionButtonPadScreen);
+	FM->setButtonObj(interfaceButton2, functActionButtonPadScreen);
+	FM->setButtonObj(interfaceButton3, functActionButtonPadScreen);
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functConfirmPadScreen);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPadScreen);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPadScreen);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPadScreen);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPadScreen);
+
+	FM->setPadsGlobal(functPadsPadScreen);
 }
 
+void cConfigEditor::reloadPadScreenDisplayedValue(uint8_t value)
+{
+	switch(value)
+	{
+	case 0:
+		padScreenDisplayedValue[value] = map(mtGrid.pad[gridEditor.getSelectedPad()].note,MIN_NOTE,MAX_NOTE, 0, 100);
+		interfaceGlobals.padNamesPointer[gridEditor.getSelectedPad()] = (char*)mtNotes[gridEditor.getSelectedPad()];
+		break;
+	case 1:
+		padScreenDisplayedValue[value] = mtGrid.pad[gridEditor.getSelectedPad()].microtune;
+		break;
+	case 2:
+		padScreenDisplayedValue[value] = mtGrid.pad[gridEditor.getSelectedPad()].ledEnable ? 0 : 1;
+		break;
+	default: break;
+	}
+}
 
 //##############################################################################################
 //###############################        ACTION BUTTONS        #################################
@@ -686,6 +727,45 @@ static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 //////////////////////////////////////////////////////////
+//PAD SCREEN
+static 	uint8_t	functConfirmPadScreen()
+{
+	return 1;
+}
+static 	uint8_t	functUpPadScreen()
+{
+	return 1;
+}
+static 	uint8_t	functDownPadScreen()
+{
+	return 1;
+}
+static 	uint8_t	functLeftPadScreen()
+{
+	return 1;
+}
+static 	uint8_t	functRightPadScreen()
+{
+	return 1;
+}
+static  uint8_t functPadsPadScreen(uint8_t pad, uint8_t state, int16_t velo)
+{
+	return 1;
+}
+static  uint8_t functActionButtonPadScreen(uint8_t button, uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		CE->selectedPlacePadScreen = button;
+	}
+	return 1;
+}
+static 	uint8_t functEncoderPadScreen(int16_t value)
+{
+	return 1;
+}
+//////////////
+
 
 static  uint8_t functPlayAction()
 {
