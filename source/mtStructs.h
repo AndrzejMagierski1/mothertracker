@@ -14,7 +14,7 @@
 const uint8_t FV_VER_1	=					1;		// device version
 const uint8_t FV_VER_2 =					0;		// official update
 const uint8_t FV_VER_3 =					1;		// fix version
-const uint8_t FV_BETA 	=					2;		// jesli >0 to beta z indeksem, np 1.0.1 b1
+const uint8_t FV_BETA 	=					3;		// jesli >0 to beta z indeksem, np 1.0.1 b1
 
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
 const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
