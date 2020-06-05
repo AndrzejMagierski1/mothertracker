@@ -708,7 +708,7 @@ void cConfigEditor::showPadScreen()
 		display.setControlHide(label[i]);
 	}
 
-	display.setControlText(label[7],"Confirm");
+	display.setControlText(label[7],"Back");
 
 	for(uint8_t i = 0 ; i < 8; i++)
 	{
