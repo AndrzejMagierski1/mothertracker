@@ -35,6 +35,7 @@
 #include "songPlayerControl.h"
 #include "textBoxControl.h"
 #include "paramValueList.h"
+#include "gridEditorControl.h"
 
 
 

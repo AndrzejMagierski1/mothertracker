@@ -2,7 +2,7 @@
 
 #include "configEditor.h"
 #include "mtGridEditor.h"
-
+#include "mtPadsBacklight.h"
 
 static uint16_t framesPlacesConfig[4][4]=
 {
@@ -215,10 +215,13 @@ void cConfigEditor::initDisplayControls()
 	for(uint8_t i = 0; i < 48; i++)
 	{
 		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtGrid.pad[i].note];
+		sprintf(interfaceGlobals.padFinetuneNames[i],"%d",mtGrid.pad[i].microtune);
 	}
 
 	padNamesStruct.length = 5;
-	padNamesStruct.name = interfaceGlobals.padNamesPointer;
+	padNamesStruct.noteName = interfaceGlobals.padNamesPointer;
+	padNamesStruct.finetuneName = interfaceGlobals.padFinetuneNames;
+
 	gridPadsProp.style = 0;
 	gridPadsProp.x = 13;
 	gridPadsProp.y = 130;
@@ -227,7 +230,7 @@ void cConfigEditor::initDisplayControls()
 	gridPadsProp.colors = nullptr;
 	gridPadsProp.value = gridEditor.getSelectedPad();
 	gridPadsProp.data = &padNamesStruct;
-	if(gridPadsControl == nullptr)  gridPadsControl = display.createControl<cNotePopout>(&gridPadsProp);
+	if(gridPadsControl == nullptr)  gridPadsControl = display.createControl<cGridEditorPopup>(&gridPadsProp);
 
 
 	strControlProperties gridPadBarProp;
@@ -324,14 +327,27 @@ void cConfigEditor::showDefaultConfigScreen()
 {
 	display.setControlHide(gridPadsControl);
 	display.refreshControl(gridPadsControl);
+
+	display.setControlStyle(label[0],( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY | controlStyleShowBitmap));
+	display.setControlStyle(label[2],( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY | controlStyleShowBitmap));
+	display.setControlStyle(label[5],( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY | controlStyleShowBitmap));
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		//display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
 		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+		display.refreshControl(label[i]);
 		//display.setControlText2(label[i], "");
 	}
+
+
+
+//	if(i == 0) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[0];}
+//	if(i == 2) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[1];}
+//	if(i == 5) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[2];}
+
 
 	display.refreshControl(titleBar);
 
@@ -630,7 +646,7 @@ void cConfigEditor::showGridScreen()
 	display.setControlShow(gridNameLabel);
 	display.refreshControl(gridNameLabel);
 
-	display.setControlValue(bgLabel, 0b11100000);
+	display.setControlValue(bgLabel, 0b11101111);
 	display.refreshControl(bgLabel);
 
 	display.setControlHide(frameControl);
@@ -639,6 +655,11 @@ void cConfigEditor::showGridScreen()
 	for(uint8_t i = 0; i < 48; i++)
 	{
 		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtGrid.pad[i].note];
+		sprintf(interfaceGlobals.padFinetuneNames[i],"%d",mtGrid.pad[i].microtune);
+
+		if(mtGrid.pad[i].ledEnable) padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, i);
+		else padsBacklight.setBackLayer(0, 0, i);
+
 	}
 
 	display.setControlShow(gridPadsControl);
@@ -650,6 +671,23 @@ void cConfigEditor::showGridScreen()
 		display.setControlHide(label[i]);
 		display.refreshControl(label[i]);
 	}
+
+	display.setControlText(label[0],"Note");
+	display.setControlText(label[1],"Microtune");
+	display.setControlText(label[2],"LED");
+
+	for(uint8_t i = 0 ; i < 3 ; i++)
+	{
+		display.setControlStyle(label[i], ( controlStyleCenterX | controlStyleFont3));
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlShow(label[i]);
+		display.setControlValue(label[i],1);
+
+		reloadPadScreenDisplayedValue(i);
+		refreshPadValue(i, enScreenType::screenTypeGridScreen);
+	}
+
+
 
 	display.setControlStyle(label[5], ( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY));
 	display.setControlText(label[5], "Save");
@@ -671,6 +709,12 @@ void cConfigEditor::refreshGridScreen()
 {
 	display.setControlValue(gridPadsControl,gridEditor.getSelectedPad());
 	display.refreshControl(gridPadsControl);
+
+	for(uint8_t i = 0 ; i < 3 ; i++)
+	{
+		reloadPadScreenDisplayedValue(i);
+		refreshPadValue(i, enScreenType::screenTypeGridScreen);
+	}
 }
 
 void cConfigEditor::hideGridScreen()
@@ -698,7 +742,7 @@ void cConfigEditor::showPadScreen()
 		display.setControlValue(label[i],1);
 
 		reloadPadScreenDisplayedValue(i);
-		refreshPadScreenValue(i);
+		refreshPadValue(i,enScreenType::screenTypePadScreen);
 	}
 
 	for(uint8_t i = 3 ; i < 7; i++)
@@ -760,29 +804,39 @@ void cConfigEditor::refreshPadScreenFrame()
 	display.refreshControl(frameControl);
 }
 
-void cConfigEditor::refreshPadScreenValue(uint8_t value)
+void cConfigEditor::refreshPadValue(uint8_t value, enScreenType screen)
 {
 	switch(value)
 	{
 	case 0 :
-		display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
-		display.refreshControl(padBar[value]);
+		if(screen == screenTypePadScreen)
+		{
+			display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
+			display.refreshControl(padBar[value]);
+		}
 		display.setControlText2(label[value],mtNotes[mtGrid.pad[gridEditor.getSelectedPad()].note]);
 		display.refreshControl(label[value]);
 		break;
 	case 1:
-		display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
-		display.refreshControl(padBar[value]);
-
+		if(screen == screenTypePadScreen)
+		{
+			display.setControlValue(padBar[value],padScreenDisplayedValue[value]);
+			display.refreshControl(padBar[value]);
+		}
 		sprintf(microtuneValue, "%d", mtGrid.pad[gridEditor.getSelectedPad()].microtune);
 		display.setControlText2(label[value], microtuneValue);
 		display.refreshControl(label[value]);
 		break;
 	case 2:
-		display.setControlValue(padList,padScreenDisplayedValue[value]);
-		display.refreshControl(padList);
+		if(screen == screenTypePadScreen)
+		{
+			display.setControlValue(padList,padScreenDisplayedValue[value]);
+			display.refreshControl(padList);
+		}
 		display.setControlText2(label[value], padListNames[padScreenDisplayedValue[value]]);
 		display.refreshControl(label[value]);
+		if(mtGrid.pad[gridEditor.getSelectedPad()].ledEnable) padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, gridEditor.getSelectedPad());
+		else padsBacklight.setBackLayer(0, 0, gridEditor.getSelectedPad());
 		break;
 	default: break;
 	}

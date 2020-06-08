@@ -51,7 +51,7 @@ void mtGridEditor::cancelSelectedPad()
 }
 void mtGridEditor::changeNote(int16_t val)
 {
-	if(!isConfirmedPad) return;
+//	if(!isConfirmedPad) return;
 
 	if(mtGrid.pad[selectedPad].note + val > MAX_NOTE) mtGrid.pad[selectedPad].note = MAX_NOTE;
 	else if(mtGrid.pad[selectedPad].note + val < MIN_NOTE) mtGrid.pad[selectedPad].note = MIN_NOTE;
@@ -59,7 +59,7 @@ void mtGridEditor::changeNote(int16_t val)
 }
 void mtGridEditor::changeMicrotune(int16_t val)
 {
-	if(!isConfirmedPad) return;
+//	if(!isConfirmedPad) return;
 
 	if(mtGrid.pad[selectedPad].microtune + val > MAX_INSTRUMENT_FINETUNE) mtGrid.pad[selectedPad].microtune = MAX_INSTRUMENT_FINETUNE;
 	else if(mtGrid.pad[selectedPad].microtune + val < MIN_INSTRUMENT_FINETUNE) mtGrid.pad[selectedPad].microtune = MIN_INSTRUMENT_FINETUNE;
@@ -67,7 +67,7 @@ void mtGridEditor::changeMicrotune(int16_t val)
 }
 void mtGridEditor::changeLedEnable(int16_t val)
 {
-	if(!isConfirmedPad) return;
+//	if(!isConfirmedPad) return;
 
 	if(val > 0) mtGrid.pad[selectedPad].ledEnable =  true;
 	else if(val < 0) mtGrid.pad[selectedPad].ledEnable = false;

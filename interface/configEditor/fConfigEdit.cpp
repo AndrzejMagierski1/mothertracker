@@ -39,7 +39,9 @@ static 	uint8_t	functUpGridScreen();
 static 	uint8_t	functDownGridScreen();
 static 	uint8_t	functLeftGridScreen();
 static 	uint8_t	functRightGridScreen();
+static  uint8_t functActionButtonGridScreen(uint8_t button, uint8_t state);
 static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo);
+static 	uint8_t functEncoderGridScreen(int16_t value);
 //PAD SCREEN
 static 	uint8_t	functConfirmPadScreen();
 static 	uint8_t	functUpPadScreen();
@@ -213,6 +215,10 @@ void cConfigEditor::setGridScreenFunction()
 	FM->clearAllPads();
 	FM->clearAllPots();
 
+	FM->setButtonObj(interfaceButton0, functActionButtonGridScreen);
+	FM->setButtonObj(interfaceButton1, functActionButtonGridScreen);
+	FM->setButtonObj(interfaceButton2, functActionButtonGridScreen);
+
 	FM->setButtonObj(interfaceButton5, buttonPress, functSaveGridScreen);
 	FM->setButtonObj(interfaceButton6, buttonPress, functCancelGridScreen);
 	FM->setButtonObj(interfaceButton7, buttonPress, functConfirmGridScreen);
@@ -220,6 +226,8 @@ void cConfigEditor::setGridScreenFunction()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightGridScreen);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpGridScreen);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownGridScreen);
+
+	FM->setPotObj(interfacePot0, functEncoderGridScreen, nullptr);
 
 	FM->setPadsGlobal(functPadsGridScreen);
 }
@@ -259,6 +267,7 @@ void cConfigEditor::reloadPadScreenDisplayedValue(uint8_t value)
 		break;
 	case 1:
 		padScreenDisplayedValue[value] = mtGrid.pad[gridEditor.getSelectedPad()].microtune;
+		sprintf(interfaceGlobals.padFinetuneNames[gridEditor.getSelectedPad()], "%d", mtGrid.pad[gridEditor.getSelectedPad()].microtune);
 		break;
 	case 2:
 		padScreenDisplayedValue[value] = mtGrid.pad[gridEditor.getSelectedPad()].ledEnable ? 0 : 1;
@@ -677,7 +686,7 @@ static 	uint8_t	functCancelGridScreen()
 	display.refreshControl(CE->configSubmenuListControl);
 	CE->showDefaultConfigScreen();
 	CE->hideSecondSubmenu();
-
+	padsBacklight.clearAllPads(0, 1, 0);
 	return 1;
 }
 static 	uint8_t	functConfirmGridScreen()
@@ -713,6 +722,15 @@ static 	uint8_t	functRightGridScreen()
 	CE->refreshGridScreen();
 	return 1;
 }
+static  uint8_t functActionButtonGridScreen(uint8_t button, uint8_t state)
+{
+	if(state == buttonPress || state ==  buttonRelease)
+	{
+		CE->gridScreenActiveChange[button] = state;
+	}
+
+	return 1;
+}
 static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(state == buttonPress)
@@ -726,6 +744,28 @@ static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo)
 		padsBacklight.setFrontLayer(0, 0, pad);
 	}
 
+	return 1;
+}
+
+static 	uint8_t functEncoderGridScreen(int16_t value)
+{
+	for(uint8_t i = 0 ; i < 3 ; i++)
+	{
+		if(CE->gridScreenActiveChange[i])
+		{
+			switch(i)
+			{
+				case 0: gridEditor.changeNote(value);			break;
+				case 1: gridEditor.changeMicrotune(value);		break;
+				case 2: gridEditor.changeLedEnable(-value);		break;
+				default: break;
+			}
+			CE->reloadPadScreenDisplayedValue(i);
+			CE->refreshPadValue(i,enScreenType::screenTypeGridScreen);
+			display.setControlValue(CE->gridPadsControl,gridEditor.getSelectedPad());
+			display.refreshControl(CE->gridPadsControl);
+		}
+	}
 	return 1;
 }
 //////////////////////////////////////////////////////////
@@ -748,7 +788,7 @@ static 	uint8_t	functUpPadScreen()
 		default: break;
 	}
 	CE->reloadPadScreenDisplayedValue(CE->selectedPlacePadScreen);
-	CE->refreshPadScreenValue(CE->selectedPlacePadScreen);
+	CE->refreshPadValue(CE->selectedPlacePadScreen, enScreenType::screenTypePadScreen);
 	return 1;
 }
 static 	uint8_t	functDownPadScreen()
@@ -761,7 +801,7 @@ static 	uint8_t	functDownPadScreen()
 		default: break;
 	}
 	CE->reloadPadScreenDisplayedValue(CE->selectedPlacePadScreen);
-	CE->refreshPadScreenValue(CE->selectedPlacePadScreen);
+	CE->refreshPadValue(CE->selectedPlacePadScreen, enScreenType::screenTypePadScreen);
 	return 1;
 }
 static 	uint8_t	functLeftPadScreen()
@@ -785,7 +825,7 @@ static  uint8_t functPadsPadScreen(uint8_t pad, uint8_t state, int16_t velo)
 		for(uint8_t i = 0 ; i < 3; i++)
 		{
 			CE->reloadPadScreenDisplayedValue(i);
-			CE->refreshPadScreenValue(i);
+			CE->refreshPadValue(i,enScreenType::screenTypePadScreen);
 		}
 		sprintf(CE->padScreenTitleLabelName,"Grid Editor Pad %d", gridEditor.getSelectedPad() + 1);
 
@@ -818,7 +858,7 @@ static 	uint8_t functEncoderPadScreen(int16_t value)
 		default: break;
 	}
 	CE->reloadPadScreenDisplayedValue(CE->selectedPlacePadScreen);
-	CE->refreshPadScreenValue(CE->selectedPlacePadScreen);
+	CE->refreshPadValue(CE->selectedPlacePadScreen,enScreenType::screenTypePadScreen);
 	return 1;
 }
 //////////////

@@ -21,6 +21,11 @@
 const uint8_t firmware_list_max=100;
 const uint8_t firmware_name_length=32;
 
+enum enScreenType
+{
+	screenTypeGridScreen,
+	screenTypePadScreen
+};
 
 class cConfigEditor: public cModuleBase
 {
@@ -89,7 +94,7 @@ public:
 	void hidePadScreen();
 
 
-	void refreshPadScreenValue(uint8_t value);
+	void refreshPadValue(uint8_t value, enScreenType screen);
 	void refreshPadScreenFrame();
 
 	//
@@ -181,13 +186,14 @@ public:
 
 	strTextBoxData textBoxData;
 
-	strPadNames padNamesStruct;
+	strPadNamesGridEditor padNamesStruct;
 
 	strList padListData;
 
 	int16_t padScreenDisplayedValue[3];
 	char microtuneValue[6];
 	char padScreenTitleLabelName[20];
+	char gridScreenActiveChange[3];
 
 	const char* padListNames[2] =
 	{
