@@ -281,16 +281,6 @@ void cConfigEditor::reloadPadScreenDisplayedValue(uint8_t value)
 //##############################################################################################
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-////////////////////////TEST GRID EDITOR//////////////////////
-	if((state == buttonPress) && (button == 7))
-	{
-		CE->setGridScreenFunction();
-		CE->showGridScreen();
-		gridEditor.open();
-		return 1;
-	}
-
-////////////////////////TEST GRID EDITOR//////////////////////
 	if(CE->updatePopupShown)
 	{
 		if(state != buttonPress) return 1;
@@ -724,9 +714,10 @@ static 	uint8_t	functRightGridScreen()
 }
 static  uint8_t functActionButtonGridScreen(uint8_t button, uint8_t state)
 {
-	if(state == buttonPress || state ==  buttonRelease)
+	if(state == buttonPress)
 	{
-		CE->gridScreenActiveChange[button] = state;
+		CE->selectedPlaceGridScreen = button;
+		CE->refreshGridScreenFrame();
 	}
 
 	return 1;
@@ -749,23 +740,20 @@ static  uint8_t functPadsGridScreen(uint8_t pad, uint8_t state, int16_t velo)
 
 static 	uint8_t functEncoderGridScreen(int16_t value)
 {
-	for(uint8_t i = 0 ; i < 3 ; i++)
+
+	switch(CE->selectedPlaceGridScreen)
 	{
-		if(CE->gridScreenActiveChange[i])
-		{
-			switch(i)
-			{
-				case 0: gridEditor.changeNote(value);			break;
-				case 1: gridEditor.changeMicrotune(value);		break;
-				case 2: gridEditor.changeLedEnable(-value);		break;
-				default: break;
-			}
-			CE->reloadPadScreenDisplayedValue(i);
-			CE->refreshPadValue(i,enScreenType::screenTypeGridScreen);
-			display.setControlValue(CE->gridPadsControl,gridEditor.getSelectedPad());
-			display.refreshControl(CE->gridPadsControl);
-		}
+		case 0: gridEditor.changeNote(value);			break;
+		case 1: gridEditor.changeMicrotune(value);		break;
+		case 2: gridEditor.changeLedEnable(-value);		break;
+		default: break;
 	}
+	CE->reloadPadScreenDisplayedValue(CE->selectedPlaceGridScreen);
+	CE->refreshPadValue(CE->selectedPlaceGridScreen,enScreenType::screenTypeGridScreen);
+	display.setControlValue(CE->gridPadsControl,gridEditor.getSelectedPad());
+	display.refreshControl(CE->gridPadsControl);
+
+
 	return 1;
 }
 //////////////////////////////////////////////////////////
@@ -894,6 +882,16 @@ static  uint8_t functPlayAction()
 static  uint8_t functRecAction()
 {
 	if(CE->updatePopupShown) return 1;
+
+	////////////////////////TEST GRID EDITOR//////////////////////
+
+
+	CE->setGridScreenFunction();
+	CE->showGridScreen();
+	gridEditor.open();
+
+
+	////////////////////////TEST GRID EDITOR//////////////////////
 
 	return 1;
 }

@@ -97,6 +97,8 @@ public:
 	void refreshPadValue(uint8_t value, enScreenType screen);
 	void refreshPadScreenFrame();
 
+	void refreshGridScreenFrame();
+
 	//
 
 	//-----------------------------------------
@@ -193,7 +195,7 @@ public:
 	int16_t padScreenDisplayedValue[3];
 	char microtuneValue[6];
 	char padScreenTitleLabelName[20];
-	char gridScreenActiveChange[3];
+	uint8_t selectedPlaceGridScreen;
 
 	const char* padListNames[2] =
 	{

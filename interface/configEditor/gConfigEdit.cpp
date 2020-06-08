@@ -19,6 +19,13 @@ static uint16_t framesPlacesConfigPadScreen[3][4]=
 	{(800/8)*2+1, 29, 800/8-3, 391}
 };
 
+static uint16_t framesPlacesConfigGridScreen[3][4]=
+{
+	{(800/8)*0+1, 424, 800/8-3, 55},
+	{(800/8)*1+1, 424, 800/8-3, 55},
+	{(800/8)*2+1, 424, 800/8-3, 55}
+};
+
 
 static uint32_t popUpLabelColors[] =
 {
@@ -649,9 +656,6 @@ void cConfigEditor::showGridScreen()
 	display.setControlValue(bgLabel, 0b11101111);
 	display.refreshControl(bgLabel);
 
-	display.setControlHide(frameControl);
-	display.refreshControl(frameControl);
-
 	for(uint8_t i = 0; i < 48; i++)
 	{
 		interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtGrid.pad[i].note];
@@ -688,6 +692,13 @@ void cConfigEditor::showGridScreen()
 	}
 
 
+	frameData.placesCount = 3;
+	frameData.startPlace = selectedPlacePadScreen;
+	frameData.places[0] = &framesPlacesConfigGridScreen[0][0];
+	frameData.places[1] = &framesPlacesConfigGridScreen[1][0];
+	frameData.places[2] = &framesPlacesConfigGridScreen[2][0];
+
+	refreshGridScreenFrame();
 
 	display.setControlStyle(label[5], ( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY));
 	display.setControlText(label[5], "Save");
@@ -801,6 +812,12 @@ void cConfigEditor::hidePadScreen()
 void cConfigEditor::refreshPadScreenFrame()
 {
 	display.setControlValue(frameControl,selectedPlacePadScreen);
+	display.refreshControl(frameControl);
+}
+
+void cConfigEditor::refreshGridScreenFrame()
+{
+	display.setControlValue(frameControl,selectedPlaceGridScreen);
 	display.refreshControl(frameControl);
 }
 
