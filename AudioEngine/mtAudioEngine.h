@@ -221,7 +221,7 @@ public:
 	uint8_t getLastUsedVoice();
 	void makeMetronomeTick(uint8_t);
 	void setCurrentLoadInstrument(int8_t idx);
-	void clearCurrentLoadInstrument();
+	void clearCurrentLoadInstrument(int8_t idx);
 	friend class playerEngine;
 private:
 	uint8_t forceSend = 0;

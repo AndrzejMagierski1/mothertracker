@@ -5,6 +5,7 @@
 #include "SD.h"
 #include "mtConfig.h"
 #include "debugLog.h"
+#include "mtAudioEngine.h"
 
 #include "mtExporterWAV.h"
 #include "mtSequencer.h"
@@ -657,6 +658,8 @@ void cFileManager::importSamplesToWorkspaceInit()
 			mtProject.used_memory -= mtProject.instrument[instr].sample.length*2;
 		}
 
+		engine.setCurrentLoadInstrument(instr);
+
 		// wykomentowane bo pewnie jakies dane potrzebna beda w dalszych krokach wiec lepiej nie zerowac
 //		setDefaultActiveInstrument(&mtProject.instrument[instr]);
 //		mtProject.instrument[instr].sample.file_name[0] = 0;
@@ -699,6 +702,8 @@ void cFileManager::importSamplesToWorkspaceFinish()
 
 	if(currentInstrument < importEndSlot && currentInstrument < INSTRUMENTS_COUNT-1)
 	{
+		engine.clearCurrentLoadInstrument(currentInstrument);
+
 		currentInstrument++;
 		currentSample++;
 

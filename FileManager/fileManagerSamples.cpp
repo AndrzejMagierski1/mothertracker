@@ -2,6 +2,7 @@
 #include "mtStructs.h"
 #include "fileManagerDefs.h"
 #include "SD.h"
+#include "mtAudioEngine.h"
 
 
 #include "debugLog.h"
@@ -205,6 +206,7 @@ void cFileManager::moveSampleMemory()
 	{
 		if(mtProject.instrument[i].isActive == 1)
 		{
+			engine.setCurrentLoadInstrument(i);
 			last_instrument_to_move = i;
 		}
 
@@ -279,7 +281,10 @@ void cFileManager::moveSampleMemory()
 		{
 			mtProject.instrument[i].sample.address = (int16_t*)(((uint8_t*) mtProject.instrument[i].sample.address) + memory_offset);
 		}
+
+		engine.clearCurrentLoadInstrument(i);
 	}
+
 }
 
 

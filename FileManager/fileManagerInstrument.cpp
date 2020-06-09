@@ -34,7 +34,7 @@ void cFileManager::loadInstrumentsFromWorkspace()
 
 	if(loadStatus == fileTransferEnd)
 	{
-		mtProject.instruments_count++;
+		mtProject.instruments_count++; // chyba zbedne tu
 		if(loadInstrumentFormFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 		{
 			mtProject.instrument[currentInstrument].isActive = 1;

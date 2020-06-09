@@ -406,7 +406,7 @@ void audioEngine::setCurrentLoadInstrument(int8_t idx)
 		instrumentPlayer[i].setCurrentLoadInstrument(idx);
 	}
 }
-void audioEngine::clearCurrentLoadInstrument()
+void audioEngine::clearCurrentLoadInstrument(int8_t idx)
 {
 	for(uint8_t i = 0 ; i < 8 ; i++)
 	{
