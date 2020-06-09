@@ -886,9 +886,9 @@ static  uint8_t functRecAction()
 	////////////////////////TEST GRID EDITOR//////////////////////
 
 
-	CE->setGridScreenFunction();
-	CE->showGridScreen();
-	gridEditor.open();
+//	CE->setGridScreenFunction();
+//	CE->showGridScreen();
+//	gridEditor.open();
 
 
 	////////////////////////TEST GRID EDITOR//////////////////////
