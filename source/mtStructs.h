@@ -79,6 +79,7 @@ const uint8_t INSTRUMENT_NAME_SIZE =			19;
 const uint8_t PATTERN_NAME_SIZE	=				15;
 const uint8_t SAMPLE_NAME_SIZE =				31;
 const uint8_t FX_NAME_SIZE =					32;
+const uint8_t GRID_NAME_SIZE =					32;
 
 const uint8_t PATCH_SIZE =						255;
 const uint8_t SONG_MAX =						255;
@@ -806,6 +807,21 @@ struct strMtDispTrackTable
 	uint8_t active[5]; // aktualne edytowana wartosc w kazdej kolumnie (params/fxs)
 	uint8_t state[5];  // czy step lezy w sekwencji
 };
+
+struct strGridPad
+{
+	uint8_t note;
+	int8_t microtune;
+	bool ledEnable;
+};
+
+struct strGrid
+{
+	char name[GRID_NAME_SIZE] = {"New Grid"};
+	strGridPad pad[48];
+
+};
+
 
 const char mtNotes[128][5] =
 {

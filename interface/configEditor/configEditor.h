@@ -12,7 +12,7 @@
 
 
 #include "configEditor/configMenuDefs.h"
-
+#include "mtGridEditor.h"
 
 
 #undef MAX_SELECT_NODES
@@ -21,6 +21,11 @@
 const uint8_t firmware_list_max=100;
 const uint8_t firmware_name_length=32;
 
+enum enScreenType
+{
+	screenTypeGridScreen,
+	screenTypePadScreen
+};
 
 class cConfigEditor: public cModuleBase
 {
@@ -40,7 +45,6 @@ public:
 		editorInstrument = nullptr;
 		frameControl = nullptr;
 		popoutWindowLabel = nullptr;
-
 	}
 	virtual ~cConfigEditor() {}
 
@@ -78,6 +82,23 @@ public:
 	void getSelectedItemInfo(void (**actionFunct)(void), void** menu_item, uint8_t* item_level);
 
 	void reloadSecondSubmenu();
+
+	void setGridScreenFunction();
+	void setPadScreenFunction();
+	void reloadPadScreenDisplayedValue(uint8_t value);
+
+	void showGridScreen();
+	void refreshGridScreen();
+	void hideGridScreen();
+	void showPadScreen();
+	void hidePadScreen();
+
+
+	void refreshPadValue(uint8_t value, enScreenType screen);
+	void refreshPadScreenFrame();
+
+	void refreshGridScreenFrame();
+
 	//
 
 	//-----------------------------------------
@@ -126,6 +147,10 @@ public:
 	void resizeLabelConfigMaster();
 	void resizeFirmwareLabel(uint8_t control); // 0 - revert to normal, 1 - rescale to double label;
 
+
+
+
+
 	uint8_t processUpdate = 0;
 
 //----------------------------------
@@ -142,14 +167,18 @@ public:
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
+	hControl gridNameLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
 	hControl bgLabel;
 	hControl frameControl;
+	hControl gridPadsControl = nullptr;
 
+	hControl padBar[2] = {nullptr, nullptr};
+	hControl padList = nullptr;
 
 	uint8_t selectedPlace = 0;
-
+	uint8_t selectedPlacePadScreen = 0;
 	// typ trybu/ekranu
 	uint8_t mode = 0;
 
@@ -158,6 +187,21 @@ public:
 	strLabelData labelArrow[3];
 
 	strTextBoxData textBoxData;
+
+	strPadNamesGridEditor padNamesStruct;
+
+	strList padListData;
+
+	int16_t padScreenDisplayedValue[3];
+	char microtuneValue[6];
+	char padScreenTitleLabelName[20];
+	uint8_t selectedPlaceGridScreen;
+
+	const char* padListNames[2] =
+	{
+			(char*)"On",
+			(char*)"Off"
+	};
 
 //----------------------------------
 // listy

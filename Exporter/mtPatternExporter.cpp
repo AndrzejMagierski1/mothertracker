@@ -158,7 +158,9 @@ void mtPatternExporter::refreshSave()
 		if(requiredSave)
 		{
 			if(sendBuf == lastSendBuf) return;
+			elapsedMicros apoloniuszTajmer = 0;
 			byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
+			Serial.println(apoloniuszTajmer);
 			requiredSave = false;
 			lastSendBuf = sendBuf;
 		}

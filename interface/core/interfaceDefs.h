@@ -288,7 +288,8 @@ struct strZoomParams
 struct strInterfaceGlobals
 {
 	char *padNamesPointer[48];
-
+	char padFinetuneNames[48][5];
+	
 	char intrumentsNames[INSTRUMENTS_COUNT+16][SAMPLE_NAME_SIZE+6];
 	char *ptrIntrumentsNames[INSTRUMENTS_COUNT+16];
 
