@@ -91,6 +91,7 @@ void cSongEditor::start(uint32_t options)
 	songPlayerData.list = &patternsList;
 	songPlayerData.songData = mtProject.song.playlist;
 	songPlayerData.patternsBitmask = mtProject.values.allPatternsBitmask;
+	songPlayerData.isMute = mtProject.values.trackMute;
 
 	refreshSongPlayerControl();
 	showPatternsList();

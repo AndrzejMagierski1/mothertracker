@@ -685,7 +685,9 @@ void cSongPlayer::fillBlocks()
 			}
 			else
 			{
-				API_COLOR(0xFFFFFF);
+//				API_COLOR(0xFFFFFF);
+				if(controlData->isMute[track]) API_COLOR(0x444444);
+				else API_COLOR(0xFFFFFF);
 				API_VERTEX2F((localX), (localY+1));
 				API_VERTEX2F((localX + BLOCK_WIDTH -1), (localY + BLOCK_HEIGHT -1));
 			}
