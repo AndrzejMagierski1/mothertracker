@@ -8,7 +8,7 @@
 
 void AudioPlayMemory::update(void)
 {
-	if(currentLoadInstrument == currentInstrIdx) return;
+	if(isCurrentLoadInstrument[currentInstrIdx]) return;
 
 	switch(currentPlayMode)
 	{
@@ -831,15 +831,6 @@ void AudioPlayMemory::clearReverse()
 uint16_t AudioPlayMemory::getPosition()
 {
 	return  (uint16_t)(65535 * ((pointsInSamples.start + iPitchCounter)/(float)currentSampleLength));
-}
-
-void AudioPlayMemory::setCurrentLoadInstrument(int8_t idx)
-{
-	currentLoadInstrument = idx;
-}
-void AudioPlayMemory::clearCurrentLoadInstrument()
-{
-	currentLoadInstrument = -1;
 }
 
 
