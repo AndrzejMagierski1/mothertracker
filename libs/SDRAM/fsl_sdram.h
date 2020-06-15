@@ -68,15 +68,28 @@
 #define ADDR22 22U
 #define ADDR23 23U
 
+/*A0 - SDRAM_A16
+A1 - SDRAM_A15
+A2 - SDRAM_A14
+A3 - SDRAM_A13
+A4 - SDRAM_A12
+A5 - SDRAM_A11
+A6 - SDRAM_A10
+A7 - SDRAM_A9
+A8 - SDRAM_A18
+A9 - SDRAM_A19
+A10 - SDRAM_A20
+A11 - SDRAM_A21*/
+
 /*! @brief Define the physical connection--32bit port 8 column. */
-#define SDRAM_A0 ADDR15
-#define SDRAM_A1 ADDR14
-#define SDRAM_A2 ADDR13
-#define SDRAM_A3 ADDR12
-#define SDRAM_A4 ADDR11
-#define SDRAM_A5 ADDR10
-#define SDRAM_A6 ADDR9
-#define SDRAM_A7 ADDR17
+#define SDRAM_A0 ADDR16
+#define SDRAM_A1 ADDR15
+#define SDRAM_A2 ADDR14
+#define SDRAM_A3 ADDR13
+#define SDRAM_A4 ADDR12
+#define SDRAM_A5 ADDR11
+#define SDRAM_A6 ADDR10
+#define SDRAM_A7 ADDR9
 #define SDRAM_A8 ADDR18
 #define SDRAM_A9 ADDR19
 #define SDRAM_A10 ADDR20

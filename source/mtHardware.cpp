@@ -98,6 +98,7 @@ void initHardware()
 	//SDRAM
 	pinMode(EXTERNAL_RAM_KEY,OUTPUT);
 	digitalWrite(EXTERNAL_RAM_KEY,HIGH);
+	SIM_CLKDIV1 |= SIM_CLKDIV1_OUTDIV3(1);
 	delay(10);
 	Extern_SDRAM_Init();
 
