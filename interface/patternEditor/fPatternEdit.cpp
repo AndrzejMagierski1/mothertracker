@@ -3345,8 +3345,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				}
 				else
 				{
-					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-					sequencer.setSelectionNote(noteFromPad);
+					if (state == buttonPress)
+					{
+
+						uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+						sequencer.setSelectionNote(noteFromPad);
+					}
 				}
 
 			}
