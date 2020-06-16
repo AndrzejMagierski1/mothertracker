@@ -3,7 +3,7 @@
 	
 	
 	
-	1.0.1 	Co nowego?
+	1.0.2 	Co nowego?
 
 			- fix: bug który zatrzymywal voisy w przechodzeniu między SONG a INSTRUMENT PARAMETERS 
 			- fix: bug który nie pozwalal kopiowac/wklejac w otwartych starych projektach
@@ -18,6 +18,9 @@
 			- przycisk funkcyjny delete przywraca wartość defaultową tam gdzie to mozliwe
 			- wgrywanie akordów na zaznaczeniu poziomym
 			
+	1.0.1
+			- RAM fix
+	
 	1.0 	Pierwszy release
 	
 			-	:champagne_showers:
