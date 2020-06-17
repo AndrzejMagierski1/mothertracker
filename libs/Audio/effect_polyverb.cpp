@@ -1,8 +1,8 @@
 // Copyright 2020 Wojciech Jakóbczyk (jakobczyk.woj@gmail.com)
 
 #include "effect_polyverb.h"
+uint16_t sdram_reverbMemory[16384];
 
-extern uint16_t sdram_reverbMemory[32768];
 
 AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
 {
@@ -25,7 +25,6 @@ void AudioEffectPolyverb::update(void)
 {
   audio_block_t *block_left;
   audio_block_t *block_right;
-
   block_left = receiveWritable(0);
   if (block_left == NULL)
     return;

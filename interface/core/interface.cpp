@@ -50,7 +50,6 @@ __NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32640]; // 32768
 
 __NOINIT(EXTERNAL_RAM) uint8_t sdram_mtpIndex[8192];
 
-__NOINIT(EXTERNAL_RAM) uint16_t sdram_reverbMemory[32768];
 
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 

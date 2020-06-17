@@ -62,12 +62,12 @@ class Reverb {
       E::Reserve<214,
       E::Reserve<319,
       E::Reserve<527,
-      E::Reserve<2182,
-      E::Reserve<2690,
+      E::Reserve<1182,
+      E::Reserve<1690,
       E::Reserve<4501,
-      E::Reserve<2525,
-      E::Reserve<2197,
-      E::Reserve<6312> > > > > > > > > > Memory;
+      E::Reserve<1225,
+      E::Reserve<1197,
+      E::Reserve<5312> > > > > > > > > > Memory;
     E::DelayLine<Memory, 0> ap1;
     E::DelayLine<Memory, 1> ap2;
     E::DelayLine<Memory, 2> ap3;
@@ -116,7 +116,7 @@ class Reverb {
 
       // Main reverb loop.
       c.Load(apout);
-      c.Interpolate(del2, 6211.0f, LFO_2, 100.0f, krt);
+      c.Interpolate(del2, 5211.0f, LFO_2, 100.0f, krt);
       c.Lp(lp_1, klp);
       c.Read(dap1a TAIL, -kap);
       c.WriteAllPass(dap1a, kap);
@@ -187,10 +187,20 @@ class Reverb {
   }
 
  private:
-  typedef FxEngine<32768, FORMAT_16_BIT> E;
+  typedef FxEngine<16384, FORMAT_16_BIT> E;
   E engine_;
 
-  float amount_;
+  float amount_;    typedef E::Reserve<150,
+      E::Reserve<214,
+      E::Reserve<319,
+      E::Reserve<527,
+      E::Reserve<2182,
+      E::Reserve<2690,
+      E::Reserve<1501,
+      E::Reserve<2525,
+      E::Reserve<2197,
+      E::Reserve<2312> > > > > > > > > > Memory;
+
   float input_gain_;
   float reverb_time_;
   float diffusion_;
