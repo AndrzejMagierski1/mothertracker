@@ -20,7 +20,6 @@
 
 #include "fileManager.h"
 
-
 cMasterParams masterParams;
 static cMasterParams* MP = &masterParams;
 
@@ -78,7 +77,17 @@ void setDefaultLimiterTreshold();
 void setDefaultBithDepth();
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+//REVERB TEST
+float reverbTime = 0.1;
+float reverbDamp = 0.1;
+float reverbDryWet = 0.5;
 
+bool isReverbTime;
+bool isReverbDamp;
+bool isReverbDryWet;
+
+char reverbInfoText[30];
+//
 void cMasterParams::update()
 {
 	if(displayType == display_t::mixer)
@@ -196,6 +205,53 @@ void cMasterParams::setDelayScreenFunct()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
+
+	if(isReverbTime)
+	{
+		float v = 0.01 * value;
+
+		if(reverbTime + v > 1.0f) reverbTime = 1.0f;
+		else if(reverbTime + v < 0.0f) reverbTime = 0.0f;
+		else  reverbTime += v;
+
+		polyverb.setTime(reverbTime);
+
+		sprintf(reverbInfoText,"Rev time: %d", (int)(reverbTime*100));
+		Serial.println(reverbInfoText);
+
+		return 1;
+	}
+
+	if(isReverbDamp)
+	{
+		float v = 0.01 * value;
+
+		if(reverbDamp + v > 1.0f) reverbDamp = 1.0f;
+		else if(reverbDamp + v < 0.0f) reverbDamp = 0.0f;
+		else  reverbDamp += v;
+
+		polyverb.setDamp(reverbDamp);
+
+		sprintf(reverbInfoText,"Rev damp: %d", (int)(reverbDamp*100));
+		Serial.println(reverbInfoText);
+		return 1;
+	}
+
+	if(isReverbDryWet)
+	{
+		float v = 0.01 * value;
+
+		if(reverbDryWet + v > 1.0f) reverbDryWet = 1.0f;
+		else if(reverbDryWet + v < 0.0f) reverbDryWet = 0.0f;
+		else  reverbDryWet += v;
+
+		polyverb.setAmount(reverbDryWet);
+
+		sprintf(reverbInfoText,"Rev dry/wet: %d", (int)(reverbDryWet*100));
+		Serial.println(reverbInfoText);
+		return 1;
+	}
+
 
 	if(MP->isDelayScreen)
 	{
@@ -417,6 +473,9 @@ static  uint8_t functSelectVolume(uint8_t state)
 
 	uint8_t node = 0;
 
+	if(state == buttonPress) isReverbTime = true;
+	else if(state == buttonRelease) isReverbTime = false;
+
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = node;
@@ -429,6 +488,9 @@ static  uint8_t functSelectVolume(uint8_t state)
 static  uint8_t functSelectBitDepth(uint8_t state)
 {
 	if(state > buttonPress) return 1;
+
+	if(state == buttonPress) isReverbDamp = true;
+	else if(state == buttonRelease) isReverbDamp = false;
 
 	uint8_t node = 1;
 
@@ -445,6 +507,9 @@ static  uint8_t functSelectBitDepth(uint8_t state)
 static  uint8_t functSelectLimiterAttack(uint8_t state)
 {
 	if(state > buttonPress) return 1;
+
+	if(state == buttonPress) isReverbDryWet = true;
+	else if(state == buttonRelease) isReverbDryWet = false;
 
 	uint8_t node = 2;
 

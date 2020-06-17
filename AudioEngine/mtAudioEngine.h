@@ -752,6 +752,7 @@ extern AudioAnalyzeRMS			rms;
 extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
 extern AudioSynthWaveform		testWaveform;
+extern AudioEffectPolyverb		polyverb;
 
 extern uint8_t isCurrentLoadInstrument[48];
 

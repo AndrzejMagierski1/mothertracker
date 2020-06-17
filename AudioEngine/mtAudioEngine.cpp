@@ -30,7 +30,7 @@ AudioAnalyzeRMS			 trackRMS[8];
 AudioEffectShortDelay	 shortDelay;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
-
+AudioEffectPolyverb		 polyverb;
 //AudioFilterStateVariable filterReverbOut;
 
 AudioMixer9				 mixerL,mixerR,mixerDelay;
@@ -141,8 +141,11 @@ AudioConnection          connect81(&testWaveform, 0, &mixerSourceL, 4);
 AudioConnection          connect82(&metronomeTick, 0, &mixerSourceR, 5);
 AudioConnection          connect83(&metronomeTick, 0, &mixerSourceL, 5);
 
-AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
-AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
+AudioConnection          connect84(&mixerSourceR, 0, &polyverb, 0);
+AudioConnection          connect85(&mixerSourceL, 0, &polyverb, 1);
+
+AudioConnection          connect59(&polyverb, 0, &i2sOut, 0);
+AudioConnection          connect60(&polyverb, 1, &i2sOut, 1);
 //**************** export
 AudioConnection          connect70(&mixerSourceL, &exportL);
 AudioConnection          connect71(&mixerSourceR, &exportR);
@@ -242,6 +245,11 @@ void audioEngine::init()
 
 	updateTimer.begin(updateAudioEngine,4500);
 	updateTimer.priority(255);
+
+	polyverb.reset();
+	polyverb.setTime(0.5f);
+	polyverb.setDamp(0.2f);
+	polyverb.setAmount(1.0f);
 
 //	setPassEnvelope(1);
 }
