@@ -60,6 +60,10 @@ void onSDCardSlotChange(uint8_t n);
 void ENC_SW_INT_FUNCT() { }
 
 
+void muteAudioOutByKey();
+void unmuteAudioOutByKey();
+
+
 ///------------------------------------------------------------------------------------
 
 elapsedMillis beginTimer;
@@ -90,6 +94,8 @@ void hidSendButtonState(uint16_t button, uint16_t state);
 ///------------------------------------------------------------------------------------
 void initHardware()
 {
+	muteAudioOutByKey();
+
 	//noInterrupts();
 	hardwareTest=0;
 	beginTimer = 0;
@@ -202,6 +208,8 @@ void initHardware()
 	//display.turnOn();
 
 	//Serial.println(beginTimer);
+
+	unmuteAudioOutByKey();
 }
 
 void hidSendButtonState(uint16_t button, uint16_t state)
@@ -356,6 +364,19 @@ void TactSwitchRead()
 		powerButtonLastState = HIGH;
 		onPowerButtonChange(0);
 	}
+}
+
+
+// wyciszczenie strzelania przy wlaczaniu
+void muteAudioOutByKey()
+{
+	pinMode(AUDIO_OUT_MUTE_PIN, OUTPUT);
+	digitalWrite(AUDIO_OUT_MUTE_PIN, 0);
+}
+void unmuteAudioOutByKey()
+{
+	pinMode(AUDIO_OUT_MUTE_PIN, OUTPUT);
+	digitalWrite(AUDIO_OUT_MUTE_PIN, 1);
 }
 
 
