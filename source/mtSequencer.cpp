@@ -1146,7 +1146,17 @@ void Sequencer::stopManualNotes(void)
 		if (player.track[tr].noteOpen
 				&& player.track[tr].recOpen)
 		{
-			instrumentPlayer[tr].noteOff();
+			if (player.track[tr].stepSent.instrument > INSTRUMENTS_MAX)
+			{
+				sendMidiNoteOff(
+						player.track[tr].stepSent.note,
+						0,
+						player.track[tr].stepSent.instrument - INSTRUMENTS_MAX);
+			}
+			else
+			{
+				instrumentPlayer[tr].noteOff();
+			}
 			player.track[tr].noteOpen = 0;
 			player.track[tr].recOpen = 0;
 			player.track[tr].noteSource = -1;
@@ -1789,15 +1799,30 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 				}
 
 				player.track[tr].stepSent.note = note;
+				player.track[tr].stepSent.instrument = step->instrument;
+
 				player.track[tr].noteOpen = 1;
 				player.track[tr].recOpen = 1;
 
-				instrumentPlayer[tr].noteOff();
-				instrumentPlayer[tr].noteOn(
-											step->instrument,
-											step->note,
-											map(velocity, 0, 127, 0, 100),
-											0, 0, 0, 0); //magiczne zera
+				if (step->instrument > INSTRUMENTS_MAX)
+				{
+					uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_COUNT].velocity;
+
+					sendMidiNoteOn(
+									step->note,
+									velo,
+									step->instrument - INSTRUMENTS_MAX);
+				}
+				else
+				{
+
+					instrumentPlayer[tr].noteOff();
+					instrumentPlayer[tr].noteOn(
+												step->instrument,
+												step->note,
+												map(velocity, 0, 127, 0, 100),
+												0, 0, 0, 0); //magiczne zera
+				}
 
 				engine.setLastUsedVoice(tr);
 				if (mtConfig.general.recQuantization)
@@ -1817,20 +1842,22 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 			if (!player.track[tr].noteOpen && !isTrackEngineMuted(tr))
 			{
 
-
 				player.track[tr].noteOpen = 1;
 				player.track[tr].noteLength = 9999;
 				player.track[tr].recOpen = note;
 				player.track[tr].noteSource = source;
+
+				player.track[tr].stepSent.note = note;
+				player.track[tr].stepSent.instrument = mtProject.values.lastUsedInstrument;
 
 				if (mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
 				{
 					uint8_t velo = mtProject.values.midiInstrument[mtProject.values.lastUsedInstrument - INSTRUMENTS_COUNT].velocity;
 
 					sendMidiNoteOn(
-									note,
-									velo,
-									mtProject.values.lastUsedInstrument - INSTRUMENTS_MAX);
+							note,
+							velo,
+							mtProject.values.lastUsedInstrument - INSTRUMENTS_MAX);
 
 				}
 				else
@@ -1894,13 +1921,26 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 					&& player.track[tr].stepSent.note == note
 					&& player.track[tr].recOpen)
 			{
-				instrumentPlayer[tr].noteOff();
+
+				if (player.track[tr].stepSent.instrument > INSTRUMENTS_MAX)
+				{
+
+					sendMidiNoteOff(
+							player.track[tr].stepSent.note,
+							0,
+							player.track[tr].stepSent.instrument - INSTRUMENTS_MAX);
+				}
+				else
+				{
+					instrumentPlayer[tr].noteOff();
+				}
+
 				player.track[tr].noteOpen = 0;
 				player.track[tr].recOpen = 0;
 
 				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
 
-				if (source < 0) // tylko wtedy dajemy offy
+				if (source < 0) // tylko wtedy wstawiamy offy
 				{
 					if (step->note == STEP_NOTE_EMPTY)
 					{
@@ -1939,12 +1979,12 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 					&& player.track[tr].noteSource == source)
 			{
 
-
 				if (mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
 				{
-					sendMidiNoteOff(note,
-									0,
-									mtProject.values.lastUsedInstrument - INSTRUMENTS_MAX);
+					sendMidiNoteOff(
+							note,
+							0,
+							mtProject.values.lastUsedInstrument - INSTRUMENTS_MAX);
 				}
 				else
 				{
