@@ -1053,7 +1053,6 @@ void Sequencer::playSelection(void) // potrzebuje aktualnego zaznaczenia
 	player.songMode = 0;
 	player.selectionMode = 1;
 
-
 	nanoStep = 1;
 	nanoStepMultiplier = 0;
 
@@ -1776,7 +1775,7 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 			if (step->note == STEP_NOTE_EMPTY &&
 					step->fx[0].type == 0 &&
 					step->fx[1].type == 0 &&
-					(source < 0 ? !player.track[tr].noteOpen : 1)&& // jesli nagrywamy instrument, nie patrz na otwarte nuty
+					(source < 0 ? !player.track[tr].noteOpen : 1) && // jesli nagrywamy instrument, nie patrz na otwarte nuty
 					!isTrackEngineMuted(tr)) // omijamy zmutowane tracki // stop mutantom
 			{
 				step->note = note;
@@ -1818,22 +1817,37 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 			if (!player.track[tr].noteOpen && !isTrackEngineMuted(tr))
 			{
 
-				//					player.track[tr].stepSent.note = note;
+
 				player.track[tr].noteOpen = 1;
 				player.track[tr].noteLength = 9999;
 				player.track[tr].recOpen = note;
 				player.track[tr].noteSource = source;
 
-				instrumentPlayer[tr].noteOff();
-				instrumentPlayer[tr].noteOn(
-											mtProject.values.lastUsedInstrument,
-											note,
-											map(velocity, 0, 127, 0, 100),
-											0,
-											0,
-											0, 0); //magiczne zera
+				if (mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+				{
+					uint8_t velo = mtProject.values.midiInstrument[mtProject.values.lastUsedInstrument - INSTRUMENTS_COUNT].velocity;
 
-				engine.setLastUsedVoice(tr);
+					sendMidiNoteOn(
+									note,
+									velo,
+									mtProject.values.lastUsedInstrument - INSTRUMENTS_MAX);
+
+				}
+				else
+				{
+
+					instrumentPlayer[tr].noteOff();
+					instrumentPlayer[tr].noteOn(
+							mtProject.values.lastUsedInstrument,
+							note,
+							map(velocity, 0, 127, 0, 100),
+							0,
+							0,
+							0,
+							0); //magiczne zera
+
+					engine.setLastUsedVoice(tr);
+				}
 
 				if (isMultiSelectionOnOneLine() &&
 						isEditMode() &&
@@ -1924,7 +1938,18 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 					&& player.track[tr].recOpen
 					&& player.track[tr].noteSource == source)
 			{
-				instrumentPlayer[tr].noteOff();
+
+
+				if (mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+				{
+					sendMidiNoteOff(note,
+									0,
+									mtProject.values.lastUsedInstrument - INSTRUMENTS_MAX);
+				}
+				else
+				{
+					instrumentPlayer[tr].noteOff();
+				}
 				player.track[tr].noteOpen = 0;
 				player.track[tr].recOpen = 0;
 				player.track[tr].noteSource = -1;
@@ -1932,7 +1957,6 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 				break;
 			}
 		}
-
 
 	}
 
