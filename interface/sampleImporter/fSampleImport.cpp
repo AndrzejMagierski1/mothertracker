@@ -346,14 +346,14 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 static  uint8_t functInstrumentAdd()
 {
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		SI->showStopPatternPopup();
-		SI->setStopPatternFunction();
-		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAdd;
-		return 1;
-	}
-	SI->stopPlayingAll();
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		SI->showStopPatternPopup();
+//		SI->setStopPatternFunction();
+//		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAdd;
+//		return 1;
+//	}
+//	SI->stopPlayingAll();
 
 	if(SI->explorerNames != nullptr && *SI->explorerNames[SI->selectedFile] != '/')
 	{
@@ -388,14 +388,14 @@ static  uint8_t functInstrumentDelete()
 {
 	if(SI->selectedPlace != 1) return 1;
 
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		SI->showStopPatternPopup();
-		SI->setStopPatternFunction();
-		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrDelete;
-		return 1;
-	}
-	SI->stopPlayingAll();
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		SI->showStopPatternPopup();
+//		SI->setStopPatternFunction();
+//		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrDelete;
+//		return 1;
+//	}
+//	SI->stopPlayingAll();
 
 	uint8_t deleteStart = SI->getSelectionStart(listInstruments);
 	uint8_t deleteEnd = SI->getSelectionEnd(listInstruments);
@@ -455,15 +455,15 @@ static  uint8_t functEnter()
 
 static uint8_t functInstrumentAddNext()
 {
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		SI->showStopPatternPopup();
-		SI->setStopPatternFunction();
-		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAddNext;
-		return 1;
-	}
-
-	SI->stopPlayingAll();
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		SI->showStopPatternPopup();
+//		SI->setStopPatternFunction();
+//		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrAddNext;
+//		return 1;
+//	}
+//
+//	SI->stopPlayingAll();
 
 
 	if(SI->explorerNames != nullptr  && *SI->explorerNames[SI->selectedFile] != '/')
@@ -572,14 +572,14 @@ static uint8_t functCopyPaste()
 {
 	if(SI->keyboardManager.getState()) return 1;
 
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		SI->showStopPatternPopup();
-		SI->setStopPatternFunction();
-		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrCopy;
-		return 1;
-	}
-	SI->stopPlayingAll();
+//	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+//	{
+//		SI->showStopPatternPopup();
+//		SI->setStopPatternFunction();
+//		SI->stopPatternAction = cSampleImporter::enStopPatternAction::instrCopy;
+//		return 1;
+//	}
+//	SI->stopPlayingAll();
 
 
 	if(tactButtons.isButtonPressed(interfaceButtonShift))

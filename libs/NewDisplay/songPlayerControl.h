@@ -55,6 +55,7 @@ typedef struct
 
 	uint8_t *patternsBitmask;
 	uint8_t *songData;
+	uint8_t *isMute;
 
 	song_selection_t selection;
 	progress_control_t progress;

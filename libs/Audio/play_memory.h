@@ -177,8 +177,6 @@ public:
 	bool isPlaying(void) { return playing; }											// status odtwarzania
 	virtual void update(void);
 	uint16_t getPosition();
-	void setCurrentLoadInstrument(int8_t idx);
-	void clearCurrentLoadInstrument();
 
 	//****************** modyfikacja parametrow z instrumentów
 	void setLP1(uint16_t value);
@@ -284,7 +282,6 @@ private:
 	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
 	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
 	volatile int16_t * currentStartAddress;
-	int8_t currentLoadInstrument = -1;
 
 	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
 	{

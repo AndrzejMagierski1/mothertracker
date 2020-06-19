@@ -699,11 +699,9 @@ void cFileManager::importSamplesToWorkspaceContinue()
 
 void cFileManager::importSamplesToWorkspaceFinish()
 {
-
+	engine.clearCurrentLoadInstrument(currentInstrument);
 	if(currentInstrument < importEndSlot && currentInstrument < INSTRUMENTS_COUNT-1)
 	{
-		engine.clearCurrentLoadInstrument(currentInstrument);
-
 		currentInstrument++;
 		currentSample++;
 

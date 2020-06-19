@@ -7,7 +7,6 @@ static cSampleRecorder* SR = &sampleRecorder;
 
 
 
-
 AudioInputI2S            i2sIn;
 AudioOutputI2S           i2sOut;
 AudioRecordQueue         queue;
@@ -164,7 +163,7 @@ IntervalTimer updateTimer;
 playerEngine instrumentPlayer[8];
 audioEngine engine;
 
-
+uint8_t isCurrentLoadInstrument[48];
 
 
 
@@ -401,17 +400,13 @@ void audioEngine::makeMetronomeTick(uint8_t accent)
 
 void audioEngine::setCurrentLoadInstrument(int8_t idx)
 {
-	for(uint8_t i = 0 ; i < 8 ; i++)
-	{
-		instrumentPlayer[i].setCurrentLoadInstrument(idx);
-	}
+	if((idx < 0) || (idx >= 48)) return;
+	isCurrentLoadInstrument[idx] = 1;
 }
 void audioEngine::clearCurrentLoadInstrument(int8_t idx)
 {
-	for(uint8_t i = 0 ; i < 8 ; i++)
-	{
-		instrumentPlayer[i].clearCurrentLoadInstrument();
-	}
+	if((idx < 0) || (idx >= 48)) return;
+	isCurrentLoadInstrument[idx] = 0;
 }
 
 playerEngine::playerEngine()
@@ -1161,17 +1156,6 @@ float playerEngine::getRMSValue()
 	return localVal;
 }
 
-
-void playerEngine::setCurrentLoadInstrument(int8_t idx)
-{
-	currentLoadInstrument = idx;
-	playMemPtr->setCurrentLoadInstrument(idx);
-}
-void playerEngine::clearCurrentLoadInstrument()
-{
-	currentLoadInstrument = -1;
-	playMemPtr->clearCurrentLoadInstrument();
-}
 
 void playerEngine::setPassEnvelope(uint8_t state)
 {

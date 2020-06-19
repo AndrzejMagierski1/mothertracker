@@ -77,7 +77,7 @@ status_t SDRAM_Init(SDRAM_Type *base, uint32_t address, uint32_t busClock_Hz)
     ctlConfig.location = kSDRAMC_Commandbit20;
     ctlConfig.block = kSDRAMC_Block0;
     /* SDRAM with trcd-15ns(min), trp-15ns(min), tras-37ns (min). */
-    ctlConfig.latency = kSDRAMC_LatencyTwo;
+    ctlConfig.latency = kSDRAMC_LatencyThree;
     ctlConfig.address = address;
     ctlConfig.addressMask = 0xFC0000;
 
@@ -89,7 +89,7 @@ status_t SDRAM_Init(SDRAM_Type *base, uint32_t address, uint32_t busClock_Hz)
     SDRAMC_Init(base, &config);
 
     /* The external SDRAM initialization sequence. */
-    return SDRAM_InitSequence(base, address, kSDRAMC_Block0, kSDRAM_MrsBurstLenOne, kSDRAM_MrsSequential, kSDRAM_MrsLatencyOne,
+    return SDRAM_InitSequence(base, address, kSDRAMC_Block0, kSDRAM_MrsBurstLenOne, kSDRAM_MrsSequential, kSDRAM_MrsLatencyThree,
                        kSDRAM_MrsStandOperation, kSDRAM_MrsWriteBurst);
 }
 

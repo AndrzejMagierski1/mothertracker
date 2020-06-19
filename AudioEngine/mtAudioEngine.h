@@ -511,8 +511,6 @@ public:
 //*****************
 	float getRMSValue();
 
-	void setCurrentLoadInstrument(int8_t idx);
-	void clearCurrentLoadInstrument();
 private:
 
 	friend 						audioEngine;
@@ -558,7 +556,6 @@ private:
 	bool isTrackDisplayed;
 	bool onEndDisplay;
 
-	int8_t currentLoadInstrument = -1;
 
 //**********************FUNKCJE POMOCNICZE
 	uint8_t isFxVelocity(uint8_t fx_id);
@@ -755,5 +752,7 @@ extern AudioAnalyzeRMS			rms;
 extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
 extern AudioSynthWaveform		testWaveform;
+
+extern uint8_t isCurrentLoadInstrument[48];
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */
