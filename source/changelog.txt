@@ -17,6 +17,13 @@
 			- tlo pod wav'em wyrownane do maxymalnego poziomu wyswietlanego sygnalu
 			- przycisk funkcyjny delete przywraca wartość defaultową tam gdzie to mozliwe
 			- wgrywanie akordów na zaznaczeniu poziomym
+			- fix external clocka i 'nuty widmo'
+			- dodana obsluga wyciszenia audio na starcie urzadzenia (urządzenia batch #2) (czas trwania do testów)
+			- poprawione dogrywanie i edit jeśli instrument to midi
+			- fix 0000254: Monophonic step recording produces double notes
+			- Operacje w sample importerze typu: ladowanie sampli, kasowanie , kopiowanie są możliwe podczas odgrywania sekwencji,
+			- W ekranie songu widac ktore tracki są zmutowane
+			- Ustawienie taktowania zewnętrznego RAMu na 90MHz i jego ponowna konfiguracja.
 			
 	1.0.1
 			- RAM fix
