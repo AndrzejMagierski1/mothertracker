@@ -18,6 +18,9 @@ Sequencer sequencer;
 
 extern audioEngine engine;
 
+extern uint8_t externalClockRunning;
+
+
 inline void timerExternalVector()
 {
 	sequencer.handle_uStep_timer();
@@ -1176,6 +1179,8 @@ void Sequencer::stop(void)
 	player.isREC = 0;
 	player.uStep = 0;
 	player.selectionMode = 0;
+
+	externalClockRunning = 0;
 
 	player.breakPattern = 0;
 

@@ -10,9 +10,9 @@
 #include "sampleRecorder/sampleRecorder.h"
 #include "sampleEditor/sampleEditor.h"
 
-static cSamplePlayback* SP = &samplePlayback;
-static cSampleRecorder* SR = &sampleRecorder;
-static cSampleEditor* SE = &sampleEditor;
+static cSamplePlayback *SP = &samplePlayback;
+static cSampleRecorder *SR = &sampleRecorder;
+static cSampleEditor *SE = &sampleEditor;
 
 void midiInit()
 {
@@ -310,6 +310,8 @@ elapsedMicros timeout = 0;
 uint8_t count = 0; 			// tu liczę numer clokcka od startu
 uint8_t clockStep = 0;
 
+uint8_t externalClockRunning = 0;
+
 long clock_total = 0;
 
 bool next_step = 0;
@@ -317,6 +319,8 @@ bool isFirstClock = 0;
 
 void receiveClock()
 {
+	if (!externalClockRunning) return;
+
 	if (!sequencer.isInternalClock())
 	{
 		if (count == 1)
@@ -347,6 +351,7 @@ void receiveClock()
 void receiveStart()
 {
 
+	externalClockRunning = 1;
 	count = 1;
 	clockStep = 0;
 
@@ -354,6 +359,7 @@ void receiveStart()
 }
 void receiveStop()
 {
+	externalClockRunning = 0;
 	sequencer.stop();
 }
 
