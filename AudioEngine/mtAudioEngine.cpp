@@ -249,7 +249,7 @@ void audioEngine::init()
 	polyverb.reset();
 	polyverb.setTime(0.5f);
 	polyverb.setDamp(0.2f);
-	polyverb.setAmount(1.0f);
+	polyverb.setAmount(0.8f);
 
 //	setPassEnvelope(1);
 }

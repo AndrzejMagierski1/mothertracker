@@ -41,12 +41,16 @@ class Reverb {
   Reverb() { }
   ~Reverb() { }
 
-  void Init(uint16_t* buffer) {
+  void Init(uint16_t* buffer, uint16_t* buffer2) {
     engine_.Init(buffer);
     engine_.SetLFOFrequency(LFO_1, 0.5f / 32000.0f);
     engine_.SetLFOFrequency(LFO_2, 0.3f / 32000.0f);
+    engine2_.Init(buffer2);
+    engine2_.SetLFOFrequency(LFO_1, 0.5f / 32000.0f);
+    engine2_.SetLFOFrequency(LFO_2, 0.3f / 32000.0f);
     lp_ = 0.7f;
     diffusion_ = 0.625f;
+    predelay_length_ = 0;
   }
 
   static constexpr size_t GetBufferSize() {
@@ -62,12 +66,14 @@ class Reverb {
       E::Reserve<214,
       E::Reserve<319,
       E::Reserve<527,
-      E::Reserve<1182,
-      E::Reserve<1690,
+      E::Reserve<2182,
+      E::Reserve<2690,
       E::Reserve<4501,
-      E::Reserve<1225,
-      E::Reserve<1197,
-      E::Reserve<5312> > > > > > > > > > Memory;
+      E::Reserve<predelay_buffer_size_
+      >>>>>>>> Memory;
+    typedef E2::Reserve<2525,
+      E2::Reserve<2197,
+      E2::Reserve<6312> > > Memory2;
     E::DelayLine<Memory, 0> ap1;
     E::DelayLine<Memory, 1> ap2;
     E::DelayLine<Memory, 2> ap3;
@@ -75,10 +81,12 @@ class Reverb {
     E::DelayLine<Memory, 4> dap1a;
     E::DelayLine<Memory, 5> dap1b;
     E::DelayLine<Memory, 6> del1;
-    E::DelayLine<Memory, 7> dap2a;
-    E::DelayLine<Memory, 8> dap2b;
-    E::DelayLine<Memory, 9> del2;
+    E::DelayLine<Memory, 7> del0;
+    E2::DelayLine<Memory2, 0> dap2a;
+    E2::DelayLine<Memory2, 1> dap2b;
+    E2::DelayLine<Memory2, 2> del2;
     E::Context c;
+    E2::Context c2;
 
     const float kap = diffusion_;
     const float klp = lp_;
@@ -95,13 +103,17 @@ class Reverb {
     for (size_t i = 0; i < size; i++) {
       float wet;
       float apout = 0.0f;
-      engine_.Start(&c);
+      engine_.StartNoLFO(&c);
+      engine2_.Start(&c2);
 
       // Smear AP1 inside the loop.
-      c.Interpolate(ap1, 10.0f, LFO_1, 80.0f, 1.0f);
-      c.Write(ap1, 100, 0.0f);
+      //c.Interpolate(ap1, 10.0f, LFO_1, 80.0f, 1.0f);
+      //c.Write(ap1, 100, 0.0f);
 
-      c.Read(((float) *left + (float) * right) / 32768, gain);  //TODO better convertion
+      c.Load(gain * ((float) *left + (float) * right) / 32768);  //TODO better convertion
+
+      c.Write(del0, 0.0f);
+      c.Read(del0, predelay_length_, 1.0f);
 
       // Diffuse through 4 allpasses.
       c.Read(ap1 TAIL, kap);
@@ -115,8 +127,11 @@ class Reverb {
       c.Write(apout);
 
       // Main reverb loop.
-      c.Load(apout);
-      c.Interpolate(del2, 5211.0f, LFO_2, 100.0f, krt);
+      c2.Load(apout);
+      c2.Interpolate(del2, 6211.0f, LFO_2, 100.0f, krt);
+      //c2.Read(del2 TAIL, krt);
+      c.accumulator_ = c2.accumulator_;
+      c.previous_read_ = c2.previous_read_;
       c.Lp(lp_1, klp);
       c.Read(dap1a TAIL, -kap);
       c.WriteAllPass(dap1a, kap);
@@ -133,12 +148,16 @@ class Reverb {
       // c.Interpolate(del1, 4450.0f, LFO_1, 50.0f, krt);
       c.Read(del1 TAIL, krt);
       c.Lp(lp_2, klp);
-      c.Read(dap2a TAIL, kap);
-      c.WriteAllPass(dap2a, -kap);
-      c.Read(dap2b TAIL, -kap);
-      c.WriteAllPass(dap2b, kap);
-      c.Write(del2, 2.0f);
-      c.Write(wet, 0.0f);
+      c2.accumulator_ = c.accumulator_;
+      c2.previous_read_ = c.previous_read_;
+      c2.Read(dap2a TAIL, kap);
+      c2.WriteAllPass(dap2a, -kap);
+      c2.Read(dap2b TAIL, -kap);
+      c2.WriteAllPass(dap2b, kap);
+      c2.Write(del2, 2.0f);
+      c2.Write(wet, 0.0f);
+      c.accumulator_ = c2.accumulator_;
+      c.previous_read_ = c2.previous_read_;
 
       delta = (wet * 32768 - *right) * amount;
       *right += delta;
@@ -173,8 +192,13 @@ class Reverb {
     lp_ = lp;
   }
 
+  inline void SetPredelayLength(float length) {
+    predelay_length_ = length * predelay_buffer_size_;
+  }
+
   inline void Reset() {
     engine_.Reset();
+    engine2_.Reset();
     last_update_delta_ = sound_delta_threshold_;
   }
 
@@ -188,18 +212,13 @@ class Reverb {
 
  private:
   typedef FxEngine<16384, FORMAT_16_BIT> E;
+  typedef FxEngine<16384, FORMAT_16_BIT> E2;
   E engine_;
+  E2 engine2_;
 
-  float amount_;    typedef E::Reserve<150,
-      E::Reserve<214,
-      E::Reserve<319,
-      E::Reserve<527,
-      E::Reserve<2182,
-      E::Reserve<2690,
-      E::Reserve<1501,
-      E::Reserve<2525,
-      E::Reserve<2197,
-      E::Reserve<2312> > > > > > > > > > Memory;
+  static constexpr size_t predelay_buffer_size_ = 5000;
+
+  float amount_;
 
   float input_gain_;
   float reverb_time_;
@@ -208,6 +227,8 @@ class Reverb {
 
   float lp_decay_1_;
   float lp_decay_2_;
+
+  int predelay_length_;
 
   float last_update_delta_;
   float sound_delta_threshold_ = 5.0f;

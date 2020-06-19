@@ -106,7 +106,7 @@ class FxEngine {
 
   void Init(T* buffer) {
     buffer_ = buffer;
-//    std::fill(&buffer_[0], &buffer_[size], 0); //pamiec w momencie wywolywania tej funkcji jest niezainicjalizowana
+//    std::fill(&buffer_[0], &buffer_[size], 0);
     write_ptr_ = 0;
   }
 
@@ -177,9 +177,9 @@ class FxEngine {
       STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
       T w = DataType<format>::Compress(accumulator_);
       if (offset == -1) {
-        buffer_[(write_ptr_ + D::base + D::length - 1) & MASK] = w;
+        buffer_[(write_ptr_ + D::base + D::length - 1) % size] = w;
       } else {
-        buffer_[(write_ptr_ + D::base + offset) & MASK] = w;
+        buffer_[(write_ptr_ + D::base + offset) % size] = w;
       }
       accumulator_ *= scale;
     }
@@ -205,9 +205,9 @@ class FxEngine {
       STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
       T r;
       if (offset == -1) {
-        r = buffer_[(write_ptr_ + D::base + D::length - 1) & MASK];
+        r = buffer_[(write_ptr_ + D::base + D::length - 1) % size];
       } else {
-        r = buffer_[(write_ptr_ + D::base + offset) & MASK];
+        r = buffer_[(write_ptr_ + D::base + offset) % size];
       }
       float r_f = DataType<format>::Decompress(r);
       previous_read_ = r_f;
@@ -234,9 +234,9 @@ class FxEngine {
       STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
       MAKE_INTEGRAL_FRACTIONAL(offset);
       float a = DataType<format>::Decompress(
-          buffer_[(write_ptr_ + offset_integral + D::base) & MASK]);
+          buffer_[(write_ptr_ + offset_integral + D::base) % size]);
       float b = DataType<format>::Decompress(
-          buffer_[(write_ptr_ + offset_integral + D::base + 1) & MASK]);
+          buffer_[(write_ptr_ + offset_integral + D::base + 1) % size]);
       float x = a + (b - a) * offset_fractional;
       previous_read_ = x;
       accumulator_ += x * scale;
@@ -249,15 +249,15 @@ class FxEngine {
       offset += amplitude * lfo_value_[index];
       MAKE_INTEGRAL_FRACTIONAL(offset);
       float a = DataType<format>::Decompress(
-          buffer_[(write_ptr_ + offset_integral + D::base) & MASK]);
+          buffer_[(write_ptr_ + offset_integral + D::base) % size]);
       float b = DataType<format>::Decompress(
-          buffer_[(write_ptr_ + offset_integral + D::base + 1) & MASK]);
+          buffer_[(write_ptr_ + offset_integral + D::base + 1) % size]);
       float x = a + (b - a) * offset_fractional;
       previous_read_ = x;
       accumulator_ += x * scale;
     }
 
-   private:
+   public:
     float accumulator_;
     float previous_read_;
     float lfo_value_[2];
@@ -280,13 +280,24 @@ class FxEngine {
     c->previous_read_ = 0.0f;
     c->buffer_ = buffer_;
     c->write_ptr_ = write_ptr_;
-    if ((write_ptr_ & 31) == 0) {
-      c->lfo_value_[0] = lfo_[0].Next();
+    if ((write_ptr_ & 30) == 0) {
+      //c->lfo_value_[0] = lfo_[0].Next();
       c->lfo_value_[1] = lfo_[1].Next();
     } else {
-      c->lfo_value_[0] = lfo_[0].value();
+      //c->lfo_value_[0] = lfo_[0].value();
       c->lfo_value_[1] = lfo_[1].value();
     }
+  }
+
+  inline void StartNoLFO(Context* c) {
+    --write_ptr_;
+    if (write_ptr_ < 0) {
+      write_ptr_ += size;
+    }
+    c->accumulator_ = 0.0f;
+    c->previous_read_ = 0.0f;
+    c->buffer_ = buffer_;
+    c->write_ptr_ = write_ptr_;
   }
 
  private:

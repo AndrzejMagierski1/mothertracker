@@ -1,13 +1,13 @@
 // Copyright 2020 Wojciech Jakóbczyk (jakobczyk.woj@gmail.com)
 
 #include "effect_polyverb.h"
-uint16_t sdram_reverbMemory[16384];
-
+extern uint16_t externalRamBufReverb[16384];
 
 AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
 {
-  buffer = sdram_reverbMemory; //static_cast<uint16_t*>(malloc(reverb.GetBufferSize()));
-  reverb.Init(buffer);
+  buffer = static_cast<uint16_t*>(malloc(reverb.GetBufferSize()));
+  buffer2 = externalRamBufReverb;
+  reverb.Init(buffer, buffer2);
 
   reverb.SetInputGain(0.1f);
   reverb.SetDiffusion(0.625f);
@@ -17,14 +17,14 @@ AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
 }
 
 AudioEffectPolyverb::~AudioEffectPolyverb() {
-//  free(buffer);
-	buffer = nullptr;
+  free(buffer);
 }
 
 void AudioEffectPolyverb::update(void)
 {
   audio_block_t *block_left;
   audio_block_t *block_right;
+
   block_left = receiveWritable(0);
   if (block_left == NULL)
     return;

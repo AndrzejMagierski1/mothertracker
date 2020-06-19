@@ -40,8 +40,14 @@ public:
     reverb.SetDiffusion(diffusion);
   }
 
+  // Predelay length, 0-1
+  void SetPredelayLength(float length) {
+    reverb.SetPredelayLength(length);
+  }
+
 private:
   audio_block_t *inputQueueArray[2];
   Reverb reverb;
   uint16_t *buffer;
+  uint16_t *buffer2;
 };
