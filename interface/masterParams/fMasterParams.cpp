@@ -80,11 +80,13 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 //REVERB TEST
 float reverbTime = 0.1;
 float reverbDamp = 0.1;
-float reverbDryWet = 0.5;
+float reverbPredelayLen = 0.1;
+float reverbDifusion = 0.5;
 
 bool isReverbTime;
 bool isReverbDamp;
 bool isReverbDryWet;
+bool isReverbDifusion;
 
 char reverbInfoText[30];
 //
@@ -241,13 +243,28 @@ static  uint8_t functEncoder(int16_t value)
 	{
 		float v = 0.01 * value;
 
-		if(reverbDryWet + v > 1.0f) reverbDryWet = 1.0f;
-		else if(reverbDryWet + v < 0.0f) reverbDryWet = 0.0f;
-		else  reverbDryWet += v;
+		if(reverbPredelayLen + v > 1.0f) reverbPredelayLen = 1.0f;
+		else if(reverbPredelayLen + v < 0.0f) reverbPredelayLen = 0.0f;
+		else  reverbPredelayLen += v;
 
-		polyverb.setAmount(reverbDryWet);
+		polyverb.SetPredelayLength(reverbPredelayLen);
 
-		sprintf(reverbInfoText,"Rev dry/wet: %d", (int)(reverbDryWet*100));
+		sprintf(reverbInfoText,"Rev predelay: %d", (int)(reverbPredelayLen*100));
+		Serial.println(reverbInfoText);
+		return 1;
+	}
+
+	if(isReverbDifusion)
+	{
+		float v = 0.01 * value;
+
+		if(reverbDifusion + v > 1.0f) reverbDifusion = 1.0f;
+		else if(reverbDifusion + v < 0.0f) reverbDifusion = 0.0f;
+		else  reverbDifusion += v;
+
+		polyverb.SetDiffusion(reverbDifusion);
+
+		sprintf(reverbInfoText,"Rev diffusion: %d", (int)(reverbDifusion*100));
 		Serial.println(reverbInfoText);
 		return 1;
 	}
@@ -525,6 +542,9 @@ static  uint8_t functSelectLimiterAttack(uint8_t state)
 static  uint8_t functSelectLimiterRelease(uint8_t state)
 {
 	if(state > buttonPress) return 1;
+
+	if(state == buttonPress) isReverbDifusion = true;
+	else if(state == buttonRelease) isReverbDifusion = false;
 
 	uint8_t node = 3;
 

@@ -1,7 +1,10 @@
 // Copyright 2020 Wojciech Jakóbczyk (jakobczyk.woj@gmail.com)
 
 #include "effect_polyverb.h"
+#include "arduino.h"
 extern uint16_t externalRamBufReverb[16384];
+
+
 
 AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
 {
@@ -13,7 +16,7 @@ AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
   reverb.SetDiffusion(0.625f);
   setTime(0.7f);
   setDamp(0.2f);
-  setAmount(0.8f);
+  setAmount(1.0f);
 }
 
 AudioEffectPolyverb::~AudioEffectPolyverb() {
