@@ -33,9 +33,9 @@ AudioBitDepth			 bitDepthControl[2];
 AudioEffectPolyverb		 polyverb;
 //AudioFilterStateVariable filterReverbOut;
 
-AudioMixer9				 mixerL,mixerR,mixerDelay;
+AudioMixer10			 mixerL,mixerR,mixerDelay,mixerReverb;
 AudioMixer4              mixerRec;
-AudioMixer9              mixerSourceL,mixerSourceR;
+AudioMixer10             mixerSourceL,mixerSourceR;
 
 AudioAnalyzeRMS			 rms;
 AudioRecordQueue		 exportL, exportR;
@@ -108,14 +108,29 @@ AudioConnection          connect46(&envelopeAmp[5], 0, &mixerDelay, 5);
 AudioConnection          connect47(&envelopeAmp[6], 0, &mixerDelay, 6);
 AudioConnection          connect48(&envelopeAmp[7], 0, &mixerDelay, 7);
 
+
+AudioConnection          connectSendReverb1(&envelopeAmp[0], 0, &mixerReverb, 0);
+AudioConnection          connectSendReverb2(&envelopeAmp[1], 0, &mixerReverb, 1);
+AudioConnection          connectSendReverb3(&envelopeAmp[2], 0, &mixerReverb, 2);
+AudioConnection          connectSendReverb4(&envelopeAmp[3], 0, &mixerReverb, 3);
+AudioConnection          connectSendReverb5(&envelopeAmp[4], 0, &mixerReverb, 4);
+AudioConnection          connectSendReverb6(&envelopeAmp[5], 0, &mixerReverb, 5);
+AudioConnection          connectSendReverb7(&envelopeAmp[6], 0, &mixerReverb, 6);
+AudioConnection          connectSendReverb8(&envelopeAmp[7], 0, &mixerReverb, 7);
+
 AudioConnection          connect49(&mixerDelay,&shortDelay);
 
+AudioConnection          connectMixSendReverbL(&mixerReverb,0,&polyverb,0);
+AudioConnection          connectMixSendReverbR(&mixerReverb,0,&polyverb,1);
 
 //AudioConnection          connect82(&reverb, &filterReverbOut);
 //AudioConnection          connect83(&reverb, &filterReverbOut);
 
 AudioConnection          connect50(&shortDelay, 0, &mixerL, 8);
 AudioConnection          connect51(&shortDelay, 1, &mixerR, 8);
+
+AudioConnection          connectWetReverbL(&polyverb,0,&mixerL,9);
+AudioConnection          connectWetReverbR(&polyverb,1,&mixerR,9);
 
 AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
 AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
@@ -141,11 +156,8 @@ AudioConnection          connect81(&testWaveform, 0, &mixerSourceL, 4);
 AudioConnection          connect82(&metronomeTick, 0, &mixerSourceR, 5);
 AudioConnection          connect83(&metronomeTick, 0, &mixerSourceL, 5);
 
-AudioConnection          connect84(&mixerSourceR, 0, &polyverb, 0);
-AudioConnection          connect85(&mixerSourceL, 0, &polyverb, 1);
-
-AudioConnection          connect59(&polyverb, 0, &i2sOut, 0);
-AudioConnection          connect60(&polyverb, 1, &i2sOut, 1);
+AudioConnection          connect59(&mixerSourceR, 0, &i2sOut, 0);
+AudioConnection          connect60(&mixerSourceL, 0, &i2sOut, 1);
 //**************** export
 AudioConnection          connect70(&mixerSourceL, &exportL);
 AudioConnection          connect71(&mixerSourceR, &exportR);
@@ -176,6 +188,7 @@ extern float reverbTime;
 extern float reverbDamp;
 extern float reverbPredelayLen;
 extern float reverbDifusion;
+extern float reverbGlobalSend;
 
 
 void updateAudioEngine();
@@ -257,6 +270,11 @@ void audioEngine::init()
 	polyverb.setDamp(reverbDamp);
 	polyverb.SetPredelayLength(reverbPredelayLen);
 	polyverb.SetDiffusion(reverbDifusion);
+
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		mixerReverb.gain(i,reverbGlobalSend);
+	}
 //	setPassEnvelope(1);
 }
 

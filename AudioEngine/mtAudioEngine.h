@@ -738,7 +738,7 @@ extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
 extern AudioAnalyzeRMS			trackRMS[8];
-extern AudioMixer9				mixerL,mixerR,mixerDelay;
+extern AudioMixer10				mixerL,mixerR,mixerDelay;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
 

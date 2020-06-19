@@ -25,7 +25,7 @@ static cMasterParams* MP = &masterParams;
 
 extern strMtProject mtProject;
 extern AudioControlSGTL5000 audioShield;
-
+extern AudioMixer10	mixerReverb;
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
@@ -82,11 +82,13 @@ float reverbTime = 0.1;
 float reverbDamp = 0.1;
 float reverbPredelayLen = 0.1;
 float reverbDifusion = 0.5;
+float reverbGlobalSend = 1.0;
 
 bool isReverbTime;
 bool isReverbDamp;
 bool isReverbDryWet;
 bool isReverbDifusion;
+bool isReverbGlobalSend;
 
 char reverbInfoText[30];
 //
@@ -265,6 +267,24 @@ static  uint8_t functEncoder(int16_t value)
 		polyverb.SetDiffusion(reverbDifusion);
 
 		sprintf(reverbInfoText,"Rev diffusion: %d", (int)(reverbDifusion*100));
+		Serial.println(reverbInfoText);
+		return 1;
+	}
+
+	if(isReverbGlobalSend)
+	{
+		float v = 0.01 * value;
+
+		if(reverbGlobalSend + v > 1.0f) reverbGlobalSend = 1.0f;
+		else if(reverbGlobalSend + v < 0.0f) reverbGlobalSend = 0.0f;
+		else  reverbGlobalSend += v;
+
+		for(uint8_t i = 0 ; i < 8 ; i++)
+		{
+			mixerReverb.gain(i,reverbGlobalSend);
+		}
+
+		sprintf(reverbInfoText,"Rev global send: %d", (int)(reverbGlobalSend*100));
 		Serial.println(reverbInfoText);
 		return 1;
 	}
@@ -561,6 +581,9 @@ static  uint8_t functSelectLimiterRelease(uint8_t state)
 static  uint8_t functSelectLimiterTreshold(uint8_t state)
 {
 	if(state > buttonPress) return 1;
+
+	if(state == buttonPress) isReverbGlobalSend = true;
+	else if(state == buttonRelease) isReverbGlobalSend = false;
 
 	uint8_t node = 4;
 
