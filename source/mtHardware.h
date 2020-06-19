@@ -149,6 +149,8 @@
 
 #define BOOTLOADER_PIN		81
 
+#define AUDIO_OUT_MUTE_PIN  21
+
 
 
 
