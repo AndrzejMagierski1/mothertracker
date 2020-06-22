@@ -370,6 +370,7 @@ void midiForceStep()
 		isFirstClock = 0;
 
 		sequencer.stop();
+		externalClockRunning = 1;
 		sequencer.play();
 	}
 	else
