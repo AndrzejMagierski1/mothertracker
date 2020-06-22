@@ -333,4 +333,9 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 	}
 
 	memset(source->allPatternsBitmask, 0, sizeof(source->allPatternsBitmask));
+
+	source->reverb.damp = 0.5f;
+	source->reverb.diffusion = 0.5f;
+	source->reverb.predelay = 0.5f;
+	source->reverb.size = 0.5f;
 }

@@ -2,6 +2,7 @@
 #include "fileManagerDefs.h"
 
 static void recoveryProjectVersion1();
+static void recoveryProjectVersion2();
 static void recoveryInstrumentVersion1();
 static void recoveryInstrumentVersion2();
 
@@ -13,7 +14,7 @@ mtVersionRecovery::mtVersionRecovery()
 {
 	//PROJECT
 	recoveryProjectFunction[0] = recoveryProjectVersion1;
-
+	recoveryProjectFunction[1] = recoveryProjectVersion2;
 	//INSTRUMENT
 	recoveryInstrumentFunction[0] = recoveryInstrumentVersion1;
 	recoveryInstrumentFunction[1] = recoveryInstrumentVersion2;
@@ -56,6 +57,22 @@ static void recoveryProjectVersion1()
 
 	memcpy(receivedProject->projectName,(uint8_t *)(((uint32_t)&tmp.projectName) - 4) , PROJECT_NAME_SIZE );
 	// shift 4 zostal dobrany metoda prob i bledow, teoretycznie dodano 1 byte ale prawdopdobnie kompilator to ulozyl w jakis inny sposob
+
+}
+// odzyskiwanie danych z projektu Versja 2
+static void recoveryProjectVersion2()
+{
+	strMtProjectRemote * receivedProject = versionRecovery.getReadedProject(); //wskaznik do projektu odczytanego z pliku
+	strMtProjectRemote tmp;
+
+	memcpy(&tmp,receivedProject, sizeof(tmp));
+
+	receivedProject->values.reverb.size = 0.5f;
+	receivedProject->values.reverb.damp = 0.5f;
+	receivedProject->values.reverb.predelay = 0.5f;
+	receivedProject->values.reverb.diffusion = 0.5f;
+
+	strcpy(receivedProject->projectName,tmp.projectName - sizeof(strMtValues::strReverbParams));
 
 }
 //*************************************************************************INSTRUMENT

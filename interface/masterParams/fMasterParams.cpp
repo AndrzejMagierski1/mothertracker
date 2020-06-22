@@ -54,6 +54,13 @@ static 	uint8_t functSelectDelaySyncRate();
 static 	uint8_t functSelectDelayTime();
 static 	uint8_t functSelectDelayFeedback();
 static 	uint8_t functDelayCancel();
+//reverb
+static 	uint8_t functSwitchToReverbWindow();
+static 	uint8_t functSelectReverbSize();
+static 	uint8_t functSelectReverbDamp();
+static	uint8_t functSelectReverbPredelay();
+static	uint8_t functSelectReverbDiffusion();
+static  uint8_t functReverbCancel();
 
 static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
@@ -77,21 +84,7 @@ void setDefaultLimiterTreshold();
 void setDefaultBithDepth();
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
-//REVERB TEST
-float reverbTime = 0.1;
-float reverbDamp = 0.1;
-float reverbPredelayLen = 0.1;
-float reverbDifusion = 0.5;
-float reverbGlobalSend = 1.0;
 
-bool isReverbTime;
-bool isReverbDamp;
-bool isReverbDryWet;
-bool isReverbDifusion;
-bool isReverbGlobalSend;
-
-char reverbInfoText[30];
-//
 void cMasterParams::update()
 {
 	if(displayType == display_t::mixer)
@@ -179,15 +172,15 @@ void cMasterParams::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButtonDelete, buttonPress, functDelete);
 
 	FM->setButtonObj(interfaceButton0, functSelectVolume);
-
 //	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
 //	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSwitchToReverbWindow);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSwitchToDelayWindow);
+	FM->setButtonObj(interfaceButton3, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
+	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
+	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
 
-	FM->setButtonObj(interfaceButton1, functSelectBitDepth);
-	FM->setButtonObj(interfaceButton2, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton3, functSelectLimiterRelease);
-	FM->setButtonObj(interfaceButton4, functSelectLimiterTreshold);
-	FM->setButtonObj(interfaceButton5, buttonPress, functSwitchToDelayWindow);
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
@@ -210,86 +203,6 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 
-	if(isReverbTime)
-	{
-		float v = 0.01 * value;
-
-		if(reverbTime + v > 1.0f) reverbTime = 1.0f;
-		else if(reverbTime + v < 0.0f) reverbTime = 0.0f;
-		else  reverbTime += v;
-
-		polyverb.setTime(reverbTime);
-
-		sprintf(reverbInfoText,"Rev time: %d", (int)(reverbTime*100));
-		Serial.println(reverbInfoText);
-
-		return 1;
-	}
-
-	if(isReverbDamp)
-	{
-		float v = 0.01 * value;
-
-		if(reverbDamp + v > 1.0f) reverbDamp = 1.0f;
-		else if(reverbDamp + v < 0.0f) reverbDamp = 0.0f;
-		else  reverbDamp += v;
-
-		polyverb.setDamp(reverbDamp);
-
-		sprintf(reverbInfoText,"Rev damp: %d", (int)(reverbDamp*100));
-		Serial.println(reverbInfoText);
-		return 1;
-	}
-
-	if(isReverbDryWet)
-	{
-		float v = 0.01 * value;
-
-		if(reverbPredelayLen + v > 1.0f) reverbPredelayLen = 1.0f;
-		else if(reverbPredelayLen + v < 0.0f) reverbPredelayLen = 0.0f;
-		else  reverbPredelayLen += v;
-
-		polyverb.SetPredelayLength(reverbPredelayLen);
-
-		sprintf(reverbInfoText,"Rev predelay: %d", (int)(reverbPredelayLen*100));
-		Serial.println(reverbInfoText);
-		return 1;
-	}
-
-	if(isReverbDifusion)
-	{
-		float v = 0.01 * value;
-
-		if(reverbDifusion + v > 1.0f) reverbDifusion = 1.0f;
-		else if(reverbDifusion + v < 0.0f) reverbDifusion = 0.0f;
-		else  reverbDifusion += v;
-
-		polyverb.SetDiffusion(reverbDifusion);
-
-		sprintf(reverbInfoText,"Rev diffusion: %d", (int)(reverbDifusion*100));
-		Serial.println(reverbInfoText);
-		return 1;
-	}
-
-	if(isReverbGlobalSend)
-	{
-		float v = 0.01 * value;
-
-		if(reverbGlobalSend + v > 1.0f) reverbGlobalSend = 1.0f;
-		else if(reverbGlobalSend + v < 0.0f) reverbGlobalSend = 0.0f;
-		else  reverbGlobalSend += v;
-
-		for(uint8_t i = 0 ; i < 8 ; i++)
-		{
-			mixerReverb.gain(i,reverbGlobalSend);
-		}
-
-		sprintf(reverbInfoText,"Rev global send: %d", (int)(reverbGlobalSend*100));
-		Serial.println(reverbInfoText);
-		return 1;
-	}
-
-
 	if(MP->isDelayScreen)
 	{
 		switch(MP->selectedPlaceDelay)
@@ -302,15 +215,26 @@ static  uint8_t functEncoder(int16_t value)
 			default: break;
 		}
 	}
+	else if(MP->isReverbScreen)
+	{
+		switch(MP->selectedPlaceReverb)
+		{
+			case 0: 	MP->changeReverbSize(value);				break;
+			case 1: 	MP->changeReverbDamp(value);				break;
+			case 2: 	MP->changeReverbPredelay(value);			break;
+			case 3: 	MP->changeReverbDiffusion(value);			break;
+			default: break;
+		}
+	}
 	else
 	{
 		switch(MP->selectedPlace)
 		{
 			case 0: changeVolume(value);			break;
-			case 1: changeBitDepth(value);			break;
-			case 2: changeLimiterAttack(value);		break;
-			case 3: changeLimiterRelease(value);	break;
-			case 4: changeLimiterTreshold(value);	break;
+			case 3: changeBitDepth(value);			break;
+			case 4: changeLimiterAttack(value);		break;
+			case 5: changeLimiterRelease(value);	break;
+			case 6: changeLimiterTreshold(value);	break;
 			default: break;
 		}
 	}
@@ -338,9 +262,18 @@ static  uint8_t functLeft()
 
 		MP->refreshDelayFrame();
 	}
+	else if(MP->isReverbScreen)
+	{
+		if(MP->selectedPlaceReverb > 0) MP->selectedPlaceReverb--;
+		MP->refreshReverbFrame();
+	}
 	else
 	{
-		if(MP->selectedPlace > 0) MP->selectedPlace--;
+		if(MP->selectedPlace > 0)
+		{
+			if(MP->selectedPlace == 3) MP->selectedPlace = 0;
+			else MP->selectedPlace--;
+		}
 		MP->activateLabelsBorder();
 	}
 
@@ -363,9 +296,18 @@ static  uint8_t functRight()
 
 		MP->refreshDelayFrame();
 	}
+	else if(MP->isReverbScreen)
+	{
+		if(MP->selectedPlaceReverb < MP->frameData.placesCount-1) MP->selectedPlaceReverb++;
+		MP->refreshReverbFrame();
+	}
 	else
 	{
-		if(MP->selectedPlace < MP->frameData.placesCount-1) MP->selectedPlace++;
+		if(MP->selectedPlace < MP->frameData.placesCount-1)
+		{
+			if(MP->selectedPlace == 0 ) MP->selectedPlace = 3;
+			else MP->selectedPlace++;
+		}
 		MP->activateLabelsBorder();
 	}
 
@@ -394,10 +336,10 @@ static  uint8_t functUp()
 		switch(MP->selectedPlace)
 		{
 			case 0: changeVolume(1);			break;
-			case 1: changeBitDepth(1);			break;
-			case 2: changeLimiterAttack(1);		break;
-			case 3: changeLimiterRelease(1);	break;
-			case 4: changeLimiterTreshold(1);	break;
+			case 3: changeBitDepth(1);			break;
+			case 4: changeLimiterAttack(1);		break;
+			case 5: changeLimiterRelease(1);	break;
+			case 6: changeLimiterTreshold(1);	break;
 			default: break;
 		}
 	}
@@ -424,15 +366,26 @@ static  uint8_t functDown()
 			default: break;
 		}
 	}
+	else if(MP->isReverbScreen)
+	{
+		switch(MP->selectedPlaceReverb)
+		{
+		case 0: 			break;
+		case 1: 			break;
+		case 2: 			break;
+		case 3: 			break;
+		default: break;
+		}
+	}
 	else
 	{
 		switch(MP->selectedPlace)
 		{
 			case 0: changeVolume(-1);			break;
-			case 1: changeBitDepth(-1);			break;
-			case 2: changeLimiterAttack(-1);	break;
-			case 3: changeLimiterRelease(-1);	break;
-			case 4: changeLimiterTreshold(-1);	break;
+			case 3: changeBitDepth(-1);			break;
+			case 4: changeLimiterAttack(-1);	break;
+			case 5: changeLimiterRelease(-1);	break;
+			case 6: changeLimiterTreshold(-1);	break;
 			default: break;
 		}
 	}
@@ -457,15 +410,26 @@ static 	uint8_t functDelete()
 		default: break;
 		}
 	}
+	else if(MP->isReverbScreen)
+	{
+		switch(MP->selectedPlaceReverb)
+		{
+		case 0: 			break;
+		case 1: 			break;
+		case 2: 			break;
+		case 3: 			break;
+		default: break;
+		}
+	}
 	else
 	{
 		switch(MP->selectedPlace)
 		{
 			case 0: setDefaultMasterVolume();		break;
-			case 1: setDefaultBithDepth();			break;
-			case 2: setDefaultLimiterAttack();		break;
-			case 3: setDefaultLimiterRelease();		break;
-			case 4: setDefaultLimiterTreshold();	break;
+			case 3: setDefaultBithDepth();			break;
+			case 4: setDefaultLimiterAttack();		break;
+			case 5: setDefaultLimiterRelease();		break;
+			case 6: setDefaultLimiterTreshold();	break;
 			default: break;
 		}
 	}
@@ -510,8 +474,6 @@ static  uint8_t functSelectVolume(uint8_t state)
 
 	uint8_t node = 0;
 
-	if(state == buttonPress) isReverbTime = true;
-	else if(state == buttonRelease) isReverbTime = false;
 
 	if(state == buttonPress)
 	{
@@ -526,10 +488,7 @@ static  uint8_t functSelectBitDepth(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	if(state == buttonPress) isReverbDamp = true;
-	else if(state == buttonRelease) isReverbDamp = false;
-
-	uint8_t node = 1;
+	uint8_t node = 3;
 
 	if(state == buttonPress)
 	{
@@ -545,10 +504,7 @@ static  uint8_t functSelectLimiterAttack(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	if(state == buttonPress) isReverbDryWet = true;
-	else if(state == buttonRelease) isReverbDryWet = false;
-
-	uint8_t node = 2;
+	uint8_t node = 4;
 
 	if(state == buttonPress)
 	{
@@ -563,10 +519,8 @@ static  uint8_t functSelectLimiterRelease(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	if(state == buttonPress) isReverbDifusion = true;
-	else if(state == buttonRelease) isReverbDifusion = false;
 
-	uint8_t node = 3;
+	uint8_t node = 5;
 
 	if(state == buttonPress)
 	{
@@ -582,10 +536,7 @@ static  uint8_t functSelectLimiterTreshold(uint8_t state)
 {
 	if(state > buttonPress) return 1;
 
-	if(state == buttonPress) isReverbGlobalSend = true;
-	else if(state == buttonRelease) isReverbGlobalSend = false;
-
-	uint8_t node = 4;
+	uint8_t node = 6;
 
 	if(state == buttonPress)
 	{
@@ -622,16 +573,18 @@ void cMasterParams::switchToMaster()
 
 //	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
 //	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSwitchToReverbWindow);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSwitchToDelayWindow);
+	FM->setButtonObj(interfaceButton3, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
+	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
+	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
 
-	FM->setButtonObj(interfaceButton1, functSelectBitDepth);
-	FM->setButtonObj(interfaceButton2, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton3, functSelectLimiterRelease);
-	FM->setButtonObj(interfaceButton4, functSelectLimiterTreshold);
-	FM->setButtonObj(interfaceButton5, buttonPress, functSwitchToDelayWindow);
 
 	showMasterScreen();
 	displayType = display_t::masterValues;
 	isDelayScreen = false;
+	isReverbScreen = false;
 }
 void cMasterParams::switchToMixer()
 {
@@ -672,6 +625,24 @@ void cMasterParams::switchToDelayScreen()
 
 	displayType = display_t::masterValues;
 	isDelayScreen = true;
+}
+
+void cMasterParams::switchToReverbScreen()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearButton(interfaceButtonShift);
+
+	FM->setButtonObj(interfaceButton0, buttonPress, functSelectReverbSize);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSelectReverbDamp);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSelectReverbPredelay);
+	FM->setButtonObj(interfaceButton3, buttonPress, functSelectReverbDiffusion);
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functReverbCancel);
+
+	showReverbScreen();
+
+	displayType = display_t::masterValues;
+	isReverbScreen = true;
 }
 
 //delay
@@ -722,6 +693,43 @@ static 	uint8_t functDelayCancel()
 	MP->switchToMaster();
 	return 1;
 }
+
+//reverb
+static 	uint8_t functSwitchToReverbWindow()
+{
+	MP->switchToReverbScreen();
+	return 1;
+}
+static 	uint8_t functSelectReverbSize()
+{
+	MP->selectedPlaceReverb = 0;
+	MP->refreshReverbFrame();
+	return 1;
+}
+static 	uint8_t functSelectReverbDamp()
+{
+	MP->selectedPlaceReverb = 1;
+	MP->refreshReverbFrame();
+	return 1;
+}
+static	uint8_t functSelectReverbPredelay()
+{
+	MP->selectedPlaceReverb = 2;
+	MP->refreshReverbFrame();
+	return 1;
+}
+static	uint8_t functSelectReverbDiffusion()
+{
+	MP->selectedPlaceReverb = 3;
+	MP->refreshReverbFrame();
+	return 1;
+}
+static  uint8_t functReverbCancel()
+{
+	MP->switchToMaster();
+	return 1;
+}
+
 
 void cMasterParams::calcTrackLevel(uint8_t n)
 {
@@ -825,6 +833,7 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 		else if(MP->displayType == cMasterParams::display_t::mixer)
 		{
 			if(MP->isDelayScreen) MP->switchToDelayScreen();
+			else if(MP->isReverbScreen) MP->switchToReverbScreen();
 			else MP->switchToMaster();
 		}
 /*		CE->clearAllNodes();
@@ -1058,6 +1067,56 @@ void cMasterParams::changeDelayFeedback(int16_t val)
 
 	showDelayFeedback();
 }
+
+void cMasterParams::changeReverbSize(int16_t val)
+{
+	float v = 0.01 * val;
+
+	if(mtProject.values.reverb.size + v > 1.0f) mtProject.values.reverb.size  = 1.0f;
+	else if(mtProject.values.reverb.size + v < 0.0f) mtProject.values.reverb.size  = 0.0f;
+	else  mtProject.values.reverb.size  += v;
+
+	polyverb.setTime(mtProject.values.reverb.size);
+
+	showReverbSize();
+}
+void cMasterParams::changeReverbDamp(int16_t val)
+{
+	float v = 0.01 * val;
+
+	if(mtProject.values.reverb.damp + v > 1.0f) mtProject.values.reverb.damp = 1.0f;
+	else if(mtProject.values.reverb.damp + v < 0.0f) mtProject.values.reverb.damp = 0.0f;
+	else  mtProject.values.reverb.damp += v;
+
+	polyverb.setDamp(mtProject.values.reverb.damp);
+
+	showReverbDamp();
+}
+void cMasterParams::changeReverbPredelay(int16_t val)
+{
+	float v = 0.01 * val;
+
+	if(mtProject.values.reverb.predelay + v > 1.0f) mtProject.values.reverb.predelay = 1.0f;
+	else if(mtProject.values.reverb.predelay + v < 0.0f) mtProject.values.reverb.predelay = 0.0f;
+	else  mtProject.values.reverb.predelay += v;
+
+	polyverb.SetPredelayLength(mtProject.values.reverb.predelay);
+
+	showReverbPredelay();
+}
+void cMasterParams::changeReverbDiffusion(int16_t val)
+{
+	float v = 0.01 * val;
+
+	if(mtProject.values.reverb.diffusion + v > 1.0f) mtProject.values.reverb.diffusion = 1.0f;
+	else if(mtProject.values.reverb.diffusion + v < 0.0f) mtProject.values.reverb.diffusion = 0.0f;
+	else  mtProject.values.reverb.diffusion += v;
+
+	polyverb.SetDiffusion(mtProject.values.reverb.diffusion);
+
+	showReverbDiffusion();
+}
+
 
 void cMasterParams::setDefaultDelayPingPongEnable()
 {

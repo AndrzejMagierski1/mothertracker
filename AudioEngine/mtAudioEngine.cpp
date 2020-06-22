@@ -184,13 +184,6 @@ uint8_t isCurrentLoadInstrument[48];
 
 constexpr uint16_t RELEASE_NOTE_ON_VAL = 1;
 
-extern float reverbTime;
-extern float reverbDamp;
-extern float reverbPredelayLen;
-extern float reverbDifusion;
-extern float reverbGlobalSend;
-
-
 void updateAudioEngine();
 
 void audioEngine::printLog(SdFile * log)
@@ -266,14 +259,14 @@ void audioEngine::init()
 	updateTimer.priority(255);
 
 	polyverb.reset();
-	polyverb.setTime(reverbTime);
-	polyverb.setDamp(reverbDamp);
-	polyverb.SetPredelayLength(reverbPredelayLen);
-	polyverb.SetDiffusion(reverbDifusion);
+	polyverb.setTime(mtProject.values.reverb.size);
+	polyverb.setDamp(mtProject.values.reverb.damp);
+	polyverb.SetPredelayLength(mtProject.values.reverb.predelay);
+	polyverb.SetDiffusion(mtProject.values.reverb.diffusion);
 
 	for(uint8_t i = 0 ; i < 8; i++)
 	{
-		mixerReverb.gain(i,reverbGlobalSend);
+		mixerReverb.gain(i,0.5);
 	}
 //	setPassEnvelope(1);
 }
