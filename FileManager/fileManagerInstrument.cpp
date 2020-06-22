@@ -413,7 +413,7 @@ void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstru
 	targetInstrument->playMode = 0;
 
 	targetInstrument->envelope[envAmp].delay = 0;
-	targetInstrument->envelope[envAmp].attack = 0;
+	targetInstrument->envelope[envAmp].attack = 10;
 	targetInstrument->envelope[envAmp].hold = 0;
 	targetInstrument->envelope[envAmp].decay = 0;
 	targetInstrument->envelope[envAmp].sustain = 1.0;
