@@ -24,6 +24,7 @@
 			- Operacje w sample importerze typu: ladowanie sampli, kasowanie , kopiowanie są możliwe podczas odgrywania sekwencji,
 			- W ekranie songu widac ktore tracki są zmutowane
 			- Ustawienie taktowania zewnętrznego RAMu na 90MHz i jego ponowna konfiguracja.
+			- default attack envelope amp zmieniono na 10ms
 			
 	1.0.1
 			- RAM fix
