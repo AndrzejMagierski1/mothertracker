@@ -20,7 +20,6 @@ extern audioEngine engine;
 
 extern uint8_t externalClockRunning;
 
-
 inline void timerExternalVector()
 {
 	sequencer.handle_uStep_timer();
@@ -55,7 +54,8 @@ void Sequencer::closeBlinkNote(void)
 
 bool Sequencer::isInternalClock(void)
 {
-	return mtConfig.midi.clkIn == clockIn_Internal;
+	return (mtConfig.midi.clkIn == clockIn_Internal) ||
+			player.selectionMode;
 }
 
 extern cSampleRecorder sampleRecorder;
@@ -1032,6 +1032,11 @@ void Sequencer::play(uint8_t fromPos)
 	}
 
 	sendMidiStart();
+
+	if (!isInternalClock())
+	{
+		externalClockRunning = 1;
+	}
 
 //	player.metronome_timer = 1;
 
