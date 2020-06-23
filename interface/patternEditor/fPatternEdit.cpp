@@ -1329,10 +1329,11 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 		FM->setButtonObj(interfaceButton1, functChangePatternLength);
 		FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
 
+		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
+
 		if(editMode)
 		{
 			FM->setButtonObj(interfaceButton3, buttonPress, functFill);
-			FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 			FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 			FM->setButtonObj(interfaceButton6, buttonPress, functExportSelection);
 			FM->setButtonObj(interfaceButton7, functUndo);
