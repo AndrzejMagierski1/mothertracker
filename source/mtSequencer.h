@@ -410,6 +410,7 @@ public:
 		{
 			int16_t patternLength = -1;
 			int16_t initialPatternLength = 8;
+			int16_t trackLength[8] = { 8, 8, 8, 8, 8, 8, 8, 8 };
 			float tempo = 0.0;
 			int8_t tempoSource = -1;
 		} performance;
@@ -580,6 +581,11 @@ public:
 		player.songMode = 0;
 		player.performanceMode = 1;
 		player.performance.initialPatternLength = getActualPattern()->track[0].length;
+
+		for(uint8_t a = 0; a<8; a++)
+		{
+			player.performance.trackLength[a] = getActualPattern()->track[0].length;
+		}
 	}
 
 	enum enSeqState
@@ -604,7 +610,6 @@ public:
 	{
 		return player.isPlay;
 	}
-
 
 	uint8_t isPerformanceMode()
 	{
@@ -643,6 +648,7 @@ public:
 	void switchPerformanceTrackNow(uint8_t trackToSwitch);
 	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
 	void setTrackToLoadNow(uint8_t track, uint8_t sourcePattern);
+	void setPerformanceTrackLength(uint8_t track, uint8_t length);
 
 	void sequencialSwitch_changeNextPattern(int8_t delta);
 	void sequencialSwitch_SetReady();
@@ -776,7 +782,7 @@ public:
 	void blinkSelectedStep();
 
 	void loadNextPattern(uint8_t patternNumber);
-//	void handleNote(byte channel, byte pitch, byte velocity);
+	//	void handleNote(byte channel, byte pitch, byte velocity);
 //	void handleNote(byte channel, byte pitch, byte velocity, int16_t source);
 	void handleNoteOn(byte channel, byte pitch, byte velocity, int16_t source);
 	void handleNoteOff(byte channel, byte pitch, byte velocity, int16_t source);

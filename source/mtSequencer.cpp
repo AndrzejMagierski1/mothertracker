@@ -1257,7 +1257,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 	if (player.performanceMode)
 	{
-		patternLength = player.performance.initialPatternLength;
+		patternLength = player.performance.trackLength[row];
 	}
 
 	if (player.performance.patternLength > -1)
@@ -2115,6 +2115,14 @@ void Sequencer::setTrackToLoadNow(uint8_t track, uint8_t sourcePattern)
 	switchPerformanceTrackNow(track);
 }
 
+void Sequencer::setPerformanceTrackLength(uint8_t track, uint8_t length)
+{
+	if (track >= 8) return;
+	if (length > MAXSTEP) return;
+
+	player.performance.trackLength[track] = length;
+}
+
 uint8_t Sequencer::getRollType(uint8_t value)
 {
 	return (value / (fx.ROLL_PERIOD_MAX + 1));
@@ -2200,6 +2208,9 @@ void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
 	Sequencer::strPattern *patternFrom = &fileManagerPerformancePatternBuffer;
 
 	patternTo->track[trackToSwitch] = patternFrom->track[trackToSwitch];
+
+	setPerformanceTrackLength(trackToSwitch, patternFrom->track[0].length);
+
 	player.track[trackToSwitch].performanceSourcePattern = -1;
 
 }
