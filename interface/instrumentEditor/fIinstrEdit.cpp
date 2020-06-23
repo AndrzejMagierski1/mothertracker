@@ -41,9 +41,14 @@ static  uint8_t functSwitchMode(uint8_t button);
 
 static  uint8_t functSelectParams(uint8_t button, uint8_t state);
 
-
+static uint8_t functSwitchToSends(uint8_t state);
 
 static uint8_t functStepNote(uint8_t value);
+
+
+static uint8_t functSendSelectReverb();
+static uint8_t functSendSelectDelay();
+static uint8_t functSendBack();
 
 
 void changeEnvList(int16_t value);
@@ -235,10 +240,12 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
+	for(uint8_t i = interfaceButton0; i < interfaceButton7; i++)
 	{
 		FM->setButtonObj(i, functSelectParams);
 	}
+
+	FM->setButtonObj(interfaceButton7, functSwitchToSends);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -272,6 +279,21 @@ void cInstrumentEditor::clearDefaultScreenFunct()
 	FM->clearButton(interfaceButtonUp);
 	FM->clearButton(interfaceButtonDown);
 
+}
+
+void cInstrumentEditor::switchToSendScreen()
+{
+	isSendsWindow = true;
+	setSendScreenFunct();
+	showSendScreen();
+}
+void cInstrumentEditor::setSendScreenFunct()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->setButtonObj(interfaceButton0, buttonPress, functSendSelectReverb);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSendSelectDelay);
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functSendBack);
 }
 
 //==============================================================================================================
@@ -413,7 +435,11 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 	return 1;
 }
 
-
+static uint8_t functSwitchToSends(uint8_t state)
+{
+	if(state == buttonPress) IE->switchToSendScreen();
+	return 1;
+}
 
 //==============================================================================================================
 static  uint8_t functEncoder(int16_t value)
@@ -515,7 +541,7 @@ static  uint8_t functRight()
 		{
 			if(!IE->editorInstrument->filterEnable)
 			{
-				IE->selectedPlace[IE->mode] = 7;
+				IE->selectedPlace[IE->mode] = 4;
 			}
 		}
 	}
@@ -1328,6 +1354,22 @@ void cInstrumentEditor::setDefaultValue(uint8_t place)
 		case 20: 	setDefaultMidiVelocity(); 	break;
 		default: break;
 	}
+}
+
+static uint8_t functSendSelectReverb()
+{
+	return 1;
+}
+static uint8_t functSendSelectDelay()
+{
+	return 1;
+}
+static uint8_t functSendBack()
+{
+	IE->isSendsWindow = false;
+	IE->setDefaultScreenFunct();
+	IE->showInstrumentParams();
+	return 1;
 }
 
 void cInstrumentEditor::setDefaultVolume()

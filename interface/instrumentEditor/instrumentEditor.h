@@ -377,7 +377,13 @@ public:
 	void clearAllNodes();
 	void cancelMultiFrame();
 
-
+//sends screen
+	void switchToSendScreen();
+	void setSendScreenFunct();
+	void showSendScreen();
+	void showSendScreenFrame();
+	bool isSendsWindow;
+	uint8_t selectedPlaceSends;
 
 
 };
