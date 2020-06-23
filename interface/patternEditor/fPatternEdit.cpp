@@ -893,7 +893,16 @@ void cPatternEditor::setActualPattern(int16_t value)
 	refreshPattern();
 
 }
-
+const uint8_t changeLengthVals_elements = 11;
+const uint8_t changeLengthVals[changeLengthVals_elements] =
+		{
+				1, 2, 4, 8, 16, 32, 48, 64, 80, 96, 128
+		};
+const uint8_t changeStepVals_elements = 7;
+const uint8_t changeStepVals[changeLengthVals_elements] =
+		{
+				0, 1, 2, 4, 8, 16, 32
+		};
 void cPatternEditor::changeActualPatternLength(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
@@ -909,6 +918,48 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 
 	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
 
+
+	showLength();
+
+	refreshPattern();
+
+	newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+}
+void cPatternEditor::changeActualPatternLengthByDefinedValues(int16_t dir)
+{
+	Sequencer::strPattern *pattern = sequencer.getPatternToUI();
+
+	if (dir > 0)
+	{
+		for (int8_t a = 0; a < changeLengthVals_elements; a++)
+		{
+			if (pattern->track[0].length < changeLengthVals[a] - 1)
+			{
+				pattern->track[0].length = changeLengthVals[a] - 1;
+				break;
+			}
+		}
+	}
+	else if (dir < 0)
+	{
+		for (int8_t a = changeLengthVals_elements-1; a >= 0; a--)
+		{
+			if (pattern->track[0].length > changeLengthVals[a] - 1)
+			{
+				pattern->track[0].length = changeLengthVals[a] - 1;
+				break;
+			}
+		}
+	}
+
+
+	for (uint8_t i = 1; i < 8; i++)
+		pattern->track[i].length = pattern->track[0].length;
+
+	trackerPattern.patternLength = pattern->track[0].length + 1;
+
+	if (trackerPattern.actualStep > trackerPattern.patternLength - 1)
+		trackerPattern.actualStep = trackerPattern.patternLength - 1;
 
 	showLength();
 
@@ -943,6 +994,37 @@ void cPatternEditor::changeActualPatternEditStep(int16_t value)
 			mtProject.values.patternEditStep + value,
 			0,
 			PATTERN_EDIT_STEP_MAX);
+
+	showStep();
+
+	newFileManager.setProjectStructChanged();
+	//newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+}
+void cPatternEditor::changeActualPatternEditStepByDefinedValues(int16_t value)
+{
+
+	if (value > 0)
+	{
+		for (int8_t a = 0; a < changeStepVals_elements; a++)
+		{
+			if (mtProject.values.patternEditStep < changeStepVals[a] )
+			{
+				mtProject.values.patternEditStep = changeStepVals[a] ;
+				break;
+			}
+		}
+	}
+	else if (value < 0)
+	{
+		for (int8_t a = changeStepVals_elements - 1; a >= 0; a--)
+		{
+			if (mtProject.values.patternEditStep > changeStepVals[a] )
+			{
+				mtProject.values.patternEditStep = changeStepVals[a] ;
+				break;
+			}
+		}
+	}
 
 	showStep();
 
@@ -1619,6 +1701,10 @@ static  uint8_t functLeft()
 		case 0:
 			sequencer.sequencialSwitch_changeNextPattern(-1);
 			return 1;
+
+		case 1: PTE->changeActualPatternLengthByDefinedValues(-1); 	return 1;
+		case 2: PTE->changeActualPatternEditStepByDefinedValues(-1); 	return 1;
+
 		case 7:
 			functUndoRedo(-1);
 			return 1;
@@ -1698,6 +1784,10 @@ static  uint8_t functRight()
 		case 0:
 			sequencer.sequencialSwitch_changeNextPattern(1);
 			return 1;
+
+		case 1: PTE->changeActualPatternLengthByDefinedValues(1); 	 return 1;
+		case 2: PTE->changeActualPatternEditStepByDefinedValues(1);  return 1;
+
 		case 7:
 			functUndoRedo(1);
 			return 1;
