@@ -1,5 +1,8 @@
 	
-	
+	1.0.4
+			- zmiana step i length w 'Pattern' klawiszami lewo/prawo o zdefiniowane wartości 1,2,4,8...
+			- preview po puszczeniu shifta w trybie zielonym nie dzialal
+			- granie patternami o roznej dlugosci w performance
 	
 	1.0.3 	Co nowego?
 			- fixed some bugs in external clock
