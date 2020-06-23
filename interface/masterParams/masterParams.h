@@ -139,11 +139,6 @@ public:
 	void changeDelayRate(int16_t val);
 	void changeDelayTime(int16_t val);
 	void changeDelayFeedback(int16_t val);
-// reverb
-	void changeReverbSize(int16_t val);
-	void changeReverbDamp(int16_t val);
-	void changeReverbPredelay(int16_t val);
-	void changeReverbDiffusion(int16_t val);
 
 	void setDefaultDelayPingPongEnable();
 	void setDefaultDelaySyncEnable();
@@ -151,7 +146,16 @@ public:
 	void setDefaultDelayTime();
 	void setDefaultDelayFeedback();
 
+// reverb
+	void changeReverbSize(int16_t val);
+	void changeReverbDamp(int16_t val);
+	void changeReverbPredelay(int16_t val);
+	void changeReverbDiffusion(int16_t val);
 
+	void setDefaultReverbSize();
+	void setDefaultReverbDamp();
+	void setDefaultReverbPredelay();
+	void setDefaultReverbDiffusion();
 	//
 	void activateLabelsBorder();
 	void refreshDelayFrame();

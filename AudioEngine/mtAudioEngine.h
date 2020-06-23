@@ -199,6 +199,10 @@ public:
 	void setDelayFeedback(uint8_t value);
 	void setDelayTime(uint16_t value);
 	void setDelayPanning(int8_t value);
+	void setReverbSize(float value);
+	void setReverbDamp(float value);
+	void setReverbPredelay(float value);
+	void setReverbDiffusion(float value);
 	void setDelayParams(uint8_t value);
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);

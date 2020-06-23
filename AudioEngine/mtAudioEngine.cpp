@@ -381,6 +381,23 @@ void audioEngine::setDelayPanning(int8_t value)
 	}
 }
 
+void audioEngine::setReverbSize(float value)
+{
+	polyverb.setTime(value);
+}
+void audioEngine::setReverbDamp(float value)
+{
+	polyverb.setDamp(value);
+}
+void audioEngine::setReverbPredelay(float value)
+{
+	polyverb.SetPredelayLength(value);
+}
+void audioEngine::setReverbDiffusion(float value)
+{
+	polyverb.SetDiffusion(value);
+}
+
 void audioEngine::setLimiterAttack(uint16_t attack)
 {
 	limiter[0].setAttack(attack);

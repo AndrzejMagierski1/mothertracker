@@ -193,6 +193,20 @@ const uint8_t DELAY_FEEDBACK_MAX			=	70;
 const uint16_t DELAY_TIME_MIN				= 	1;
 const uint16_t DELAY_TIME_MAX				=	3500;
 
+const float REVERB_SIZE_MAX 				= 	1.0f;
+const float REVERB_SIZE_MIN 				= 	0.0f;
+const float REVERB_DAMP_MAX 				= 	1.0f;
+const float REVERB_DAMP_MIN 				= 	0.0f;
+const float REVERB_PREDELAY_MAX 		    = 	1.0f;
+const float REVERB_PREDELAY_MIN 		    = 	0.0f;
+const float REVERB_DIFFUSION_MAX 		    = 	1.0f;
+const float REVERB_DIFFUSION_MIN 		    = 	0.0f;
+
+const float DEFAULT_REVERB_SIZE 			=	 0.5f;
+const float DEFAULT_REVERB_DAMP 			=	 0.5f;
+const float DEFAULT_REVERB_PREDELAY 		=	 0.5f;
+const float DEFAULT_REVERB_DIFFUSION 		=	 0.5f;
+
 const uint8_t LIMITER_ATTACK_MIN 			=	1;
 const uint16_t LIMITER_ATTACK_MAX  			=	1000;
 const float LIMITER_RELEASE_MIN  			=	0.02;

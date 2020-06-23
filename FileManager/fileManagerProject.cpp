@@ -334,8 +334,8 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 
 	memset(source->allPatternsBitmask, 0, sizeof(source->allPatternsBitmask));
 
-	source->reverb.damp = 0.5f;
-	source->reverb.diffusion = 0.5f;
-	source->reverb.predelay = 0.5f;
-	source->reverb.size = 0.5f;
+	source->reverb.damp = DEFAULT_REVERB_DAMP;
+	source->reverb.diffusion = DEFAULT_REVERB_DIFFUSION;
+	source->reverb.predelay = DEFAULT_REVERB_PREDELAY;
+	source->reverb.size = DEFAULT_REVERB_SIZE;
 }

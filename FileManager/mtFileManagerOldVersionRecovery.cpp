@@ -67,10 +67,10 @@ static void recoveryProjectVersion2()
 
 	memcpy(&tmp,receivedProject, sizeof(tmp));
 
-	receivedProject->values.reverb.size = 0.5f;
-	receivedProject->values.reverb.damp = 0.5f;
-	receivedProject->values.reverb.predelay = 0.5f;
-	receivedProject->values.reverb.diffusion = 0.5f;
+	receivedProject->values.reverb.size = DEFAULT_REVERB_SIZE;
+	receivedProject->values.reverb.damp = DEFAULT_REVERB_DAMP;
+	receivedProject->values.reverb.predelay = DEFAULT_REVERB_PREDELAY;
+	receivedProject->values.reverb.diffusion = DEFAULT_REVERB_DIFFUSION;
 
 	strcpy(receivedProject->projectName,tmp.projectName - sizeof(strMtValues::strReverbParams));
 

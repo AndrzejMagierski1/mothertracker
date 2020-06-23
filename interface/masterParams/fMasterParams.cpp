@@ -331,6 +331,17 @@ static  uint8_t functUp()
 			default: break;
 		}
 	}
+	else if(MP->isReverbScreen)
+	{
+		switch(MP->selectedPlaceReverb)
+		{
+			case 0: 	MP->changeReverbSize(1);				break;
+			case 1: 	MP->changeReverbDamp(1);				break;
+			case 2: 	MP->changeReverbPredelay(1);			break;
+			case 3: 	MP->changeReverbDiffusion(1);			break;
+			default: break;
+		}
+	}
 	else
 	{
 		switch(MP->selectedPlace)
@@ -370,11 +381,11 @@ static  uint8_t functDown()
 	{
 		switch(MP->selectedPlaceReverb)
 		{
-		case 0: 			break;
-		case 1: 			break;
-		case 2: 			break;
-		case 3: 			break;
-		default: break;
+			case 0: 	MP->changeReverbSize(-1);				break;
+			case 1: 	MP->changeReverbDamp(-1);				break;
+			case 2: 	MP->changeReverbPredelay(-1);			break;
+			case 3: 	MP->changeReverbDiffusion(-1);			break;
+			default: break;
 		}
 	}
 	else
@@ -414,11 +425,11 @@ static 	uint8_t functDelete()
 	{
 		switch(MP->selectedPlaceReverb)
 		{
-		case 0: 			break;
-		case 1: 			break;
-		case 2: 			break;
-		case 3: 			break;
-		default: break;
+			case 0: 	MP->setDefaultReverbSize();				break;
+			case 1: 	MP->setDefaultReverbDamp();				break;
+			case 2: 	MP->setDefaultReverbPredelay();			break;
+			case 3: 	MP->setDefaultReverbDiffusion();		break;
+			default: break;
 		}
 	}
 	else
@@ -1054,6 +1065,8 @@ void cMasterParams::changeDelayTime(int16_t val)
 	newFileManager.setProjectStructChanged();
 
 	showDelayTime();
+
+	newFileManager.setProjectStructChanged();
 }
 void cMasterParams::changeDelayFeedback(int16_t val)
 {
@@ -1072,11 +1085,11 @@ void cMasterParams::changeReverbSize(int16_t val)
 {
 	float v = 0.01 * val;
 
-	if(mtProject.values.reverb.size + v > 1.0f) mtProject.values.reverb.size  = 1.0f;
-	else if(mtProject.values.reverb.size + v < 0.0f) mtProject.values.reverb.size  = 0.0f;
+	if(mtProject.values.reverb.size + v > REVERB_SIZE_MAX) mtProject.values.reverb.size  = REVERB_SIZE_MAX;
+	else if(mtProject.values.reverb.size + v < REVERB_SIZE_MIN) mtProject.values.reverb.size  = REVERB_SIZE_MIN;
 	else  mtProject.values.reverb.size  += v;
 
-	polyverb.setTime(mtProject.values.reverb.size);
+	engine.setReverbSize(mtProject.values.reverb.size);
 
 	showReverbSize();
 }
@@ -1084,39 +1097,84 @@ void cMasterParams::changeReverbDamp(int16_t val)
 {
 	float v = 0.01 * val;
 
-	if(mtProject.values.reverb.damp + v > 1.0f) mtProject.values.reverb.damp = 1.0f;
-	else if(mtProject.values.reverb.damp + v < 0.0f) mtProject.values.reverb.damp = 0.0f;
+	if(mtProject.values.reverb.damp + v > REVERB_DAMP_MAX) mtProject.values.reverb.damp = REVERB_DAMP_MAX;
+	else if(mtProject.values.reverb.damp + v < REVERB_DAMP_MIN) mtProject.values.reverb.damp = REVERB_DAMP_MIN;
 	else  mtProject.values.reverb.damp += v;
 
-	polyverb.setDamp(mtProject.values.reverb.damp);
+	engine.setReverbDamp(mtProject.values.reverb.damp);
 
 	showReverbDamp();
+
+	newFileManager.setProjectStructChanged();
 }
 void cMasterParams::changeReverbPredelay(int16_t val)
 {
 	float v = 0.01 * val;
 
-	if(mtProject.values.reverb.predelay + v > 1.0f) mtProject.values.reverb.predelay = 1.0f;
-	else if(mtProject.values.reverb.predelay + v < 0.0f) mtProject.values.reverb.predelay = 0.0f;
+	if(mtProject.values.reverb.predelay + v > REVERB_PREDELAY_MAX) mtProject.values.reverb.predelay = REVERB_PREDELAY_MAX;
+	else if(mtProject.values.reverb.predelay + v < REVERB_PREDELAY_MIN) mtProject.values.reverb.predelay = REVERB_PREDELAY_MIN;
 	else  mtProject.values.reverb.predelay += v;
 
-	polyverb.SetPredelayLength(mtProject.values.reverb.predelay);
+	engine.setReverbPredelay(mtProject.values.reverb.predelay);
 
 	showReverbPredelay();
+
+	newFileManager.setProjectStructChanged();
 }
 void cMasterParams::changeReverbDiffusion(int16_t val)
 {
 	float v = 0.01 * val;
 
-	if(mtProject.values.reverb.diffusion + v > 1.0f) mtProject.values.reverb.diffusion = 1.0f;
-	else if(mtProject.values.reverb.diffusion + v < 0.0f) mtProject.values.reverb.diffusion = 0.0f;
+	if(mtProject.values.reverb.diffusion + v > REVERB_DIFFUSION_MAX) mtProject.values.reverb.diffusion = REVERB_DIFFUSION_MAX;
+	else if(mtProject.values.reverb.diffusion + v < REVERB_DIFFUSION_MIN) mtProject.values.reverb.diffusion = REVERB_DIFFUSION_MIN;
 	else  mtProject.values.reverb.diffusion += v;
 
-	polyverb.SetDiffusion(mtProject.values.reverb.diffusion);
+	engine.setReverbDiffusion(mtProject.values.reverb.diffusion);
 
 	showReverbDiffusion();
+
+	newFileManager.setProjectStructChanged();
 }
 
+void cMasterParams::setDefaultReverbSize()
+{
+	mtProject.values.reverb.size = DEFAULT_REVERB_SIZE;
+	engine.setReverbSize(mtProject.values.reverb.size);
+
+	showReverbSize();
+
+	newFileManager.setProjectStructChanged();
+}
+void cMasterParams::setDefaultReverbDamp()
+{
+	mtProject.values.reverb.damp = DEFAULT_REVERB_DAMP;
+
+	engine.setReverbDamp(mtProject.values.reverb.damp);
+
+	showReverbDamp();
+
+	newFileManager.setProjectStructChanged();
+}
+void cMasterParams::setDefaultReverbPredelay()
+{
+	mtProject.values.reverb.predelay = DEFAULT_REVERB_PREDELAY;
+
+	engine.setReverbPredelay(mtProject.values.reverb.predelay);
+
+	showReverbPredelay();
+
+	newFileManager.setProjectStructChanged();
+}
+void cMasterParams::setDefaultReverbDiffusion()
+{
+	mtProject.values.reverb.diffusion = DEFAULT_REVERB_DIFFUSION;
+
+	engine.setReverbDiffusion(mtProject.values.reverb.diffusion);
+
+	showReverbDiffusion();
+
+	newFileManager.setProjectStructChanged();
+}
 
 void cMasterParams::setDefaultDelayPingPongEnable()
 {
