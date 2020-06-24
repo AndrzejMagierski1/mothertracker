@@ -460,6 +460,8 @@ void cInstrumentEditor::showSendScreen()
 	display.setControlText(label[7], "Back");
 	display.setControlText2(label[7], "");
 
+	showParamsDelaySend();
+	showParamsReverbSend();
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -995,14 +997,23 @@ void cInstrumentEditor::showFilterResonance()
 
 void cInstrumentEditor::showParamsDelaySend()
 {
-	sprintf(revSendVal,"%d",editorInstrument->delaySend);
-	display.setControlText2(label[7], revSendVal);
-	display.refreshControl(label[7]);
+	sprintf(delaySendVal,"%d",editorInstrument->delaySend);
+	display.setControlText2(label[1], delaySendVal);
+	display.refreshControl(label[1]);
 
-	display.setControlValue(barControl[7], editorInstrument->delaySend);
-	display.refreshControl(barControl[7]);
+	display.setControlValue(barControl[1], editorInstrument->delaySend);
+	display.refreshControl(barControl[1]);
 }
 
+void cInstrumentEditor::showParamsReverbSend()
+{
+	sprintf(reverbSendVal,"%d",editorInstrument->reverbSend);
+	display.setControlText2(label[0], reverbSendVal);
+	display.refreshControl(label[0]);
+
+	display.setControlValue(barControl[0], editorInstrument->reverbSend);
+	display.refreshControl(barControl[0]);
+}
 
 
 void cInstrumentEditor::showParamsGlide()

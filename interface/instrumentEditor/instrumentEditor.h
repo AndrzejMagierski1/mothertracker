@@ -153,6 +153,7 @@ public:
 	void showFilterCutOff();
 	void showFilterResonance();
 	void showParamsDelaySend();
+	void showParamsReverbSend();
 
 	void showParamsGlide();
 
@@ -176,7 +177,8 @@ public:
 	void setDefaultFilterType();
 	void setDefaultCutoff();
 	void setDefaultResonance();
-	void setDefaultSend();
+	void setDefaultDelaySend();
+	void setDefaultReverbSend();
 //env screen
 	void setDefaultEnvAttack();
 	void setDefaultEnvDecay();
@@ -354,7 +356,8 @@ public:
 	char fineTuneVal[5];
 	char cutoffVal[8];
 	char resonanceVal[8];
-	char revSendVal[5];
+	char delaySendVal[5];
+	char reverbSendVal[5];
 	char envAttack[8];
 	char envDecay[8];
 	char envSustain[8];
