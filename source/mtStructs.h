@@ -20,7 +20,7 @@ const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
 const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 
 const uint8_t PROJECT_FILE_VERSION 	=		3;		// wersja struktury pliku projektu
-const uint8_t INSTRUMENT_FILE_VERSION 	=	3;		// wersja struktury pliku instrumentu
+const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			2;
 
@@ -102,8 +102,8 @@ const int8_t  PANNING_MIN 					=	0;
 const uint8_t  PANNING_MAX 					=   100;
 const uint8_t  GLIDE_MIN 					=	0;
 const uint16_t  GLIDE_MAX 					=	15000;
-const uint8_t  REVERB_SEND_MIN 				=	0;
-const uint8_t  REVERB_SEND_MAX				=	100;
+const uint8_t  SEND_MIN 				=	0;
+const uint8_t  SEND_MAX				=	100;
 
 const uint16_t  ATTACK_MAX 					=	10000; // zastosowane jest dzielenie przez 100 bez floatow wiec wazne zeby wartosci czasowe max env byly podzielne przez 100
 const uint16_t  DECAY_MAX					=	10000;
@@ -160,6 +160,7 @@ constexpr uint32_t LFO_WT_POS_SEND_MASK =			0b00000000000000010000000000000000;
 constexpr uint32_t LFO_GRAN_POS_SEND_MASK =			0b00000000000000100000000000000000;
 constexpr uint32_t LFO_PANNING_SEND_MASK =			0b00000000000001000000000000000000;
 constexpr uint32_t LFO_FINETUNE_SEND_MASK =			0b00000000000010000000000000000000;
+constexpr uint32_t REVERB_SEND_MASK =				0b00000000000100000000000000000000;
 
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					13;
@@ -465,6 +466,8 @@ struct strInstrument
     	uint8_t	 	shape;
     	uint8_t		type;
     } granular;
+
+    uint8_t reverbSend;
 };
 
 const strInstrument defaultInstrumentParams =
@@ -509,7 +512,8 @@ const strInstrument defaultInstrumentParams =
 		.slices = {},
 		.sliceNumber = 0,
 		.selectedSlice = 0,
-		.granular = {441,0,0,0}
+		.granular = {441,0,0,0},
+		.reverbSend = 0
 };
 //-------------------------------------------------
 struct strMtValues

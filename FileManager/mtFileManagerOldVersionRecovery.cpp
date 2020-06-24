@@ -5,6 +5,7 @@ static void recoveryProjectVersion1();
 static void recoveryProjectVersion2();
 static void recoveryInstrumentVersion1();
 static void recoveryInstrumentVersion2();
+static void recoveryInstrumentVersion3();
 
 mtVersionRecovery versionRecovery;
 
@@ -18,6 +19,7 @@ mtVersionRecovery::mtVersionRecovery()
 	//INSTRUMENT
 	recoveryInstrumentFunction[0] = recoveryInstrumentVersion1;
 	recoveryInstrumentFunction[1] = recoveryInstrumentVersion2;
+	recoveryInstrumentFunction[2] = recoveryInstrumentVersion3;
 }
 //zwraca wskaznik do aktywnego odczytanego projektu
 strMtProjectRemote * mtVersionRecovery::getReadedProject()
@@ -115,5 +117,11 @@ static void recoveryInstrumentVersion2()
 	receivedInstrument->instrumentDataAndHeader.instrument.envelope[envFinetune].amount = 1.0;
 	receivedInstrument->instrumentDataAndHeader.instrument.envelope[envFinetune].loop = 0;
 	receivedInstrument->instrumentDataAndHeader.instrument.envelope[envFinetune].enable = 0;
+}
 
+static void recoveryInstrumentVersion3()
+{
+	strInstrumentFile * receivedInstrument = versionRecovery.getReadedInstrument(); //wskaznik do instrumentu odczytanego z pliku
+
+	receivedInstrument->instrumentDataAndHeader.instrument.reverbSend = 0;
 }
