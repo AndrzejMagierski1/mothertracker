@@ -72,7 +72,7 @@ void playerEngine ::changeTunePerformanceMode(int8_t value)
 void playerEngine ::changeDelaySendPerformanceMode(int8_t value)
 {
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] != 1) && (value == 0)) return;
-	performanceMod.reverbSend = value;
+	performanceMod.delaySend = value;
 
 	uint8_t delaySend;
 
@@ -80,8 +80,8 @@ void playerEngine ::changeDelaySendPerformanceMode(int8_t value)
 	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend]	) delaySend = currentSeqModValues.delaySend;
 	else delaySend = mtProject.instrument[currentInstrument_idx].delaySend;
 
-	if(delaySend + value > REVERB_SEND_MAX) currentPerformanceValues.delaySend = REVERB_SEND_MAX;
-	else if(delaySend + value < REVERB_SEND_MIN) currentPerformanceValues.delaySend = REVERB_SEND_MIN;
+	if(delaySend + value > SEND_MAX) currentPerformanceValues.delaySend = SEND_MAX;
+	else if(delaySend + value < SEND_MIN) currentPerformanceValues.delaySend = SEND_MIN;
 	else currentPerformanceValues.delaySend = delaySend + value;
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] = 1;

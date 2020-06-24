@@ -265,6 +265,7 @@ public:
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
 	void modDelaySend(uint8_t value);
+	void modReverbSend(uint8_t value);
 
 	void modGranularPosition(uint16_t value);
 	void modGranularGrainLength();
@@ -332,6 +333,7 @@ public:
 		filterType,
 		filterEnable,
 		delaySend,
+		reverbSend,
 		panning,
 		ampAttack,
 		ampRelease,
@@ -369,6 +371,7 @@ public:
 		uint8_t filterType;
 		uint8_t filterEnable;
 		uint8_t delaySend;
+		uint8_t reverbSend;
 		int16_t panning;
 
 		uint16_t ampAttack;
@@ -414,6 +417,7 @@ public:
 		uint8_t filterType;
 		uint8_t filterEnable;
 		uint8_t delaySend;
+		uint8_t reverbSend;
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;
@@ -446,7 +450,8 @@ public:
 		int8_t 	volume;
 		int8_t 	panning;
 		int8_t 	tune;
-		int8_t 	reverbSend;
+		int8_t 	delaySend;
+		int8_t  reverbSend;
 		int8_t 	cutoff;
 		int16_t wavetablePosition;
 		int16_t granularPosition;
@@ -580,6 +585,7 @@ private:
 	void handleFxNoteOnGain();
 	void handleFxNoteOnPanning();
 	void handleFxNoteOnDelaySend();
+	void handleFxNoteOnReverbSend();
 //*****note on
 	void handleInitNoteOnEnvelope(uint8_t n);
 	void handleInitNoteOnAmpEnvelope();
@@ -588,6 +594,7 @@ private:
 	void handleNoteOnGain();
 	void handleNoteOnPanning();
 	void handleNoteOnDelaySend();
+	void handleNoteOnReverbSend();
 //*****note off
 	void noteOffFade();
 	void noteOffCut();
@@ -605,6 +612,7 @@ private:
 	void handleUpdateRefreshPanning();
 	void handleUpdateRefreshCutoff();
 	void handleUpdateRefreshResonance();
+	void handleUpdateRefreshDelay();
 	void handleUpdateRefreshReverb();
 	void handleUpdateRefreshWtPos();
 	void handleUpdateRefreshGranPos();

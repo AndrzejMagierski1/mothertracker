@@ -198,13 +198,13 @@ void playerEngine::fxDelaySend(uint8_t fx_val, uint8_t fx_n)
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+		currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 		{
-			currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
 		}
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::delaySend] = 1;
@@ -774,7 +774,7 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
 			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
 
-			currentSeqModValues.delaySend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.delaySend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
 		}
 	}
 
@@ -1684,7 +1684,7 @@ void playerEngine::setFxReverbSend()
 {
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 	{
-		changeDelaySendPerformanceMode(performanceMod.reverbSend);
+		changeDelaySendPerformanceMode(performanceMod.delaySend);
 	}
 	else
 	{
@@ -1699,7 +1699,7 @@ void playerEngine::clearFxReverbSend()
 {
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 	{
-		changeDelaySendPerformanceMode(performanceMod.reverbSend);
+		changeDelaySendPerformanceMode(performanceMod.delaySend);
 	}
 	else
 	{

@@ -264,10 +264,6 @@ void audioEngine::init()
 	polyverb.SetPredelayLength(mtProject.values.reverb.predelay);
 	polyverb.SetDiffusion(mtProject.values.reverb.diffusion);
 
-	for(uint8_t i = 0 ; i < 8; i++)
-	{
-		mixerReverb.gain(i,0.5);
-	}
 //	setPassEnvelope(1);
 }
 
@@ -555,6 +551,11 @@ void playerEngine :: modDelaySend(uint8_t value)
 {
 	mixerDelay.gain(nChannel,ampLogValues[value]);
 }
+void playerEngine :: modReverbSend(uint8_t value)
+{
+	mixerReverb.gain(nChannel,ampLogValues[value]);
+}
+
 
 void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 {
@@ -1053,6 +1054,7 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 		instrumentPlayer[channel].muteState = 0;
 		instrumentPlayer[channel].setStatusBytes(VOLUME_MASK);
 		instrumentPlayer[channel].setStatusBytes(DELAY_SEND_MASK);
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
 	}
 	else
 	{
