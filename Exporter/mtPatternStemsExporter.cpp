@@ -37,13 +37,15 @@ uint8_t mtPatternTrackExporter::getStatus()
 void  mtPatternTrackExporter::setSoloTrack(uint8_t n)
 {
 	if(n < 8) engine.soloTrack(n, 1);
-	else if(n == 8) engine.soloReverbSend(1);
+	else if(n == 8) engine.soloDelaySend(1);
+	else if(n == 9) engine.soloReverbSend(1);
 
 }
 void  mtPatternTrackExporter::clearSoloTrack(uint8_t n)
 {
 	if(n < 8) engine.soloTrack(n, 0);
-	else if(n == 8) engine.soloReverbSend(0);
+	else if(n == 8) engine.soloDelaySend(0);
+	else if(n == 9) engine.soloReverbSend(0);
 }
 
 

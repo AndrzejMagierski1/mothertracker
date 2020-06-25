@@ -136,6 +136,7 @@ void cMasterParams::start(uint32_t options)
 
 
 	isDelayScreen = false;
+	isReverbScreen = false;
 	selectedPlace = 0;
 
 	showMasterScreen();

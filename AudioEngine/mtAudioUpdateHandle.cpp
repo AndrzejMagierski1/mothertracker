@@ -342,7 +342,7 @@ void playerEngine::handleUpdateRefreshDelay()
 			localDelaySend = mtProject.instrument[currentInstrument_idx].delaySend;
 		}
 
-		if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
+		if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
 			modDelaySend(localDelaySend);
 		}

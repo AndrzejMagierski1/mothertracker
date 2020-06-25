@@ -209,7 +209,7 @@ void playerEngine::fxDelaySend(uint8_t fx_val, uint8_t fx_n)
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::delaySend] = 1;
 
-	setFxReverbSend();
+	setFxDelaySend();
 }
 
 void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
@@ -780,11 +780,11 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 
 	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 	{
-		setFxReverbSend();
+		setFxDelaySend();
 	}
 	else
 	{
-		clearFxReverbSend();
+		clearFxDelaySend();
 	}
 }
 
@@ -1679,8 +1679,8 @@ void playerEngine::clearFxSlice()
 {
 	playMemPtr->clearSliceForcedFlag();
 }
-//REVERB SEND
-void playerEngine::setFxReverbSend()
+//DELAY SEND
+void playerEngine::setFxDelaySend()
 {
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 	{
@@ -1688,14 +1688,14 @@ void playerEngine::setFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
 			modDelaySend(currentSeqModValues.delaySend);
 		}
 		else modDelaySend(AMP_MUTED);
 	}
 }
-void playerEngine::clearFxReverbSend()
+void playerEngine::clearFxDelaySend()
 {
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 	{
@@ -1703,7 +1703,7 @@ void playerEngine::clearFxReverbSend()
 	}
 	else
 	{
-		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
+		if(((muteState == MUTE_DISABLE) && (onlyDelayMuteState == MUTE_DISABLE)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
 			modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 		}

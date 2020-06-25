@@ -211,6 +211,8 @@ public:
 	void muteTrack(uint8_t channel, uint8_t state);
 	void soloTrack(uint8_t channel, uint8_t state);
 	void muteDelaySend(uint8_t channel, uint8_t state);
+	void muteReverbSend(uint8_t channel, uint8_t state);
+	void soloDelaySend(uint8_t state);
 	void soloReverbSend(uint8_t state);
 	void clearDelay();
 	void performanceModeEndAll();
@@ -228,7 +230,8 @@ public:
 	void clearCurrentLoadInstrument(int8_t idx);
 	friend class playerEngine;
 private:
-	uint8_t forceSend = 0;
+	uint8_t forceDelaySend;
+	uint8_t forceReverbSend;
 	uint16_t currentTempo;
 	uint16_t lastTempo;
 	uint8_t lastUsedVoice;
@@ -496,7 +499,7 @@ public:
 	void endVolumePerformanceMode();
 	void endPanningPerformanceMode();
 	void endTunePerformanceMode();
-	void endReverbSendPerformanceMode();
+	void endDelaySendPerformanceMode();
 	void endStartPointPerformanceMode();
 	void endCutoffPerformanceMode();
 	void endFilterTypePerformanceMode();
@@ -541,6 +544,7 @@ private:
 
 	uint8_t 					muteState = 0;
 	uint8_t						onlyDelayMuteState = 0;
+	uint8_t						onlyReverbMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
 	float 						currentSeqTempo = 0;
@@ -709,8 +713,8 @@ private:
 	void setFxSlice();
 	void clearFxSlice();
 
-	void setFxReverbSend();
-	void clearFxReverbSend();
+	void setFxDelaySend();
+	void clearFxDelaySend();
 
 	void setFxCutoff();
 	void clearFxCutoff();

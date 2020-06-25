@@ -312,7 +312,7 @@ void audioEngine::performanceModeEndAll()
 		instrumentPlayer[i].endFilterTypePerformanceMode();
 		instrumentPlayer[i].endGranularPositionPerformanceMode();
 		instrumentPlayer[i].endPanningPerformanceMode();
-		instrumentPlayer[i].endReverbSendPerformanceMode();
+		instrumentPlayer[i].endDelaySendPerformanceMode();
 		instrumentPlayer[i].endSamplePlaybackPerformanceMode();
 		instrumentPlayer[i].endStartPointPerformanceMode();
 		instrumentPlayer[i].endTunePerformanceMode();
@@ -977,7 +977,11 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 		{
 			if(i == channel)
 			{
-				if(!mtProject.values.trackMute[i]) muteDelaySend(i, 1);
+				if(!mtProject.values.trackMute[i])
+				{
+					muteDelaySend(i, 1);
+					muteReverbSend(i, 1);
+				}
 				continue;
 			}
 			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
@@ -990,6 +994,7 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 			if(i == channel)
 			{
 				muteDelaySend(i, 0);
+				muteReverbSend(i, 0);
 				continue;
 			}
 			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
@@ -999,12 +1004,11 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 }
 
 // selectLR :  0 - L, 1- R, state: 1 - solo ON, 0 - solo OFF
-void audioEngine::soloReverbSend(uint8_t state)
+void audioEngine::soloDelaySend(uint8_t state)
 {
-
 	if(state == 1)
 	{
-		forceSend = 1;
+		forceDelaySend = 1;
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
@@ -1012,13 +1016,33 @@ void audioEngine::soloReverbSend(uint8_t state)
 	}
 	else if(state == 0)
 	{
-		forceSend = 0;
+		forceDelaySend = 0;
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
 		}
 	}
 
+}
+
+void audioEngine::soloReverbSend(uint8_t state)
+{
+	if(state == 1)
+	{
+		forceReverbSend = 1;
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
+		}
+	}
+	else if(state == 0)
+	{
+		forceReverbSend = 0;
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
+		}
+	}
 }
 
 void audioEngine::clearDelay()
@@ -1038,7 +1062,22 @@ void audioEngine::muteDelaySend(uint8_t channel, uint8_t state)
 	else
 	{
 		instrumentPlayer[channel].onlyDelayMuteState = 1;
-		if(!forceSend) instrumentPlayer[channel].modDelaySend(0);
+		if(!forceDelaySend) instrumentPlayer[channel].modDelaySend(0);
+	}
+}
+
+void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
+{
+	if(channel >= 8) return;
+	if(state == 0)
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 0;
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+	}
+	else
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 1;
+		if(!forceReverbSend) instrumentPlayer[channel].modReverbSend(0);
 	}
 }
 
@@ -1060,7 +1099,8 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 	{
 		instrumentPlayer[channel].muteState = 1;
 		amp[channel].gain(AMP_MUTED);
-		if(!forceSend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+		if(!forceDelaySend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+		if(!forceReverbSend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modReverbSend(AMP_MUTED);
 	}
 }
 

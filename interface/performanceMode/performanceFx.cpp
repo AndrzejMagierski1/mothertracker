@@ -93,7 +93,7 @@ cPerformFx bandPassPerfFx(mtPerfBandPass, "Band-pass cutoff", bandPassSet, filte
 
 //########## DELAY ########################################################################
 void delaySet(uint8_t track, int16_t value) { instrumentPlayer[track].changeDelaySendPerformanceMode(value); }
-void delayClear(uint8_t track) { instrumentPlayer[track].endReverbSendPerformanceMode(); }
+void delayClear(uint8_t track) { instrumentPlayer[track].endDelaySendPerformanceMode(); }
 const fxSetup delaySetup = {-100, 100, nullptr};
 
 cPerformFx delayPerfFx(mtPerfDelaySend, "Delay send", delaySet, delayClear, &delaySetup);

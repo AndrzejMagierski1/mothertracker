@@ -86,7 +86,7 @@ void playerEngine ::changeDelaySendPerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] = 1;
 
-	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
+	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
 		modDelaySend(currentPerformanceValues.delaySend);
 	}
@@ -557,7 +557,7 @@ void playerEngine::endTunePerformanceMode()
 
 	playMemPtr->setTune(mtProject.instrument[currentInstrument_idx].tune,currentNote);
 }
-void playerEngine::endReverbSendPerformanceMode()
+void playerEngine::endDelaySendPerformanceMode()
 {
 	uint8_t delaySend;
 
@@ -567,7 +567,7 @@ void playerEngine::endReverbSendPerformanceMode()
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend] = 0;
 
-	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel])) modDelaySend(delaySend);
+	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel])) modDelaySend(delaySend);
 }
 
 void playerEngine::endPointsPerformanceMode()
