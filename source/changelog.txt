@@ -1,4 +1,7 @@
 	
+	1.0.5
+			- fix: zmiana parametrów w configu powodowala brzeczenie na wyjsciu - poprawka w eepromie
+	
 	1.0.4
 			- zmiana step i length w 'Pattern' klawiszami lewo/prawo o zdefiniowane wartości 1,2,4,8...
 			- preview po puszczeniu shifta w trybie zielonym nie dzialal
