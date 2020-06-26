@@ -186,7 +186,6 @@ uint8_t Sequencer::randomFx()
 				retVal != fx.FX_TYPE_R11 &&
 				retVal != fx.FX_TYPE_FADE &&
 				retVal != fx.FX_TYPE_CUT &&
-				retVal != fx.FX_TYPE_R4 &&
 				retVal != fx.FX_TYPE_R10 &&
 				retVal != fx.FX_TYPE_R30 &&
 				retVal != fx.FX_TYPE_R31 &&

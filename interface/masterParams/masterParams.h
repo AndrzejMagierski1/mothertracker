@@ -63,6 +63,13 @@ public:
 	void showDelayFeedback();
 	void showDelayTime();
 
+	//reverb
+	void showReverbScreen();
+	void showReverbSize();
+	void showReverbDamp();
+	void showReverbPredelay();
+	void showReverbDiffusion();
+
 	enum struct display_t
 	{
 		masterValues,
@@ -70,13 +77,16 @@ public:
 	} displayType;
 
 	uint8_t selectedPlaceDelay;
+	uint8_t selectedPlaceReverb;
 	bool isDelayScreen;
+	bool isReverbScreen;
 	//mixer
 	void showMixerScreen();
 	void showLevelBar(uint8_t n);
 	void switchToMaster();
 	void switchToMixer();
 	void switchToDelayScreen();
+	void switchToReverbScreen();
 	void calcTrackLevel(uint8_t n);
 
 	struct strTrackLevel
@@ -130,17 +140,26 @@ public:
 	void changeDelayTime(int16_t val);
 	void changeDelayFeedback(int16_t val);
 
-
 	void setDefaultDelayPingPongEnable();
 	void setDefaultDelaySyncEnable();
 	void setDefaultDelayRate();
 	void setDefaultDelayTime();
 	void setDefaultDelayFeedback();
 
+// reverb
+	void changeReverbSize(int16_t val);
+	void changeReverbDamp(int16_t val);
+	void changeReverbPredelay(int16_t val);
+	void changeReverbDiffusion(int16_t val);
 
+	void setDefaultReverbSize();
+	void setDefaultReverbDamp();
+	void setDefaultReverbPredelay();
+	void setDefaultReverbDiffusion();
 	//
 	void activateLabelsBorder();
 	void refreshDelayFrame();
+	void refreshReverbFrame();
 
 
 
@@ -223,6 +242,11 @@ public:
 	char limitReleaseVal[8];
 	char limitThresholdVal[4];
 	char bitDepthVal[4];
+
+	char reverbSizeVal[4];
+	char reverbDampVal[4];
+	char reverbPredelayVal[4];
+	char reverbDiffusionVal[4];
 
 //----------------------------------
 

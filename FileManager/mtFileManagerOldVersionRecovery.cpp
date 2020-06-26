@@ -2,8 +2,10 @@
 #include "fileManagerDefs.h"
 
 static void recoveryProjectVersion1();
+static void recoveryProjectVersion2();
 static void recoveryInstrumentVersion1();
 static void recoveryInstrumentVersion2();
+static void recoveryInstrumentVersion3();
 
 mtVersionRecovery versionRecovery;
 
@@ -13,10 +15,11 @@ mtVersionRecovery::mtVersionRecovery()
 {
 	//PROJECT
 	recoveryProjectFunction[0] = recoveryProjectVersion1;
-
+	recoveryProjectFunction[1] = recoveryProjectVersion2;
 	//INSTRUMENT
 	recoveryInstrumentFunction[0] = recoveryInstrumentVersion1;
 	recoveryInstrumentFunction[1] = recoveryInstrumentVersion2;
+	recoveryInstrumentFunction[2] = recoveryInstrumentVersion3;
 }
 //zwraca wskaznik do aktywnego odczytanego projektu
 strMtProjectRemote * mtVersionRecovery::getReadedProject()
@@ -56,6 +59,22 @@ static void recoveryProjectVersion1()
 
 	memcpy(receivedProject->projectName,(uint8_t *)(((uint32_t)&tmp.projectName) - 4) , PROJECT_NAME_SIZE );
 	// shift 4 zostal dobrany metoda prob i bledow, teoretycznie dodano 1 byte ale prawdopdobnie kompilator to ulozyl w jakis inny sposob
+
+}
+// odzyskiwanie danych z projektu Versja 2
+static void recoveryProjectVersion2()
+{
+	strMtProjectRemote * receivedProject = versionRecovery.getReadedProject(); //wskaznik do projektu odczytanego z pliku
+	strMtProjectRemote tmp;
+
+	memcpy(&tmp,receivedProject, sizeof(tmp));
+
+	receivedProject->values.reverb.size = DEFAULT_REVERB_SIZE;
+	receivedProject->values.reverb.damp = DEFAULT_REVERB_DAMP;
+	receivedProject->values.reverb.predelay = DEFAULT_REVERB_PREDELAY;
+	receivedProject->values.reverb.diffusion = DEFAULT_REVERB_DIFFUSION;
+
+	strcpy(receivedProject->projectName,tmp.projectName - sizeof(strMtValues::strReverbParams));
 
 }
 //*************************************************************************INSTRUMENT
@@ -98,5 +117,11 @@ static void recoveryInstrumentVersion2()
 	receivedInstrument->instrumentDataAndHeader.instrument.envelope[envFinetune].amount = 1.0;
 	receivedInstrument->instrumentDataAndHeader.instrument.envelope[envFinetune].loop = 0;
 	receivedInstrument->instrumentDataAndHeader.instrument.envelope[envFinetune].enable = 0;
+}
 
+static void recoveryInstrumentVersion3()
+{
+	strInstrumentFile * receivedInstrument = versionRecovery.getReadedInstrument(); //wskaznik do instrumentu odczytanego z pliku
+
+	receivedInstrument->instrumentDataAndHeader.instrument.reverbSend = 0;
 }

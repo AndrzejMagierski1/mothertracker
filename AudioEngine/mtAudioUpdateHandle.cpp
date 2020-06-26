@@ -44,6 +44,7 @@ void playerEngine:: update()
 		handleUpdateRefreshTune();
 		handleUpdateRefreshVolume();
 		handleUpdateRefreshResonance();
+		handleUpdateRefreshDelay();
 		handleUpdateRefreshReverb();
 		handleUpdateRefreshGranLen();
 		handleUpdateRefreshGranWave();
@@ -319,34 +320,64 @@ void playerEngine::handleUpdateRefreshResonance()
 		modResonance(mtProject.instrument[currentInstrument_idx].resonance);
 	}
 }
-void playerEngine::handleUpdateRefreshReverb()
+void playerEngine::handleUpdateRefreshDelay()
 {
 	if(statusBytes & DELAY_SEND_MASK)
 	{
 		statusBytes &= (~DELAY_SEND_MASK);
 
-		uint8_t localReverbSend = 0;
+		uint8_t localDelaySend = 0;
 
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::delaySend])
 		{
-			localReverbSend = currentPerformanceValues.delaySend;
+			localDelaySend = currentPerformanceValues.delaySend;
 		}
 		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::delaySend] ||
 				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::delaySend])
 		{
-			localReverbSend = currentSeqModValues.delaySend;
+			localDelaySend = currentSeqModValues.delaySend;
 		}
 		else
 		{
-			localReverbSend = mtProject.instrument[currentInstrument_idx].delaySend;
+			localDelaySend = mtProject.instrument[currentInstrument_idx].delaySend;
 		}
 
-		if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceSend == 1) && !mtProject.values.trackMute[nChannel]))
+		if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
-			modDelaySend(localReverbSend);
+			modDelaySend(localDelaySend);
 		}
 	}
 }
+
+void playerEngine::handleUpdateRefreshReverb()
+{
+	if(statusBytes & REVERB_SEND_MASK)
+	{
+		statusBytes &= (~REVERB_SEND_MASK);
+
+		uint8_t localReverbSend = 0;
+
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+		{
+			localReverbSend = currentPerformanceValues.reverbSend;
+		}
+		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
+				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend])
+		{
+			localReverbSend = currentSeqModValues.reverbSend;
+		}
+		else
+		{
+			localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+		}
+
+		if(((muteState == 0) && (onlyReverbMuteState == 0)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
+		{
+			modReverbSend(localReverbSend);
+		}
+	}
+}
+
 void playerEngine::handleUpdateRefreshWtPos()
 {
 	if(statusBytes & WT_POS_SEND_MASK)

@@ -114,4 +114,5 @@
 #include "play_sd_wav_24bit.h"
 #include "effect_bitDepth.h"
 #include "effect_shortDelay.h"
+#include "effect_polyverb.h"
 #endif

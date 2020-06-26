@@ -270,7 +270,11 @@ void cInstrumentEditor::showTitleBar()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	if(mode == mtInstEditModeParams)	display.setControlText(titleLabel, "Instrument Parameters 1/2");
+	if(mode == mtInstEditModeParams)
+	{
+		if(isSendsWindow) display.setControlText(titleLabel, "Instrument Sends");
+		else display.setControlText(titleLabel, "Instrument Parameters 1/2");
+	}
 	else display.setControlText(titleLabel, "Instrument Automation 2/2");
 	display.refreshControl(titleLabel);
 
@@ -425,6 +429,65 @@ void cInstrumentEditor::showInstrumentEnv()
 //**********************************
 }
 
+void cInstrumentEditor::showSendScreen()
+{
+	showTitleBar();
+	showSendScreenFrame();
+
+	for ( uint8_t i = 0; i < 8; i++ )
+	{
+		display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[i],localActiveBarColors);
+	}
+	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
+
+	display.setControlShow(barControl[0]);
+	display.setControlShow(barControl[1]);
+	display.setControlHide(barControl[2]);
+	display.setControlHide(barControl[3]);
+	display.setControlHide(filterModeListControl);
+	display.setControlHide(barControl[5]);
+	display.setControlHide(barControl[6]);
+
+
+	display.setControlText(label[0], "Reverb");
+	display.setControlText(label[1], "Delay");
+	for(uint8_t i = 2 ; i < 7 ; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+	}
+	display.setControlText(label[7], "Back");
+	display.setControlText2(label[7], "");
+
+	showParamsDelaySend();
+	showParamsReverbSend();
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+		display.refreshControl(barControl[i]);
+	}
+
+	display.setControlValue(bgLabel, 0b10000111);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
+	frameData.placesCount = 2;
+
+	display.synchronizeRefresh();
+}
+void cInstrumentEditor::showSendScreenFrame()
+{
+	if(selectedPlaceSends > 1) return;
+
+	display.setControlValue(frameControl, selectedPlaceSends);
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+}
+
 
 void cInstrumentEditor::showInstrumentParams()
 {
@@ -458,7 +521,7 @@ void cInstrumentEditor::showInstrumentParams()
 	display.setControlText(label[4], "Filter Type");
 	display.setControlText(label[5], "Cutoff");
 	display.setControlText(label[6], "Resonance");
-	display.setControlText(label[7], "Delay Send");
+	display.setControlText(label[7], "Sends");
 
 	display.setControlText2(label[0], "");
 	display.setControlText2(label[1], "");
@@ -477,7 +540,6 @@ void cInstrumentEditor::showInstrumentParams()
 	showFilterType();
 	showFilterCutOff();
 	showFilterResonance();
-	showParamsDelaySend();
 
 //-------------------------------------
 
@@ -488,7 +550,7 @@ void cInstrumentEditor::showInstrumentParams()
 	display.setControlHide(barControl[4]);
 	display.setControlShow(barControl[5]);
 	display.setControlShow(barControl[6]);
-	display.setControlShow(barControl[7]);
+	display.setControlHide(barControl[7]);
 
 
 	display.setControlHide(envelopesListControl);
@@ -516,7 +578,7 @@ void cInstrumentEditor::showInstrumentParams()
 		display.refreshControl(label[i]);
 		display.refreshControl(barControl[i]);
 	}
-
+	display.setControlValue(bgLabel,255);
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
@@ -935,14 +997,23 @@ void cInstrumentEditor::showFilterResonance()
 
 void cInstrumentEditor::showParamsDelaySend()
 {
-	sprintf(revSendVal,"%d",editorInstrument->delaySend);
-	display.setControlText2(label[7], revSendVal);
-	display.refreshControl(label[7]);
+	sprintf(delaySendVal,"%d",editorInstrument->delaySend);
+	display.setControlText2(label[1], delaySendVal);
+	display.refreshControl(label[1]);
 
-	display.setControlValue(barControl[7], editorInstrument->delaySend);
-	display.refreshControl(barControl[7]);
+	display.setControlValue(barControl[1], editorInstrument->delaySend);
+	display.refreshControl(barControl[1]);
 }
 
+void cInstrumentEditor::showParamsReverbSend()
+{
+	sprintf(reverbSendVal,"%d",editorInstrument->reverbSend);
+	display.setControlText2(label[0], reverbSendVal);
+	display.refreshControl(label[0]);
+
+	display.setControlValue(barControl[0], editorInstrument->reverbSend);
+	display.refreshControl(barControl[0]);
+}
 
 
 void cInstrumentEditor::showParamsGlide()

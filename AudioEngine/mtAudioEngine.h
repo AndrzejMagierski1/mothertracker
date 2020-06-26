@@ -199,6 +199,10 @@ public:
 	void setDelayFeedback(uint8_t value);
 	void setDelayTime(uint16_t value);
 	void setDelayPanning(int8_t value);
+	void setReverbSize(float value);
+	void setReverbDamp(float value);
+	void setReverbPredelay(float value);
+	void setReverbDiffusion(float value);
 	void setDelayParams(uint8_t value);
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
@@ -207,6 +211,8 @@ public:
 	void muteTrack(uint8_t channel, uint8_t state);
 	void soloTrack(uint8_t channel, uint8_t state);
 	void muteDelaySend(uint8_t channel, uint8_t state);
+	void muteReverbSend(uint8_t channel, uint8_t state);
+	void soloDelaySend(uint8_t state);
 	void soloReverbSend(uint8_t state);
 	void clearDelay();
 	void performanceModeEndAll();
@@ -224,7 +230,8 @@ public:
 	void clearCurrentLoadInstrument(int8_t idx);
 	friend class playerEngine;
 private:
-	uint8_t forceSend = 0;
+	uint8_t forceDelaySend;
+	uint8_t forceReverbSend;
 	uint16_t currentTempo;
 	uint16_t lastTempo;
 	uint8_t lastUsedVoice;
@@ -261,6 +268,7 @@ public:
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
 	void modDelaySend(uint8_t value);
+	void modReverbSend(uint8_t value);
 
 	void modGranularPosition(uint16_t value);
 	void modGranularGrainLength();
@@ -328,6 +336,7 @@ public:
 		filterType,
 		filterEnable,
 		delaySend,
+		reverbSend,
 		panning,
 		ampAttack,
 		ampRelease,
@@ -365,6 +374,7 @@ public:
 		uint8_t filterType;
 		uint8_t filterEnable;
 		uint8_t delaySend;
+		uint8_t reverbSend;
 		int16_t panning;
 
 		uint16_t ampAttack;
@@ -410,6 +420,7 @@ public:
 		uint8_t filterType;
 		uint8_t filterEnable;
 		uint8_t delaySend;
+		uint8_t reverbSend;
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;
@@ -442,7 +453,8 @@ public:
 		int8_t 	volume;
 		int8_t 	panning;
 		int8_t 	tune;
-		int8_t 	reverbSend;
+		int8_t 	delaySend;
+		int8_t  reverbSend;
 		int8_t 	cutoff;
 		int16_t wavetablePosition;
 		int16_t granularPosition;
@@ -467,6 +479,7 @@ public:
 	void changePanningPerformanceMode(int8_t value);
 	void changeTunePerformanceMode(int8_t value);
 	void changeDelaySendPerformanceMode(int8_t value);
+	void changeReverbSendPerformanceMode(int8_t value);
 	void changeStartPointPerformanceMode(int32_t value);
 	void changeEndPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);
@@ -487,6 +500,7 @@ public:
 	void endVolumePerformanceMode();
 	void endPanningPerformanceMode();
 	void endTunePerformanceMode();
+	void endDelaySendPerformanceMode();
 	void endReverbSendPerformanceMode();
 	void endStartPointPerformanceMode();
 	void endCutoffPerformanceMode();
@@ -532,6 +546,7 @@ private:
 
 	uint8_t 					muteState = 0;
 	uint8_t						onlyDelayMuteState = 0;
+	uint8_t						onlyReverbMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
 	float 						currentSeqTempo = 0;
@@ -576,6 +591,7 @@ private:
 	void handleFxNoteOnGain();
 	void handleFxNoteOnPanning();
 	void handleFxNoteOnDelaySend();
+	void handleFxNoteOnReverbSend();
 //*****note on
 	void handleInitNoteOnEnvelope(uint8_t n);
 	void handleInitNoteOnAmpEnvelope();
@@ -584,6 +600,7 @@ private:
 	void handleNoteOnGain();
 	void handleNoteOnPanning();
 	void handleNoteOnDelaySend();
+	void handleNoteOnReverbSend();
 //*****note off
 	void noteOffFade();
 	void noteOffCut();
@@ -601,6 +618,7 @@ private:
 	void handleUpdateRefreshPanning();
 	void handleUpdateRefreshCutoff();
 	void handleUpdateRefreshResonance();
+	void handleUpdateRefreshDelay();
 	void handleUpdateRefreshReverb();
 	void handleUpdateRefreshWtPos();
 	void handleUpdateRefreshGranPos();
@@ -622,6 +640,7 @@ private:
 	void fxFinetune(uint8_t fx_val, uint8_t fx_n);
 	void fxPanning(uint8_t fx_val, uint8_t fx_n);
 	void fxDelaySend(uint8_t fx_val, uint8_t fx_n);
+	void fxReverbSend(uint8_t fx_val, uint8_t fx_n);
 	void fxReversePlayback(uint8_t fx_val, uint8_t fx_n);
 //***position
 	void fxPosition(uint8_t fx_val, uint8_t fx_n);
@@ -648,6 +667,7 @@ private:
 	void endFxGlide(uint8_t fx_n);
 	void endFxFinetune(uint8_t fx_n);
 	void endFxPanning(uint8_t fx_n);
+	void endFxDelaySend(uint8_t fx_n);
 	void endFxReverbSend(uint8_t fx_n);
 	void endFxReversePlayback(uint8_t fx_n);
 //****** position
@@ -697,6 +717,9 @@ private:
 	void setFxSlice();
 	void clearFxSlice();
 
+	void setFxDelaySend();
+	void clearFxDelaySend();
+
 	void setFxReverbSend();
 	void clearFxReverbSend();
 
@@ -738,7 +761,7 @@ extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
 extern AudioAnalyzeRMS			trackRMS[8];
-extern AudioMixer9				mixerL,mixerR,mixerDelay;
+extern AudioMixer10				mixerL,mixerR,mixerDelay;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
 
@@ -752,6 +775,7 @@ extern AudioAnalyzeRMS			rms;
 extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
 extern AudioSynthWaveform		testWaveform;
+extern AudioEffectPolyverb		polyverb;
 
 extern uint8_t isCurrentLoadInstrument[48];
 

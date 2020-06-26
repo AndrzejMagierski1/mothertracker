@@ -278,7 +278,10 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setDelayTime(mtProject.values.delayTime);
 	engine.setLimiterAttack(mtProject.values.limiterAttack);
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
-	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
+	engine.setLimiterTreshold(mtProject.values.limiterTreshold);	engine.setReverbSize(mtProject.values.reverb.size);
+	engine.setReverbDamp(mtProject.values.reverb.damp);
+	engine.setReverbPredelay(mtProject.values.reverb.predelay);
+	engine.setReverbDiffusion(mtProject.values.reverb.diffusion);
 	//----------------------------------------------------------------------------------------------------
 //	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 //			mtProject.values.padBoardNoteOffset,

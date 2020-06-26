@@ -30,12 +30,12 @@ AudioAnalyzeRMS			 trackRMS[8];
 AudioEffectShortDelay	 shortDelay;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
-
+AudioEffectPolyverb		 polyverb;
 //AudioFilterStateVariable filterReverbOut;
 
-AudioMixer9				 mixerL,mixerR,mixerDelay;
+AudioMixer10			 mixerL,mixerR,mixerDelay,mixerReverb;
 AudioMixer4              mixerRec;
-AudioMixer9              mixerSourceL,mixerSourceR;
+AudioMixer10             mixerSourceL,mixerSourceR;
 
 AudioAnalyzeRMS			 rms;
 AudioRecordQueue		 exportL, exportR;
@@ -108,14 +108,29 @@ AudioConnection          connect46(&envelopeAmp[5], 0, &mixerDelay, 5);
 AudioConnection          connect47(&envelopeAmp[6], 0, &mixerDelay, 6);
 AudioConnection          connect48(&envelopeAmp[7], 0, &mixerDelay, 7);
 
+
+AudioConnection          connectSendReverb1(&envelopeAmp[0], 0, &mixerReverb, 0);
+AudioConnection          connectSendReverb2(&envelopeAmp[1], 0, &mixerReverb, 1);
+AudioConnection          connectSendReverb3(&envelopeAmp[2], 0, &mixerReverb, 2);
+AudioConnection          connectSendReverb4(&envelopeAmp[3], 0, &mixerReverb, 3);
+AudioConnection          connectSendReverb5(&envelopeAmp[4], 0, &mixerReverb, 4);
+AudioConnection          connectSendReverb6(&envelopeAmp[5], 0, &mixerReverb, 5);
+AudioConnection          connectSendReverb7(&envelopeAmp[6], 0, &mixerReverb, 6);
+AudioConnection          connectSendReverb8(&envelopeAmp[7], 0, &mixerReverb, 7);
+
 AudioConnection          connect49(&mixerDelay,&shortDelay);
 
+AudioConnection          connectMixSendReverbL(&mixerReverb,0,&polyverb,0);
+AudioConnection          connectMixSendReverbR(&mixerReverb,0,&polyverb,1);
 
 //AudioConnection          connect82(&reverb, &filterReverbOut);
 //AudioConnection          connect83(&reverb, &filterReverbOut);
 
 AudioConnection          connect50(&shortDelay, 0, &mixerL, 8);
 AudioConnection          connect51(&shortDelay, 1, &mixerR, 8);
+
+AudioConnection          connectWetReverbL(&polyverb,0,&mixerL,9);
+AudioConnection          connectWetReverbR(&polyverb,1,&mixerR,9);
 
 AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
 AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
@@ -141,8 +156,8 @@ AudioConnection          connect81(&testWaveform, 0, &mixerSourceL, 4);
 AudioConnection          connect82(&metronomeTick, 0, &mixerSourceR, 5);
 AudioConnection          connect83(&metronomeTick, 0, &mixerSourceL, 5);
 
-AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
-AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
+AudioConnection          connect59(&mixerSourceR, 0, &i2sOut, 0);
+AudioConnection          connect60(&mixerSourceL, 0, &i2sOut, 1);
 //**************** export
 AudioConnection          connect70(&mixerSourceL, &exportL);
 AudioConnection          connect71(&mixerSourceR, &exportR);
@@ -243,6 +258,12 @@ void audioEngine::init()
 	updateTimer.begin(updateAudioEngine,4500);
 	updateTimer.priority(255);
 
+	polyverb.reset();
+	polyverb.setTime(mtProject.values.reverb.size);
+	polyverb.setDamp(mtProject.values.reverb.damp);
+	polyverb.SetPredelayLength(mtProject.values.reverb.predelay);
+	polyverb.SetDiffusion(mtProject.values.reverb.diffusion);
+
 //	setPassEnvelope(1);
 }
 
@@ -291,6 +312,7 @@ void audioEngine::performanceModeEndAll()
 		instrumentPlayer[i].endFilterTypePerformanceMode();
 		instrumentPlayer[i].endGranularPositionPerformanceMode();
 		instrumentPlayer[i].endPanningPerformanceMode();
+		instrumentPlayer[i].endDelaySendPerformanceMode();
 		instrumentPlayer[i].endReverbSendPerformanceMode();
 		instrumentPlayer[i].endSamplePlaybackPerformanceMode();
 		instrumentPlayer[i].endStartPointPerformanceMode();
@@ -354,6 +376,23 @@ void audioEngine::setDelayPanning(int8_t value)
 		mixerL.gain(8,1.0);
 		mixerR.gain(8,1.0);
 	}
+}
+
+void audioEngine::setReverbSize(float value)
+{
+	polyverb.setTime(value);
+}
+void audioEngine::setReverbDamp(float value)
+{
+	polyverb.setDamp(value);
+}
+void audioEngine::setReverbPredelay(float value)
+{
+	polyverb.SetPredelayLength(value);
+}
+void audioEngine::setReverbDiffusion(float value)
+{
+	polyverb.SetDiffusion(value);
 }
 
 void audioEngine::setLimiterAttack(uint16_t attack)
@@ -513,6 +552,11 @@ void playerEngine :: modDelaySend(uint8_t value)
 {
 	mixerDelay.gain(nChannel,ampLogValues[value]);
 }
+void playerEngine :: modReverbSend(uint8_t value)
+{
+	mixerReverb.gain(nChannel,ampLogValues[value]);
+}
+
 
 void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 {
@@ -934,7 +978,11 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 		{
 			if(i == channel)
 			{
-				if(!mtProject.values.trackMute[i]) muteDelaySend(i, 1);
+				if(!mtProject.values.trackMute[i])
+				{
+					muteDelaySend(i, 1);
+					muteReverbSend(i, 1);
+				}
 				continue;
 			}
 			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
@@ -947,6 +995,7 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 			if(i == channel)
 			{
 				muteDelaySend(i, 0);
+				muteReverbSend(i, 0);
 				continue;
 			}
 			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
@@ -956,12 +1005,11 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 }
 
 // selectLR :  0 - L, 1- R, state: 1 - solo ON, 0 - solo OFF
-void audioEngine::soloReverbSend(uint8_t state)
+void audioEngine::soloDelaySend(uint8_t state)
 {
-
 	if(state == 1)
 	{
-		forceSend = 1;
+		forceDelaySend = 1;
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
@@ -969,13 +1017,33 @@ void audioEngine::soloReverbSend(uint8_t state)
 	}
 	else if(state == 0)
 	{
-		forceSend = 0;
+		forceDelaySend = 0;
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
 		}
 	}
 
+}
+
+void audioEngine::soloReverbSend(uint8_t state)
+{
+	if(state == 1)
+	{
+		forceReverbSend = 1;
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(!mtProject.values.trackMute[i]) muteTrack(i,1);
+		}
+	}
+	else if(state == 0)
+	{
+		forceReverbSend = 0;
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(!mtProject.values.trackMute[i]) muteTrack(i,0);
+		}
+	}
 }
 
 void audioEngine::clearDelay()
@@ -995,7 +1063,22 @@ void audioEngine::muteDelaySend(uint8_t channel, uint8_t state)
 	else
 	{
 		instrumentPlayer[channel].onlyDelayMuteState = 1;
-		if(!forceSend) instrumentPlayer[channel].modDelaySend(0);
+		if(!forceDelaySend) instrumentPlayer[channel].modDelaySend(0);
+	}
+}
+
+void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
+{
+	if(channel >= 8) return;
+	if(state == 0)
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 0;
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+	}
+	else
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 1;
+		if(!forceReverbSend) instrumentPlayer[channel].modReverbSend(0);
 	}
 }
 
@@ -1011,12 +1094,14 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 		instrumentPlayer[channel].muteState = 0;
 		instrumentPlayer[channel].setStatusBytes(VOLUME_MASK);
 		instrumentPlayer[channel].setStatusBytes(DELAY_SEND_MASK);
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
 	}
 	else
 	{
 		instrumentPlayer[channel].muteState = 1;
 		amp[channel].gain(AMP_MUTED);
-		if(!forceSend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+		if(!forceDelaySend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+		if(!forceReverbSend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modReverbSend(AMP_MUTED);
 	}
 }
 

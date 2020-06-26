@@ -260,6 +260,8 @@ void AudioEffectEnvelope::update(void)
 	}
 	if (state == envelopePhaseIdle)
 	{
+		memset(block->data,0,AUDIO_BLOCK_SAMPLES * 2);
+		transmit(block);
 		AudioStream::release(block);
 		return;
 	}

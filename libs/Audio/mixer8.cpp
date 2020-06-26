@@ -104,13 +104,13 @@ static void applyGainThenAdd(int16_t *dst, const int16_t *src, int32_t mult)
 
 #endif
 
-void AudioMixer9::update(void)
+void AudioMixer10::update(void)
 {
 
 	audio_block_t *in, *out=NULL;
 	unsigned int channel;
 
-	for (channel=0; channel < 9; channel++) {
+	for (channel=0; channel < 10; channel++) {
 		if (!out) {
 			out = receiveWritable(channel);
 			if (out) {

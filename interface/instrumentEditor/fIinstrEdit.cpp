@@ -41,9 +41,14 @@ static  uint8_t functSwitchMode(uint8_t button);
 
 static  uint8_t functSelectParams(uint8_t button, uint8_t state);
 
-
+static uint8_t functSwitchToSends(uint8_t state);
 
 static uint8_t functStepNote(uint8_t value);
+
+
+static uint8_t functSendSelectReverb();
+static uint8_t functSendSelectDelay();
+static uint8_t functSendBack();
 
 
 void changeEnvList(int16_t value);
@@ -67,6 +72,7 @@ void changeParamsFineTune(int16_t value);
 void changeFilterFilterType(int16_t value);
 void changeFilterCutOff(int16_t value);
 void changeFilterResonance(int16_t value);
+void changeParamsDelaySend(int16_t value);
 void changeParamsReverbSend(int16_t value);
 
 void changeParamsVelocity(int16_t value);
@@ -142,7 +148,7 @@ void cInstrumentEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-
+	isSendsWindow = false;
 	//mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
@@ -235,10 +241,12 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
+	for(uint8_t i = interfaceButton0; i < interfaceButton7; i++)
 	{
 		FM->setButtonObj(i, functSelectParams);
 	}
+
+	FM->setButtonObj(interfaceButton7, functSwitchToSends);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -272,6 +280,21 @@ void cInstrumentEditor::clearDefaultScreenFunct()
 	FM->clearButton(interfaceButtonUp);
 	FM->clearButton(interfaceButtonDown);
 
+}
+
+void cInstrumentEditor::switchToSendScreen()
+{
+	isSendsWindow = true;
+	setSendScreenFunct();
+	showSendScreen();
+}
+void cInstrumentEditor::setSendScreenFunct()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->setButtonObj(interfaceButton0, buttonPress, functSendSelectReverb);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSendSelectDelay);
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functSendBack);
 }
 
 //==============================================================================================================
@@ -317,7 +340,6 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 		case 4: IE->addNode(changeFilterFilterType, node, 1);   break;
 		case 5: IE->addNode(changeFilterCutOff, node); 	    	break;
 		case 6: IE->addNode(changeFilterResonance, node);    	break;
-		case 7: IE->addNode(changeParamsReverbSend, node);   	break;
 
 		case 10:
 
@@ -413,11 +435,26 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 	return 1;
 }
 
-
+static uint8_t functSwitchToSends(uint8_t state)
+{
+	if(state == buttonPress) IE->switchToSendScreen();
+	return 1;
+}
 
 //==============================================================================================================
 static  uint8_t functEncoder(int16_t value)
 {
+	if(IE->isSendsWindow)
+	{
+		switch(IE->selectedPlaceSends)
+		{
+			case 0: changeParamsReverbSend(value);		break;
+			case 1: changeParamsDelaySend(value);		break;
+			default: break;
+		}
+		return 1;
+	}
+
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
 		IE->stepThroughNodes(value, 0);
@@ -436,7 +473,6 @@ static  uint8_t functEncoder(int16_t value)
 		case 4: changeFilterFilterType(value);	 break;
 		case 5: changeFilterCutOff(value); 		 break;
 		case 6: changeFilterResonance(value); 	 break;
-		case 7: changeParamsReverbSend(value); 	 break;
 
 		case 10: changeEnvList(value); 		break;
 		case 11: changeEnvState(value); 	break;
@@ -484,6 +520,13 @@ static  uint8_t functLeft()
 {
 	if(IE->frameData.multiSelActiveNum != 0) return 1;
 
+	if(IE->isSendsWindow)
+	{
+		if(IE->selectedPlaceSends  > 0) IE->selectedPlaceSends--;
+		IE->showSendScreenFrame();
+		return 1;
+	}
+
 	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
 
 	if( IE->mode == mtInstEditModeParams)
@@ -507,6 +550,13 @@ static  uint8_t functRight()
 {
 	if(IE->frameData.multiSelActiveNum != 0) return 1;
 
+	if(IE->isSendsWindow)
+	{
+		if(IE->selectedPlaceSends  < IE->frameData.placesCount - 1) IE->selectedPlaceSends++;
+		IE->showSendScreenFrame();
+		return 1;
+	}
+
 	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
 
 	if( IE->mode == mtInstEditModeParams)
@@ -515,7 +565,7 @@ static  uint8_t functRight()
 		{
 			if(!IE->editorInstrument->filterEnable)
 			{
-				IE->selectedPlace[IE->mode] = 7;
+				IE->selectedPlace[IE->mode] = 4;
 			}
 		}
 	}
@@ -534,6 +584,17 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(IE->isSendsWindow)
+	{
+		switch(IE->selectedPlaceSends)
+		{
+			case 0: changeParamsReverbSend(1);		break;
+			case 1: changeParamsDelaySend(1);		break;
+			default: break;
+		}
+		return 1;
+	}
+
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
 		IE->stepThroughNodes(1, 1);
@@ -552,7 +613,6 @@ static  uint8_t functUp()
 		case 4: changeFilterFilterType(-1);  break;
 		case 5: changeFilterCutOff(1); 		 break;
 		case 6: changeFilterResonance(1); 	 break;
-		case 7: changeParamsReverbSend(1); 	 break;
 
 		case 10: changeEnvList(-1); 		break;
 		case 11: changeEnvState(-1); 	break;
@@ -596,6 +656,17 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(IE->isSendsWindow)
+	{
+		switch(IE->selectedPlaceSends)
+		{
+			case 0: changeParamsReverbSend(-1);		break;
+			case 1: changeParamsDelaySend(-1);		break;
+			default: break;
+		}
+		return 1;
+	}
+
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
 		IE->stepThroughNodes(-1, 1);
@@ -614,7 +685,6 @@ static  uint8_t functDown()
 		case 4: changeFilterFilterType(1); 		 break;
 		case 5: changeFilterCutOff(-1); 		 break;
 		case 6: changeFilterResonance(-1); 	 	 break;
-		case 7: changeParamsReverbSend(-1); 	 break;
 
 		case 10: changeEnvList(1); 				break;
 		case 11: changeEnvState(1); 			break;
@@ -683,6 +753,18 @@ static  uint8_t functDelete(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		if(IE->isSendsWindow)
+		{
+			switch(IE->selectedPlaceSends)
+			{
+				case 0: IE->setDefaultReverbSend();		break;
+				case 1: IE->setDefaultDelaySend();		break;
+			}
+
+			return 1;
+		}
+
+
 		if(IE->frameData.multiSelActiveNum != 0)
 		{
 			for(uint8_t i = 0 ; i < 8 ; i++)
@@ -1157,10 +1239,10 @@ void changeParamsPanning(int16_t value)
 }
 
 
-void changeParamsReverbSend(int16_t value)
+void changeParamsDelaySend(int16_t value)
 {
-	if(IE->editorInstrument->delaySend + value < REVERB_SEND_MIN) IE->editorInstrument->delaySend = REVERB_SEND_MIN;
-	else if(IE->editorInstrument->delaySend + value > REVERB_SEND_MAX ) IE->editorInstrument->delaySend = REVERB_SEND_MAX;
+	if(IE->editorInstrument->delaySend + value < SEND_MIN) IE->editorInstrument->delaySend = SEND_MIN;
+	else if(IE->editorInstrument->delaySend + value > SEND_MAX ) IE->editorInstrument->delaySend = SEND_MAX;
 	else IE->editorInstrument->delaySend += value;
 
 	for(uint8_t i = 0; i < 8; i++)
@@ -1173,6 +1255,22 @@ void changeParamsReverbSend(int16_t value)
 	IE->showParamsDelaySend();
 }
 
+
+void changeParamsReverbSend(int16_t value)
+{
+	if(IE->editorInstrument->reverbSend + value < SEND_MIN) IE->editorInstrument->reverbSend = SEND_MIN;
+	else if(IE->editorInstrument->reverbSend + value > SEND_MAX ) IE->editorInstrument->reverbSend = SEND_MAX;
+	else IE->editorInstrument->reverbSend += value;
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(REVERB_SEND_MASK);
+	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	IE->showParamsReverbSend();
+}
 
 
 void changeParamsVelocity(int16_t value)
@@ -1306,7 +1404,7 @@ void cInstrumentEditor::setDefaultValue(uint8_t place)
 		case 4:  	setDefaultFilterType(); 	break;
 		case 5:  	setDefaultCutoff(); 		break;
 		case 6:  	setDefaultResonance(); 		break;
-		case 7:  	setDefaultSend(); 			break;
+		case 7:  	setDefaultDelaySend(); 			break;
 		case 12:
 			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) setDefaultLfoShape();
 			else setDefaultEnvAttack();
@@ -1328,6 +1426,27 @@ void cInstrumentEditor::setDefaultValue(uint8_t place)
 		case 20: 	setDefaultMidiVelocity(); 	break;
 		default: break;
 	}
+}
+
+static uint8_t functSendSelectReverb()
+{
+	IE->selectedPlaceSends = 0;
+	IE->showSendScreenFrame();
+
+	return 1;
+}
+static uint8_t functSendSelectDelay()
+{
+	IE->selectedPlaceSends = 1;
+	IE->showSendScreenFrame();
+	return 1;
+}
+static uint8_t functSendBack()
+{
+	IE->isSendsWindow = false;
+	IE->setDefaultScreenFunct();
+	IE->showInstrumentParams();
+	return 1;
 }
 
 void cInstrumentEditor::setDefaultVolume()
@@ -1401,7 +1520,7 @@ void cInstrumentEditor::setDefaultResonance()
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 	IE->showFilterResonance();
 }
-void cInstrumentEditor::setDefaultSend()
+void cInstrumentEditor::setDefaultDelaySend()
 {
 	IE->editorInstrument->delaySend = defaultInstrumentParams.delaySend;
 	for(uint8_t i = 0; i < 8; i++)
@@ -1410,6 +1529,16 @@ void cInstrumentEditor::setDefaultSend()
 	}
 	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 	IE->showParamsDelaySend();
+}
+void cInstrumentEditor::setDefaultReverbSend()
+{
+	IE->editorInstrument->reverbSend = defaultInstrumentParams.reverbSend;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(REVERB_SEND_MASK);
+	}
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+	IE->showParamsReverbSend();
 }
 //env screen
 void cInstrumentEditor::setDefaultEnvAttack()

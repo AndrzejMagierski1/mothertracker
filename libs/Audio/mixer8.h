@@ -30,23 +30,23 @@
 #include "Arduino.h"
 #include "AudioStream.h"
 
-class AudioMixer9 : public AudioStream
+class AudioMixer10 : public AudioStream
 {
 #if defined(KINETISK)
 public:
-        AudioMixer9(void) : AudioStream(9, inputQueueArray) {
-		for (int i=0; i<9; i++) multiplier[i] = 65536;
+        AudioMixer10(void) : AudioStream(10, inputQueueArray) {
+		for (int i=0; i<10; i++) multiplier[i] = 65536;
 	}
         virtual void update(void);
 	void gain(unsigned int channel, float gain) {
-		if (channel >= 9) return;
+		if (channel >= 10) return;
 		if (gain > 32767.0f) gain = 32767.0f;
 		else if (gain < -32767.0f) gain = -32767.0f;
 		multiplier[channel] = gain * 65536.0f; // TODO: proper roundoff?
 	}
 private:
-	int32_t multiplier[9];
-	audio_block_t *inputQueueArray[9];
+	int32_t multiplier[10];
+	audio_block_t *inputQueueArray[10];
 
 #elif defined(KINETISL)
 public:

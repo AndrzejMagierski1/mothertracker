@@ -294,16 +294,15 @@ void cMasterParams::showMasterScreen()
 	display.setControlText(titleLabel, "Master 1/2");
 	display.refreshControl(titleLabel);
 
-
 	display.setControlText(label[0], "Volume");
-	display.setControlText(label[1], "Bit Depth");
-	display.setControlText(label[2], "Limit. A");
-	display.setControlText(label[3], "Limit. R");
-	display.setControlText(label[4], "Limit. T");
-	display.setControlText(label[5], "Delay");
-	display.setControlText2(label[5], " ");
-	display.setControlText(label[6], " ");
-	display.setControlText2(label[6], " ");
+	display.setControlText(label[1], "Reverb");
+	display.setControlText2(label[1], " ");
+	display.setControlText(label[2], "Delay");
+	display.setControlText2(label[2], " ");
+	display.setControlText(label[3], "Bit Depth");
+	display.setControlText(label[4], "Limit. A");
+	display.setControlText(label[5], "Limit. R");
+	display.setControlText(label[6], "Limit. T");
 	display.setControlText(label[7], " ");
 	display.setControlText2(label[7], " ");
 
@@ -317,7 +316,7 @@ void cMasterParams::showMasterScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 
-		if(i<5)
+		if((i != 7) && ( i != 1) && (i != 2))
 		{
 			display.setControlShow(barControl[i]);
 		}
@@ -330,7 +329,7 @@ void cMasterParams::showMasterScreen()
 
 
 	display.refreshControl(bgLabel);
-	display.setControlValue(bgLabel, 255);
+	display.setControlValue(bgLabel, 0b11001111);
 
 
 
@@ -341,7 +340,7 @@ void cMasterParams::showMasterScreen()
 	showBitDepth();
 
 
-	frameData.placesCount = 5;
+	frameData.placesCount = 7;
 	frameData.startPlace = selectedPlace;
 	frameData.places[0] = &framesPlaces[0][0];
 	frameData.places[1] = &framesPlaces[1][0];
@@ -357,18 +356,8 @@ void cMasterParams::showMasterScreen()
 
 }
 
-void cMasterParams::showDelayScreen()
+void cMasterParams::showReverbScreen()
 {
-
-	display.setControlShow(delayPingpongEnableList);
-	display.setControlShow(delaySyncEnableList);
-	display.setControlShow(delaySyncRateList);
-
-	display.refreshControl(delayPingpongEnableList);
-	display.refreshControl(delaySyncEnableList);
-	display.refreshControl(delaySyncRateList);
-
-
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		levelBarColors[i][0] = 0xFFFFFFFF;
@@ -376,14 +365,15 @@ void cMasterParams::showDelayScreen()
 
 	display.refreshControl(titleBar);
 
-	display.setControlText(titleLabel, "Master Delay");
+	display.setControlText(titleLabel, "Master Reverb");
 	display.refreshControl(titleLabel);
 
-	display.setControlText(label[0], "PingPong");
-	display.setControlText(label[1], "Sync");
-	display.setControlText(label[2], "Rate");
-	display.setControlText(label[3], "Time");
-	display.setControlText(label[4], "Feedback");
+	display.setControlText(label[0], "Size");
+	display.setControlText(label[1], "Damping");
+	display.setControlText(label[2], "Predelay");
+	display.setControlText(label[3], "Diffusion");
+	display.setControlText(label[4], "");
+	display.setControlText2(label[4], " ");
 	display.setControlText(label[5], " ");
 	display.setControlText2(label[5], " ");
 	display.setControlText(label[6], " ");
@@ -393,22 +383,7 @@ void cMasterParams::showDelayScreen()
 
 	resizeToDefaultMaster();
 
-	if(mtProject.values.delayParams & 0b01000000)
-	{
-		display.setControlColors(label[2], interfaceGlobals.activeLabelsColors);
-		display.setControlColors(delaySyncRateList, interfaceGlobals.activeListColors);
-		display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
-		levelBarColors[3][0] = 0x222222;
-		display.setControlColors(barControl[3], levelBarColors[3]);
-	}
-	else
-	{
-		display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
-		levelBarColors[3][0] = 0xFFFFFF;
-		display.setControlColors(barControl[3], levelBarColors[3]);
-		display.setControlColors(label[2], interfaceGlobals.inactiveLabelsColors);
-		display.setControlColors(delaySyncRateList, interfaceGlobals.inactiveListColors);
-	}
+
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -416,7 +391,7 @@ void cMasterParams::showDelayScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 
-		if((i == 3) || ( i == 4))
+		if(i < 4)
 		{
 			display.setControlShow(barControl[i]);
 		}
@@ -431,15 +406,13 @@ void cMasterParams::showDelayScreen()
 	display.refreshControl(bgLabel);
 	display.setControlValue(bgLabel, 255);
 
-	showDelayFeedback();
-	showDelayTime();
-	showDelayPingPongEnable();
-	showDelaySyncEnable();
-	showDelayRate();
+	showReverbSize();
+	showReverbDamp();
+	showReverbPredelay();
+	showReverbDiffusion();
 
-
-	frameData.placesCount = 5;
-	frameData.startPlace = selectedPlaceDelay;
+	frameData.placesCount = 4;
+	frameData.startPlace = selectedPlaceReverb;
 	frameData.places[0] = &framesPlaces[0][0];
 	frameData.places[1] = &framesPlaces[1][0];
 	frameData.places[2] = &framesPlaces[2][0];
@@ -449,11 +422,153 @@ void cMasterParams::showDelayScreen()
 	frameData.places[6] = &framesPlaces[6][0];
 	frameData.places[7] = &framesPlaces[7][0];
 
-	refreshDelayFrame();
+	refreshReverbFrame();
 	display.synchronizeRefresh();
 }
 
+void cMasterParams::showDelayScreen()
+{
+	display.setControlShow(delayPingpongEnableList);
+		display.setControlShow(delaySyncEnableList);
+		display.setControlShow(delaySyncRateList);
 
+		display.refreshControl(delayPingpongEnableList);
+		display.refreshControl(delaySyncEnableList);
+		display.refreshControl(delaySyncRateList);
+
+
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			levelBarColors[i][0] = 0xFFFFFFFF;
+		}
+
+		display.refreshControl(titleBar);
+
+		display.setControlText(titleLabel, "Master Delay");
+		display.refreshControl(titleLabel);
+
+		display.setControlText(label[0], "PingPong");
+		display.setControlText(label[1], "Sync");
+		display.setControlText(label[2], "Rate");
+		display.setControlText(label[3], "Time");
+		display.setControlText(label[4], "Feedback");
+		display.setControlText(label[5], " ");
+		display.setControlText2(label[5], " ");
+		display.setControlText(label[6], " ");
+		display.setControlText2(label[6], " ");
+		display.setControlText(label[7], "Back");
+		display.setControlText2(label[7], " ");
+
+		resizeToDefaultMaster();
+
+		if(mtProject.values.delayParams & 0b01000000)
+		{
+			display.setControlColors(label[2], interfaceGlobals.activeLabelsColors);
+			display.setControlColors(delaySyncRateList, interfaceGlobals.activeListColors);
+			display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
+			levelBarColors[3][0] = 0x222222;
+			display.setControlColors(barControl[3], levelBarColors[3]);
+		}
+		else
+		{
+			display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
+			levelBarColors[3][0] = 0xFFFFFF;
+			display.setControlColors(barControl[3], levelBarColors[3]);
+			display.setControlColors(label[2], interfaceGlobals.inactiveLabelsColors);
+			display.setControlColors(delaySyncRateList, interfaceGlobals.inactiveListColors);
+		}
+
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+			display.setControlShow(label[i]);
+			display.refreshControl(label[i]);
+
+			if((i == 3) || ( i == 4))
+			{
+				display.setControlShow(barControl[i]);
+			}
+			else
+			{
+				display.setControlHide(barControl[i]);
+			}
+			display.refreshControl(barControl[i]);
+		}
+
+
+		display.refreshControl(bgLabel);
+		display.setControlValue(bgLabel, 255);
+
+		showDelayFeedback();
+		showDelayTime();
+		showDelayPingPongEnable();
+		showDelaySyncEnable();
+		showDelayRate();
+
+
+		frameData.placesCount = 5;
+		frameData.startPlace = selectedPlaceDelay;
+		frameData.places[0] = &framesPlaces[0][0];
+		frameData.places[1] = &framesPlaces[1][0];
+		frameData.places[2] = &framesPlaces[2][0];
+		frameData.places[3] = &framesPlaces[3][0];
+		frameData.places[4] = &framesPlaces[4][0];
+		frameData.places[5] = &framesPlaces[5][0];
+		frameData.places[6] = &framesPlaces[6][0];
+		frameData.places[7] = &framesPlaces[7][0];
+
+		refreshDelayFrame();
+		display.synchronizeRefresh();
+}
+
+void cMasterParams::showReverbSize()
+{
+	sprintf(reverbSizeVal,"%d", (int)(mtProject.values.reverb.size * 100));
+
+	uint8_t displaySizeValue = mtProject.values.reverb.size * 100;
+
+	display.setControlValue(barControl[0], displaySizeValue);
+	display.refreshControl(barControl[0]);
+
+	display.setControlText2(label[0], reverbSizeVal);
+	display.refreshControl(label[0]);
+}
+void cMasterParams::showReverbDamp()
+{
+	sprintf(reverbDampVal,"%d", (int)(mtProject.values.reverb.damp * 100));
+
+	uint8_t displayDampValue = mtProject.values.reverb.damp * 100;
+
+	display.setControlValue(barControl[1], displayDampValue);
+	display.refreshControl(barControl[1]);
+
+	display.setControlText2(label[1], reverbDampVal);
+	display.refreshControl(label[1]);
+}
+void cMasterParams::showReverbPredelay()
+{
+	sprintf(reverbPredelayVal,"%d", (int)(mtProject.values.reverb.predelay * 100));
+
+	uint8_t displayPredelayValue = mtProject.values.reverb.predelay * 100;
+
+	display.setControlValue(barControl[2], displayPredelayValue);
+	display.refreshControl(barControl[2]);
+
+	display.setControlText2(label[2], reverbPredelayVal);
+	display.refreshControl(label[2]);
+}
+void cMasterParams::showReverbDiffusion()
+{
+	sprintf(reverbDiffusionVal,"%d", (int)(mtProject.values.reverb.diffusion * 100));
+
+	uint8_t displayDiffusionValue = mtProject.values.reverb.diffusion * 100;
+
+	display.setControlValue(barControl[3], displayDiffusionValue);
+	display.refreshControl(barControl[3]);
+
+	display.setControlText2(label[3], reverbDiffusionVal);
+	display.refreshControl(label[3]);
+}
 //==============================================================================================================
 void cMasterParams::activateLabelsBorder()
 {
@@ -469,6 +584,15 @@ void cMasterParams::refreshDelayFrame()
 	if(selectedPlaceDelay > frameData.placesCount-1) return;
 
 	display.setControlValue(frameControl, selectedPlaceDelay);
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+}
+
+void cMasterParams::refreshReverbFrame()
+{
+	if(selectedPlaceReverb > frameData.placesCount-1) return;
+
+	display.setControlValue(frameControl, selectedPlaceReverb);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
@@ -561,12 +685,12 @@ void cMasterParams::showLimiterAttack()
 	limitAttackVal[length]='s';
 	limitAttackVal[length+1]=0;
 
-	display.setControlValue(barControl[2], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
+	display.setControlValue(barControl[4], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[2]);
+	display.refreshControl(barControl[4]);
 
-	display.setControlText2(label[2], limitAttackVal);
-	display.refreshControl(label[2]);
+	display.setControlText2(label[4], limitAttackVal);
+	display.refreshControl(label[4]);
 }
 
 void cMasterParams::showLimiterRelease()
@@ -578,24 +702,24 @@ void cMasterParams::showLimiterRelease()
 	limitReleaseVal[length]='s';
 	limitReleaseVal[length+1]=0;
 
-	display.setControlValue(barControl[3], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
+	display.setControlValue(barControl[5], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[3]);
+	display.refreshControl(barControl[5]);
 
-	display.setControlText2(label[3], limitReleaseVal);
-	display.refreshControl(label[3]);
+	display.setControlText2(label[5], limitReleaseVal);
+	display.refreshControl(label[5]);
 }
 
 void cMasterParams::showLimiterTreshold()
 {
 	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 
-	display.setControlValue(barControl[4], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
-	display.setControlShow(barControl[4]);
-	display.refreshControl(barControl[4]);
+	display.setControlValue(barControl[6], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+	display.setControlShow(barControl[6]);
+	display.refreshControl(barControl[6]);
 
-	display.setControlText2(label[4], limitThresholdVal);
-	display.refreshControl(label[4]);
+	display.setControlText2(label[6], limitThresholdVal);
+	display.refreshControl(label[6]);
 }
 
 void cMasterParams::showBitDepth()
@@ -603,12 +727,12 @@ void cMasterParams::showBitDepth()
 	sprintf(bitDepthVal,"%d",mtProject.values.bitDepth);
 
 	uint8_t localVal = map(mtProject.values.bitDepth,BIT_DEPTH_MIN,BIT_DEPTH_MAX,0,100);
-	display.setControlValue(barControl[1], localVal);
+	display.setControlValue(barControl[3], localVal);
 //	display.setControlShow(barControl[3]);
-	display.refreshControl(barControl[1]);
+	display.refreshControl(barControl[3]);
 
-	display.setControlText2(label[1], bitDepthVal);
-	display.refreshControl(label[1]);
+	display.setControlText2(label[3], bitDepthVal);
+	display.refreshControl(label[3]);
 }
 
 

@@ -5,7 +5,7 @@
 
 void mtSongTrackExporter::start(char * path, uint8_t track_n)
 {
-	if(track_n < 9)
+	if(track_n < 10)
 	{
 		currentTrack = track_n;
 		setSoloTrack(track_n);
@@ -71,7 +71,7 @@ void mtSongStemsExporter::updateReceiving()
 				else break;
 			}
 
-			if(currentTrack > 9 ) status = 0;
+			if(currentTrack > 10 ) status = 0;
 			else if(currentTrack == 8)
 			{
 				char currentPath[PATCH_SIZE];
@@ -79,6 +79,12 @@ void mtSongStemsExporter::updateReceiving()
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else if(currentTrack == 9)
+			{
+				char currentPath[PATCH_SIZE];
+				sprintf(currentPath,"%s/reverb.wav",folderPath);
+				trackExporter.start(currentPath, currentTrack);
+			}
+			else if(currentTrack == 10)
 			{
 				char currentPath[PATCH_SIZE];
 				sprintf(currentPath,"%s/mix.wav",folderPath);
@@ -110,14 +116,19 @@ void mtSongStemsExporter::cancel()
 	trackExporter.localSongExporter.finishSave();
 	char currentPath[PATCH_SIZE];
 
-	for(uint8_t i = 0; i < 10; i ++ )
+	for(uint8_t i = 0; i < 11; i ++ )
 	{
 		if(i == 8)
 		{
 			sprintf(currentPath,"%s/delay.wav",folderPath);
 			if(SD.exists(currentPath)) SD.remove(currentPath);
 		}
-		else if(i == 9)
+		if(i == 9)
+		{
+			sprintf(currentPath,"%s/reverb.wav",folderPath);
+			if(SD.exists(currentPath)) SD.remove(currentPath);
+		}
+		else if(i == 10)
 		{
 			sprintf(currentPath,"%s/mix.wav",folderPath);
 			if(SD.exists(currentPath)) SD.remove(currentPath);
@@ -142,7 +153,7 @@ uint8_t mtSongStemsExporter::getStatus()
 uint8_t mtSongStemsExporter::getProgress()
 {
 	uint8_t currentSongProgress = map(sequencer.getActualPos(),0,sequencer.getPatternLength() - 1,(mtProject.song.playlistPos * 100) / (songLength),( (mtProject.song.playlistPos + 1) * 100)/ (songLength));
-	return 	(((currentTrack * 100) + currentSongProgress) * 100) / (10*100);
+	return 	(((currentTrack * 100) + currentSongProgress) * 100) / (11*100);
 }
 uint8_t mtSongStemsExporter::getTrack()
 {
