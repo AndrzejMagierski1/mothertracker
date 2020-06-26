@@ -479,6 +479,7 @@ public:
 	void changePanningPerformanceMode(int8_t value);
 	void changeTunePerformanceMode(int8_t value);
 	void changeDelaySendPerformanceMode(int8_t value);
+	void changeReverbSendPerformanceMode(int8_t value);
 	void changeStartPointPerformanceMode(int32_t value);
 	void changeEndPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);
@@ -500,6 +501,7 @@ public:
 	void endPanningPerformanceMode();
 	void endTunePerformanceMode();
 	void endDelaySendPerformanceMode();
+	void endReverbSendPerformanceMode();
 	void endStartPointPerformanceMode();
 	void endCutoffPerformanceMode();
 	void endFilterTypePerformanceMode();
@@ -638,6 +640,7 @@ private:
 	void fxFinetune(uint8_t fx_val, uint8_t fx_n);
 	void fxPanning(uint8_t fx_val, uint8_t fx_n);
 	void fxDelaySend(uint8_t fx_val, uint8_t fx_n);
+	void fxReverbSend(uint8_t fx_val, uint8_t fx_n);
 	void fxReversePlayback(uint8_t fx_val, uint8_t fx_n);
 //***position
 	void fxPosition(uint8_t fx_val, uint8_t fx_n);
@@ -664,6 +667,7 @@ private:
 	void endFxGlide(uint8_t fx_n);
 	void endFxFinetune(uint8_t fx_n);
 	void endFxPanning(uint8_t fx_n);
+	void endFxDelaySend(uint8_t fx_n);
 	void endFxReverbSend(uint8_t fx_n);
 	void endFxReversePlayback(uint8_t fx_n);
 //****** position
@@ -715,6 +719,9 @@ private:
 
 	void setFxDelaySend();
 	void clearFxDelaySend();
+
+	void setFxReverbSend();
+	void clearFxReverbSend();
 
 	void setFxCutoff();
 	void clearFxCutoff();

@@ -19,6 +19,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_MICROTUNING :			fxFinetune(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_PANNING :				fxPanning(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_DELAY_SEND :				fxDelaySend(fx_val, fx_n);				break;
+		case fx_t::FX_TYPE_REVERB_SEND :			fxReverbSend(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :		fxReversePlayback(fx_val, fx_n);		break;
 		case fx_t::FX_TYPE_R1 : break;
 		case fx_t::FX_TYPE_R7 : break;
@@ -62,7 +63,8 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 		case fx_t::FX_TYPE_GLIDE:						endFxGlide(fx_n);			break;
 		case fx_t::FX_TYPE_MICROTUNING :				endFxFinetune(fx_n);		break;
 		case fx_t::FX_TYPE_PANNING :					endFxPanning(fx_n);			break;
-		case fx_t::FX_TYPE_DELAY_SEND :					endFxReverbSend(fx_n);		break;
+		case fx_t::FX_TYPE_DELAY_SEND :					endFxDelaySend(fx_n);		break;
+		case fx_t::FX_TYPE_REVERB_SEND :				endFxReverbSend(fx_n);		break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :			endFxReversePlayback(fx_n);	break;
 		case fx_t::FX_TYPE_R1 : break;
 		case fx_t::FX_TYPE_R7 : break;
@@ -192,24 +194,48 @@ void playerEngine::fxDelaySend(uint8_t fx_val, uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
-	uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
-	uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
+	uint8_t maxFxDelaySend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
+	uint8_t minFxDelaySend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
 
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
+		currentSeqModValues.delaySend = map(fx_val,minFxDelaySend,maxFxDelaySend,SEND_MIN,SEND_MAX);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 		{
-			currentSeqModValues.delaySend = map(fx_val,minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
+			currentSeqModValues.delaySend = map(fx_val,minFxDelaySend,maxFxDelaySend,SEND_MIN,SEND_MAX);
 		}
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::delaySend] = 1;
 
 	setFxDelaySend();
+}
+
+void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
+{
+	uint8_t otherFx_n = !fx_n;
+
+	uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_REVERB_SEND);
+	uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_REVERB_SEND);
+
+
+	if(fx_n == MOST_SIGNIFICANT_FX)
+	{
+		currentSeqModValues.reverbSend = map(fx_val,minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
+	}
+	else if(fx_n == LEAST_SIGNIFICANT_FX)
+	{
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+		{
+			currentSeqModValues.reverbSend = map(fx_val,minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
+		}
+	}
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 1;
+
+	setFxReverbSend();
 }
 
 void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
@@ -761,7 +787,7 @@ void playerEngine::endFxPanning(uint8_t fx_n)
 	}
 }
 
-void playerEngine::endFxReverbSend(uint8_t fx_n)
+void playerEngine::endFxDelaySend(uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
@@ -771,10 +797,10 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::delaySend])
 		{
-			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
-			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
+			uint8_t maxFxDelaySend = sequencer.getFxMax(fx_t::FX_TYPE_DELAY_SEND);
+			uint8_t minFxDelaySend = sequencer.getFxMin(fx_t::FX_TYPE_DELAY_SEND);
 
-			currentSeqModValues.delaySend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
+			currentSeqModValues.delaySend = map(lastSeqVal[otherFx_n],minFxDelaySend,maxFxDelaySend,SEND_MIN,SEND_MAX);
 		}
 	}
 
@@ -785,6 +811,32 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 	else
 	{
 		clearFxDelaySend();
+	}
+}
+void playerEngine::endFxReverbSend(uint8_t fx_n)
+{
+	uint8_t otherFx_n = !fx_n;
+
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 0;
+
+	if(fx_n == MOST_SIGNIFICANT_FX)
+	{
+		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+		{
+			uint8_t maxFxReverbSend = sequencer.getFxMax(fx_t::FX_TYPE_REVERB_SEND);
+			uint8_t minFxReverbSend = sequencer.getFxMin(fx_t::FX_TYPE_REVERB_SEND);
+
+			currentSeqModValues.reverbSend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,SEND_MIN,SEND_MAX);
+		}
+	}
+
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+	{
+		setFxReverbSend();
+	}
+	else
+	{
+		clearFxReverbSend();
 	}
 }
 
@@ -1708,6 +1760,37 @@ void playerEngine::clearFxDelaySend()
 			modDelaySend(mtProject.instrument[currentInstrument_idx].delaySend);
 		}
 		else modDelaySend(AMP_MUTED);
+	}
+}
+//REVERB SEND
+void playerEngine::setFxReverbSend()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+	{
+		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+	}
+	else
+	{
+		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
+		{
+			modReverbSend(currentSeqModValues.reverbSend);
+		}
+		else modReverbSend(AMP_MUTED);
+	}
+}
+void playerEngine::clearFxReverbSend()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+	{
+		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+	}
+	else
+	{
+		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
+		{
+			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+		}
+		else modReverbSend(AMP_MUTED);
 	}
 }
 //FILTER

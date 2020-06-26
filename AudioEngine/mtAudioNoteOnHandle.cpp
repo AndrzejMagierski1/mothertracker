@@ -337,7 +337,7 @@ void playerEngine::handleNoteOnDelaySend()
 
 void playerEngine::handleNoteOnReverbSend()
 {
-	if(((muteState == MUTE_DISABLE)/* && (onlyDelayMuteState == MUTE_DISABLE)*/) || (/*(engine.forceSend == 1) &&*/ !mtProject.values.trackMute[nChannel]))
+	if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
 		modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 	}
@@ -589,11 +589,11 @@ void playerEngine::handleFxNoteOnDelaySend()
 
 void playerEngine::handleFxNoteOnReverbSend()
 {
-	if(((muteState == MUTE_DISABLE) /*&& (onlyDelayMuteState == MUTE_DISABLE)*/) || (/*(engine.forceSend == 1) &&*/ !mtProject.values.trackMute[nChannel]))
+	if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
-//			changeDelaySendPerformanceMode(performanceMod.delaySend);
+			changeReverbSendPerformanceMode(performanceMod.reverbSend);
 		}
 		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend])
 			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]))

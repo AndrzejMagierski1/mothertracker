@@ -93,6 +93,29 @@ void playerEngine ::changeDelaySendPerformanceMode(int8_t value)
 
 }
 
+void playerEngine::changeReverbSendPerformanceMode(int8_t value)
+{
+	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] != 1) && (value == 0)) return;
+	performanceMod.reverbSend = value;
+
+	uint8_t reverbSend;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]	) reverbSend = currentSeqModValues.reverbSend;
+	else reverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+
+	if(reverbSend + value > SEND_MAX) currentPerformanceValues.reverbSend = SEND_MAX;
+	else if(reverbSend + value < SEND_MIN) currentPerformanceValues.reverbSend = SEND_MIN;
+	else currentPerformanceValues.reverbSend = reverbSend + value;
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 1;
+
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
+	{
+		modReverbSend(currentPerformanceValues.reverbSend);
+	}
+}
+
 void playerEngine::changeStartPointPerformanceMode(int32_t value)
 {
 	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
@@ -569,6 +592,19 @@ void playerEngine::endDelaySendPerformanceMode()
 
 	if(((muteState == 0) && (onlyDelayMuteState == 0)) || ((engine.forceDelaySend == 1) && !mtProject.values.trackMute[nChannel])) modDelaySend(delaySend);
 }
+void playerEngine::endReverbSendPerformanceMode()
+{
+	uint8_t reverbSend;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]) reverbSend = currentSeqModValues.reverbSend;
+	else reverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 0;
+
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel])) modReverbSend(reverbSend);
+}
+
 
 void playerEngine::endPointsPerformanceMode()
 {

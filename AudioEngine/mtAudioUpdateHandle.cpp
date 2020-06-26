@@ -371,7 +371,7 @@ void playerEngine::handleUpdateRefreshReverb()
 			localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
 		}
 
-		if(((muteState == 0) /*&& (onlyDelayMuteState == 0)*/) || (/*(engine.forceSend == 1) &&*/ !mtProject.values.trackMute[nChannel]))
+		if(((muteState == 0) && (onlyReverbMuteState == 0)) || ((engine.forceReverbSend == 1) && !mtProject.values.trackMute[nChannel]))
 		{
 			modReverbSend(localReverbSend);
 		}

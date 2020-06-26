@@ -313,6 +313,7 @@ void audioEngine::performanceModeEndAll()
 		instrumentPlayer[i].endGranularPositionPerformanceMode();
 		instrumentPlayer[i].endPanningPerformanceMode();
 		instrumentPlayer[i].endDelaySendPerformanceMode();
+		instrumentPlayer[i].endReverbSendPerformanceMode();
 		instrumentPlayer[i].endSamplePlaybackPerformanceMode();
 		instrumentPlayer[i].endStartPointPerformanceMode();
 		instrumentPlayer[i].endTunePerformanceMode();
