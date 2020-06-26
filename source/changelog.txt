@@ -1,3 +1,8 @@
+
+	1.0.6
+			- transport in bez 'usb+jack'
+			- komunikat midi noteOn z velo = 0 jest przekierowywany do noteOff
+			- fix wypelniania nut pod gridem (ponad MAXNOTE)
 	
 	1.0.5
 			- fix: zmiana parametrów w configu powodowala brzeczenie na wyjsciu - poprawka w eepromie
