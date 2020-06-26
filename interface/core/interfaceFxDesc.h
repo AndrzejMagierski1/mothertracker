@@ -172,9 +172,16 @@ const char fxDescriptions[FX_COUNT][300] =
 			"\n"
 			"From 0% to 100%."
 	},
-	//Sequencer::strFxConsts::enFxType::FX_TYPE_REVERB_SEND,
+	//Sequencer::strFxConsts::enFxType::FX_TYPE_DELAY_SEND,
 	{
 			"Sets the amount of Delay send."
+			"\n"
+			"\n"
+			"From 0% to 100%."
+	},
+	//Sequencer::strFxConsts::enFxType::FX_TYPE_REVERB_SEND,
+	{
+			"Sets the amount of Reverb send."
 			"\n"
 			"\n"
 			"From 0% to 100%."
