@@ -6,7 +6,7 @@
 
 void mtPatternTrackExporter::start(char * path, uint8_t track_n)
 {
-	if(track_n < 9)
+	if(track_n < 10)
 	{
 		currentTrack = track_n;
 		setSoloTrack(track_n);
@@ -82,7 +82,7 @@ void mtPatternStemsExporter::updateReceiving()
 				if(mtProject.values.trackMute[i]) currentTrack++;
 				else break;
 			}
-			if(currentTrack > 9 ) status = 0;
+			if(currentTrack > 10 ) status = 0;
 			else if(currentTrack == 8)
 			{
 				char currentPath[PATCH_SIZE];
@@ -90,6 +90,12 @@ void mtPatternStemsExporter::updateReceiving()
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else if(currentTrack == 9)
+			{
+				char currentPath[PATCH_SIZE];
+				sprintf(currentPath,"%s/reverb.wav",folderPath);
+				trackExporter.start(currentPath, currentTrack);
+			}
+			else if(currentTrack == 10)
 			{
 				char currentPath[PATCH_SIZE];
 				sprintf(currentPath,"%s/mix.wav",folderPath);
@@ -121,7 +127,7 @@ void mtPatternStemsExporter::cancel()
 	sequencer.stop();
 	char currentPath[PATCH_SIZE];
 
-	for(uint8_t i = 0; i < 10; i ++ )
+	for(uint8_t i = 0; i < 11; i ++ )
 	{
 		if(i == 8)
 		{
@@ -129,6 +135,11 @@ void mtPatternStemsExporter::cancel()
 			if(SD.exists(currentPath)) SD.remove(currentPath);
 		}
 		else if(i == 9)
+		{
+			sprintf(currentPath,"%s/reverb.wav",folderPath);
+			if(SD.exists(currentPath)) SD.remove(currentPath);
+		}
+		else if(i == 10)
 		{
 			sprintf(currentPath,"%s/mix.wav",folderPath);
 			if(SD.exists(currentPath)) SD.remove(currentPath);
@@ -153,7 +164,7 @@ uint8_t mtPatternStemsExporter::getStatus()
 uint8_t mtPatternStemsExporter::getProgress()
 {
 	uint16_t patternLength =  sequencer.getPatternLength();
-	return (currentTrack * patternLength  + sequencer.getActualPos()) * 100 / (10*patternLength);
+	return (currentTrack * patternLength  + sequencer.getActualPos()) * 100 / (11*patternLength);
 }
 uint8_t mtPatternStemsExporter::getTrack()
 {
