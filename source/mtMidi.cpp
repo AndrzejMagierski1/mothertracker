@@ -49,9 +49,16 @@ void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 //					velocity);
 //	MIDI.sendNoteOn(pitch, velocity, channel);
 
+	if (velocity == 0)
+	{
+		handleJackNoteOff(channel, pitch, 0);
+		return;
+	}
+
 	if (mtConfig.midi.notesInMode == notesIn_jack ||
 			mtConfig.midi.notesInMode == notesIn_usb_and_jack)
 	{
+
 		if (isIncomingChannelDesired(channel))
 		{
 			if (sequencer.getMidiInVoiceMode() == sequencer.midiInVoiceMode_sequencer)
@@ -87,6 +94,12 @@ void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
 //	Serial.printf("ON\tch: %d, pitch: %d, velo: %d \n", channel, pitch,
 //					velocity);
 //	MIDI.sendNoteOn(pitch, velocity, channel);
+
+	if (velocity == 0)
+	{
+		handleUsbNoteOff(channel, pitch, 0);
+		return;
+	}
 
 	if (mtConfig.midi.notesInMode == notesIn_usb ||
 			mtConfig.midi.notesInMode == notesIn_usb_and_jack)

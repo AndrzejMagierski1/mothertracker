@@ -180,8 +180,8 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 				tempNote++;
 				//Serial.println("tempnote++");
 			}
-			padNotes[a] = tempNote;
-			tempNote++;
+			padNotes[a] = constrain(tempNote, MIN_NOTE, MAX_NOTE);
+			if (tempNote < MAX_NOTE) tempNote++;
 		}
 		lastNoteOffset 	= noteOffset;
 		lastScale 		= scale;

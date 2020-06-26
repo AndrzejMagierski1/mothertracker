@@ -239,7 +239,7 @@ void checkConfig()
 		mtConfig.midi.clkOut = 0;
 	}
 
-	if(mtConfig.midi.transportIn > 3)
+	if(mtConfig.midi.transportIn > 2)
 	{
 		mtConfig.midi.transportIn = 0;
 	}
