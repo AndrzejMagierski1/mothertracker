@@ -1,4 +1,6 @@
 
+	1.0.7	
+			- Reverb
 	1.0.6
 			- transport in bez 'usb+jack'
 			- komunikat midi noteOn z velo = 0 jest przekierowywany do noteOff
