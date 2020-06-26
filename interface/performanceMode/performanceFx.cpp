@@ -29,6 +29,7 @@ enum
 	mtPerfHighPass,
 	mtPerfBandPass,
 	mtPerfDelaySend,
+	mtPerfReverbSend,
 	mtPerfSamplePosition,
 	mtPerfSampleEnd,
 	mtPerfSamplePlayback,
@@ -97,6 +98,13 @@ void delayClear(uint8_t track) { instrumentPlayer[track].endDelaySendPerformance
 const fxSetup delaySetup = {-100, 100, nullptr};
 
 cPerformFx delayPerfFx(mtPerfDelaySend, "Delay send", delaySet, delayClear, &delaySetup);
+
+//########## REVERB ########################################################################
+void reverbSet(uint8_t track, int16_t value) { instrumentPlayer[track].changeReverbSendPerformanceMode(value); }
+void reverbClear(uint8_t track) { instrumentPlayer[track].endReverbSendPerformanceMode(); }
+const fxSetup reverbSetup = {-100, 100, nullptr};
+
+cPerformFx reverbPerfFx(mtPerfReverbSend, "Reverb send", reverbSet, reverbClear, &reverbSetup);
 
 //########## SAMPLE POS ########################################################################
 void samplePosSet(uint8_t track, int16_t value) { instrumentPlayer[track].changePositionPerformanceMode(value); }
