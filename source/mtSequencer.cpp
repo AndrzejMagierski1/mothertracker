@@ -1016,6 +1016,7 @@ void Sequencer::play(uint8_t fromPos)
 	songTimer.start();
 	engine.endAllFx();
 	engine.clearDelay();
+	engine.clearReverb();
 
 	reset_actual_pos();
 

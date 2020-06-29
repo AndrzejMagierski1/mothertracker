@@ -73,6 +73,7 @@
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
+									<listOptionValue builtIn="false" value="../libs/Audio/Polyverb"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2141253513" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
@@ -131,6 +132,7 @@
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
+									<listOptionValue builtIn="false" value="../libs/Audio/Polyverb"/>
 								</option>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.637294101" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.general" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.lto.101578116" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -174,6 +176,7 @@
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
+									<listOptionValue builtIn="false" value="../libs/Audio/Polyverb"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.731726900" name="Architecture" superClass="com.crt.advproject.gas.arch" useByScannerDiscovery="false" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.fpu.985373801" name="Floating point" superClass="com.crt.advproject.gas.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gas.fpu.fpv4.hard" valueType="enumerated"/>
@@ -384,6 +387,7 @@
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
+									<listOptionValue builtIn="false" value="../libs/Audio/Polyverb"/>
 								</option>
 								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="false" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.hdrlib.615462902" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
@@ -439,6 +443,7 @@
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
+									<listOptionValue builtIn="false" value="../libs/Audio/Polyverb"/>
 								</option>
 								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" useByScannerDiscovery="false" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.fpu.937380535" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
@@ -481,6 +486,7 @@
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
 									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
+									<listOptionValue builtIn="false" value="../libs/Audio/Polyverb"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.1402598248" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.flags.crt.1599692473" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" useByScannerDiscovery="false" value="-c -x assembler-with-cpp -D__NEWLIB__ -D__MK66FX1M0__" valueType="string"/>
@@ -546,27 +552,6 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.394151911;com.crt.advproject.config.exe.release.394151911.;com.crt.advproject.cpp.exe.release.2107067612;com.crt.advproject.compiler.cpp.input.1826307263">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.394151911;com.crt.advproject.config.exe.release.394151911.;com.crt.advproject.gas.exe.release.440332316;com.crt.advproject.assembler.input.1073535054">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.394151911;com.crt.advproject.config.exe.release.394151911.;com.crt.advproject.gcc.exe.release.1178515777;com.crt.advproject.compiler.input.2109551822">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.320327707;com.crt.advproject.config.exe.debug.320327707.;com.crt.advproject.cpp.exe.debug.358488535;com.crt.advproject.compiler.cpp.input.851671978">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.320327707;com.crt.advproject.config.exe.debug.320327707.;com.crt.advproject.gcc.exe.debug.888206355;com.crt.advproject.compiler.input.125838703">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.320327707;com.crt.advproject.config.exe.debug.320327707.;com.crt.advproject.gas.exe.debug.275030544;com.crt.advproject.assembler.input.1019090148">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
-		</scannerConfigBuildInfo>
-	</storageModule>
 	<storageModule moduleId="com.crt.config">
 		<projectStorage>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#13;
 &lt;TargetConfig&gt;&#13;
@@ -596,5 +581,26 @@
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
 		<sdkVersion>2.7.0</sdkVersion>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.394151911;com.crt.advproject.config.exe.release.394151911.;com.crt.advproject.cpp.exe.release.2107067612;com.crt.advproject.compiler.cpp.input.1826307263">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.394151911;com.crt.advproject.config.exe.release.394151911.;com.crt.advproject.gcc.exe.release.1178515777;com.crt.advproject.compiler.input.2109551822">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.320327707;com.crt.advproject.config.exe.debug.320327707.;com.crt.advproject.cpp.exe.debug.358488535;com.crt.advproject.compiler.cpp.input.851671978">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.320327707;com.crt.advproject.config.exe.debug.320327707.;com.crt.advproject.gas.exe.debug.275030544;com.crt.advproject.assembler.input.1019090148">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.394151911;com.crt.advproject.config.exe.release.394151911.;com.crt.advproject.gas.exe.release.440332316;com.crt.advproject.assembler.input.1073535054">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.320327707;com.crt.advproject.config.exe.debug.320327707.;com.crt.advproject.gcc.exe.debug.888206355;com.crt.advproject.compiler.input.125838703">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

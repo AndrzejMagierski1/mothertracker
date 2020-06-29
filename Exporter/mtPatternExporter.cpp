@@ -11,6 +11,7 @@ void mtPatternExporter::setOnLastStep()
 	if(status != exportStatus::exportFinished)
 	{
 		sequencer.stop();
+		shortDelay.startFadeCount();
 		lastStep=1;
 	}
 
@@ -178,7 +179,7 @@ void mtPatternExporter::updateReceiving()
 			rmsL = exportRmsL.read();
 			rmsR = exportRmsR.read();
 
-			if((rmsL < 0.0001f) && (rmsR < 0.0001f))
+			if(((rmsL < 0.0001f) && (rmsR < 0.0001f)) && (shortDelay.getIsFaded() || isIgnoredDelay))
 			{
 				lastStep = 0;
 				finishReceiving();

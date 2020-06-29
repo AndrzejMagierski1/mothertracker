@@ -215,6 +215,7 @@ public:
 	void soloDelaySend(uint8_t state);
 	void soloReverbSend(uint8_t state);
 	void clearDelay();
+	void clearReverb();
 	void performanceModeEndAll();
 	void printLog(SdFile * log);
 	void startTestSignal(float amp, float freq);
@@ -776,6 +777,7 @@ extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
 extern AudioSynthWaveform		testWaveform;
 extern AudioEffectPolyverb		polyverb;
+extern AudioEffectShortDelay	shortDelay;
 
 extern uint8_t isCurrentLoadInstrument[48];
 

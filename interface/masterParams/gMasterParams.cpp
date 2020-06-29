@@ -559,9 +559,9 @@ void cMasterParams::showReverbPredelay()
 }
 void cMasterParams::showReverbDiffusion()
 {
-	sprintf(reverbDiffusionVal,"%d", (int)(mtProject.values.reverb.diffusion * 100));
+	uint8_t displayDiffusionValue = map(mtProject.values.reverb.diffusion * 100, 0 , REVERB_DIFFUSION_MAX * 100, 0, 100);
 
-	uint8_t displayDiffusionValue = mtProject.values.reverb.diffusion * 100;
+	sprintf(reverbDiffusionVal,"%d", (int)(displayDiffusionValue));
 
 	display.setControlValue(barControl[3], displayDiffusionValue);
 	display.refreshControl(barControl[3]);

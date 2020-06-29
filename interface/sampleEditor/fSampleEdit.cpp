@@ -294,6 +294,7 @@ void cSampleEditor::stop()
 	moduleRefresh = 0;
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
+	engine.clearReverb();
 	songTimer.show();
 	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 }

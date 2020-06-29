@@ -11,6 +11,10 @@ void mtSongTrackExporter::start(char * path, uint8_t track_n)
 		setSoloTrack(track_n);
 	}
 
+	if((track_n == 8) || (track_n == 10)) localSongExporter.clearIgnoreDelay();
+	else localSongExporter.ignoreDelay();
+
+
 	localSongExporter.start(path);
 }
 

@@ -104,10 +104,13 @@ class FxEngine {
   FxEngine() { }
   ~FxEngine() { }
 
-  void Init(T* buffer) {
+  void Init(T* buffer, T* buffer2) {
     buffer_ = buffer;
+    buffer2_ = buffer2;
 //    std::fill(&buffer_[0], &buffer_[size], 0);
+//    std::fill(&buffer2_[0], &buffer2_[size], 0);
     write_ptr_ = 0;
+    write_ptr2_ = 0;
   }
 
   static constexpr size_t GetSize() {
@@ -116,7 +119,9 @@ class FxEngine {
 
   void Reset() {
     std::fill(&buffer_[0], &buffer_[size], 0);
+    std::fill(&buffer2_[0], &buffer2_[size], 0);
     write_ptr_ = 0;
+    write_ptr2_ = 0;
   }
 
   struct Empty { };
@@ -185,8 +190,25 @@ class FxEngine {
     }
 
     template<typename D>
+    inline void Write2(D& d, int32_t offset, float scale) {
+      STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
+      T w = DataType<format>::Compress(accumulator_);
+      if (offset == -1) {
+        buffer2_[(write_ptr2_ + D::base + D::length - 1) % size] = w;
+      } else {
+        buffer2_[(write_ptr2_ + D::base + offset) % size] = w;
+      }
+      accumulator_ *= scale;
+    }
+
+    template<typename D>
     inline void Write(D& d, float scale) {
       Write(d, 0, scale);
+    }
+
+    template<typename D>
+    inline void Write2(D& d, float scale) {
+      Write2(d, 0, scale);
     }
 
     template<typename D>
@@ -196,8 +218,19 @@ class FxEngine {
     }
 
     template<typename D>
+    inline void WriteAllPass2(D& d, int32_t offset, float scale) {
+      Write2(d, offset, scale);
+      accumulator_ += previous_read_;
+    }
+
+    template<typename D>
     inline void WriteAllPass(D& d, float scale) {
       WriteAllPass(d, 0, scale);
+    }
+
+    template<typename D>
+    inline void WriteAllPass2(D& d, float scale) {
+      WriteAllPass2(d, 0, scale);
     }
 
     template<typename D>
@@ -208,6 +241,20 @@ class FxEngine {
         r = buffer_[(write_ptr_ + D::base + D::length - 1) % size];
       } else {
         r = buffer_[(write_ptr_ + D::base + offset) % size];
+      }
+      float r_f = DataType<format>::Decompress(r);
+      previous_read_ = r_f;
+      accumulator_ += r_f * scale;
+    }
+
+    template<typename D>
+    inline void Read2(D& d, int32_t offset, float scale) {
+      STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
+      T r;
+      if (offset == -1) {
+        r = buffer2_[(write_ptr2_ + D::base + D::length - 1) % size];
+      } else {
+        r = buffer2_[(write_ptr2_ + D::base + offset) % size];
       }
       float r_f = DataType<format>::Decompress(r);
       previous_read_ = r_f;
@@ -243,6 +290,19 @@ class FxEngine {
     }
 
     template<typename D>
+    inline void Interpolate2(D& d, float offset, float scale) {
+      STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
+      MAKE_INTEGRAL_FRACTIONAL(offset);
+      float a = DataType<format>::Decompress(
+          buffer2_[(write_ptr2_ + offset_integral + D::base) % size]);
+      float b = DataType<format>::Decompress(
+          buffer2_[(write_ptr2_ + offset_integral + D::base + 1) % size]);
+      float x = a + (b - a) * offset_fractional;
+      previous_read_ = x;
+      accumulator_ += x * scale;
+    }
+
+    template<typename D>
     inline void Interpolate(
         D& d, float offset, LFOIndex index, float amplitude, float scale) {
       STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
@@ -257,12 +317,29 @@ class FxEngine {
       accumulator_ += x * scale;
     }
 
+    template<typename D>
+    inline void Interpolate2(
+        D& d, float offset, LFOIndex index, float amplitude, float scale) {
+      STATIC_ASSERT(D::base + D::length <= size, delay_memory_full);
+      offset += amplitude * lfo_value_[index];
+      MAKE_INTEGRAL_FRACTIONAL(offset);
+      float a = DataType<format>::Decompress(
+          buffer2_[(write_ptr2_ + offset_integral + D::base) % size]);
+      float b = DataType<format>::Decompress(
+          buffer2_[(write_ptr2_ + offset_integral + D::base + 1) % size]);
+      float x = a + (b - a) * offset_fractional;
+      previous_read_ = x;
+      accumulator_ += x * scale;
+    }
+
    public:
     float accumulator_;
     float previous_read_;
     float lfo_value_[2];
     T* buffer_;
+    T* buffer2_;
     int32_t write_ptr_;
+    int32_t write_ptr2_;
 
     DISALLOW_COPY_AND_ASSIGN(Context);
   };
@@ -276,10 +353,16 @@ class FxEngine {
     if (write_ptr_ < 0) {
       write_ptr_ += size;
     }
+    --write_ptr2_;
+    if (write_ptr2_ < 0) {
+      write_ptr2_ += size;
+    }
     c->accumulator_ = 0.0f;
     c->previous_read_ = 0.0f;
     c->buffer_ = buffer_;
+    c->buffer2_ = buffer2_;
     c->write_ptr_ = write_ptr_;
+    c->write_ptr2_ = write_ptr2_;
     if ((write_ptr_ & 30) == 0) {
       //c->lfo_value_[0] = lfo_[0].Next();
       c->lfo_value_[1] = lfo_[1].Next();
@@ -294,10 +377,16 @@ class FxEngine {
     if (write_ptr_ < 0) {
       write_ptr_ += size;
     }
+    --write_ptr2_;
+    if (write_ptr2_ < 0) {
+      write_ptr2_ += size;
+    }
     c->accumulator_ = 0.0f;
     c->previous_read_ = 0.0f;
     c->buffer_ = buffer_;
+    c->buffer2_ = buffer2_;
     c->write_ptr_ = write_ptr_;
+    c->write_ptr2_ = write_ptr2_;
   }
 
  private:
@@ -306,7 +395,9 @@ class FxEngine {
   };
 
   int32_t write_ptr_;
+  int32_t write_ptr2_;
   T* buffer_;
+  T* buffer2_;
   CosineOscillator lfo_[2];
 
   DISALLOW_COPY_AND_ASSIGN(FxEngine);
