@@ -375,6 +375,7 @@ void cSampleRecorder::stop()
 	songTimer.show();
 	engine.unblockDelayRefresh();
 	engine.clearDelay();
+	engine.clearReverb();
 
 	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 }

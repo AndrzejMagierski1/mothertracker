@@ -16,6 +16,7 @@ AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
   setTime(0.7f);
   setDamp(0.2f);
   setAmount(0.8f);
+  blockUpdate();
 }
 
 AudioEffectPolyverb::~AudioEffectPolyverb() {
@@ -23,6 +24,8 @@ AudioEffectPolyverb::~AudioEffectPolyverb() {
 
 void AudioEffectPolyverb::update(void)
 {
+  if(isBlockedUpdate) return;
+
   audio_block_t *block_left;
   audio_block_t *block_right;
 

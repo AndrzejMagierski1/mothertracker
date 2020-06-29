@@ -258,11 +258,13 @@ void audioEngine::init()
 	updateTimer.begin(updateAudioEngine,4500);
 	updateTimer.priority(255);
 
+
 	polyverb.reset();
 	polyverb.setTime(mtProject.values.reverb.size);
 	polyverb.setDamp(mtProject.values.reverb.damp);
 	polyverb.SetPredelayLength(mtProject.values.reverb.predelay);
 	polyverb.SetDiffusion(mtProject.values.reverb.diffusion);
+	polyverb.unblockUpdate();
 
 //	setPassEnvelope(1);
 }
@@ -384,7 +386,7 @@ void audioEngine::setReverbSize(float value)
 }
 void audioEngine::setReverbDamp(float value)
 {
-	polyverb.setDamp(value);
+	polyverb.setDamp(1.0f - value);
 }
 void audioEngine::setReverbPredelay(float value)
 {
@@ -1050,6 +1052,10 @@ void audioEngine::clearDelay()
 {
 //	reverb.clearFilters();
 	shortDelay.clear();
+}
+void audioEngine::clearReverb()
+{
+	polyverb.reset();
 }
 
 void audioEngine::muteDelaySend(uint8_t channel, uint8_t state)
