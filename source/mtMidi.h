@@ -92,10 +92,12 @@ void receiveUsbStop();
 void receiveJackStart();
 void receiveJackStop();
 void receiveJackClock();
+void handleUsbSongPosition(uint16_t beats);
 
 
 void receiveClock();
 void receiveStart();
+void receiveContinue();
 void receiveStop();
 
 void midiForceStep();

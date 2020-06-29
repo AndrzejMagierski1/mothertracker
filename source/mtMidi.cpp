@@ -29,6 +29,7 @@ void midiInit()
 
 	usbMIDI.setHandleNoteOn(handleUsbNoteOn);
 	usbMIDI.setHandleNoteOff(handleUsbNoteOff);
+	usbMIDI.setHandleSongPosition(handleUsbSongPosition);
 }
 
 void midiUpdate()
@@ -278,13 +279,26 @@ void receiveUsbRealtime(uint8_t type)
 	case Start:
 		if (mtConfig.midi.transportIn == clockIn_Usb)
 		{
+			Serial.printf("usb start\n");
+			Serial.send_now();
 			receiveStart();
+		}
+		break;
+
+	case Continue:
+		if (mtConfig.midi.transportIn == clockIn_Usb)
+		{
+			Serial.printf("usb continue\n");
+			Serial.send_now();
+			receiveContinue();
 		}
 		break;
 
 	case Stop:
 		if (mtConfig.midi.transportIn == clockIn_Usb)
 		{
+			Serial.printf("usb stop\n");
+			Serial.send_now();
 			receiveStop();
 		}
 		break;
@@ -322,6 +336,8 @@ elapsedMicros timeout = 0;
 
 uint8_t count = 0; 			// tu liczę numer clokcka od startu
 uint8_t clockStep = 0;
+uint16_t lastSongPosition = 0;
+uint16_t startFromPosition = 0;
 
 uint8_t externalClockRunning = 0;
 
@@ -336,6 +352,8 @@ void receiveClock()
 
 	if (!sequencer.isInternalClock())
 	{
+//		Serial.printf("cl cnt %d\n",count);
+//		Serial.send_now();
 		if (count == 1)
 		{
 			timer = 0;
@@ -363,6 +381,7 @@ void receiveClock()
 }
 void receiveStart()
 {
+	startFromPosition = 0;
 
 	externalClockRunning = 1;
 	count = 1;
@@ -370,10 +389,34 @@ void receiveStart()
 
 	isFirstClock = 1;
 }
+void receiveContinue()
+{
+
+	startFromPosition = (lastSongPosition) % (sequencer.getActualPattern()->track[0].length + 1);
+
+	Serial.printf("startFromPosition: %d\n\n", startFromPosition);
+
+//	receiveStart();
+
+	externalClockRunning = 1;
+	count = 1;
+	clockStep = 0;
+
+	isFirstClock = 1;
+
+}
 void receiveStop()
 {
 	externalClockRunning = 0;
 	sequencer.stop();
+}
+
+void handleUsbSongPosition(uint16_t beats)
+{
+	Serial.printf("song pos: %d beats\n", beats);
+	sequencer.forcePosition(beats);
+
+	lastSongPosition = beats;
 }
 
 void midiForceStep()
@@ -384,7 +427,7 @@ void midiForceStep()
 
 		sequencer.stop();
 		externalClockRunning = 1;
-		sequencer.play();
+		sequencer.play(startFromPosition);
 	}
 	else
 	{
