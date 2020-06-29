@@ -42,12 +42,9 @@ class Reverb {
   ~Reverb() { }
 
   void Init(uint16_t* buffer, uint16_t* buffer2) {
-    engine_.Init(buffer);
+    engine_.Init(buffer, buffer2);
     engine_.SetLFOFrequency(LFO_1, 0.5f / 32000.0f);
     engine_.SetLFOFrequency(LFO_2, 0.3f / 32000.0f);
-    engine2_.Init(buffer2);
-    engine2_.SetLFOFrequency(LFO_1, 0.5f / 32000.0f);
-    engine2_.SetLFOFrequency(LFO_2, 0.3f / 32000.0f);
     lp_ = 0.7f;
     diffusion_ = 0.625f;
     predelay_length_ = 0;
@@ -86,7 +83,6 @@ class Reverb {
     E2::DelayLine<Memory2, 1> dap2b;
     E2::DelayLine<Memory2, 2> del2;
     E::Context c;
-    E2::Context c2;
 
     const float kap = diffusion_;
     const float klp = lp_;
@@ -94,6 +90,7 @@ class Reverb {
     const float amount = amount_;
     const float gain = input_gain_;
 
+    float lp_0 = lp_decay_0_;
     float lp_1 = lp_decay_1_;
     float lp_2 = lp_decay_2_;
 
@@ -103,8 +100,7 @@ class Reverb {
     for (size_t i = 0; i < size; i++) {
       float wet;
       float apout = 0.0f;
-      engine_.StartNoLFO(&c);
-      engine2_.Start(&c2);
+      engine_.Start(&c);
 
       // Smear AP1 inside the loop.
       //c.Interpolate(ap1, 10.0f, LFO_1, 80.0f, 1.0f);
@@ -114,6 +110,7 @@ class Reverb {
 
       c.Write(del0, 0.0f);
       c.Read(del0, predelay_length_, 1.0f);
+      c.Lp(lp_0, klp);
 
       // Diffuse through 4 allpasses.
       c.Read(ap1 TAIL, kap);
@@ -127,11 +124,9 @@ class Reverb {
       c.Write(apout);
 
       // Main reverb loop.
-      c2.Load(apout);
-      c2.Interpolate(del2, 6211.0f, LFO_2, 100.0f, krt);
-      //c2.Read(del2 TAIL, krt);
-      c.accumulator_ = c2.accumulator_;
-      c.previous_read_ = c2.previous_read_;
+      c.Load(apout);
+      c.Interpolate2(del2, 6211.0f, LFO_2, 100.0f, krt);
+      //c.Read2(del2 TAIL, krt);
       c.Lp(lp_1, klp);
       c.Read(dap1a TAIL, -kap);
       c.WriteAllPass(dap1a, kap);
@@ -148,16 +143,12 @@ class Reverb {
       // c.Interpolate(del1, 4450.0f, LFO_1, 50.0f, krt);
       c.Read(del1 TAIL, krt);
       c.Lp(lp_2, klp);
-      c2.accumulator_ = c.accumulator_;
-      c2.previous_read_ = c.previous_read_;
-      c2.Read(dap2a TAIL, kap);
-      c2.WriteAllPass(dap2a, -kap);
-      c2.Read(dap2b TAIL, -kap);
-      c2.WriteAllPass(dap2b, kap);
-      c2.Write(del2, 2.0f);
-      c2.Write(wet, 0.0f);
-      c.accumulator_ = c2.accumulator_;
-      c.previous_read_ = c2.previous_read_;
+      c.Read2(dap2a TAIL, kap);
+      c.WriteAllPass2(dap2a, -kap);
+      c.Read2(dap2b TAIL, -kap);
+      c.WriteAllPass2(dap2b, kap);
+      c.Write2(del2, 2.0f);
+      c.Write(wet, 0.0f);
 
       delta = (wet * 32768 - *right) * amount;
       *right += delta;
@@ -167,6 +158,7 @@ class Reverb {
       ++right;
     }
 
+    lp_decay_0_ = lp_0;
     lp_decay_1_ = lp_1;
     lp_decay_2_ = lp_2;
     last_update_delta_ = delta_sum / size;
@@ -198,7 +190,6 @@ class Reverb {
 
   inline void Reset() {
     engine_.Reset();
-    engine2_.Reset();
     last_update_delta_ = sound_delta_threshold_;
   }
 
@@ -214,7 +205,6 @@ class Reverb {
   typedef FxEngine<16384, FORMAT_16_BIT> E;
   typedef FxEngine<16384, FORMAT_16_BIT> E2;
   E engine_;
-  E2 engine2_;
 
   static constexpr size_t predelay_buffer_size_ = 5000;
 
@@ -225,6 +215,7 @@ class Reverb {
   float diffusion_;
   float lp_;
 
+  float lp_decay_0_;
   float lp_decay_1_;
   float lp_decay_2_;
 

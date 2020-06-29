@@ -1,12 +1,13 @@
 // Copyright 2020 Wojciech Jakóbczyk (jakobczyk.woj@gmail.com)
 
 #include "effect_polyverb.h"
-#include "Arduino.h"
+
 extern uint16_t externalRamBufReverb[16384];
+static uint16_t internalRamBufReverb[16384];
 
 AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
 {
-  buffer = static_cast<uint16_t*>(malloc(reverb.GetBufferSize()));
+  buffer = internalRamBufReverb;
   buffer2 = externalRamBufReverb;
   reverb.Init(buffer, buffer2);
 
@@ -18,7 +19,6 @@ AudioEffectPolyverb::AudioEffectPolyverb() : AudioStream(2, inputQueueArray)
 }
 
 AudioEffectPolyverb::~AudioEffectPolyverb() {
-  free(buffer);
 }
 
 void AudioEffectPolyverb::update(void)
