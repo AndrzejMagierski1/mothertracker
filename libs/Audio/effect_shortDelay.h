@@ -30,6 +30,8 @@ public:
   void clear();
   void blockUpdate();
   void unblockUpdate();
+  void startFadeCount();
+  bool getIsFaded();
 
 private:
   int16_t * const startDelayLine = sdram_ptrDelayMemory;
@@ -45,6 +47,8 @@ private:
   bool isPingpong;
   bool isSync;
   uint8_t syncRate;
+  uint32_t processBufCounter;
+  uint32_t processBufCounterFadeConstrain;
 };
 
 #endif /* LIBS_AUDIO_EFFECT_SHORTDELAY_H_ */

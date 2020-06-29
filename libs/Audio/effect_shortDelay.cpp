@@ -265,6 +265,16 @@ void AudioEffectShortDelay::update(void)
         if (sblock) release(sblock);
         release(dblockL);
     }
+    processBufCounter++;
+}
 
+void AudioEffectShortDelay::startFadeCount()
+{
+	processBufCounter = 0;
+	processBufCounterFadeConstrain = delaylineLength/128;
+}
+bool AudioEffectShortDelay::getIsFaded()
+{
+	return  (processBufCounter >= processBufCounterFadeConstrain );
 
 }

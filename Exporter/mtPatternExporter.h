@@ -25,6 +25,8 @@ public:
 	void cancel();
 	uint8_t getStatus();
 	void setOnLastStep();
+	void ignoreDelay() {	isIgnoredDelay = true;	};
+	void clearIgnoreDelay() {	isIgnoredDelay = false;	};
 
 	enum struct exportStatus
 	{
@@ -61,6 +63,7 @@ private:
 	int16_t * const packageL = (int16_t *) (&packageLR);
 	int16_t * const packageR = (int16_t *) ((int16_t *)&packageLR + 1);
 	bool duringUpdateReceive;
+	bool isIgnoredDelay;
 };
 
 
