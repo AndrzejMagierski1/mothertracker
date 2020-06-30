@@ -1,4 +1,8 @@
-
+	1.0.9	
+			- fix: zmiana pozycji i window WT juz nie zawiesza
+	1.0.8
+			- uaktualnienie reverba
+			- wygaszanie eksportu na dlugosc trwania delaya
 	1.0.7	
 			- Reverb
 	1.0.6
