@@ -166,6 +166,8 @@ void cGraphicProcessing::processSpectrum(strInstrument* instrument, strZoomParam
 		sampleData = instrument->sample.address
 				+ (  wt_pos * windowSize);
 
+		if(sampleData > (instrument->sample.address + instrument->sample.length) ) return;
+
 		float resolution = windowSize / 600.0;
 
 		int16_t up = 0;
