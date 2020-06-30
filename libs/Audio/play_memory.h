@@ -302,6 +302,11 @@ private:
 
 	} constrainsInSamples;
 
+	int32_t interpolationDif;
+	int16_t nextSample;
+	uint32_t interpolationCondition;
+	int16_t currentSampelValue;
+
 	volatile uint32_t currentSampleLength;
 	int16_t  lastSample = 0;
 	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
