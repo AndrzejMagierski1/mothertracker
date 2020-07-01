@@ -14,6 +14,10 @@ static cSamplePlayback *SP = &samplePlayback;
 static cSampleRecorder *SR = &sampleRecorder;
 static cSampleEditor *SE = &sampleEditor;
 
+
+elapsedMillis timerMidiDelay = 0;
+
+
 void midiInit()
 {
 	// jack
@@ -36,6 +40,7 @@ void midiUpdate()
 {
 	MIDI.read();
 	usbMIDI.read();
+//	usbMIDI.send_now();
 }
 
 uint8_t isIncomingChannelDesired(uint8_t chan)
@@ -279,8 +284,8 @@ void receiveUsbRealtime(uint8_t type)
 	case Start:
 		if (mtConfig.midi.transportIn == clockIn_Usb)
 		{
-			Serial.printf("usb start\n");
-			Serial.send_now();
+//			Serial.printf("usb start\n");
+//			Serial.send_now();
 			receiveStart();
 		}
 		break;
@@ -288,8 +293,8 @@ void receiveUsbRealtime(uint8_t type)
 	case Continue:
 		if (mtConfig.midi.transportIn == clockIn_Usb)
 		{
-			Serial.printf("usb continue\n");
-			Serial.send_now();
+//			Serial.printf("usb continue\n");
+//			Serial.send_now();
 			receiveContinue();
 		}
 		break;
@@ -297,8 +302,8 @@ void receiveUsbRealtime(uint8_t type)
 	case Stop:
 		if (mtConfig.midi.transportIn == clockIn_Usb)
 		{
-			Serial.printf("usb stop\n");
-			Serial.send_now();
+//			Serial.printf("usb stop\n");
+//			Serial.send_now();
 			receiveStop();
 		}
 		break;
@@ -348,6 +353,10 @@ bool isFirstClock = 0;
 
 void receiveClock()
 {
+
+//	Serial.println("receiveClock");
+//	Serial.send_now();
+
 	if (!externalClockRunning) return;
 
 	if (!sequencer.isInternalClock())
@@ -388,13 +397,15 @@ void receiveStart()
 	clockStep = 0;
 
 	isFirstClock = 1;
+
+	timerMidiDelay = 0;
 }
 void receiveContinue()
 {
 
 	startFromPosition = (lastSongPosition) % (sequencer.getActualPattern()->track[0].length + 1);
 
-	Serial.printf("startFromPosition: %d\n\n", startFromPosition);
+//	Serial.printf("startFromPosition: %d\n\n", startFromPosition);
 
 //	receiveStart();
 
@@ -408,13 +419,14 @@ void receiveContinue()
 void receiveStop()
 {
 	externalClockRunning = 0;
+	count = 0;
 	sequencer.stop();
 }
 
 void handleUsbSongPosition(uint16_t beats)
 {
-	Serial.printf("song pos: %d beats\n", beats);
-	sequencer.forcePosition(beats);
+//	Serial.printf("song pos: %d beats\n", beats);
+//	sequencer.forcePosition(beats);
 
 	lastSongPosition = beats;
 }
@@ -427,10 +439,15 @@ void midiForceStep()
 
 		sequencer.stop();
 		externalClockRunning = 1;
+
 		sequencer.play(startFromPosition);
+//		Serial.println("first step");
+//		Serial.send_now();
 	}
 	else
 	{
+//		Serial.println("next step");
+//		Serial.send_now();
 		sequencer.handle_nanoStep(1);
 	}
 
@@ -474,6 +491,11 @@ void sendProgramChange(uint8_t value)
 
 void sendMidiNoteOn(uint8_t note, uint8_t velo, uint8_t channel)
 {
+	uint32_t temptimer = timerMidiDelay;
+	timerMidiDelay = 0;
+//	Serial.printf("timerMidiDelay: %d\n\n", temptimer );
+//	Serial.send_now();
+
 	if (mtConfig.midi.notesOutMode == notesOut_mode_usb ||
 			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
 	{
