@@ -31,6 +31,11 @@ void AudioPlayMemory::updateLoopPingpong()
 		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
 		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 
+		interpolationCondition = 	   (!((iPitchCounter  < 1.0f) ||
+										   (( (iPitchCounter + 128 * pitchControl) < length) && (!reverseDirectionFlag)) ||
+										   (((int)(iPitchCounter - 128 * pitchControl) > 0) && (reverseDirectionFlag)) )) ? 1: 0;
+		int16_t * in_interpolation = reverseDirectionFlag ? in-1: in+1;
+
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
 			bool dataIsEnable = reverseDirectionFlag ? (iPitchCounter > 0) : (length > iPitchCounter);
@@ -125,7 +130,12 @@ void AudioPlayMemory::updateLoopPingpong()
 					i = SMOOTHING_SIZE;
 				}
 				//***********************************************
-				*out++ = *(in + iPitchCounter);
+				currentSampelValue = *(in + iPitchCounter);
+
+				if(interpolationCondition) interpolationDif = 0;
+				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+				*out++ = currentSampelValue + (int32_t)(fPitchCounter * interpolationDif);
 				if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 
 				if (!loopBackwardFlag)

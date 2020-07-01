@@ -64,10 +64,8 @@ void AudioPlayMemory::playSingleShot(uint8_t instrIdx, int8_t note)
 
 void AudioPlayMemory::updateSingleShot()
 {
-	elapsedMicros apoloniuszTajmer = 0;
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
-	int16_t *in_interpolation = nullptr;
 	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
@@ -91,7 +89,7 @@ void AudioPlayMemory::updateSingleShot()
 		interpolationCondition = 	   (!((iPitchCounter  < 1.0f) ||
 										   (( (iPitchCounter + 128 * pitchControl) < length) && (!reverseDirectionFlag)) ||
 										   (((int)(iPitchCounter - 128 * pitchControl) > 0) && (reverseDirectionFlag)) )) ? 1: 0;
-		in_interpolation = reverseDirectionFlag ? in-1: in+1;
+		int16_t * in_interpolation = reverseDirectionFlag ? in-1: in+1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -198,8 +196,6 @@ void AudioPlayMemory::updateSingleShot()
 		transmit(block);
 	}
 	release(block);
-
-	Serial.println(apoloniuszTajmer);
 }
 
 
