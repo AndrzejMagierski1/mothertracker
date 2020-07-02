@@ -132,7 +132,7 @@ void AudioPlayMemory::updateGranular()
 				if(needSmoothingFlag && (i == 0))
 				{
 					needSmoothingFlag = 0;
-					uint8_t volIndex = 0;
+					uint16_t volIndex = 0;
 					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
 					{
 						volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
@@ -350,7 +350,7 @@ void AudioPlayMemory::updateGranular()
 				//***********************************************
 
 //*************************************************************************************** poczatek przetwarzania pitchCountera
-				uint8_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+				uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
 
 				currentSampelValue = *(in + iPitchCounter);
 
