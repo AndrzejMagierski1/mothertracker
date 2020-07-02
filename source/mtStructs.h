@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					1;		// device version
 const uint8_t FV_VER_2 =					0;		// official update
-const uint8_t FV_VER_3 =					12;		// fix version
+const uint8_t FV_VER_3 =					13;		// fix version
 const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
@@ -25,7 +25,7 @@ const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			2;
 
 
-const bool START_STATE_SAVE	=				false;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
 
 
 
