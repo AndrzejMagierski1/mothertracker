@@ -245,8 +245,9 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	{
 		FM->setButtonObj(i, functSelectParams);
 	}
+	if(mode == mtInstEditModeEnv) FM->setButtonObj(interfaceButton7, functSelectParams);
+	else FM->setButtonObj(interfaceButton7, functSwitchToSends);
 
-	FM->setButtonObj(interfaceButton7, functSwitchToSends);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
