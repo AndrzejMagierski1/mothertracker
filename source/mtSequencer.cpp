@@ -1140,7 +1140,7 @@ void Sequencer::send_allNotesOff(void)
 		sendNoteOff(row);
 		if (player.track[row].stepSent.instrument > INSTRUMENTS_MAX)
 		{
-			sendMidiNoteOn(
+			sendMidiNoteOff(
 					player.track[row].stepSent.note,
 					0,
 					player.track[row].stepSent.instrument - INSTRUMENTS_MAX);
@@ -1192,7 +1192,7 @@ void Sequencer::stop(void)
 
 	sequencialSwitch_Reset();
 
-	nanoStep = 1;
+	nanoStep = 0;
 	nanoStepMultiplier = 0;
 
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
@@ -1220,7 +1220,7 @@ void Sequencer::stop(void)
 	}
 //	player.changeBank = 0;
 
-	player.swingToogle = 1;
+	player.swingToogle = 0;
 
 	reset_actual_pos();
 
