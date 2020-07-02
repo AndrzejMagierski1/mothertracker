@@ -301,16 +301,38 @@ void cInterface::handlePowerButtonAction(uint8_t state)
 
 		operatingMode = mtOperatingModePowerOffSequence;
 		lowPower.startPowerOffSequence();
-		deactivateInterfaceShutdown();
+
+		// specjalne zachowanie w zaleznosci od stanu sd
+		if(!sdCardDetector.isCardInserted())
+		{
+			hideDisplayNoSdCard();
+
+			deactivateInterfaceShutdown();
+			//showDisplayShutdown();
+		}
+		else
+		{
+			deactivateInterfaceShutdown();
+		}
 	}
 	else // relase
 	{
 		if(operatingMode != mtOperatingModePowerOffSequence) return;
 
 		shutdownSaveFlag = 0;
-		activateInterface();
 		lowPower.stopPowerOffSequence();
 		operatingMode = mtOperatingModeRun;
+
+		// specjalne zachowanie w zaleznosci od stanu sd
+		if(sdCardDetector.isCardInserted())
+		{
+			activateInterface();
+		}
+		else
+		{
+			hideDisplayShutdown();
+			showDisplayNoSdCard();
+		}
 	}
 }
 //=======================================================================

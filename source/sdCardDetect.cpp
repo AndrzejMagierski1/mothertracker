@@ -12,7 +12,7 @@ SDCardDetector sdCardDetector;
 
 enum cardState
 {
-	cardEjected,
+	cardEjected = 0,
 	cardInserted,
 };
 
