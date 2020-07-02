@@ -3732,10 +3732,7 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 //	if(tactButtons.isButtonPressed(interfaceButtonShift) && PTE->editMode == 1)
 
-	if (button == interfaceButtonPerformance) // perform modyfikuje biezacy pattern wiec trzeba zapisac ostatnio uzywany
-	{
-		newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
-	}
+	newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
 
 	Sequencer::strPattern *seq = sequencer.getPatternToUI();
 	Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
