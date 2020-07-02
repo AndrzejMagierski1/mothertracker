@@ -1,4 +1,9 @@
-	
+	1.0.12
+			- midi timecode (ext clock)
+			- poprawka buga który przy zmianie tracków w performance potrafil niszczyc ostatni pattern
+			- kilka optymalizacji ext clk
+			- fix buga który wysylal 2 nuty zamiast jednej na poczatku sekwencji przy ext clk
+			
 	1.0.11
 			- interpolacja
 			- zwiekszenie rozdzielnosci funkcji okna w granularze
