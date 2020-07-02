@@ -1,3 +1,5 @@
+	1.0.13  
+			- dla użytkowników tak ma być a nie bylo const bool START_STATE_SAVE = true 
 	1.0.12
 			- midi timecode (ext clock)
 			- poprawka buga który przy zmianie tracków w performance potrafil niszczyc ostatni pattern
