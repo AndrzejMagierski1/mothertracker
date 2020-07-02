@@ -1,3 +1,5 @@
+	1.0.10
+			- fix: klikniecie automation amount nie przenosi do okna senda
 	1.0.9	
 			- fix: zmiana pozycji i window WT juz nie zawiesza
 	1.0.8
