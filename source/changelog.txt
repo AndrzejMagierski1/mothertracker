@@ -1,3 +1,7 @@
+	
+	1.0.11
+			- interpolacja
+			- zwiekszenie rozdzielnosci funkcji okna w granularze
 	1.0.10
 			- fix: klikniecie automation amount nie przenosi do okna senda
 	1.0.9	
