@@ -1106,8 +1106,8 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 	{
 		instrumentPlayer[channel].muteState = 1;
 		amp[channel].gain(AMP_MUTED);
-		if(!forceDelaySend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
-		if(!forceReverbSend && !mtProject.values.trackMute[channel]) instrumentPlayer[channel].modReverbSend(AMP_MUTED);
+		if(!forceDelaySend && mtProject.values.trackMute[channel]) instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+		if(!forceReverbSend && mtProject.values.trackMute[channel]) instrumentPlayer[channel].modReverbSend(AMP_MUTED);
 	}
 }
 
