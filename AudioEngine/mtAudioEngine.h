@@ -534,6 +534,7 @@ private:
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator *			envelopePtr[envMax];
 	AudioFilterStateVariable *	filterPtr;
+	AudioEffectDeclick		*	declickerPtr;
 	AudioAnalyzeRMS *			rmsPtr;
 	uint8_t 					nChannel;
 	uint8_t						lastSeqFx[2];

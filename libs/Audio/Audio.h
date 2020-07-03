@@ -115,4 +115,5 @@
 #include "effect_bitDepth.h"
 #include "effect_shortDelay.h"
 #include "effect_polyverb.h"
+#include "effect_declick.h"
 #endif

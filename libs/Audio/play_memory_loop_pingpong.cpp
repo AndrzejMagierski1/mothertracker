@@ -25,6 +25,7 @@ void AudioPlayMemory::updateLoopPingpong()
 	}
 	else if (playing == 1)
 	{
+		checkFirstUpdate();
 		out = block->data;
 		in = (int16_t*)next;
 

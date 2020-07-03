@@ -95,6 +95,8 @@ void AudioPlayMemory::updateLoopForward()
 	block = allocate();
 	if (!block) return;
 
+
+	checkFirstUpdate();
 	if (!playing)
 	{
 		release(block);

@@ -37,7 +37,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	bool isAmpRandom = (mtProject.instrument[instr_idx].envelope[envAmp].loop) && (mtProject.instrument[instr_idx].lfo[envAmp].shape == lfoShapeRandom);
 	envelopeAmpPtr->setIsRandom(isAmpRandom);
-	envelopeAmpPtr->noteOn();
+//	envelopeAmpPtr->noteOn();
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
 	{
@@ -118,7 +118,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	bool isAmpRandom = (mtProject.instrument[instr_idx].envelope[envAmp].loop) && (mtProject.instrument[instr_idx].lfo[envAmp].shape == lfoShapeRandom);
 	envelopeAmpPtr->setIsRandom(isAmpRandom);
-	envelopeAmpPtr->noteOn(); // zawsze odpalamy nawet jak nie aktywny
+//	envelopeAmpPtr->noteOn(); // zawsze odpalamy nawet jak nie aktywny
 
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
@@ -244,7 +244,7 @@ void playerEngine::noteOffOrdinary()
 	}
 	else
 	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
+		if((envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 		{
 			playMemPtr->stop();
 			if(isTrackDisplayed) onEndDisplay = true;

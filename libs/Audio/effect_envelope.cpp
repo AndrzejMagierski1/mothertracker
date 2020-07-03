@@ -197,7 +197,6 @@ void AudioEffectEnvelope::noteOn(void)
 	__disable_irq();
 
 	pressedFlag = 1;
-
 	if(passFlag)
 	{
 		switchPhase(envelopePhaseIdle);
@@ -330,7 +329,7 @@ void AudioEffectEnvelope::update(void)
 				else
 				{
 					switchPhase(envelopePhaseIdle);
-					endReleaseFlag=1;
+					endReleaseFlag = 1;
 					while (p < end)
 					{
 

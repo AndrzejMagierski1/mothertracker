@@ -160,7 +160,8 @@ const double notes[MAX_NOTE] =
 		30.2039780058142
 };
 
-
+class AudioEffectDeclick;
+class AudioEffectEnvelope;
 
 class AudioPlayMemory : public AudioStream
 {
@@ -239,6 +240,10 @@ public:
 	//************************************************
 
 	void setCurrentInstrIdx(uint8_t n);
+
+	void assignDeclicker(AudioEffectDeclick * ptr);
+	void assignEnvelope(AudioEffectEnvelope * ptr);
+	bool getWaitOnEnvNoteOnState();
 private:
 
 //  PLAY OBSLUGA OGÓLNA
@@ -248,6 +253,7 @@ private:
 	void applyFinetuneOnPitch(uint8_t note);
 	void calculateGlidePitch(uint8_t note);
 	float getChangeVolumeCoef();
+	void checkFirstUpdate();
 //	PLAY Z PODZIALEM NA TRYBY
 	void playSingleShot(uint8_t instrIdx, int8_t note);
 	void playLoopForward(uint8_t instrIdx, int8_t note);
@@ -361,6 +367,11 @@ private:
 	uint32_t forcedWavetableWindow;
 	uint8_t forcedSlice;
 	uint16_t forcedGranularPosition;
+
+	AudioEffectDeclick * trackDeclicker;
+	AudioEffectEnvelope * trackEnvelope;
+	bool isFirstUpdateAfterNoteOn;
+	bool needWaitOneBuffer;
 
 	//*****************
 

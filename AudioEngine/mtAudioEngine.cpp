@@ -17,6 +17,7 @@ envelopeGenerator		 envelopeGranPosition[8];
 envelopeGenerator		 envelopePanning[8];
 envelopeGenerator		 envelopeFinetune[8];
 
+
 AudioPlaySdWav           playSdWav;
 AudioPlaySdWavFloat		 playSdWavFloat;
 AudioPlaySdWav24bit 	 playSdWav24Bit;
@@ -25,6 +26,9 @@ AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 AudioAmplifier           amp[8];
 AudioFilterStateVariable filter[8];
+AudioEffectDeclick		 declicker[8];
+
+
 AudioAnalyzeRMS			 trackRMS[8];
 //AudioEffectFreeverb		 reverb;
 AudioEffectShortDelay	 shortDelay;
@@ -70,23 +74,32 @@ AudioConnection          connect22(&envelopeAmp[5], &amp[5]);
 AudioConnection          connect23(&envelopeAmp[6], &amp[6]);
 AudioConnection          connect24(&envelopeAmp[7], &amp[7]);
 
-AudioConnection          connect25(&amp[0], 0, &mixerL, 0);
-AudioConnection          connect26(&amp[1], 0, &mixerL, 1);
-AudioConnection          connect27(&amp[2], 0, &mixerL, 2);
-AudioConnection          connect28(&amp[3], 0, &mixerL, 3);
-AudioConnection          connect29(&amp[4], 0, &mixerL, 4);
-AudioConnection          connect30(&amp[5], 0, &mixerL, 5);
-AudioConnection          connect31(&amp[6], 0, &mixerL, 6);
-AudioConnection          connect32(&amp[7], 0, &mixerL, 7);
+AudioConnection          connectAmpToDeclicker1(&amp[0], &declicker[0]);
+AudioConnection          connectAmpToDeclicker2(&amp[1], &declicker[1]);
+AudioConnection          connectAmpToDeclicker3(&amp[2], &declicker[2]);
+AudioConnection          connectAmpToDeclicker4(&amp[3], &declicker[3]);
+AudioConnection          connectAmpToDeclicker5(&amp[4], &declicker[4]);
+AudioConnection          connectAmpToDeclicker6(&amp[5], &declicker[5]);
+AudioConnection          connectAmpToDeclicker7(&amp[6], &declicker[6]);
+AudioConnection          connectAmpToDeclicker8(&amp[7], &declicker[7]);
 
-AudioConnection          connect33(&amp[0], 0, &mixerR, 0);
-AudioConnection          connect34(&amp[1], 0, &mixerR, 1);
-AudioConnection          connect35(&amp[2], 0, &mixerR, 2);
-AudioConnection          connect36(&amp[3], 0, &mixerR, 3);
-AudioConnection          connect37(&amp[4], 0, &mixerR, 4);
-AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
-AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
-AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
+AudioConnection          connect25(&declicker[0], 0, &mixerL, 0);
+AudioConnection          connect26(&declicker[1], 0, &mixerL, 1);
+AudioConnection          connect27(&declicker[2], 0, &mixerL, 2);
+AudioConnection          connect28(&declicker[3], 0, &mixerL, 3);
+AudioConnection          connect29(&declicker[4], 0, &mixerL, 4);
+AudioConnection          connect30(&declicker[5], 0, &mixerL, 5);
+AudioConnection          connect31(&declicker[6], 0, &mixerL, 6);
+AudioConnection          connect32(&declicker[7], 0, &mixerL, 7);
+
+AudioConnection          connect33(&declicker[0], 0, &mixerR, 0);
+AudioConnection          connect34(&declicker[1], 0, &mixerR, 1);
+AudioConnection          connect35(&declicker[2], 0, &mixerR, 2);
+AudioConnection          connect36(&declicker[3], 0, &mixerR, 3);
+AudioConnection          connect37(&declicker[4], 0, &mixerR, 4);
+AudioConnection          connect38(&declicker[5], 0, &mixerR, 5);
+AudioConnection          connect39(&declicker[6], 0, &mixerR, 6);
+AudioConnection          connect40(&declicker[7], 0, &mixerR, 7);
 
 
 AudioConnection          connect90(&amp[0], &trackRMS[0]);
@@ -460,6 +473,7 @@ playerEngine::playerEngine()
 	filterPtr = &filter[nChannel];
 	ampPtr = &amp[nChannel];
 	rmsPtr = &trackRMS[nChannel];
+	declickerPtr = &declicker[nChannel];
 	envelopePtr[envCutoff] = &envelopeFilter[nChannel];
 	envelopePtr[envWtPos]= &envelopeWtPosition[nChannel];
 	envelopePtr[envPan] = &envelopePanning[nChannel];
@@ -467,6 +481,8 @@ playerEngine::playerEngine()
 	envelopePtr[envFinetune] = &envelopeFinetune[nChannel];
 
 	envelopeAmpPtr->releaseNoteOn(RELEASE_NOTE_ON_VAL);
+	playMemPtr->assignDeclicker(declickerPtr);
+	playMemPtr->assignEnvelope(envelopeAmpPtr);
 }
 
 
@@ -847,7 +863,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	status = playMemPtr->playForPrev(instr_idx,note);
 
 	envelopeAmpPtr->setIsRandom(false);
-	envelopeAmpPtr->noteOn();
+//	envelopeAmpPtr->noteOn();
 
 	return status;
 	__enable_irq();
@@ -886,7 +902,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	status = playMemPtr->playForPrev(addr,len,type);
 
 	envelopeAmpPtr->setIsRandom(false);
-	envelopeAmpPtr->noteOn();
+//	envelopeAmpPtr->noteOn();
 
 	return status;
 
@@ -921,7 +937,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	status = playMemPtr->playForPrev(addr,len,note,type);
 
 	envelopeAmpPtr->setIsRandom(false);
-	envelopeAmpPtr->noteOn();
+//	envelopeAmpPtr->noteOn();
 
 	return status;
 }

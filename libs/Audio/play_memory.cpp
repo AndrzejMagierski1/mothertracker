@@ -28,6 +28,8 @@ void AudioPlayMemory::update(void)
 //**************************************************************************************PLAY
 uint8_t AudioPlayMemory::play(uint8_t instrIdx,int8_t note)
 {
+	isFirstUpdateAfterNoteOn = true;
+	needWaitOneBuffer = true;
 	switch(mtProject.instrument[instrIdx].playMode)
 	{
 		case playModeSingleShot: 		playSingleShot(instrIdx, note); 		return 1;
@@ -383,7 +385,8 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	}
 
 	playing = 1;
-
+	isFirstUpdateAfterNoteOn = true;
+	needWaitOneBuffer = true;
 	return successInit;
 
 }
@@ -472,7 +475,8 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	}
 
 	playing = 1;
-
+	isFirstUpdateAfterNoteOn = true;
+	needWaitOneBuffer = true;
 	return successInit;
 
 }
@@ -486,6 +490,20 @@ void AudioPlayMemory::stop(void)
 	__enable_irq();
 }
 
+void AudioPlayMemory::checkFirstUpdate()
+{
+	if(isFirstUpdateAfterNoteOn)
+	{
+		if(needWaitOneBuffer)
+		{
+			needWaitOneBuffer = false;
+			return;
+		}
+		trackDeclicker->setNextBufferCrossfade();
+		trackEnvelope->noteOn();
+		isFirstUpdateAfterNoteOn = false;
+	}
+}
 
 
 
@@ -852,6 +870,20 @@ void AudioPlayMemory::setCurrentInstrIdx(uint8_t n)
 {
 	currentInstrIdx = n;
 }
+
+void AudioPlayMemory::assignDeclicker(AudioEffectDeclick * ptr)
+{
+	trackDeclicker = ptr;
+}
+void AudioPlayMemory::assignEnvelope(AudioEffectEnvelope * ptr)
+{
+	trackEnvelope = ptr;
+}
+bool AudioPlayMemory::getWaitOnEnvNoteOnState()
+{
+	return isFirstUpdateAfterNoteOn;
+}
+
 void AudioPlayMemory::clean(void)
 {
 	if(!playing)
