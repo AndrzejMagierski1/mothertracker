@@ -12,6 +12,9 @@
 #include "configEditor/configEditor.h"
 
 #include "patternEditor/patternEditor.h"
+
+#include "core/interfacePopups.h"
+
 Sequencer sequencer;
 
 #include "debugLog.h"
@@ -71,11 +74,12 @@ void Sequencer::handle_uStep_timer(void)
 	 */
 
 	// noInterrupts();
-	if (SR->recordInProgressFlag == 1)
+	if (SR->recordInProgressFlag == 1 || player.preRecMetronomeActive)
 	{
 		if (SR->recorderConfig.source == SR->sourceTypeMicLG ||
 				SR->recorderConfig.source == SR->sourceTypeMicHG ||
-				SR->recorderConfig.source == SR->sourceTypeLineIn)
+				SR->recorderConfig.source == SR->sourceTypeLineIn ||
+				(player.preRecMetronomeActive))
 		{
 			if (nanoStep % 576 == 0)
 			{
@@ -94,6 +98,11 @@ void Sequencer::handle_uStep_timer(void)
 				}
 
 				player.extRecMetronomeStep++;
+				if(player.preRecMetronomeActive && player.extRecMetronomeStep>16)
+				{
+					player.preRecMetronomeActive = 0;
+					playPattern();
+				}
 			}
 
 			nanoStep++;
@@ -111,7 +120,7 @@ void Sequencer::handle_uStep_timer(void)
 
 	if (isInternalClock())
 	{
-		if (isPlay() || isRec())
+		if (isPlay())
 		{
 			handle_nanoStep(0);
 			nanoStep++;
@@ -125,7 +134,7 @@ void Sequencer::handle_uStep_timer(void)
 	else // external clock
 	{
 		// warunek blokujący przejście do kolejnego stepa
-		if ((nanoStep % 576 != 0) && (player.isPlay || isRec())) // && !clockustep)
+		if ((nanoStep % 576 != 0) && (player.isPlay )) // && !clockustep)
 		{
 			handle_nanoStep(0);
 
@@ -1186,6 +1195,8 @@ void Sequencer::stop(void)
 	player.uStep = 0;
 	player.selectionMode = 0;
 
+	player.preRecMetronomeActive = 0;
+
 	externalClockRunning = 0;
 
 	player.breakPattern = 0;
@@ -1234,7 +1245,31 @@ void Sequencer::stop(void)
 void Sequencer::rec(void)
 {
 	player.isREC = 1;
-	playPattern();
+	if (isPreMetronomeActive())
+	{
+		player.preRecMetronomeActive = 1;
+		strPopupStyleConfig popupConfig {
+				1,					// time
+				800 / 2 - 150,		// x
+				480 / 2 - 50,		// y
+				400,				// w
+				70,				// h
+				0xffffff,			// lineColor[4];
+				0xffffff,
+				0xffffff,
+				0xffffff,
+				controlStyleCenterX | controlStyleCenterY,		//lineStyle[4];
+				controlStyleCenterX | controlStyleCenterY,
+				controlStyleCenterX | controlStyleCenterY,
+				controlStyleCenterX | controlStyleCenterY };
+
+		mtPopups.config(0, &popupConfig);
+		mtPopups.show(0, "Recording in 4.. 3.. 2.. 1..");
+	}
+	else
+	{
+		playPattern();
+	}
 }
 
 void Sequencer::allNoteOffs(void)
@@ -2219,6 +2254,10 @@ void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
 uint8_t Sequencer::isMetronomeActive()
 {
 	return mtConfig.metronome.state > 0;
+}
+uint8_t Sequencer::isPreMetronomeActive()
+{
+	return mtConfig.metronome.state == 2;
 }
 uint8_t Sequencer::getMetronomeNumerator()
 {

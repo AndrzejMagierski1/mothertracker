@@ -357,7 +357,7 @@ void checkConfig()
 	}
 
 	// metornome ----------------------------------------
-	if(mtConfig.metronome.state > 1) mtConfig.metronome.state = 0;
+	if(mtConfig.metronome.state > 2) mtConfig.metronome.state = 0;
 	if(mtConfig.metronome.timeSignatureNumerator > 11) mtConfig.metronome.timeSignatureNumerator = 0;
 	if(mtConfig.metronome.volume > 100) mtConfig.metronome.volume = 50;
 

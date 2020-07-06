@@ -85,6 +85,12 @@ const char onOffStateTexts[2][7] =
 		"Off",
 		"On",
 };
+const char onOffMetroTexts[3][7] =
+{
+		"Off",
+		"On",
+		"Pre",
+};
 
 
 
@@ -194,10 +200,11 @@ const char* const ptrMtpState[2] =
 
 // metronome
 
-const char* const ptrMetroState[2] =
+const char* const ptrMetroState[3] =
 {
-		&onOffStateTexts[0][0],
-		&onOffStateTexts[1][0],
+		&onOffMetroTexts[0][0],
+		&onOffMetroTexts[1][0],
+		&onOffMetroTexts[2][0],
 };
 
 const char metroTimeSig[12][3] =
