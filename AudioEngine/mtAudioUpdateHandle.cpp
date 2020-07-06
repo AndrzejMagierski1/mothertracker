@@ -153,7 +153,13 @@ void playerEngine::handleUpdateEndReleaseAction()
 {
 	if(envelopeAmpPtr->endRelease())
 	{
-		envelopeAmpPtr->clearEndReleaseFlag();
+
+		if(playMemPtr->getWaitOnEnvNoteOnState())
+		{
+			envelopeAmpPtr->clearEndReleaseFlag();
+			return;
+		}
+
 		interfaceEndReleaseFlag = 1;
 		if(isTrackDisplayed) onEndDisplay = true;
 		playMemPtr->stop();

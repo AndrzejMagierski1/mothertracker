@@ -110,52 +110,6 @@ void AudioPlayMemory::updateSingleShot()
 						glideCounter++;
 					}
 				}
-				//***********************************************
-				//*********************************** SMOOTHING HANDLE
-				// needSmoothingFlag ustawiana jest na play gdy jest aktywne odtwarzanie, więc iPitchCounter się zeruje, ale na wysokim pitchu i bardzo krotkich loopach
-				// moga zostac przekroczone wartosci graniczne - trzeba je obsluzyc
-				if(needSmoothingFlag && (i == 0))
-				{
-					needSmoothingFlag = 0;
-
-					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
-					{
-						if(iPitchCounter <= length)
-						{
-							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
-							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ))) / (SMOOTHING_SIZE - 1));
-						}
-						else
-						{
-							*out++ = 0;
-						}
-
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-
-						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-					}
-					if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-					{
-						iPitchCounter = length;
-					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
-					{
-						iPitchCounter = 0;
-					}
-					i = SMOOTHING_SIZE;
-				}
-				//***********************************************
 
 				currentSampelValue = *(in + iPitchCounter);
 
