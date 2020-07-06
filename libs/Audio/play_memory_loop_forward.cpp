@@ -96,7 +96,7 @@ void AudioPlayMemory::updateLoopForward()
 	if (!block) return;
 
 
-	checkFirstUpdate();
+
 	if (!playing)
 	{
 		release(block);
@@ -107,6 +107,7 @@ void AudioPlayMemory::updateLoopForward()
 		out = block->data;
 		in = (int16_t*)next;
 
+		checkFirstUpdate();
 		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
 		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
 

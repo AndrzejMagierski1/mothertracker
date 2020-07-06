@@ -497,10 +497,10 @@ void AudioPlayMemory::checkFirstUpdate()
 		if(needWaitOneBuffer)
 		{
 			needWaitOneBuffer = false;
+			trackEnvelope->noteOn();
 			return;
 		}
 		trackDeclicker->setNextBufferCrossfade();
-		trackEnvelope->noteOn();
 		isFirstUpdateAfterNoteOn = false;
 	}
 }

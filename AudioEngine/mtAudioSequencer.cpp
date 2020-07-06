@@ -1389,11 +1389,11 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 		else envelopeAmpPtr->setPassFlag(1);
 
 		envelopeAmpPtr->delay(env->delay);
-		envelopeAmpPtr->attack(env->attack ? env->attack  : 1 );
+		envelopeAmpPtr->attack(env->attack ? env->attack  : 3 );
 		envelopeAmpPtr->hold(env->hold);
 		envelopeAmpPtr->decay(env->decay);
 		envelopeAmpPtr->sustain(env->sustain);
-		envelopeAmpPtr->release(env->release ? env->release  : 1 );
+		envelopeAmpPtr->release(env->release ? env->release  : 3 );
 		envelopeAmpPtr->setLoop(env->loop);
 
 		uint8_t localVol = getMostSignificantVolume();

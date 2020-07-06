@@ -67,7 +67,7 @@ public:
 	void releaseNoteOn(float milliseconds) {
 		release_forced_count = milliseconds2count(milliseconds);
 		if (release_forced_count == 0) release_forced_count = 1;
-//		release_forced_count = 16;
+		release_forced_count = 16; //na sztywno bufor
 	}
 	void setLoop(uint8_t state)
 	{

@@ -232,7 +232,7 @@
 					</folderInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.420635718" name="play_memory_loop_backward.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_loop_backward.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.1137126550">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.1137126550" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.1699593644" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.1699593644" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.363779195" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
@@ -244,13 +244,13 @@
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.2093129688" name="play_memory_loop_forward.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_loop_forward.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.1395214789">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.1395214789" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.270485489" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.270485489" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.1787883072" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.367019991" name="play_memory_beat_slice.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_beat_slice.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.1564227163">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.1564227163" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.225185952" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.225185952" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.201691177" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 						<tool announcement="Invoking: Resource Custom Build Step" customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.2068643091" name="Resource Custom Build Step">
@@ -262,7 +262,7 @@
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.965425163" name="play_memory_single_shot.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_single_shot.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.1611883341">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.1611883341" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.68341841" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.68341841" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.1482416020" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
@@ -274,25 +274,25 @@
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.972027248" name="play_memory_granular.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_granular.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.1777291845">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.1777291845" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.218656825" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.218656825" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.837733264" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.772921750" name="play_memory_wavetable.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_wavetable.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.525499044">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.525499044" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.1300523869" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.1300523869" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.646860884" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.1575871117" name="play_memory_slice.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_slice.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.1309140112">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.1309140112" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2093155772" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2093155772" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.564087351" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.143011725" name="play_memory.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.671306857">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.671306857" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.1810763316" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.1810763316" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.1574968284" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
@@ -304,7 +304,7 @@
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.320327707.1727927932" name="play_memory_loop_pingpong.cpp" rcbsApplicability="disable" resourcePath="libs/Audio/play_memory_loop_pingpong.cpp" toolsToInvoke="com.crt.advproject.cpp.exe.debug.358488535.555150157">
 						<tool id="com.crt.advproject.cpp.exe.debug.358488535.555150157" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.358488535">
-							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.482249801" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+							<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.482249801" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="true" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.cpp.input.1646699930" superClass="com.crt.advproject.compiler.cpp.input"/>
 						</tool>
 					</fileInfo>
