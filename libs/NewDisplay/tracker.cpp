@@ -848,14 +848,19 @@ void cTracker::tracksNumbers()
 
 	//pole/tlo
 	y = -1;
-	API_COLOR(0xffffff);
+	//API_COLOR(0xffffff);
 	API_LINE_WIDTH(24);
 	API_BEGIN(RECTS);
+
+
+
 
 	for(uint8_t i = 0; i < columnsCount; i++)
 	{
 		//if(tracks->firstVisibleTrack+i == 0 || tracks->firstVisibleTrack+i == 4) API_COLOR(0xffffff);
 		//else API_COLOR(0x333333);
+		if(tracks->inactive[tracks->firstVisibleTrack+i]) API_COLOR(colors[12]);
+		else  API_COLOR(0xffffff);
 
 		x = rightOffset+(i*tracksSpace)+1;
 
