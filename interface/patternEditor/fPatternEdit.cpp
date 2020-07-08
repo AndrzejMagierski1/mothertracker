@@ -356,6 +356,17 @@ void cPatternEditor::refreshPattern()
 
 	if(trackerPattern.actualStep > seq->track[0].length) trackerPattern.actualStep = seq->track[0].length;
 
+	// ograniczanie zaznaczenia jesli przekracza dlugosc patternu
+	if(trackerPattern.selectState == 2)
+	{
+		if(trackerPattern.selectStartStep > trackerPattern.patternLength-1)
+		{
+			trackerPattern.selectStartStep = trackerPattern.patternLength-1;
+			trackerPattern.selectColumn = 0;
+			trackerPattern.selectState = 1;
+		}
+		else if(trackerPattern.selectEndStep > trackerPattern.patternLength-1) trackerPattern.selectEndStep = trackerPattern.patternLength-1;
+	}
 
 	trackerPattern.selectedParam = editParam;
 
@@ -917,7 +928,6 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 	trackerPattern.patternLength = pattern->track[0].length+1;
 
 	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
-
 
 	showLength();
 
