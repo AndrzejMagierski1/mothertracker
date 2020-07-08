@@ -58,8 +58,9 @@ const char creditsText[1500] =
 */
 
 	"Polyend Team 2020:"
-	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Andrzej Magierski, Maciej Pancer, Michal Pilat, Piotr Raczynski,"
-	"\nDaniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz, Krzysztof Ziejewski, Krzysztof Zwolinski."
+	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Wojtek Jakobczyk, Andrzej Magierski, Maciej Pancer, Michal Pilat,"
+	"\nPiotr Raczynski, Daniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz, Krzysztof Ziejewski,"
+	"\nKrzysztof Zwolinski."
 	"\n"
 	"\nSpecial thanks to the beta testers & artists for feedback, tests, demo tracks, tutorials, videos and reviews: "
 	"\nSam Barker, Gui Boratto, Cuckoo, Mike Coakley, Alfred Darlington (Daedelus), Matthew Dear, Richard Devine,"
