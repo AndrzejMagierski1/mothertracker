@@ -1,3 +1,9 @@
+	1.0.15
+			- fix: przy nadpisywaniu instrumentów wycisza kolejne instrumenty
+			- fix: ograniczanie zaznaczenia jesli wykracza za dlugosc patternu
+			- fix: power button po wyjeciu karty odblokowywal urzadzenie
+			- poszarzenie numerow trackow zmutowanych w patternie
+			- dodany Wojtek do Creditsow
 	1.0.14
 			- fix: znikające nuty
 	1.0.13  
