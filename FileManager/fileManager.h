@@ -153,6 +153,7 @@ public:
 
 	//setery
 	void setProjectStructChanged();
+	void autosaveProjectStruct_ASAP();
 	void setPatternStructChanged(uint8_t pattern);
 	void setInstrumentStructChanged(uint8_t instrument);
 
@@ -250,9 +251,10 @@ private:
 	uint32_t totalMemoryToTranfser;
 	uint32_t actualMemoryTransfered;
 
-	//flagi zmian w aktywnym projeckie
-	struct strChengesFlags
+	//flagi zmian w aktywnym projekcie
+	struct strChangesFlags
 	{
+		uint8_t save_asap;
 		uint8_t project;
 		uint8_t instrument[INSTRUMENTS_COUNT];
 		uint8_t pattern[PATTERN_INDEX_MAX+1];

@@ -10,8 +10,9 @@
 
 #include "performanceEngine.h"
 
-void saveProjectPerformanceValuse() { newFileManager.setProjectStructChanged(); }
-//void saveConfigPerformanceValuse() { saveConfig(); }
+void saveProjectPerformanceValues() { newFileManager.setProjectStructChanged(); }
+void forceSaveProjectPerformanceValues() { newFileManager.autosaveProjectStruct_ASAP(); }
+//void saveConfigPerformanceValse() { saveConfig(); }
 
 const uint8_t performanceDataSourceCount = 2;
 strPerformDataSource performanceDataSource[performanceDataSourceCount] =
@@ -23,7 +24,8 @@ strPerformDataSource performanceDataSource[performanceDataSourceCount] =
 		&mtConfig.values.perfFxValues[0][0],
 		mtConfig.values.perfSelectedValues,
 		mtConfig.values.perfTracksState,
-		saveConfig
+		saveConfig,
+		saveConfigAsap
 	},
 
 	//project
@@ -33,7 +35,8 @@ strPerformDataSource performanceDataSource[performanceDataSourceCount] =
 		&mtProject.values.perfFxValues[0][0],
 		mtProject.values.perfSelectedValues,
 		mtProject.values.perfTracksState,
-		saveProjectPerformanceValuse
+		saveProjectPerformanceValues,
+		forceSaveProjectPerformanceValues
 	}
 };
 
@@ -62,6 +65,13 @@ void cPerformEngine::turnOff()
 	}
 
 	resetAllFx();
+}
+void cPerformEngine::forceSaveConfig()
+{
+	if (sourceDataForceSaveFunct != NULL)
+	{
+		sourceDataForceSaveFunct();
+	}
 }
 
 
