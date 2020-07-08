@@ -198,21 +198,6 @@ void cFileManager::moveSampleMemory()
 		return;
 	}
 
-	uint8_t last_instrument_to_move = firstSlotToMoveInMemory;
-	uint8_t i = firstSlotToMoveInMemory;
-
-	// znajdz ostatni instrument do przesuniecia
-	while(i < INSTRUMENTS_COUNT )
-	{
-		if(mtProject.instrument[i].isActive == 1)
-		{
-			engine.setCurrentLoadInstrument(i);
-			last_instrument_to_move = i;
-		}
-
-		i++;
-	}
-
 
 
 
@@ -267,14 +252,33 @@ void cFileManager::moveSampleMemory()
 	// jak nic sie nie przesuwa to kończ
 	if(memory_offset == 0) return;
 
+
+	uint8_t last_instrument_to_move = firstSlotToMoveInMemory;
+	uint8_t i = firstSlotToMoveInMemory;
+
+	// znajdz ostatni instrument do przesuniecia
+	// wycisz tez przesuwane instrumenty
+	while(i < INSTRUMENTS_COUNT )
+	{
+		if(mtProject.instrument[i].isActive == 1)
+		{
+			engine.setCurrentLoadInstrument(i);
+			last_instrument_to_move = i;
+		}
+
+		i++;
+	}
+
+	// wyznacz blok pamieci do przesuniecia
 	uint8_t* begining_address = (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 	uint8_t* end_address = (uint8_t*)mtProject.instrument[last_instrument_to_move].sample.address
 									+ mtProject.instrument[last_instrument_to_move].sample.length*2;
 
-
+	// przesuń sample w pamięci
 	moveMemory(begining_address, end_address, memory_offset);
 
 	// zmien adresy przesunietch instrumentów
+	// odcisz przesuniete instrumenty
 	for(uint8_t i = firstSlotToMoveInMemory; i<=last_instrument_to_move; i++)
 	{
 		if(mtProject.instrument[i].isActive)
