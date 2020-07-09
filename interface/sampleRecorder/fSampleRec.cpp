@@ -787,12 +787,6 @@ static  uint8_t functActionButton0(uint8_t s)
 	if(SR->selectionWindowFlag) return 1;
 	if(SR->patternIsPlayingFlag == 1) return 1;
 
-	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
-	{
-		if(s == buttonPress) functConfirmKey();
-		return 1;
-	}
-
 	if(SR->selectionWindowSaveFlag == 1)
 	{
 		SR->selectionWindowSaveFlag = 0;
@@ -836,6 +830,15 @@ static  uint8_t functActionButton0(uint8_t s)
 		SR->keyboardManager.deactivateKeyboard();
 		return 1;
 	}
+
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
+	{
+		if(s == buttonPress) functConfirmKey();
+		return 1;
+	}
+
+
 
 	if(s == 1)
 	{
