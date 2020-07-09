@@ -953,6 +953,12 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 	handleMemoryBar();
 	previewColorControl();
 
+
+	if (tactButtons.isButtonPressed(interfaceButton4))
+	{
+		SI->playSampleFromBank(INTERFACE_BUTTON_PREVIEW,buttonPress,-1);
+	}
+
 	return 1;
 }
 
@@ -1192,11 +1198,22 @@ void cSampleImporter::playSampleFromBank(uint8_t pad, uint8_t state, int16_t vel
 
 
 	uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+
+	if (tactButtons.isButtonPressed(interfaceButton4))
+	{
+
+		sequencer.handleNoteOff(
+								Sequencer::GRID_OUTSIDE_PATTERN,
+								noteFromPad,
+								-1,
+								pad);
+	}
+
 	sequencer.handleNoteOn(
-						Sequencer::GRID_OUTSIDE_PATTERN,
-						noteFromPad,
-						-1,
-						pad);
+							Sequencer::GRID_OUTSIDE_PATTERN,
+							noteFromPad,
+							-1,
+							pad);
 }
 
 
