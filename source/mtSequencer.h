@@ -494,7 +494,8 @@ public:
 		void (*onPatternEnd)(void) = NULL;
 		void (*onSongEnd)(void) = NULL;
 
-		uint8_t extRecMetronomeStep = 0;
+		int8_t extRecMetronomeStep = 0;
+		uint8_t preRecMetronomeActive = 0;
 
 	} player;
 
@@ -670,6 +671,7 @@ public:
 	void stop(void);
 	void stopManualNotes(void);
 	uint8_t isMetronomeActive();
+	uint8_t isPreMetronomeActive();
 	uint8_t getMetronomeNumerator();
 	uint8_t getMetronomeDenominator();
 	void setMidiInVoiceMode(enMidiInVoiceMode mode);

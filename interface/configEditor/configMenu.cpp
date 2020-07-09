@@ -54,7 +54,7 @@ cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTe
 
 ///////////////////
 // metronome
-const strItemTypeListTextWithAction setupMetroState		{ &mtConfig.metronome.state,  			2,  ptrMetroState,		setMetronomValues };
+const strItemTypeListTextWithAction setupMetroState		{ &mtConfig.metronome.state,  			3,  ptrMetroState,		setMetronomValues };
 const strItemTypeListTextWithAction setupMetroTimeSigNum	{ &mtConfig.metronome.timeSignatureNumerator, 	12, ptrMetroTimeSig,	setMetronomValues };
 const strItemTypeListTextWithAction setupMetroTimeSigDenum	{ &mtConfig.metronome.timeSignatureDenominator, 	12, ptrMetroTimeSig,	setMetronomValues };
 const strItemTypeValue8 setupMetroVolume				{ &mtConfig.metronome.volume,			0, 100,	};

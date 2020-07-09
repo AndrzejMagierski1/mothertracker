@@ -149,6 +149,8 @@ void cPerformanceMode::stop()
 		mtPadBoard.releaseAllInstruments();
 	}
 
+	performance.forceSaveConfig();
+
 	moduleRefresh = 0;
 	padsBacklight.clearAllPads(1, 1, 1);
 }

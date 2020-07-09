@@ -374,13 +374,15 @@ void cFileManager::updateReloadSamples() //  //
 
 void cFileManager::autoSaveProjectToWorkspace()
 {
-	if(autoSaveTimer < 10000) return;
-	autoSaveTimer = 0;
+	if (autoSaveTimer > 10000 || changesFlags.save_asap)
+	{
 
-	saveDebugLogToSd();
+		autoSaveTimer = 0;
 
-	saveProjectToWorkspace();
+		saveDebugLogToSd();
 
+		saveProjectToWorkspace();
+	}
 }
 
 void cFileManager::moveToNextOperationStep()
@@ -975,6 +977,8 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll) //xxx jak narazie n
 	if(status != fmIdle && status != fmSavingProjectToProjects) return false;
 	if(currentOperation != fmNoOperation) return false;
 
+	changesFlags.save_asap = 0;
+
 	if(forceSaveAll)
 	{
 		setAllChangeFlags();
@@ -1332,6 +1336,11 @@ void cFileManager::setAllChangeFlags()
 void cFileManager::setProjectStructChanged()
 {
 	changesFlags.project = 1;
+}
+
+void cFileManager::autosaveProjectStruct_ASAP()
+{
+	changesFlags.save_asap = 1;
 }
 
 void cFileManager::setPatternStructChanged(uint8_t pattern)

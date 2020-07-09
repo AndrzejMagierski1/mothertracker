@@ -22,11 +22,13 @@ extern uint32_t patternTrackerColors[8];
 elapsedMillis save_delay;
 
 static uint8_t saveFlag = 0;
+static uint8_t saveAsapFlag = 0;
 
 void eepromUpdate(bool force)
 {
-	if(saveFlag  && ( save_delay > 5000 || force))
+	if(saveFlag  && ( save_delay > 5000 || force || saveAsapFlag))
 	{
+		saveAsapFlag = 0;
 		saveFlag = 0;
 		forceSaveConfig();
 	}
@@ -37,6 +39,11 @@ void eepromUpdate(bool force)
 void saveConfig()
 {
 	saveFlag = 1;
+}
+void saveConfigAsap()
+{
+	saveFlag = 1;
+	saveAsapFlag = 1;
 }
 
 void forceSaveConfig()
@@ -357,7 +364,7 @@ void checkConfig()
 	}
 
 	// metornome ----------------------------------------
-	if(mtConfig.metronome.state > 1) mtConfig.metronome.state = 0;
+	if(mtConfig.metronome.state > 2) mtConfig.metronome.state = 0;
 	if(mtConfig.metronome.timeSignatureNumerator > 11) mtConfig.metronome.timeSignatureNumerator = 0;
 	if(mtConfig.metronome.volume > 100) mtConfig.metronome.volume = 50;
 

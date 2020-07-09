@@ -12,6 +12,7 @@ struct strPerformDataSource
 	uint8_t* selectedValueInSlot;		//	uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
 	uint8_t* trackState;				//	uint8_t perfTracksState[8] = {0,0,0,0,0,0,0,0}; // narazie nie uzywana
 	void (*saveFunct)(void);
+	void (*forceSaveFunct)(void);
 };
 
 
@@ -31,6 +32,8 @@ public:
 	~cPerformEngine() {  }
 
 	void turnOff();
+
+	void forceSaveConfig();
 
 	void setEditState(uint8_t state) { editState = state ? true : false;}
 	void changeSlotFx(uint8_t slot, int8_t change);
@@ -74,6 +77,7 @@ public:
 		slotToRow = dataSources[source_index].selectedValueInSlot;
 		slotRowToValue = dataSources[source_index].valuesInSlot;
 		sourceDataSaveFunct = dataSources[source_index].saveFunct;
+		sourceDataForceSaveFunct = dataSources[source_index].forceSaveFunct;
 
 		// wymuszenie poprawnosci danych wejsciowych
 		for(uint8_t slot = 0; slot < 12; slot++)
@@ -106,6 +110,7 @@ private:
 	uint8_t* slotToRow;
 	int16_t* slotRowToValue;
 	void (*sourceDataSaveFunct)(void);
+	void (*sourceDataForceSaveFunct)(void);
 
 	uint8_t tracksPerformanceState[8] = {0}; // afektowane tracki
 

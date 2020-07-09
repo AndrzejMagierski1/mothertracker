@@ -11,6 +11,7 @@ void readConfigOnce();
 
 void forceSaveConfig();
 void saveConfig();
+void saveConfigAsap();
 void readConfig();
 
 
