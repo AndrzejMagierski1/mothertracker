@@ -1,3 +1,6 @@
+	1.0.16
+			- 3 opcja metronoma - pre przed rec
+			- przyspieszony zapis configa performance przy każdym wyjsciu z modulu
 	1.0.15
 			- fix: przy nadpisywaniu instrumentów wycisza kolejne instrumenty
 			- fix: ograniczanie zaznaczenia jesli wykracza za dlugosc patternu
