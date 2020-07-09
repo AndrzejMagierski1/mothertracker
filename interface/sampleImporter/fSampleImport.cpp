@@ -430,10 +430,14 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(SI->keyboardManager.getState() == 1) return 1;
 
-	switch(SI->selectedPlace)
+	switch (SI->selectedPlace)
 	{
-	case 0: SI->changeFileSelection(value); break;
-	case 1: SI->changeInstrumentSelection(value); break;
+	case 0:
+		SI->changeFileSelection(value);
+		break;
+	case 1:
+		SI->changeInstrumentSelection(value);
+		break;
 
 	}
 
@@ -804,8 +808,9 @@ static  uint8_t functUp()
 	{
 	case 0: SI->changeFileSelection(-1); break;
 	case 1: SI->changeInstrumentSelection(-1); break;
+	default:
+			SI->stopPlayingAll();
 	}
-	SI->stopPlayingAll();
 	return 1;
 }
 
@@ -817,8 +822,9 @@ static  uint8_t functDown()
 	{
 	case 0: SI->changeFileSelection(1); break;
 	case 1: SI->changeInstrumentSelection(1); break;
+	default:
+			SI->stopPlayingAll();
 	}
-	SI->stopPlayingAll();
 	return 1;
 }
 
@@ -906,6 +912,11 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 
 
 	handleMemoryBar();
+
+	if (tactButtons.isButtonPressed(interfaceButton4))
+	{
+		SI->playSelectedSdFile();
+	}
 
 	return 1;
 }
@@ -1136,7 +1147,7 @@ void cSampleImporter::calculateCopyingProgress()
 }
 
 //==============================================================================================
-void cSampleImporter::playSdFile()
+void cSampleImporter::playSelectedSdFile()
 {
 
 
@@ -1152,8 +1163,8 @@ void cSampleImporter::playSdFile()
 
 	if(newFileManager.previevSamplefromSD(selectedFile))
 	{
-		FM->blockAllInputsExcept(interfaceButton4);
-		FM->unblockPads();
+//		FM->blockAllInputsExcept(interfaceButton4);
+//		FM->unblockPads();
 	}
 
 	playMode = playModeSdFile;
@@ -1234,7 +1245,7 @@ void cSampleImporter::playFromPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		switch(SI->selectedPlace)
 		{
-		case 0: SI->playSdFile(); 							break;
+		case 0: SI->playSelectedSdFile(); 							break;
 		case 1: SI->playSampleFromBank(pad,state,velo); 	break;
 
 		}
