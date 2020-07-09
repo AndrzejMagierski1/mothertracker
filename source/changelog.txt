@@ -1,3 +1,5 @@
+	1.0.17
+			- fix: overwrite sample with the same name not working
 	1.0.16
 			- 3 opcja metronoma - pre przed rec
 			- przyspieszony zapis configa performance przy każdym wyjsciu z modulu
