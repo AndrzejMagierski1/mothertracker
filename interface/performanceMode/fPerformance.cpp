@@ -47,6 +47,10 @@ static uint8_t functActionButton(uint8_t button, uint8_t state);
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
+static  uint8_t changeInstantlyTracksOnSelected(int8_t delta);
+static  uint8_t changeSequentiallyTracksOnSelected(int8_t delta);
+
+
 
 
 static elapsedMillis refreshTime;
@@ -267,31 +271,8 @@ uint8_t cPerformanceMode::fxAlredyTaken(uint8_t fx)
 //=================================================================================
 static  uint8_t functEncoder(int16_t value)
 {
-	uint8_t patternChange = 0;
 
-	for(uint8_t i = 0; i<8; i++)
-	{
-		if((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(i))
-		{
-			//if(PM->trackPatternChange[i] == 1 && mtProject.values.perfTracksPatterns[i] == 1 && value < 0) PM->trackPatternChange[i] = 1;
-			//else if(PM->trackPatternChange[i] == 1 && mtProject.values.perfTracksPatterns[i] == 255 && value > 0) PM->trackPatternChange[i] = 1;
-			//else
-			{
-				PM->trackPatternChange[i] = 2;
-
-				if(mtProject.values.perfTracksPatterns[i] + value > 255) mtProject.values.perfTracksPatterns[i] = 255;
-				else if(mtProject.values.perfTracksPatterns[i] + value < 1) mtProject.values.perfTracksPatterns[i] = 1;
-				else  mtProject.values.perfTracksPatterns[i] += value;
-
-				PM->setProjectSaveFlags();
-			}
-
-			PM->refreshTrackPattern = 1;
-			patternChange = 1;
-		}
-	}
-
-	if(patternChange) return 1;
+	if(changeInstantlyTracksOnSelected(value)) return 1;
 
 	//--------------------------------------------------------------------------------------------------
 
@@ -317,7 +298,7 @@ static  uint8_t changeInstantlyTracksOnSelected(int8_t delta)
 			PM->trackPatternChange[i] = 0;
 
 			mtProject.values.perfTracksPatterns[i] = constrain(
-					(int16_t) mtProject.values.perfTracksPatterns[i] + delta,
+					(int16_t) (mtProject.values.perfTracksPatterns[i] + delta),
 					PATTERN_INDEX_MIN,
 					PATTERN_INDEX_MAX);
 
@@ -346,7 +327,7 @@ static uint8_t changeSequentiallyTracksOnSelected(int8_t delta)
 			PM->trackPatternChange[i] = 2;
 
 			mtProject.values.perfTracksPatterns[i] = constrain(
-					mtProject.values.perfTracksPatterns[i] + delta,
+					(int16_t) (mtProject.values.perfTracksPatterns[i] + delta),
 					PATTERN_INDEX_MIN,
 					PATTERN_INDEX_MAX);
 			PM->setProjectSaveFlags();
