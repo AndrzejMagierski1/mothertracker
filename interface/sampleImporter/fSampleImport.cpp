@@ -430,10 +430,14 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(SI->keyboardManager.getState() == 1) return 1;
 
-	switch(SI->selectedPlace)
+	switch (SI->selectedPlace)
 	{
-	case 0: SI->changeFileSelection(value); break;
-	case 1: SI->changeInstrumentSelection(value); break;
+	case 0:
+		SI->changeFileSelection(value);
+		break;
+	case 1:
+		SI->changeInstrumentSelection(value);
+		break;
 
 	}
 
@@ -804,8 +808,9 @@ static  uint8_t functUp()
 	{
 	case 0: SI->changeFileSelection(-1); break;
 	case 1: SI->changeInstrumentSelection(-1); break;
+	default:
+			SI->stopPlayingAll();
 	}
-	SI->stopPlayingAll();
 	return 1;
 }
 
@@ -817,8 +822,9 @@ static  uint8_t functDown()
 	{
 	case 0: SI->changeFileSelection(1); break;
 	case 1: SI->changeInstrumentSelection(1); break;
+	default:
+			SI->stopPlayingAll();
 	}
-	SI->stopPlayingAll();
 	return 1;
 }
 
@@ -907,6 +913,11 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 
 	handleMemoryBar();
 
+	if (tactButtons.isButtonPressed(interfaceButton4))
+	{
+		SI->playSelectedSdFile();
+	}
+
 	return 1;
 }
 
@@ -941,6 +952,12 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 
 	handleMemoryBar();
 	previewColorControl();
+
+
+	if (tactButtons.isButtonPressed(interfaceButton4))
+	{
+		SI->playSampleFromBank(INTERFACE_BUTTON_PREVIEW,buttonPress,-1);
+	}
 
 	return 1;
 }
@@ -1136,7 +1153,7 @@ void cSampleImporter::calculateCopyingProgress()
 }
 
 //==============================================================================================
-void cSampleImporter::playSdFile()
+void cSampleImporter::playSelectedSdFile()
 {
 
 
@@ -1152,8 +1169,8 @@ void cSampleImporter::playSdFile()
 
 	if(newFileManager.previevSamplefromSD(selectedFile))
 	{
-		FM->blockAllInputsExcept(interfaceButton4);
-		FM->unblockPads();
+//		FM->blockAllInputsExcept(interfaceButton4);
+//		FM->unblockPads();
 	}
 
 	playMode = playModeSdFile;
@@ -1181,11 +1198,22 @@ void cSampleImporter::playSampleFromBank(uint8_t pad, uint8_t state, int16_t vel
 
 
 	uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+
+	if (tactButtons.isButtonPressed(interfaceButton4))
+	{
+
+		sequencer.handleNoteOff(
+								Sequencer::GRID_OUTSIDE_PATTERN,
+								noteFromPad,
+								-1,
+								pad);
+	}
+
 	sequencer.handleNoteOn(
-						Sequencer::GRID_OUTSIDE_PATTERN,
-						noteFromPad,
-						-1,
-						pad);
+							Sequencer::GRID_OUTSIDE_PATTERN,
+							noteFromPad,
+							-1,
+							pad);
 }
 
 
@@ -1234,7 +1262,7 @@ void cSampleImporter::playFromPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		switch(SI->selectedPlace)
 		{
-		case 0: SI->playSdFile(); 							break;
+		case 0: SI->playSelectedSdFile(); 							break;
 		case 1: SI->playSampleFromBank(pad,state,velo); 	break;
 
 		}

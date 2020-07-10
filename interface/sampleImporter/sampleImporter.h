@@ -161,7 +161,7 @@ public:
 	uint8_t currentLoadStatusFlag = 0;
 //--------------------------------------------------------------
 //odsluch
-	void playSdFile();
+	void playSelectedSdFile();
 	void playSampleFromBank(uint8_t pad, uint8_t state, int16_t velo);
 	void stopPlaying(uint8_t pad, uint8_t state, int16_t velo);
 	void stopPlayingAll();

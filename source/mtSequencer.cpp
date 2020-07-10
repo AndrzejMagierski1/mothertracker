@@ -86,12 +86,12 @@ void Sequencer::handle_uStep_timer(void)
 				//rekonfig timera
 				init_player_timer();
 
-				if (isMetronomeActive() &&
+				if ((isMetronomeActive() || player.preRecMetronomeActive) &&
 						player.extRecMetronomeStep % (getMetronomeDenominator() * getMetronomeNumerator()) == 0)
 				{
 					engine.makeMetronomeTick(1);
 				}
-				else if (isMetronomeActive() &&
+				else if ((isMetronomeActive() || player.preRecMetronomeActive) &&
 						player.extRecMetronomeStep % getMetronomeDenominator() == 0)
 				{
 					engine.makeMetronomeTick(0);
@@ -1245,7 +1245,7 @@ void Sequencer::stop(void)
 void Sequencer::rec(void)
 {
 	player.isREC = 1;
-	if (isPreMetronomeActive())
+	if (isPreRollActive())
 	{
 		player.preRecMetronomeActive = 1;
 		strPopupStyleConfig popupConfig {
@@ -2245,7 +2245,7 @@ void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
 
 	patternTo->track[trackToSwitch] = patternFrom->track[trackToSwitch];
 
-	setPerformanceTrackLength(trackToSwitch, patternFrom->track[0].length);
+	setPerformanceTrackLength(trackToSwitch, patternFrom->track[trackToSwitch].length);
 
 	player.track[trackToSwitch].performanceSourcePattern = -1;
 
@@ -2255,9 +2255,9 @@ uint8_t Sequencer::isMetronomeActive()
 {
 	return mtConfig.metronome.state > 0;
 }
-uint8_t Sequencer::isPreMetronomeActive()
+uint8_t Sequencer::isPreRollActive()
 {
-	return mtConfig.metronome.state == 2;
+	return mtConfig.metronome.preRoll == 1;
 }
 uint8_t Sequencer::getMetronomeNumerator()
 {

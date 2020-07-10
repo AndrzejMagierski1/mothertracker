@@ -28,6 +28,11 @@ bool cFileManager::previevSamplefromSD(uint8_t index)
 
 	if(!SD.exists(filePath)) return false;
 
+	if(wavfile.isOpen())
+	{
+		wavfile.close();
+	}
+
 	wavfile.open(filePath);
 
 	if(!wavfile)

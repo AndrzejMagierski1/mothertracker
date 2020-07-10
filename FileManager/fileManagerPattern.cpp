@@ -375,6 +375,9 @@ bool cFileManager::loadPerformanceTrackToBuffer(uint8_t pattIndex, uint8_t track
 
 	patternTo->track[trackIndex] = patternFrom->track[trackIndex];
 
+	// lengthy tracka na potrzeby performance przepisuje do konretnego tracka
+	patternTo->track[trackIndex].length = patternFrom->track[0].length;
+
 	mtProject.values.perfTracksPatterns[trackIndex] = pattIndex;
 
 	return true;
