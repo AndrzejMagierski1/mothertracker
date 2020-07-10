@@ -304,9 +304,10 @@ static  uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
-static  uint8_t changeTracksOnSelected(int8_t delta)
+static  uint8_t changeInstantlyTracksOnSelected(int8_t delta)
 {
 
+	uint8_t atLeastOneChanged = 0;
 	for (uint8_t i = 0; i < 8; i++)
 	{
 //		if ((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(
@@ -316,20 +317,51 @@ static  uint8_t changeTracksOnSelected(int8_t delta)
 			PM->trackPatternChange[i] = 0;
 
 			mtProject.values.perfTracksPatterns[i] = constrain(
-					mtProject.values.perfTracksPatterns[i] + delta,
-					1,
-					255);
+					(int16_t) mtProject.values.perfTracksPatterns[i] + delta,
+					PATTERN_INDEX_MIN,
+					PATTERN_INDEX_MAX);
 
 			sequencer.setTrackToLoadNow(
 										i,
 										mtProject.values.perfTracksPatterns[i]);
-
+			atLeastOneChanged = 1;
 		}
 	}
 	PM->refreshTrackPattern = 1;
 
-	return 1;
+	return atLeastOneChanged;
 }
+
+
+static uint8_t changeSequentiallyTracksOnSelected(int8_t delta)
+{
+	bool trackChanging = false;
+
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		if ((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(
+				i))
+		{
+			trackChanging = true;
+			PM->trackPatternChange[i] = 2;
+
+			mtProject.values.perfTracksPatterns[i] = constrain(
+					mtProject.values.perfTracksPatterns[i] + delta,
+					PATTERN_INDEX_MIN,
+					PATTERN_INDEX_MAX);
+			PM->setProjectSaveFlags();
+
+			PM->refreshTrackPattern = 1;
+		}
+	}
+
+	if (trackChanging) return 1;
+	else
+		return 0;
+}
+
+
+
 
 //=========================================================================================================
 static  uint8_t functLeft()
@@ -352,7 +384,8 @@ static  uint8_t functLeft()
 	}
 	else
 	{
-		changeTracksOnSelected(-1);
+		changeSequentiallyTracksOnSelected(-1);
+
 	}
 
 	return 1;
@@ -379,7 +412,7 @@ static  uint8_t functRight()
 	}
 	else
 	{
-		changeTracksOnSelected(1);
+		changeSequentiallyTracksOnSelected(1);
 	}
 
 	return 1;
@@ -389,28 +422,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	bool trackChanging = false;
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		if((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(i))
-		{
-			trackChanging = true;
-			PM->trackPatternChange[i] = 2;
-
-			if(mtProject.values.perfTracksPatterns[i] < 255)
-			{
-				mtProject.values.perfTracksPatterns[i]++;			//zmiana o 1
-
-				PM->setProjectSaveFlags();
-			}
-			//else PM->trackPatternChange[i] = 1;
-
-			PM->refreshTrackPattern = 1;
-		}
-	}
-
-	if(trackChanging) return 1;
+	if(changeInstantlyTracksOnSelected(1)) return 1;
 
 	if(PM->performanceEditState)
 	{
@@ -439,28 +451,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	bool trackChanging = false;
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		if((PM->trackPatternChange[i] == 1 || PM->trackPatternChange[i] == 2) && tactButtons.isButtonPressed(i))
-		{
-			trackChanging = true;
-			PM->trackPatternChange[i] = 2;
-
-			if(mtProject.values.perfTracksPatterns[i] > 1)
-			{
-				mtProject.values.perfTracksPatterns[i]--;			//zmiana o 1
-
-				PM->setProjectSaveFlags();
-			}
-			//else PM->trackPatternChange[i] = 1;
-
-			PM->refreshTrackPattern = 1;
-		}
-	}
-
-	if(trackChanging) return 1;
+	if(changeInstantlyTracksOnSelected(-1)) return 1;
 
 	if(PM->performanceEditState)
 	{
