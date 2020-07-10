@@ -1,4 +1,4 @@
-#include "play_sd_wav_24Bit.h"
+#include "play_sd_wav_24bit.h"
 
 /* Audio Library for Teensy 3.X
  * Copyright (c) 2014, Paul Stoffregen, paul@pjrc.com

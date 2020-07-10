@@ -17,7 +17,7 @@
 #include "mtAudioEngine.h"
 
 
-#include "SI4703.h"
+#include "Si4703.h"
 
 #include "core/interfacePopups.h"
 #include "debugLog.h"

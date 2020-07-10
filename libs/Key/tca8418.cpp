@@ -24,7 +24,7 @@
  * alternative licensing inquiries.
  */
 
-#include <wire.h>
+#include <Wire.h>
 #include "mtHardware.h"
 #include <tca8418.h>
 #include "debugLog.h"

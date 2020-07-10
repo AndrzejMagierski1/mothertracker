@@ -5,7 +5,7 @@
 //#include "mtFileManager.h"
 #include "mtSequencer.h"
 #include "mtConfig.h"
-#include "SI4703.h"
+#include "Si4703.h"
 #include "keyScanner.h"
 #include "mtPadsBacklight.h"
 
