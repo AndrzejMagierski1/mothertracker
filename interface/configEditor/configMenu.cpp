@@ -54,15 +54,17 @@ cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTe
 
 ///////////////////
 // metronome
-const strItemTypeListTextWithAction setupMetroState		{ &mtConfig.metronome.state,  			3,  ptrMetroState,		setMetronomValues };
+const strItemTypeListTextWithAction setupMetroState			{ &mtConfig.metronome.state,  			2,  ptrMetroState,		setMetronomValues };
+const strItemTypeListTextWithAction setupMetroPreRoll		{ &mtConfig.metronome.preRoll,  		2,  ptrPreRollState,		setMetronomValues };
 const strItemTypeListTextWithAction setupMetroTimeSigNum	{ &mtConfig.metronome.timeSignatureNumerator, 	12, ptrMetroTimeSig,	setMetronomValues };
 const strItemTypeListTextWithAction setupMetroTimeSigDenum	{ &mtConfig.metronome.timeSignatureDenominator, 	12, ptrMetroTimeSig,	setMetronomValues };
-const strItemTypeValue8 setupMetroVolume				{ &mtConfig.metronome.volume,			0, 100,	};
+const strItemTypeValue8 setupMetroVolume					{ &mtConfig.metronome.volume,			0, 100,	};
 
 cMenuItem melMetroState			(menuMetro, 	0, "State", 				menuTypeItemListTextWithAction, &setupMetroState);
-cMenuItem melMetroTimeSigNum	(menuMetro, 	1, "Time signature num", 	menuTypeItemListTextWithAction, &setupMetroTimeSigNum);
-cMenuItem melMetroTimeSigDenum	(menuMetro, 	2, "Time signature denum", 	menuTypeItemListTextWithAction, &setupMetroTimeSigDenum);
-cMenuItem melMetroVolume		(menuMetro, 	3, "Volume", 				menuItemTypeValueU8, 			&setupMetroVolume);
+cMenuItem melMetroPreRoll		(menuMetro, 	1, "Pre Roll", 				menuTypeItemListTextWithAction, &setupMetroPreRoll);
+cMenuItem melMetroTimeSigNum	(menuMetro, 	2, "Time signature num", 	menuTypeItemListTextWithAction, &setupMetroTimeSigNum);
+cMenuItem melMetroTimeSigDenum	(menuMetro, 	3, "Time signature denum", 	menuTypeItemListTextWithAction, &setupMetroTimeSigDenum);
+cMenuItem melMetroVolume		(menuMetro, 	4, "Volume", 				menuItemTypeValueU8, 			&setupMetroVolume);
 
 
 

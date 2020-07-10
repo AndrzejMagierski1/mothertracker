@@ -671,7 +671,7 @@ public:
 	void stop(void);
 	void stopManualNotes(void);
 	uint8_t isMetronomeActive();
-	uint8_t isPreMetronomeActive();
+	uint8_t isPreRollActive();
 	uint8_t getMetronomeNumerator();
 	uint8_t getMetronomeDenominator();
 	void setMidiInVoiceMode(enMidiInVoiceMode mode);
