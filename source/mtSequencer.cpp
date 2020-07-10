@@ -2245,7 +2245,7 @@ void Sequencer::switchPerformanceTrackNow(uint8_t trackToSwitch)
 
 	patternTo->track[trackToSwitch] = patternFrom->track[trackToSwitch];
 
-	setPerformanceTrackLength(trackToSwitch, patternFrom->track[0].length);
+	setPerformanceTrackLength(trackToSwitch, patternFrom->track[trackToSwitch].length);
 
 	player.track[trackToSwitch].performanceSourcePattern = -1;
 
