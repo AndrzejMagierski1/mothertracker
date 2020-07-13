@@ -1124,7 +1124,7 @@ void cMasterParams::changeReverbPredelay(int16_t val)
 }
 void cMasterParams::changeReverbDiffusion(int16_t val)
 {
-	float v = 0.01 * val;
+	float v = 0.0085 * val;
 
 	if(mtProject.values.reverb.diffusion + v > REVERB_DIFFUSION_MAX) mtProject.values.reverb.diffusion = REVERB_DIFFUSION_MAX;
 	else if(mtProject.values.reverb.diffusion + v < REVERB_DIFFUSION_MIN) mtProject.values.reverb.diffusion = REVERB_DIFFUSION_MIN;
