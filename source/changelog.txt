@@ -1,5 +1,6 @@
 	1.0.19
 			- fix: The reverb diffusion still jumps from 79 to 81 
+			- fix: Obrócenie panningu
 	1.0.18
 			- hold'n'preview w SL
 			- metronom i pre metronom rozdzielony na 2 linijki w configu
