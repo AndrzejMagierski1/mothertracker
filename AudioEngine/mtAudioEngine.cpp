@@ -491,13 +491,13 @@ void playerEngine :: modPanning(int16_t value)
 	float gainL=0,gainR=0;
 	if(value < 50)
 	{
-		gainR=(0 + value)/50.0;
-		gainL=1.0;
+		gainL=(0 + value)/50.0;
+		gainR=1.0;
 	}
 	else if(value > 50)
 	{
-		gainR=1.0;
-		gainL=(100 - value)/50.0;
+		gainL=1.0;
+		gainR=(100 - value)/50.0;
 	}
 	else if(value == 50)
 	{
