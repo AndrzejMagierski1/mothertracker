@@ -1,5 +1,5 @@
 	1.0.21
-			- wyciszenie wyjścia przy wlaczaniu i wylaczaniu
+			- wyciszenie wyjścia przy wlaczaniu i wylaczaniu (tylko elektronika v3.0)
 	1.0.20
 			- zwiekszenie dokladnosci limitter attack
 			- fix: usunięto glide w odtwarzaniu recordera
