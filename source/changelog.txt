@@ -1,3 +1,6 @@
+	1.0.20
+			- zwiekszenie dokladnosci limitter attack
+			- fix: usunięto glide w odtwarzaniu recordera
 	1.0.19
 			- fix: The reverb diffusion still jumps from 79 to 81 
 			- fix: Obrócenie panningu

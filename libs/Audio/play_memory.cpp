@@ -286,7 +286,17 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 //
 //	return successInit;
 //	__enable_irq();
-	//todo: clear forced flag dla wszystkich flag?
+	tuneForceFlag = 0;
+	pointsForceFlag = 0;
+	glideForceFlag = 0;
+	fineTuneForceFlag = 0;
+	wavetableWindowForceFlag = 0;
+	sliceForcedFlag = 0;
+	granularForcedFlag = 0;
+	reverseDirectionFlag = 0;
+	constrainsInSamples.glide = 0;
+
+
 
 	play(instr_idx,n);
 
@@ -310,6 +320,16 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	currentGlide=0;
 	currentTune=0;
 	lastNote=-1;
+
+	tuneForceFlag = 0;
+	pointsForceFlag = 0;
+	glideForceFlag = 0;
+	fineTuneForceFlag = 0;
+	wavetableWindowForceFlag = 0;
+	sliceForcedFlag = 0;
+	granularForcedFlag = 0;
+	reverseDirectionFlag = 0;
+	constrainsInSamples.glide = 0;
 
 	currentPlayMode=playModeSingleShot;
 
@@ -406,6 +426,17 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	currentStartAddress = addr;
 	currentPlayMode=playModeSingleShot;
 	currentSampleLength=len;
+
+	tuneForceFlag = 0;
+	pointsForceFlag = 0;
+	glideForceFlag = 0;
+	fineTuneForceFlag = 0;
+	wavetableWindowForceFlag = 0;
+	sliceForcedFlag = 0;
+	granularForcedFlag = 0;
+	reverseDirectionFlag = 0;
+
+	constrainsInSamples.glide = 0;
 
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
