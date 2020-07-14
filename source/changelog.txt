@@ -1,3 +1,6 @@
+	1.0.22
+			- playSong z ext midi jesli jest aktywny ekran songEdit
+			- fix przełączania patternów w songu jeśli zmutowany track 1
 	1.0.21
 			- wyciszenie wyjścia przy wlaczaniu i wylaczaniu (tylko elektronika v3.0)
 	1.0.20
