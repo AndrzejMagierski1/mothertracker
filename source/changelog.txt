@@ -1,3 +1,5 @@
+	1.0.23
+			- zmiany w creditsach, dodany Andrew Visser (Oneven)
 	1.0.22
 			- playSong z ext midi jesli jest aktywny ekran songEdit
 			- fix przełączania patternów w songu jeśli zmutowany track 1
