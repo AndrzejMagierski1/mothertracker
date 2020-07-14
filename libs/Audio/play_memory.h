@@ -270,6 +270,11 @@ private:
 	void updateGranular();
 	void updateWavetable();
 
+// granular
+
+	void updateGranularLoopForward();
+	void updateGranularLoopBackward();
+	void updateGranularLoopPingPong();
 
 	void refreshGranularPosition();
 
