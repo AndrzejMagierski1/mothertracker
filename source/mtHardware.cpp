@@ -62,6 +62,7 @@ void ENC_SW_INT_FUNCT() { }
 
 void muteAudioOutByKey();
 void unmuteAudioOutByKey();
+uint8_t isAudioOutMuted();
 
 
 ///------------------------------------------------------------------------------------
@@ -210,7 +211,7 @@ void initHardware()
 
 	//Serial.println(beginTimer);
 
-	unmuteAudioOutByKey();
+//	unmuteAudioOutByKey();
 }
 
 void hidSendButtonState(uint16_t button, uint16_t state)
@@ -378,6 +379,12 @@ void unmuteAudioOutByKey()
 {
 	pinMode(AUDIO_OUT_MUTE_PIN, OUTPUT);
 	digitalWrite(AUDIO_OUT_MUTE_PIN, 1);
+}
+
+uint8_t isAudioOutMuted()
+{
+//	pinMode(AUDIO_OUT_MUTE_PIN, OUTPUT);
+	return !digitalRead(AUDIO_OUT_MUTE_PIN);
 }
 
 

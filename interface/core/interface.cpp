@@ -53,6 +53,10 @@ __NOINIT(EXTERNAL_RAM) uint16_t externalRamBufReverb[16384];
 
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 
+extern void unmuteAudioOutByKey();
+extern void muteAudioOutByKey();
+extern uint8_t isAudioOutMuted();
+
 //=======================================================================
 //							SETAP INTERFEJSU
 //=======================================================================
@@ -185,6 +189,10 @@ void cInterface::processOperatingMode()
 		}
 		case mtOperatingModeRun:
 		{
+			if (isAudioOutMuted())
+			{
+				unmuteAudioOutByKey();
+			}
 			eepromUpdate(false);
 			break;
 		}
@@ -247,6 +255,7 @@ void cInterface::processStartScreen()
 			hideDisplayNoSdCard();
 			operatingMode = mtOperatingModeRun;
 			activateModule(&patternEditor, 0);
+			unmuteAudioOutByKey();
 		}
 	}
 	else
@@ -271,6 +280,10 @@ void cInterface::processPowerOffSequence()
 				 shutdownSaveFlag = 1;
 			}
 		 }
+		if (lowPower.getShutdownProgress() < 50 && !isAudioOutMuted())
+		{
+			muteAudioOutByKey();
+		}
 
 		if(lowPower.getTimeLeft() == 0 && newFileManager.getStatus() == fmIdle)
 		{
