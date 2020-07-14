@@ -896,7 +896,7 @@ void changeVolume(int16_t value)
 
 void changeLimiterAttack(int16_t value)
 {
-	value *= LIMITER_ATTACK_MAX/100;
+	value *= LIMITER_ATTACK_MAX/1000;
 
 	if(mtProject.values.limiterAttack + value < LIMITER_ATTACK_MIN) mtProject.values.limiterAttack = LIMITER_ATTACK_MIN;
 	else if(mtProject.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttack = LIMITER_ATTACK_MAX;
