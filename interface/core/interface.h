@@ -41,6 +41,7 @@ public:
 	void switchModuleToPrevious(hModule module, uint8_t options);
 	int8_t getButtonIndex(uint8_t button);
 	void toggleActiveModule(uint8_t state);
+	bool isSongScreenActive();
 
 	void handleCardSlotAction(uint8_t state);
 	void handlePowerButtonAction(uint8_t state);

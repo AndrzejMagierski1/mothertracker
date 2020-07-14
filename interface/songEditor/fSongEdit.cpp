@@ -59,6 +59,9 @@ static uint8_t functDelete();
 static void refreshDeleting();
 static void updateBitmaskAfterDelete(uint8_t *src, uint8_t startSrc, uint8_t length);
 
+uint8_t playSongFromSelectedPattern();
+uint8_t playSongFromSelectedPattern_stop();
+
 void cSongEditor::update()
 {
 	if(songPlayerRefreshTimer > 100)
@@ -239,21 +242,33 @@ static  uint8_t functPlayPattern()
 	}
 	return 1;
 }
+uint8_t playSongFromSelectedPattern()
+{
+	sequencer.playSong(SE->selectedPattern);
+	SE->showIcon(iconPlay, SE->selectedPattern);
+
+	SE->startSongPlayer();
+
+	return 1;
+}
+
+uint8_t playSongFromSelectedPattern_stop()
+{
+	SE->loopPosition = -1;
+	sequencer.stop();
+	SE->hideIcon();
+	return 1;
+}
 
 static  uint8_t functPlaySong()
 {
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-		sequencer.playSong(SE->selectedPattern);
-		SE->showIcon(iconPlay,SE->selectedPattern);
-
-		SE->startSongPlayer();
+		playSongFromSelectedPattern();
 	}
 	else if (sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
-		SE->loopPosition = -1;
-		sequencer.stop();
-		SE->hideIcon();
+		playSongFromSelectedPattern_stop();
 	}
 	return 1;
 }

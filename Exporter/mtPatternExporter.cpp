@@ -95,7 +95,7 @@ void mtPatternExporter::start(char * path)
 
 		exportL.begin();
 		exportR.begin();
-		sequencer.play();
+		sequencer.playPattern();
 
 	}
 

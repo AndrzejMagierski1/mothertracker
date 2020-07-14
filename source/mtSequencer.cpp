@@ -152,10 +152,10 @@ void Sequencer::handle_uStep_timer(void)
 	}
 }
 
-void Sequencer::handle_nanoStep(uint8_t step)
+void Sequencer::handle_nanoStep(uint8_t forceStepSwitchFromExtClk)
 {
 
-	if ((step == 1)) // to znaczy że wywoładnie funkcji przyszło z midi clocka
+	if ((forceStepSwitchFromExtClk == 1)) // to znaczy że wywoładnie funkcji przyszło z midi clocka
 	{
 		player.uStep = 1;
 
@@ -236,7 +236,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 	}
 
 	// stary mechanizm, na potrzeby startowania timera
-	if ((nanoStep % 12 == 1) || step)
+	if ((nanoStep % 12 == 1) || forceStepSwitchFromExtClk)
 	{
 		if (player.uStep == 1)
 		{
@@ -276,7 +276,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 		}
 	}
 
-	if (step == 1)
+	if (forceStepSwitchFromExtClk == 1)
 	{
 		nanoStep++;
 		if (nanoStep > 6912)
@@ -318,8 +318,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 	}
 
-	if (!playerRow.isActive)
-		return;
+
 
 	memcpy((uint8_t*) &stepToSend, (uint8_t*) &patternStep,
 			sizeof(patternStep));
@@ -381,8 +380,30 @@ void Sequencer::play_microStep(uint8_t row)
 			sendMidiClock();
 	}
 
+	// jeśli ostatni step, zażądaj ładowania kolejnego patternu
+	if (playerRow.uStep == 1 && player.isPlay && row == 0 )
+	{
+
+		if (((playerRow.actual_pos == patternRow.length)) && player.sequencialSwitch_isArmed > 0)
+		{
+			loadNextPattern(player.sequencialSwitch_pattern);
+		}
+		else if (((playerRow.actual_pos == patternRow.length)) && player.songMode)
+		{
+			loadNextPattern(newFileManager.getNextSongPattern());
+		}
+	}
+
+	// ************************************
+	// 			jesli zmutowany albo nieaktywny(playSelection)
+	//			to reszta sie nie wykonuje
+	// ************************************
+
+	if (!playerRow.isActive)
+			return;
 	if (isTrackEngineMuted(row))
 		return;
+
 
 	// ************************************
 	// 		 PRE EFEKTY i operacje na uStep == 1
@@ -608,19 +629,6 @@ void Sequencer::play_microStep(uint8_t row)
 
 		}
 
-		// jeśli ostatni step, zażądaj ładowania kolejnego patternu
-		if (player.isPlay && row == 0)
-		{
-
-			if (((playerRow.actual_pos == patternRow.length)) && player.sequencialSwitch_isArmed > 0)
-			{
-				loadNextPattern(player.sequencialSwitch_pattern);
-			}
-			else if (((playerRow.actual_pos == patternRow.length)) && player.songMode)
-			{
-				loadNextPattern(newFileManager.getNextSongPattern());
-			}
-		}
 		if (setBreakPattern && player.songMode)
 		{
 			loadNextPattern(newFileManager.getNextSongPattern());
@@ -1284,6 +1292,7 @@ void Sequencer::allNoteOffs(void)
 
 	}
 }
+
 
 void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {

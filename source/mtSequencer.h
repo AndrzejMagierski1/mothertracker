@@ -314,6 +314,9 @@ public:
 
 //	void initPattern(uint8_t pattern);
 
+	void play(void);
+	void play(uint8_t fromPos);
+
 	void switchStep(uint8_t row);
 
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
@@ -605,6 +608,10 @@ public:
 		else
 			return SEQ_STATE_STOP;
 	}
+	uint8_t isSongMode()
+	{
+		return player.songMode = 1;
+	}
 
 	// == true jeśli seq gra
 	uint8_t isRunning()
@@ -658,8 +665,7 @@ public:
 
 // SEQUENCER
 
-	void play(void);
-	void play(uint8_t fromPos);
+
 	void playPattern(void);
 	void playPattern(uint8_t fromPos);
 	void playSelection(void);

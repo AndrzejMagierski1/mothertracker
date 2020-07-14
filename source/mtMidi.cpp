@@ -5,15 +5,24 @@
 #include "mtSequencer.h"
 
 #include "configEditor/configEditor.h"
+#include "songEditor/songEditor.h"
 #include "patternEditor/patternEditor.h"
 #include "samplePlayback/samplePlayback.h"
 #include "sampleRecorder/sampleRecorder.h"
 #include "sampleEditor/sampleEditor.h"
 
+#include "core/interface.h"
+extern cInterface mtInterface;
+
+extern cSongEditor songEditor;
+
 static cSamplePlayback *SP = &samplePlayback;
 static cSampleRecorder *SR = &sampleRecorder;
 static cSampleEditor *SE = &sampleEditor;
 
+
+extern uint8_t playSongFromSelectedPattern();
+extern uint8_t playSongFromSelectedPattern_stop();
 
 elapsedMillis timerMidiDelay = 0;
 
@@ -420,7 +429,14 @@ void receiveStop()
 {
 	externalClockRunning = 0;
 	count = 0;
-	sequencer.stop();
+	if (mtInterface.isSongScreenActive())
+	{
+		playSongFromSelectedPattern_stop();
+	}
+	else
+	{
+		sequencer.stop();
+	}
 }
 
 void handleUsbSongPosition(uint16_t beats)
@@ -431,6 +447,7 @@ void handleUsbSongPosition(uint16_t beats)
 	lastSongPosition = beats;
 }
 
+
 void midiForceStep()
 {
 	if (isFirstClock)
@@ -440,7 +457,14 @@ void midiForceStep()
 		sequencer.stop();
 		externalClockRunning = 1;
 
-		sequencer.play(startFromPosition);
+		if (mtInterface.isSongScreenActive())
+		{
+			playSongFromSelectedPattern();
+		}
+		else
+		{
+			sequencer.playPattern(startFromPosition);
+		}
 //		Serial.println("first step");
 //		Serial.send_now();
 	}
