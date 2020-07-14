@@ -73,8 +73,8 @@ const char creditsText[1500] =
 	"\nDanny Wolfers (Legowelt)."
 	"\n"
 	"\nMany thanks for the provided sample packs to:"
-	"\nAlex Cummings, The Flashbulb, Jamie Lidell, Legowelt, Sarah Longfield, Plughugger, Alex Restis, Scot Solida, Stazma. "
-
+	"\nAlex Cummings, The Flashbulb, Jamie Lidell, Legowelt, Sarah Longfield, Plughugger, Alex Restis, Scot Solida, Stazma,"
+	"\nAndrew Visser (Oneven)."
 
 
 
