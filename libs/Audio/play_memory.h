@@ -276,6 +276,14 @@ private:
 	void updateGranularLoopBackward();
 	void updateGranularLoopPingPong();
 
+	void updateGranularLoopForwardNormal();
+	void updateGranularLoopForwardReverse();
+	void updateGranularLoopBackwardNormal();
+	void updateGranularLoopBackwardReverse();
+	void updateGranularLoopPingPongNormal();
+	void updateGranularLoopPingPongReverse();
+
+
 	void refreshGranularPosition();
 
 	//********** Zarządzanie
@@ -340,7 +348,7 @@ private:
 	//********** Granular
 	uint8_t granularLoopType;
 	uint16_t currentGranularPosition;
-	const float * granularEnvelopeTab = nullptr;			// wskaznik imitujacy tablice wplywajaca na amplitude próbek
+	const uint16_t * granularEnvelopeTab = nullptr;			// wskaznik imitujacy tablice wplywajaca na amplitude próbek
 
 	uint8_t granularPositionRefreshFlag = 1;				// pozycja jest aktualizowana gdy nastepuje przejscie pętli(audio) i ustawiona jest ta flaga
 	//********
