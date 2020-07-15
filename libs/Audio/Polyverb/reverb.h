@@ -190,6 +190,9 @@ class Reverb {
 
   inline void Reset() {
     engine_.Reset();
+    lp_decay_0_ = 0;
+    lp_decay_1_ = 0;
+    lp_decay_2_ = 0;
     last_update_delta_ = sound_delta_threshold_;
   }
 
