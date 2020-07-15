@@ -608,30 +608,30 @@ private:
 	void noteOffOrdinary();
 //*************************************************
 //**********************UPDATE HANDLERS
-	void handleUpdateEndPlayDetect();
-	void handleUpdateEnvelope(uint8_t type, bool enableCondition);
-	void handleUpdateEndReleaseAction();
-	void handleUpdateRefreshLP1();
-	void handleUpdateRefreshLP2();
-	void handleUpdateRefreshFinetune();
-	void handleUpdateRefreshTune();
-	void handleUpdateRefreshVolume();
-	void handleUpdateRefreshPanning();
-	void handleUpdateRefreshCutoff();
-	void handleUpdateRefreshResonance();
-	void handleUpdateRefreshDelay();
-	void handleUpdateRefreshReverb();
-	void handleUpdateRefreshWtPos();
-	void handleUpdateRefreshGranPos();
-	void handleUpdateRefreshGranLen();
-	void handleUpdateRefreshGranWave();
-	void handleUpdateRefreshGranLoop();
-	void handleUpdateRefreshAmpLFO();
-	void handleUpdateRefreshCutoffLFO();
-	void handleUpdateRefreshWtPosLFO();
-	void handleUpdateRefreshGranPosLFO();
-	void handleUpdateRefreshPanningLFO();
-	void handleUpdateRefreshFinetuneLFO();
+	inline void handleUpdateEndPlayDetect();
+	inline void handleUpdateEnvelope(uint8_t type, bool enableCondition);
+	inline void handleUpdateEndReleaseAction();
+	inline void handleUpdateRefreshLP1();
+	inline void handleUpdateRefreshLP2();
+	inline void handleUpdateRefreshFinetune();
+	inline void handleUpdateRefreshTune();
+	inline void handleUpdateRefreshVolume();
+	inline void handleUpdateRefreshPanning();
+	inline void handleUpdateRefreshCutoff();
+	inline void handleUpdateRefreshResonance();
+	inline void handleUpdateRefreshDelay();
+	inline void handleUpdateRefreshReverb();
+	inline void handleUpdateRefreshWtPos();
+	inline void handleUpdateRefreshGranPos();
+	inline void handleUpdateRefreshGranLen();
+	inline void handleUpdateRefreshGranWave();
+	inline void handleUpdateRefreshGranLoop();
+	inline void handleUpdateRefreshAmpLFO();
+	inline void handleUpdateRefreshCutoffLFO();
+	inline void handleUpdateRefreshWtPosLFO();
+	inline void handleUpdateRefreshGranPosLFO();
+	inline void handleUpdateRefreshPanningLFO();
+	inline void handleUpdateRefreshFinetuneLFO();
 
 //*************************************************
 //************************* FX HANDLE
