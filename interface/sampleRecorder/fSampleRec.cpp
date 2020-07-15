@@ -257,6 +257,8 @@ void cSampleRecorder::update()
 
 void cSampleRecorder::start(uint32_t options)
 {
+	engine.clearReverb();
+
 	if(sequencer.isPlay())
 	{
 		patternIsPlayingFlag = 1;
@@ -282,6 +284,7 @@ void cSampleRecorder::start(uint32_t options)
 
 	songTimer.hide();
 	engine.blockDelayRefresh();
+
 
 	keyboardManager.init(keyboardControl, editName);
 
@@ -354,6 +357,7 @@ void cSampleRecorder::start(uint32_t options)
 		functSwitchModule(options);
 	}
 
+	engine.clearReverb(); //celowo wywolane 2 raz
 }
 
 

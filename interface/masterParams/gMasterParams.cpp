@@ -697,7 +697,7 @@ void cMasterParams::showLimiterRelease()
 {
 	uint8_t length;
 
-	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.values.limiterRelease/1000.0f));
+	sprintf(limitReleaseVal,"%.4f",(float)(mtProject.values.limiterRelease/1000.0f));
 	length=strlen(limitReleaseVal);
 	limitReleaseVal[length]='s';
 	limitReleaseVal[length+1]=0;
