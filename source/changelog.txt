@@ -1,3 +1,6 @@
+	1.0.24
+			- fix: preview recordera ma reverb
+			- fix: wartości Limiter Release w Master jak Limiter Attack
 	1.0.23
 			- zmiany w creditsach, dodany Andrew Visser (Oneven)
 	1.0.22

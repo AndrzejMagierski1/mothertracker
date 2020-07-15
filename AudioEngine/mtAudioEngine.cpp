@@ -873,6 +873,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
+	modReverbSend(AMP_MUTED);
 	/*======================================================================================================*/
 	limiter[0].setAttack(300);
 	limiter[0].setRelease(10);
@@ -908,6 +909,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 //	engine.clearDelay();
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
+	modReverbSend(AMP_MUTED);
 	/*======================================================================================================*/
 	limiter[0].setAttack(300);
 	limiter[0].setRelease(10);
@@ -1052,10 +1054,20 @@ void audioEngine::clearDelay()
 {
 //	reverb.clearFilters();
 	shortDelay.clear();
+	for(uint8_t channel = 0; channel < 8 ; channel++)
+	{
+		instrumentPlayer[channel].modDelaySend(AMP_MUTED);
+	}
+
 }
 void audioEngine::clearReverb()
 {
 	polyverb.reset();
+	for(uint8_t channel = 0; channel < 8 ; channel++)
+	{
+		instrumentPlayer[channel].modReverbSend(AMP_MUTED);
+	}
+
 }
 
 void audioEngine::muteDelaySend(uint8_t channel, uint8_t state)
