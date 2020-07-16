@@ -123,6 +123,36 @@ uint8_t* writeLE(uint8_t *dest, uint32_t val, uint8_t size)
 	return dest + size;
 
 }
+// wpisz little endian
+uint8_t* writeLEInt(uint8_t *dest, int32_t val, uint8_t size)
+{
+
+	switch (size)
+	{
+	case 1:
+		*dest = (int8_t) val;
+		break;
+
+	case 2:
+		*((int16_t*) dest) = (int16_t) val;
+		break;
+
+	case 4:
+		*((int32_t*) dest) = val;
+		break;
+
+	default:
+		for (int8_t a = size - 1; a >= 0; a--)
+		{
+			*(dest + a) = (val >> (a * 8)) & 0xff;
+		}
+		break;
+
+	}
+
+	return dest + size;
+
+}
 void cFileManager::exportItFile_InitHeader()
 {
 //	Serial.println("exportItFile_InitHeader");
@@ -290,6 +320,247 @@ void cFileManager::exportItFile_storeWaveOffset()
 	exportedFile.seek(endOfFile);
 }
 
+const float tSRAmp[24] =
+		{
+				24,
+				16,
+				12,
+				8,
+				6,
+				4,
+				3,
+				2,
+				1.5,
+				1,
+				0.75,
+				0.5,
+				0.375,
+				0.333333,
+				0.25,
+				0.1875,
+				0.166667,
+				0.125,
+				0.083333,
+				0.0625,
+				0.041667,
+				0.03125,
+				0.020833,
+				0.015625
+		};
+
+static void buildAmpEnvelopeFromLFO(uint8_t *ptr,
+									strInstrument *instr)
+{
+
+	Serial.printf("shape: %d, amount: %.1f, step factor : %f\n",
+					instr->lfo[0].shape,
+					instr->lfo[0].amount,
+					tSRAmp[instr->lfo[0].speed]);
+
+	uint16_t periodTicks = tSRAmp[instr->lfo[0].speed] * 6;
+	periodTicks = constrain(periodTicks, 2, 9999);
+
+	Serial.printf("period ticks: %d\n", periodTicks);
+
+	uint8_t minVal = 0;
+
+	if (instr->lfo[0].shape == lfoShapeSquare)
+	{
+
+		ptr = writeLE(ptr,
+						((instr->envelope[0].enable > 0) << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 4, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 0, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
+
+		uint16_t tempTickPos = 0;
+		uint8_t maxValue = constrain(instr->lfo[0].amount * 64, 0, 64);
+		// square ___---___---
+		//node 0
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks / 2 <= tempTickPos ? tempTickPos + 1 : periodTicks / 2;
+		//node 1
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks / 2 <= tempTickPos ? tempTickPos + 1 : periodTicks / 2;
+		//node 2
+		ptr = writeLE(ptr, maxValue, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+		//node 3
+		ptr = writeLE(ptr, maxValue, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+	}
+	else if (instr->lfo[0].shape == lfoShapeSaw)
+	{
+		ptr = writeLE(ptr,
+						((instr->envelope[0].enable > 0) << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 3, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 0, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 2, 1);	//SLE = Sustain loop end
+
+		uint16_t tempTickPos = 0;
+		uint8_t maxValue = constrain(instr->lfo[0].amount * 64, 0, 64);
+		// square ___---___---
+		//node 0
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+
+		//node 1
+		ptr = writeLE(ptr, maxValue, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+
+		//node 2
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+	}
+	else if (instr->lfo[0].shape == lfoShapeReverseSaw)
+	{
+		ptr = writeLE(ptr,
+						((instr->envelope[0].enable > 0) << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 3, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 0, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 2, 1);	//SLE = Sustain loop end
+
+		uint16_t tempTickPos = 0;
+		uint8_t maxValue = constrain(instr->lfo[0].amount * 64, 0, 64);
+		// square ___---___---
+		//node 0
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos++;
+//				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+
+		//node 1
+		ptr = writeLE(ptr, maxValue, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+
+		//node 2
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+	}
+	else if (instr->lfo[0].shape == lfoShapeTriangle)
+	{
+		ptr = writeLE(ptr,
+						((instr->envelope[0].enable > 0) << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 3, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 0, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 2, 1);	//SLE = Sustain loop end
+
+		uint16_t tempTickPos = 0;
+		uint8_t maxValue = constrain(instr->lfo[0].amount * 64, 0, 64);
+		// square ___---___---
+		//node 0
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks / 2 <= tempTickPos ? tempTickPos + 1 : periodTicks / 2;
+		//node 1
+		ptr = writeLE(ptr, maxValue, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+		//node 2
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+	}
+	else if (instr->lfo[0].shape == lfoShapeRandom)
+	{
+		ptr = writeLE(ptr,
+						((instr->envelope[0].enable > 0) << 0) | // on/off
+						(0 << 1) | //loop
+						(1 << 2), // sus loop
+						1);	//Flg
+		ptr = writeLE(ptr, 6, 1);	//Num = Number of node points
+		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+		ptr = writeLE(ptr, 0, 1);	//SLB = Sustain loop beginning
+		ptr = writeLE(ptr, 5, 1);	//SLE = Sustain loop end
+
+		uint16_t tempTickPos = 0;
+		uint8_t maxValue = constrain(instr->lfo[0].amount * 64, 0, 64);
+		// square ___---___---
+		//node 0
+		ptr = writeLE(ptr, minVal, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks * 2 / 6 <= tempTickPos ? tempTickPos + 1 : periodTicks * 2 / 6;
+		//node 1
+		ptr = writeLE(ptr, random(0, maxValue), 1);	//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks * 3 / 6 <= tempTickPos ? tempTickPos + 1 : periodTicks * 3 / 6;
+		//node 2
+		ptr = writeLE(ptr, random(0, maxValue), 1);	//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks * 4 / 6 <= tempTickPos ? tempTickPos + 1 : periodTicks * 4 / 6;
+
+		//node 3
+		ptr = writeLE(ptr, random(0, maxValue), 1);	//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks * 5 / 6 <= tempTickPos ? tempTickPos + 1 : periodTicks * 5 / 6;
+
+		//node 4
+		ptr = writeLE(ptr, random(0, maxValue), 1);	//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+		tempTickPos =
+				periodTicks <= tempTickPos ? tempTickPos + 1 : periodTicks;
+		//node 5ó
+		ptr = writeLE(ptr, random(0, maxValue), 1);	//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+		ptr = writeLE(ptr, tempTickPos, 2);	//1 word (2 bytes) for tick number (0->9999)
+
+	}
+}
+
 void cFileManager::exportItFile_ProcessInstruments()
 {
 
@@ -343,11 +614,6 @@ void cFileManager::exportItFile_ProcessInstruments()
 	}
 
 	// pseudoenvelope
-//	memset(buff0x20, 0, sizeof(buff0x20));
-//	for (uint16_t a = 0; a < 3; a++)
-//	{
-//		exportedFile.write(buff0x20, 0x10);
-//	}
 
 	/*
 	 * volume envelope
@@ -360,7 +626,7 @@ void cFileManager::exportItFile_ProcessInstruments()
 		uint16_t relTicks = 0;
 		uint16_t sustainVal = 0;
 
-		if (instr->envelope[0].enable)
+		if (instr->envelope[0].enable && !instr->envelope[0].loop)
 		{
 			attTicks = (float) instr->envelope[0].attack / (float) (10000.0f / (mtProject.values.globalTempo * 4));
 			if (attTicks < 1) attTicks = 1;
@@ -373,39 +639,44 @@ void cFileManager::exportItFile_ProcessInstruments()
 
 			sustainVal = map(instr->envelope[0].sustain, 0.0f, 1.0f, 0, 64);
 			if (sustainVal > 64) sustainVal = 64;
+
+			ptr = buff0x52;
+			ptr = writeLE(ptr,
+							((instr->envelope[0].enable > 0) << 0) | // on/off
+							(0 << 1) | //loop
+							(1 << 2), // sus loop
+							1);	//Flg
+			ptr = writeLE(ptr, 5, 1);	//Num = Number of node points
+			ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
+			ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
+			ptr = writeLE(ptr, 2, 1);	//SLB = Sustain loop beginning
+			ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
+
+			//node 0
+			ptr = writeLE(ptr, 0, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
+			ptr = writeLE(ptr, 0, 2);//1 word (2 bytes) for tick number (0->9999)
+
+			//node 1
+			ptr = writeLE(ptr, 64, 1);	//att max
+			ptr = writeLE(ptr, attTicks/*att*/, 2);	//att time
+
+			//node 2
+			ptr = writeLE(ptr, sustainVal, 1);	//sus val
+			ptr = writeLE(ptr, attTicks + decTicks/*dec*/, 2);	//decay time
+
+			//node 3
+			ptr = writeLE(ptr, sustainVal/*sus*/, 1);	//sus val
+			ptr = writeLE(ptr, attTicks + decTicks + 10, 2);//time nie gra roli bo loop
+
+			//node 4
+			ptr = writeLE(ptr, 0, 1);	//release val 0
+			ptr = writeLE(ptr, attTicks + decTicks + 10 + relTicks/*rel*/, 2);//time = release
 		}
-
-		ptr = buff0x52;
-		ptr = writeLE(ptr,
-						((instr->envelope[0].enable > 0) << 0) | // on/off
-						(0 << 1) | //loop
-						(1 << 2), // sus loop
-						1);	//Flg
-		ptr = writeLE(ptr, 5, 1);	//Num = Number of node points
-		ptr = writeLE(ptr, 0, 1);	//LpB = Loop beginning
-		ptr = writeLE(ptr, 0, 1);	//LpE = Loop end
-		ptr = writeLE(ptr, 2, 1);	//SLB = Sustain loop beginning
-		ptr = writeLE(ptr, 3, 1);	//SLE = Sustain loop end
-
-		//node 0
-		ptr = writeLE(ptr, 0, 1);//1 byte for y-value//(0->64 for vol, -32->+32 for panning or pitch)
-		ptr = writeLE(ptr, 0, 2);	//1 word (2 bytes) for tick number (0->9999)
-
-		//node 1
-		ptr = writeLE(ptr, 64, 1);	//att max
-		ptr = writeLE(ptr, attTicks/*att*/, 2);	//att time
-
-		//node 2
-		ptr = writeLE(ptr, sustainVal, 1);	//sus val
-		ptr = writeLE(ptr, attTicks + decTicks/*dec*/, 2);	//decay time
-
-		//node 3
-		ptr = writeLE(ptr, sustainVal/*sus*/, 1);	//sus val
-		ptr = writeLE(ptr, attTicks + decTicks + 10, 2);//time nie gra roli bo loop
-
-		//node 4
-		ptr = writeLE(ptr, 0, 1);	//release val 0
-		ptr = writeLE(ptr, attTicks + decTicks + 10 + relTicks/*rel*/, 2);//time = release
+		else if (instr->envelope[0].enable && instr->envelope[0].loop)
+		{
+			ptr = buff0x52;
+			buildAmpEnvelopeFromLFO(ptr, instr);
+		}
 
 		exportedFile.write(buff0x52, sizeof(buff0x52));
 	}
