@@ -257,7 +257,7 @@ void cSampleRecorder::update()
 
 void cSampleRecorder::start(uint32_t options)
 {
-	engine.clearReverb();
+//	engine.clearReverb();
 
 	if(sequencer.isPlay())
 	{

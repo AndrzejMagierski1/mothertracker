@@ -49,7 +49,9 @@ void AudioEffectPolyverb::update(void)
 
 void AudioEffectPolyverb::reset(void)
 {
-  reverb.Reset();
+	isBlockedUpdate = true;
+	reverb.Reset();
+	isBlockedUpdate = false;
 }
 
 bool AudioEffectPolyverb::isActive(void)
