@@ -18,7 +18,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 6);
 // grupy glowne
 cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
-cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	4);
+cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	5);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
 cMenuGroup menuManual	(menuBase, 4, "Manual", 	1);
 cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
