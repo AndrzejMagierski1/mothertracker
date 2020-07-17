@@ -273,7 +273,9 @@ private:
 //singleShot
 	void updateSingleShotNormal();
 	void updateSingleShotReverse();
-
+//loopForward
+	void updateLoopForwardNormal();
+	void updateLoopForwardReverse();
 // granular
 
 	void updateGranularLoopForward();
