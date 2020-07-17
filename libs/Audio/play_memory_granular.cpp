@@ -70,7 +70,7 @@ void AudioPlayMemory::playGranular(uint8_t instrIdx, int8_t note)
 
 	next = currentStartAddress + pointsInSamples.start;
 	length = currentSampleLength - pointsInSamples.start;
-	iPitchCounter = reverseDirectionFlag ? pointsInSamples.loop2 - 1 : pointsInSamples.loop1;
+	iPitchCounter = reverseDirectionFlag ? constrainsInSamples.endPoint - 1 : 0;
 
 
 	playing = 1;
@@ -80,6 +80,7 @@ void AudioPlayMemory::playGranular(uint8_t instrIdx, int8_t note)
 
 void AudioPlayMemory::updateGranular()
 {
+	elapsedMicros timer = 0;
 	switch(granularLoopType)
 	{
 	case granularLoopForward: 		updateGranularLoopForward();	break;
@@ -87,6 +88,8 @@ void AudioPlayMemory::updateGranular()
 	case granularLoopPingPong: 		updateGranularLoopPingPong();	break;
 	default:	break;
 	}
+	Serial.print("G: ");
+	Serial.println(timer);
 }
 
 void AudioPlayMemory::updateGranularLoopForward()
