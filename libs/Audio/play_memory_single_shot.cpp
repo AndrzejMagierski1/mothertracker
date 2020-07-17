@@ -64,6 +64,12 @@ void AudioPlayMemory::playSingleShot(uint8_t instrIdx, int8_t note)
 
 void AudioPlayMemory::updateSingleShot()
 {
+	if(reverseDirectionFlag) updateSingleShotReverse();
+	else updateSingleShotNormal();
+}
+
+void AudioPlayMemory::updateSingleShotNormal()
+{
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
 	int16_t *out = nullptr;
@@ -83,19 +89,18 @@ void AudioPlayMemory::updateSingleShot()
 		out = block->data;
 		in = (int16_t*)next;
 
-		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
+		castPitchControl = (int32_t) pitchControl;
+		pitchFraction = pitchControl - (int32_t)pitchControl;
 
-		interpolationCondition = 	   (!((iPitchCounter  < 1.0f) ||
-										   (( (iPitchCounter + 128 * pitchControl) < length) && (!reverseDirectionFlag)) ||
-										   (((int)(iPitchCounter - 128 * pitchControl) > 0) && (reverseDirectionFlag)) )) ? 1: 0;
-		int16_t * in_interpolation = reverseDirectionFlag ? in-1: in+1;
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl < 1.0f) || ((iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+		int16_t * in_interpolation = in+1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			bool dataIsEnable = reverseDirectionFlag ? ((int32_t)iPitchCounter > 0) : (length > iPitchCounter);
-
-			if(dataIsEnable)
+			if(length > iPitchCounter)
 			{
 				//*********************************** GLIDE HANDLE
 				if (constrainsInSamples.glide)
@@ -103,85 +108,111 @@ void AudioPlayMemory::updateSingleShot()
 					if (glideCounter <= constrainsInSamples.glide)
 					{
 						pitchControl += glideControl;
-						castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-						pitchFraction = (float) ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
+						castPitchControl = (int32_t)pitchControl;
+						pitchFraction =  pitchControl - (int32_t)pitchControl;
+
+						currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
 						glideCounter++;
 					}
 				}
 				//***********************************************
-				//*********************************** SMOOTHING HANDLE
-				// needSmoothingFlag ustawiana jest na play gdy jest aktywne odtwarzanie, więc iPitchCounter się zeruje, ale na wysokim pitchu i bardzo krotkich loopach
-				// moga zostac przekroczone wartosci graniczne - trzeba je obsluzyc
-				if(needSmoothingFlag && (i == 0))
+				currentSampelValue = *(in + iPitchCounter);
+
+				if(interpolationCondition) interpolationDif = 0;
+				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+				*out++ = currentSampelValue + (int32_t)(( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14);
+				iPitchCounter += castPitchControl;
+				currentFractionPitchCounter += currentFractionPitchControl;
+				if (currentFractionPitchCounter >= MAX_16BIT)
 				{
-					needSmoothingFlag = 0;
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
 
-					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
-					{
-						if(iPitchCounter <= length)
-						{
-							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
-							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ))) / (SMOOTHING_SIZE - 1));
-						}
-						else
-						{
-							*out++ = 0;
-						}
+				if (iPitchCounter >= (constrainsInSamples.endPoint))
+				{
+					iPitchCounter = length;
+				}
+			}
+			else
+			{
+				*out++ = 0;
+				playing = 0;
+			}
+		}
+		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+		transmit(block);
+	}
+	release(block);
+}
+void AudioPlayMemory::updateSingleShotReverse()
+{
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
+	int32_t castPitchControl;
+	float pitchFraction;
 
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
+	block = allocate();
+	if (!block) return;
 
-						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-					}
-					if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
+	if (!playing)
+	{
+		release(block);
+		return;
+	}
+	else if (playing == 1)
+	{
+		out = block->data;
+		in = (int16_t*)next;
+
+		castPitchControl = (int32_t) -pitchControl;
+		pitchFraction =  - (pitchControl - (int32_t)pitchControl);
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		int16_t * in_interpolation = in-1;
+
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		{
+			if((int32_t)iPitchCounter > 0)
+			{
+				//*********************************** GLIDE HANDLE
+				if (constrainsInSamples.glide)
+				{
+					if (glideCounter <= constrainsInSamples.glide)
 					{
-						iPitchCounter = length;
+						pitchControl += glideControl;
+						castPitchControl = (int32_t)-pitchControl;
+						pitchFraction = -(pitchControl - (int32_t)pitchControl);
+
+						currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+						glideCounter++;
 					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
-					{
-						iPitchCounter = 0;
-					}
-					i = SMOOTHING_SIZE;
 				}
 				//***********************************************
-
 				currentSampelValue = *(in + iPitchCounter);
 
 				if(interpolationCondition) interpolationDif = 0;
 				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
 				*out++ = currentSampelValue + (int32_t)(fPitchCounter * interpolationDif);
-				if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 				iPitchCounter += castPitchControl;
-				fPitchCounter += pitchFraction;
-				if (fPitchCounter >= 1.0f)
+				currentFractionPitchCounter += currentFractionPitchControl;
+
+				if(currentFractionPitchCounter <= -MAX_16BIT)
 				{
-					fPitchCounter -= 1.0f;
-					iPitchCounter++;
-				}
-				else if(fPitchCounter <= -1.0f)
-				{
-					fPitchCounter += 1.0f;
+					currentFractionPitchCounter += MAX_16BIT;
 					iPitchCounter--;
 				}
 
-				if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-
-				if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-				{
-					iPitchCounter = length;
-				}
-				else if (((int32_t)(iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
+				if ((int32_t)(iPitchCounter - castPitchControl) <= 0)
 				{
 					iPitchCounter = 0;
 				}
@@ -193,10 +224,10 @@ void AudioPlayMemory::updateSingleShot()
 			}
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 		transmit(block);
 	}
 	release(block);
 }
-
 
 

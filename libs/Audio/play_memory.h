@@ -270,6 +270,10 @@ private:
 	void updateGranular();
 	void updateWavetable();
 
+//singleShot
+	void updateSingleShotNormal();
+	void updateSingleShotReverse();
+
 // granular
 
 	void updateGranularLoopForward();
@@ -282,7 +286,7 @@ private:
 	void updateGranularLoopBackwardReverse();
 	void updateGranularLoopPingPongNormal();
 	void updateGranularLoopPingPongReverse();
-
+/////////////////////////
 
 	void refreshGranularPosition();
 
