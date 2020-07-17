@@ -19,6 +19,7 @@ typedef enum
 	playerDown,
 	playerLeft,
 	playerRight,
+	playerHome,
 }player_direction_t;
 
 typedef enum

@@ -33,6 +33,7 @@ static  uint8_t functRight();
 static  uint8_t functLeft();
 
 static  uint8_t functShift(uint8_t state);
+static uint8_t functInsert();
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
@@ -163,6 +164,9 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functInsert);
 
 //	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButtonShift, functShift);
@@ -951,14 +955,27 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 	uint8_t isShiftPressed = 1;
 	songPlayerData.selection.isActive = 1;
 
-	if(!tactButtons.isButtonPressed(interfaceButtonShift))
+	if (tactButtons.isButtonPressed(interfaceButtonShift) && (dir != playerHome))
 	{
-		if(songPlayerData.selection.patternSelectionLength > 1)
+		if (songPlayerData.selection.patternSelectionLength == 0)
+		{
+			songPlayerData.selection.patternSelectionLength = 1;
+		}
+
+		if (songPlayerData.selection.trackSelectionLength == 0)
+		{
+			songPlayerData.selection.trackSelectionLength = 1;
+		}
+	}
+	else
+	{
+
+		if (songPlayerData.selection.patternSelectionLength > 1)
 		{
 			songPlayerData.selection.startPattern += (songPlayerData.selection.patternSelectionLength - 1);
 		}
 
-		if(songPlayerData.selection.trackSelectionLength > 1)
+		if (songPlayerData.selection.trackSelectionLength > 1)
 		{
 			songPlayerData.selection.startTrack += (songPlayerData.selection.trackSelectionLength - 1);
 		}
@@ -966,18 +983,6 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 		songPlayerData.selection.patternSelectionLength = 1;
 		songPlayerData.selection.trackSelectionLength = 1;
 		isShiftPressed = 0;
-	}
-	else
-	{
-		if(songPlayerData.selection.patternSelectionLength == 0)
-		{
-			songPlayerData.selection.patternSelectionLength = 1;
-		}
-
-		if(songPlayerData.selection.trackSelectionLength == 0)
-		{
-			songPlayerData.selection.trackSelectionLength = 1;
-		}
 	}
 
 	switch(dir)
@@ -1126,11 +1131,17 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 
 		break;
 
+	case playerHome:
+
+		songPlayerData.selection.startPattern = 0;
+
+		break;
+
 	default:
 		break;
 	}
 
-	if(isShiftPressed)//xxx
+	if(isShiftPressed && (dir != playerHome))//xxx
 	{
 		if(currSelDirection2 & selDirUp)
 		{
@@ -1312,6 +1323,31 @@ static uint8_t functCopyPaste()
 		functPaste();
 	}
 
+	return 1;
+}
+
+static uint8_t functInsert()
+{
+	if(tactButtons.isButtonPressed(interfaceButtonShift))
+	{
+		switch (SE->selectedPlace)
+		{
+		case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			SE->walkOnSongPlayer(playerHome);
+			break;
+
+		case 8:
+			SE->changePatternsSelection(-300);
+			break;
+		}
+	}
 	return 1;
 }
 
