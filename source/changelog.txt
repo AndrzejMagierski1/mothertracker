@@ -1,3 +1,5 @@
+	1.0.25
+			- fix: nagrywanie dojezdza do maxymalnej wartosci i wyskakuje popup
 	1.0.24
 			- fix: preview recordera ma reverb
 			- fix: wartości Limiter Release w Master jak Limiter Attack
