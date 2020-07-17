@@ -276,6 +276,9 @@ private:
 //loopForward
 	void updateLoopForwardNormal();
 	void updateLoopForwardReverse();
+//loopBackward
+	void updateLoopBackwardNormal();
+	void updateLoopBackwardReverse();
 // granular
 
 	void updateGranularLoopForward();
