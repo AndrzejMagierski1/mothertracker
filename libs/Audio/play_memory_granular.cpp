@@ -399,7 +399,7 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 			} else if (iPitchCounter >= loopEndPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
-				iPitchCounter = constrainsInSamples.loopPoint2;
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 1;
 				currentFractionPitchCounter = 0;
 			}
@@ -517,7 +517,7 @@ void AudioPlayMemory::updateGranularLoopBackwardReverse()
 			} else if (iPitchCounter <= loopStartPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
-				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 1;
 				currentFractionPitchCounter = 0;
 			}
@@ -628,13 +628,13 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 			if (iPitchCounter <= loopStartPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
-				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 0;
 				currentFractionPitchCounter = 0;
 			} else if (iPitchCounter >= loopEndPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
-				iPitchCounter = constrainsInSamples.loopPoint2;
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 1;
 				currentFractionPitchCounter = 0;
 			}
@@ -746,14 +746,14 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 			if (iPitchCounter >= loopEndPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
-				iPitchCounter = constrainsInSamples.loopPoint2;
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 0;
 				currentFractionPitchCounter = 0;
 			}
 			if (iPitchCounter <= loopStartPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
-				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 1;
 				currentFractionPitchCounter = 0;
 			}
