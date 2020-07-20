@@ -57,7 +57,7 @@ const char envStateLabels[3][11]=
 //	"Off"
 //};
 
-const char lfoShapeLabels[lfoShapeMax][11]=
+const char lfoShapeLabels[lfoShapeCount][11]=
 {
 		"Rev Saw",
 		"Saw",
@@ -284,7 +284,7 @@ public:
 //		&envLoopLabels[1][0],
 //	};
 
-	const char * lfoShapeNames[lfoShapeMax] =
+	const char * lfoShapeNames[lfoShapeCount] =
 	{
 		&lfoShapeLabels[0][0],
 		&lfoShapeLabels[1][0],

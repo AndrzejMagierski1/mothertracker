@@ -308,8 +308,9 @@ enum lfoShapeType
 	lfoShapeSquare,
 	lfoShapeRandom,
 
+	lfoShapeCount,
 
-	lfoShapeMax
+	lfoShapeDefault = lfoShapeTriangle
 };
 
 //---------------------------------------
@@ -434,7 +435,7 @@ struct strInstrument
 	envelopeGenerator::strEnv envelope[envMax];
 	struct strEnvBasedLfo
 	{
-		uint8_t shape = 0;
+		uint8_t shape = lfoShapeDefault;
 		uint8_t speed = 0;
 		float 	amount = 1.0;
 	} lfo[envMax];
@@ -492,12 +493,12 @@ const strInstrument defaultInstrumentParams =
 		},
 		.lfo =
 		{
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5}
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5}
 		},
 		.cutOff = 1.0,
 		.resonance = 0,
