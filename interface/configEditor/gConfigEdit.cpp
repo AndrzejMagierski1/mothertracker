@@ -73,13 +73,10 @@ const char creditsText[1500] =
 	"\nDanny Wolfers (Legowelt)."
 	"\n"
 	"\nMany thanks for the provided sample packs to:"
-	"\nAlex Cummings, The Flashbulb, Jamie Lidell, Legowelt, Sarah Longfield, Plughugger, Alex Restis, Scot Solida, Stazma,"
-	"\nAndrew Visser (Oneven)."
-
-
-
-
-
+	"\nAlex Cummings, The Flashbulb, Jamie Lidell, Legowelt, Sarah Longfield, Plughugger, Scot Solida, Stazma, Andrew Visser."
+	"\n"
+	"\nReverb algorithm is created by Emilie Gillet of Mutable Instruments and is used under MIT license."
+	"\nAll provided demo projects and samples are under a CC BY-NC 4.0 license."
 
 
 
