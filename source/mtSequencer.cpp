@@ -1279,6 +1279,10 @@ void Sequencer::rec(void)
 		playPattern();
 	}
 }
+void Sequencer::recOff(void)
+{
+	player.isREC = 0;
+}
 
 void Sequencer::allNoteOffs(void)
 {
