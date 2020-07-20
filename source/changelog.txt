@@ -1,3 +1,5 @@
+	1.0.26
+			- modyfikacja creditsów: usuniety Restis, dodane licencje
 	1.0.25
 			- fix: nagrywanie dojezdza do maxymalnej wartosci i wyskakuje popup
 	1.0.24
