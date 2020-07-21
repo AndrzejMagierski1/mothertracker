@@ -318,7 +318,7 @@ void cTest::runRAMTest()
 
 		}
 
-		if(ramTestsPassed > 0) testPhase = 2;
+		if(ramTestsPassed == 10) testPhase = 2;
 		else testPhase = 1;
 	}
 
@@ -348,11 +348,15 @@ void cTest::runMidiTest()
 	}
 	else if(testPhase == 2)
 	{
-		if(midiResults == 255) nextTest();
+		if(midiResults == 255) testPhase = 4;
 
 		if(testTimer > 3000)  testPhase = 3;
 	}
 	else if(testPhase == 3)
+	{
+
+	}
+	else if(testPhase == 4)
 	{
 
 	}
@@ -608,6 +612,10 @@ void cTest::showMidiTest()
 	{
 		showMessage("Test failed", "Is cable connected properly?", "Retry", "Skip");
 	}
+	else if(testPhase == 4)
+	{
+		showMessage("MIDI test ended successfully", "", "OK", "");
+	}
 }
 
 
@@ -758,7 +766,8 @@ void cTest::AcceptButton()
 	{
 		if(testPhase == 1) break;
 		if(testPhase < 3) testPhase++;
-		else if(testPhase >= 3) testPhase = 0; // nextTest();
+		else if(testPhase == 3) testPhase = 0; // nextTest();
+		else if(testPhase == 4) nextTest();
 		break;
 	}
 	case checkRadio:
