@@ -151,6 +151,20 @@ void cSongEditor::destroyDisplayControls()
 	loadHorizontalBarControl = nullptr;
 }
 
+void cSongEditor::refreshTempoField()
+{
+	if(tapTempoCount>1)
+	{
+		display.setControlText(label[7], "TAP Tempo");
+	}
+	else
+	{
+		display.setControlText(label[7], "Tempo");
+	}
+	display.refreshControl(label[7]);
+	showTempoValue();
+}
+
 void cSongEditor::showDefaultScreen()
 {
 	display.refreshControl(titleBar);
