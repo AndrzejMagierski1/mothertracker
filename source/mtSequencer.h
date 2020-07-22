@@ -674,6 +674,7 @@ public:
 	void playSong(uint8_t);
 	void pause(void);
 	void rec(void);
+	void recOff(void);
 	void stop(void);
 	void stopManualNotes(void);
 	uint8_t isMetronomeActive();
@@ -732,6 +733,7 @@ public:
 	uint8_t changeInstrumentInSpecificOrder(int8_t actualValue,
 											int16_t delta);
 	uint8_t getInstrumentVelo(uint8_t);
+	uint8_t getInstrumentVolume(uint8_t);
 
 	void setSelectionFxType(uint8_t index, int16_t value);
 	void setSelectionFxValueByPad(uint8_t index, int16_t value);

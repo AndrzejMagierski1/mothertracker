@@ -25,6 +25,9 @@ static  uint8_t functDeleteSlot();
 static  uint8_t functAddSlot();
 
 static  uint8_t functTempo();
+static void tapTempo_tap();
+static void tapTempo_update();
+static void tapTempo_end();
 
 
 static  uint8_t functUp();
@@ -75,6 +78,9 @@ void cSongEditor::update()
 		}
 		refreshButtonsLabels();
 	}
+
+
+	tapTempo_update();
 
 	refreshCopyPasting();
 	refreshDeleting();
@@ -442,12 +448,71 @@ static  uint8_t functDeleteSlot()
 }
 
 
+ void cSongEditor::tapTempo_tap()
+{
+	if (SE->tapTempoCount == 0)
+	{
+		SE->tapTempoCount = 1;
+		SE->tapTempoTimer = 0;
+		SE->refreshTempoField();
+	}
+	else
+	{
+		SE->tapTempoCount++;
+
+
+		if (SE->tapTempoTimer > 1500)
+		{
+			tapTempo_end();
+		}
+		else
+		{
+			float tempTempo = 60000.0 / (float) tapTempoTimer;
+
+//			Serial.println(tempTempo );
+
+			tapTempo_set(tempTempo);
+
+			SE->tapTempoTimer = 0;
+		}
+
+		SE->refreshTempoField();
+	}
+}
+
+void cSongEditor::tapTempo_update()
+{
+	if (tapTempoCount && (tapTempoTimer > 1500))
+	{
+		tapTempo_end();
+	}
+}
+void cSongEditor::tapTempo_set(float value)
+{
+	if(value>Sequencer::MAX_TEMPO) return;
+	if(value<Sequencer::MIN_TEMPO) return;
+
+	if(sequencer.isInternalClock())
+	{
+		mtProject.values.globalTempo = value;
+	}
+
+}
+void cSongEditor::tapTempo_end()
+{
+	tapTempoCount = 0;
+	refreshTempoField();
+}
+
 static  uint8_t functTempo()
 {
 	if(SE->isBusy) return 1;
 
 	SE->selectedPlace = 9;
 	SE->activateLabelsBorder();
+
+	SE->tapTempo_tap();
+
 
 	return 1;
 }
@@ -803,6 +868,9 @@ void cSongEditor::changeGlobalTempo(int16_t value)
 	{
 		return;
 	}
+
+	mtProject.values.globalTempo = (uint16_t) mtProject.values.globalTempo; // do calkowitych
+
 	if(mtProject.values.globalTempo+value < Sequencer::MIN_TEMPO) mtProject.values.globalTempo = Sequencer::MIN_TEMPO;
 	else if(mtProject.values.globalTempo+value > Sequencer::MAX_TEMPO) mtProject.values.globalTempo = Sequencer::MAX_TEMPO;
 	else  mtProject.values.globalTempo += value;

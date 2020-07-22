@@ -1279,6 +1279,10 @@ void Sequencer::rec(void)
 		playPattern();
 	}
 }
+void Sequencer::recOff(void)
+{
+	player.isREC = 0;
+}
 
 void Sequencer::allNoteOffs(void)
 {
@@ -1880,11 +1884,29 @@ void Sequencer::handleNoteOn(byte channel, // channel jesli midi, albo pochodzen
 				}
 
 				engine.setLastUsedVoice(tr);
-				if (mtConfig.general.recQuantization)
+				if (mtConfig.general.recOptions == recOptions_microtimingAndVelocity ||
+						mtConfig.general.recOptions == recOptions_microtiming)
 				{
 					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = map(player.uStep + 1, 1, 48, 0,
 											100);
+				}
+
+				if (mtConfig.general.recOptions == recOptions_microtimingAndVelocity ||
+						mtConfig.general.recOptions == recOptions_velocity)
+				{
+					step->fx[1].type = fx.FX_TYPE_VELOCITY;
+					if (velocity >= 0)
+					{
+						step->fx[1].value = map(velocity,0,127,0,100);
+
+					}
+					else
+					{
+						step->fx[1].value = getInstrumentVolume(
+								mtProject.values.lastUsedInstrument);
+					}
+
 				}
 				break;
 			}
@@ -2000,12 +2022,14 @@ void Sequencer::handleNoteOff(byte channel, // channel jesli midi, albo pochodze
 					if (step->note == STEP_NOTE_EMPTY)
 					{
 						step->note = STEP_NOTE_OFF;
-						if (mtConfig.general.recQuantization)
+						if (mtConfig.general.recOptions == recOptions_microtimingAndVelocity ||
+								mtConfig.general.recOptions == recOptions_microtiming)
 						{
 							step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 							step->fx[0].value = map(player.uStep, 1, 48, 0,
 													100);
 						}
+
 					}
 					else
 					{
@@ -2218,7 +2242,7 @@ uint8_t Sequencer::getRollVelo(uint8_t row)
 	return 127;
 }
 
-uint8_t Sequencer::getInstrumentVelo(uint8_t ins)
+uint8_t Sequencer::getInstrumentVelo(uint8_t ins) // 0-127
 {
 	if (ins >= INSTRUMENTS_COUNT)
 	{
@@ -2227,6 +2251,18 @@ uint8_t Sequencer::getInstrumentVelo(uint8_t ins)
 	else
 	{
 		return map(mtProject.instrument[ins].volume, 0, 100, 0, 127);
+	}
+	return 0;
+}
+uint8_t Sequencer::getInstrumentVolume(uint8_t ins) // 0-100
+{
+	if (ins >= INSTRUMENTS_COUNT)
+	{
+		return map(mtProject.values.midiInstrument[ins - INSTRUMENTS_COUNT].velocity,0,127,0,100);
+	}
+	else
+	{
+		return mtProject.instrument[ins].volume;
 	}
 	return 0;
 }

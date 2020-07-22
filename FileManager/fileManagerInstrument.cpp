@@ -489,7 +489,7 @@ void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstru
 	for(uint8_t i = 0;  i < envMax;  i++)
 	{
 		targetInstrument->lfo[i].amount = 0.5;
-		targetInstrument->lfo[i].shape = 0;
+		targetInstrument->lfo[i].shape = lfoShapeDefault;
 		targetInstrument->lfo[i].speed = 0;
 	}
 

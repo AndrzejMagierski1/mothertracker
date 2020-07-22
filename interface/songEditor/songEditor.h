@@ -59,6 +59,8 @@ public:
 	void activateLabelsBorder();
 
 	void showTempoValue();
+	void refreshTempoField();
+
 
 	localList_t patternsList;
 
@@ -167,6 +169,18 @@ public:
 	uint8_t isDeletingInProgress = 0;
 	uint8_t deleteElementMax;
 	uint8_t currentDeleteElement;
+
+
+	void tapTempo_tap();
+	void tapTempo_update();
+	void tapTempo_end();
+	void tapTempo_set(float value);
+
+private:
+	uint8_t tapTempoCount = 0;
+	float tapTempoSum = 0.0;
+	elapsedMillis tapTempoTimer = 0;
+
 };
 
 
