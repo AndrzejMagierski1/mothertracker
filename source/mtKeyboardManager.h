@@ -142,6 +142,8 @@ public:
 	void makeMove(char c); //steruje się jak w grach (w s a d)
 	void blockMove();
 	uint8_t getState();
+	void setNameLengthLimit(uint8_t limit);
+
 private:
 	void showKeyboard();
 	void hideKeyboard();
@@ -156,6 +158,8 @@ private:
 	uint8_t keyboardPosition;
 	uint8_t editPosition;
 	uint8_t isNameSelected;
+
+	uint8_t nameLengthLimit;
 
 	char name[MAX_NAME_LENGTH];
 };

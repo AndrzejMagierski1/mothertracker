@@ -6,6 +6,7 @@ void mtKeyboardManager::init(hControl keyboardC, hControl nameC)
 {
 	keyboardControl = keyboardC;
 	editName = nameC;
+	setNameLengthLimit(32);
 }
 
 void mtKeyboardManager::deinit()
@@ -117,14 +118,13 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 			keyboardPosition = valueMapPads[pad];
 
 
-			if(editPosition > 31) return;
-
-
 			char localName[MAX_NAME_LENGTH];
 			if(smallKeyboard[keyboardPosition] > 1)
 			{
+				//if(editPosition >= nameLengthLimit) return;
+
 				uint8_t localNameLen = strlen(name);
-				if(localNameLen == 32) return;
+				if(localNameLen >= nameLengthLimit) return;
 
 				strncpy(localName,name,editPosition);
 				localName[editPosition] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
@@ -144,15 +144,14 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 				if(localNameLen != editPosition) strcat(localName,&name[editPosition]);
 				strcpy(name,localName);
 
-
 				editPosition--;
-
-
 			}
 			else if(smallKeyboard[keyboardPosition] == 1)
 			{
 				keyboardShiftFlag = ! keyboardShiftFlag;
 			}
+
+
 			showKeyboard();
 			showKeyboardEditName();
 			return;
@@ -166,7 +165,7 @@ void mtKeyboardManager::confirmKey()
 {
 	if(keyboardActiveFlag)
 	{
-		if(strlen(name) > 31) return;
+		if(strlen(name) >= nameLengthLimit) return;
 		if(isNameSelected) return;
 		//****************************************************ledy
 		if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2) //backspace
@@ -231,7 +230,7 @@ void mtKeyboardManager::confirmKey()
 		if(smallKeyboard[keyboardPosition] > 1)
 		{
 			uint8_t localNameLen = strlen(name);
-			if(localNameLen == 32) return;
+			if(localNameLen == nameLengthLimit) return;
 
 			strncpy(localName,name,editPosition);
 			localName[editPosition] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
@@ -341,6 +340,12 @@ void mtKeyboardManager::showKeyboard()
 	leds.setLED(F_PAD, 1, mtConfig.values.padsLightBack);
 	leds.setLED(J_PAD, 1, mtConfig.values.padsLightBack);
 
+	if(keyboardShiftFlag)
+	{
+		leds.setLED(CAPS_LOCK_PAD_1, 1, mtConfig.values.padsLightBack);
+		leds.setLED(CAPS_LOCK_PAD_2, 1, mtConfig.values.padsLightBack);
+	}
+
 	if(isNameSelected)
 	{
 		display.setControlValue(keyboardControl, -1);
@@ -378,6 +383,13 @@ void mtKeyboardManager:: hideKeyboard()
 	{
 		leds.setLED(lastPressedPad,0,0);
 	}
+
+	if(keyboardShiftFlag)
+	{
+		leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+	}
+
 	leds.setLED(F_PAD, 0, 0);
 	leds.setLED(J_PAD, 0, 0);
 
@@ -397,8 +409,13 @@ void mtKeyboardManager::showKeyboardEditName()
 	display.refreshControl(editName);
 }
 
-void mtKeyboardManager:: hideEditName()
+void mtKeyboardManager::hideEditName()
 {
 	display.setControlHide(editName);
 	display.refreshControl(editName);
+}
+
+void mtKeyboardManager::setNameLengthLimit(uint8_t limit)
+{
+	nameLengthLimit = limit;
 }

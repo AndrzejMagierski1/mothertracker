@@ -135,7 +135,7 @@ void cMasterParams::start(uint32_t options)
 //--------------------------------------------------------------------
 
 	keyboardManager.init(keyboardControl, editName);
-
+	keyboardManager.setNameLengthLimit(8);
 //--------------------------------------------------------------------
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
