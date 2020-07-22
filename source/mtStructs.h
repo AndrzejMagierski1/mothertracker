@@ -397,6 +397,16 @@ enum powerStateType
 	powerStateRun
 };
 
+enum enRecOptions
+{
+	recOptions_onlyNotes,
+	recOptions_microtiming,
+	recOptions_velocity,
+	recOptions_microtimingAndVelocity,
+
+	recOptions_max = recOptions_microtimingAndVelocity,
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -714,7 +724,7 @@ struct strMtConfig
 		uint8_t padsBrightness;
 		uint8_t mtpState;
 
-		uint8_t recQuantization;
+		uint8_t recOptions;
 		uint8_t performanceSource;
 
 		uint8_t padBoardScale;
