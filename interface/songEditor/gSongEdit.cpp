@@ -107,6 +107,7 @@ void cSongEditor::initDisplayControls()
 //	prop.w = 600;
 //	prop.h = 300;
 
+	prop.data = nullptr;
 	prop.x = 0+1;
 	prop.y = 29;
 	prop.w = ((800/8)*7)-3;

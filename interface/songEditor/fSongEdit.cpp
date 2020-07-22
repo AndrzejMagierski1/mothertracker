@@ -92,6 +92,7 @@ void cSongEditor::start(uint32_t options)
 
 
 	readSong();
+	songPlayerData.tracksNames = &mtProject.values.TrackNames[0][0];
 	songPlayerData.list = &patternsList;
 	songPlayerData.songData = mtProject.song.playlist;
 	songPlayerData.patternsBitmask = mtProject.values.allPatternsBitmask;

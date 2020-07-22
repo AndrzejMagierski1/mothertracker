@@ -217,7 +217,7 @@ void cPatternEditor::start(uint32_t options)
 
 	keyboardManager.init(keyboardControl,editName);
 	trackerPattern.stepDevider = (mtConfig.general.patternDiv + 1);
-
+	trackerPattern.tracksNames = &mtProject.values.TrackNames[0][0];
 
 	readPatternState();
 	refreshPattern();
@@ -2927,8 +2927,8 @@ static  uint8_t functCancelExport()
 {
 	PTE->setDefaultScreenFunct();
 	PTE->setSwitchModuleFunct();
-	PTE->refreshEditState();
 	PTE->hideKeyboardExport();
+	PTE->refreshEditState();
 	PTE->keyboardManager.deactivateKeyboard();
 	return 1;
 }

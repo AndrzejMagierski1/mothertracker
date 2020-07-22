@@ -4,6 +4,7 @@
 
 #include "core/modulesBase.h"
 #include "SD.h"
+#include "mtKeyboardManager.h"
 
 #include "mtStructs.h"
 
@@ -221,6 +222,8 @@ public:
 	hControl delayPingpongEnableList;
 	hControl delaySyncEnableList;
 	hControl delaySyncRateList;
+	hControl keyboardControl;
+	hControl editName;
 
 	uint8_t selectedPlace = 0;
 
@@ -232,6 +235,9 @@ public:
 
 	strInstrument * editorInstrument;
 
+	mtKeyboardManager keyboardManager;
+	uint8_t editTrackNameMode = 0;
+	uint8_t actualEditingTrackName = 0;
 //----------------------------------
 //----------------------------------
 
@@ -286,12 +292,14 @@ public:
 	void showMidiNotesFrom(uint8_t listPosition);
 	void showMidiNotesChannels(uint8_t listPosition);
 
-
-
-
-
 	void changeLabelText(uint8_t labelIdx, const char *text);
 
+
+	// nzawy trackow
+	void editTrackName(uint8_t button);
+	void setKeyboardExportFunctions();
+	void showKeyboardExport();
+	void showEditTracksNamesMode();
 };
 
 extern cMasterParams masterParams;

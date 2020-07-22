@@ -61,6 +61,8 @@ typedef struct
 	progress_control_t progress;
 	localList_t *list;
 
+	char* tracksNames;
+
 }player_data_t;
 
 

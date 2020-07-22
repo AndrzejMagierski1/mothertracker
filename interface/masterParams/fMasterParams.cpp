@@ -66,6 +66,7 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functSwitchModeMaster(uint8_t state);
 
+
 //mixer
 static uint8_t functSoloMute(uint8_t state);
 static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state);
@@ -85,9 +86,28 @@ void setDefaultBithDepth();
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
+
+// zmiana nazwy trackow
+static uint8_t functEditModeToggle();
+
+static  uint8_t functAutoNameTrackName();
+static  uint8_t functCancelEditTrackName();
+static  uint8_t functSaveTrackName();
+
+static  uint8_t functEnterKeyExport();
+static 	uint8_t	functLeftKeyboard();
+static 	uint8_t	functRightKeyboard();
+static 	uint8_t	functUpKeyboard();
+static 	uint8_t	functDownKeyboard();
+static 	uint8_t	functDeleteKeyboard();
+static 	uint8_t	functInsertKeyboard();
+
+
+//---------------------------------------
+
 void cMasterParams::update()
 {
-	if(displayType == display_t::mixer)
+	if(displayType == display_t::mixer && !keyboardManager.getState())
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
@@ -114,6 +134,7 @@ void cMasterParams::start(uint32_t options)
 	exitOnButtonRelease = 0;
 //--------------------------------------------------------------------
 
+	keyboardManager.init(keyboardControl, editName);
 
 //--------------------------------------------------------------------
 	// ustawienie funkcji
@@ -150,6 +171,7 @@ void cMasterParams::start(uint32_t options)
 
 void cMasterParams::stop()
 {
+	keyboardManager.deinit();
 	sequencer.stopManualNotes();
 	exitOnButtonRelease = 0;
 	moduleRefresh = 0;
@@ -190,6 +212,29 @@ void cMasterParams::setMasterScreenFunct()
 
 void cMasterParams::setDelayScreenFunct()
 {
+
+}
+
+void cMasterParams::setKeyboardExportFunctions()
+{
+	//funkcje
+	FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+	FM->clearButtonsRange(interfaceButtonPlay, interfaceButtonRight);
+	FM->clearAllPots();
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftKeyboard);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightKeyboard);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpKeyboard);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownKeyboard);
+
+	FM->setButtonObj(interfaceButton0,buttonPress, functEnterKeyExport);
+	//FM->setButtonObj(interfaceButton4,buttonPress, functAutoNameTrackName);
+
+	FM->setButtonObj(interfaceButton6,buttonPress, functCancelEditTrackName);
+	FM->setButtonObj(interfaceButton7,buttonPress, functSaveTrackName);
+
+	FM->setButtonObj(interfaceButtonDelete,buttonPress, functDeleteKeyboard);
+	FM->setButtonObj(interfaceButtonInsert,buttonPress, functInsertKeyboard);
 
 }
 
@@ -593,6 +638,8 @@ void cMasterParams::switchToMaster()
 	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
 
 
+	keyboardManager.deactivateKeyboard();
+
 	showMasterScreen();
 	displayType = display_t::masterValues;
 	isDelayScreen = false;
@@ -617,8 +664,11 @@ void cMasterParams::switchToMixer()
 
 	FM->setButtonObj(interfaceButtonShift, functSoloMute);
 
-	showMixerScreen();
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functEditModeToggle);
+
+	editTrackNameMode = 0;
 	displayType = display_t::mixer;
+	showMixerScreen();
 }
 
 void cMasterParams::switchToDelayScreen()
@@ -632,6 +682,8 @@ void cMasterParams::switchToDelayScreen()
 	FM->setButtonObj(interfaceButton3, buttonPress, functSelectDelayTime);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSelectDelayFeedback);
 	FM->setButtonObj(interfaceButton7, buttonPress, functDelayCancel);
+
+	keyboardManager.deactivateKeyboard();
 
 	showDelayScreen();
 
@@ -650,6 +702,8 @@ void cMasterParams::switchToReverbScreen()
 	FM->setButtonObj(interfaceButton3, buttonPress, functSelectReverbDiffusion);
 
 	FM->setButtonObj(interfaceButton7, buttonPress, functReverbCancel);
+
+	keyboardManager.deactivateKeyboard();
 
 	showReverbScreen();
 
@@ -796,6 +850,12 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 
 	if(state == buttonPress)
 	{
+		if(MP->editTrackNameMode)
+		{
+			MP->editTrackName(n);
+			return 1;
+		}
+
 		if(MP->isSolo)
 		{
 			if((uint8_t)MP->soloTrack == n)
@@ -1218,6 +1278,14 @@ void cMasterParams::setDefaultDelayFeedback()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+
+	if(MP->keyboardManager.getState())
+	{
+		MP->keyboardManager.onPadChange(pad, state);
+		return 1;
+	}
+
+
 	if(state == buttonPress)
 	{
 		//uint8_t note = mtPadBoard.convertPadToNote(pad);
@@ -1243,6 +1311,118 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 	return 1;
-
 }
+
+
+//###############################################################################################
+//                           NAZYWANIE TRACKOW
+
+// przelaczanie trybu edycji nazw trackow
+static uint8_t functEditModeToggle()
+{
+	if(MP->displayType != MP->display_t::mixer) return 1;
+
+	MP->editTrackNameMode = !MP->editTrackNameMode;
+
+	MP->showEditTracksNamesMode();
+
+	return 1;
+}
+
+//
+void cMasterParams::editTrackName(uint8_t button)
+{
+	actualEditingTrackName = button;
+
+	MP->setKeyboardExportFunctions();
+
+	MP->keyboardManager.fillName(&mtProject.values.TrackNames[button][0]);
+	MP->keyboardManager.activateKeyboard();
+
+	MP->showKeyboardExport();
+}
+
+//Auto name klawiatury
+static  uint8_t functAutoNameTrackName()
+{
+	MP->keyboardManager.setRandomName();
+
+	return 1;
+}
+
+// anuluj edycje nazwy tracka
+static  uint8_t functCancelEditTrackName()
+{
+	MP->switchToMixer();
+	MP->editTrackNameMode = 1;
+	MP->showEditTracksNamesMode();
+
+	MP->keyboardManager.deactivateKeyboard();
+
+	return 1;
+}
+
+// zapisz nazwe tracka
+static  uint8_t functSaveTrackName()
+{
+	if(MP->actualEditingTrackName < 8)
+	{
+		strncpy(&mtProject.values.TrackNames[MP->actualEditingTrackName][0], MP->keyboardManager.getName(), 8);
+		mtProject.values.TrackNames[MP->actualEditingTrackName][9] = 0;
+	}
+
+	newFileManager.setProjectStructChanged();
+
+	MP->switchToMixer();
+	MP->editTrackNameMode = 1;
+	MP->showEditTracksNamesMode();
+
+	MP->keyboardManager.deactivateKeyboard();
+
+	return 1;
+}
+
+//Zatwierdzenie znaku w klawiaturze
+static  uint8_t functEnterKeyExport()
+{
+	MP->keyboardManager.confirmKey();
+	return 1;
+}
+//Modyfikacja zaznaczenia znaku w klawiaturze
+static 	uint8_t	functLeftKeyboard()
+{
+	MP->keyboardManager.makeMove('a');
+	return 1;
+}
+//Modyfikacja zaznaczenia znaku w klawiaturze
+static 	uint8_t	functRightKeyboard()
+{
+	MP->keyboardManager.makeMove('d');
+	return 1;
+}
+//Modyfikacja zaznaczenia znaku w klawiaturze
+static 	uint8_t	functUpKeyboard()
+{
+	MP->keyboardManager.makeMove('w');
+	return 1;
+}
+//Modyfikacja zaznaczenia znaku w klawiaturze
+static 	uint8_t	functDownKeyboard()
+{
+	MP->keyboardManager.makeMove('s');
+	return 1;
+}
+//Backspace znaku z przycisku delete
+static 	uint8_t	functDeleteKeyboard()
+{
+	MP->keyboardManager.makeBackspace();
+	return 1;
+}
+//Zatwierdzenie znaku z przycisku insert
+static 	uint8_t	functInsertKeyboard()
+{
+	MP->keyboardManager.confirmKey();
+	return 1;
+}
+
 

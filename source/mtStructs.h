@@ -19,7 +19,7 @@ const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
 const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 
-const uint8_t PROJECT_FILE_VERSION 	=		3;		// wersja struktury pliku projektu
+const uint8_t PROJECT_FILE_VERSION 	=		4;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			3;
@@ -596,6 +596,8 @@ struct strMtValues
 		float diffusion;
 	} reverb;
 
+
+	char TrackNames[8][21];
 
 };
 

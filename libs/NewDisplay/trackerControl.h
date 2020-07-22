@@ -45,6 +45,8 @@ struct strTrackerPattern
 	uint8_t popupMode = 0;
 
 	uint8_t inactive[8] = {0,0,0,0,0,0,0,0};
+
+	char* tracksNames;
 };
 
 // ilosc znakow parametru
@@ -116,14 +118,14 @@ private:
 	uint8_t leftOffset;
 
 
-//
-	void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
 
-	int16_t lastHandle;
+	void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length, int16_t w_limit = 800);
+
+	int16_t lastFontHandle;
 
 
 	uint32_t actualColor;
-	uint32_t lastColor;
+	uint32_t lastFontColor;
 
 };
 

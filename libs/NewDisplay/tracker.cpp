@@ -3,8 +3,11 @@
 
 #include "trackerControl.h"
 
+#include <cstring>
+
 void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
-void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
+
+//void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
 
 static uint32_t defaultColors[] =
 
@@ -270,6 +273,8 @@ void cTracker::refresh1()
 {
 	//colors[10] = tracks->selectColor;
 	displayMode = value;
+
+	lastFontHandle = -1; // zerowanie ostatnio uzywanej czcionki
 
 	rightOffset = 0;
 	leftOffset = 0;
@@ -842,18 +847,21 @@ void cTracker::rowNumbers()
 // tracks numbers
 void cTracker::tracksNumbers()
 {
-	int16_t x, y,h ,w;
+	if(tracks->tracksNames == nullptr) return;
+
+	int16_t x, y, w, h;
 	w = 24;
 	h = 27;
 
 	//pole/tlo
 	y = -1;
+
+
+	// wyznaczanie najduższej nazwy
+
 	//API_COLOR(0xffffff);
 	API_LINE_WIDTH(24);
 	API_BEGIN(RECTS);
-
-
-
 
 	for(uint8_t i = 0; i < columnsCount; i++)
 	{
@@ -861,6 +869,8 @@ void cTracker::tracksNumbers()
 		//else API_COLOR(0x333333);
 		if(tracks->inactive[tracks->firstVisibleTrack+i]) API_COLOR(colors[12]);
 		else  API_COLOR(0xffffff);
+
+		w = strlen(tracks->tracksNames+((tracks->firstVisibleTrack+i)*21))*fonts[3].width+6;
 
 		x = rightOffset+(i*tracksSpace)+1;
 
@@ -870,25 +880,18 @@ void cTracker::tracksNumbers()
 
 	API_END();
 
-	// numer
-	y = 1;
-	API_COLOR(0x000000);
-	API_BITMAP_HANDLE(fonts[3].handle);
+	// numer/nazwa
+	y = 12;
+	actualColor = lastFontColor = 0x000000;
+	API_COLOR(actualColor);
+	lastFontHandle = -1;
 	API_BEGIN(BITMAPS);
 
 	for(uint8_t i = 0; i < columnsCount; i++)
 	{
-		x = rightOffset+(i*tracksSpace)+9;
-
-		if(x > 511 || y > 511)
-		{
-			API_CELL(49+i+tracks->firstVisibleTrack);
-			API_VERTEX2F(x, y);
-		}
-		else
-		{
-			API_VERTEX2II(x,y,fonts[3].handle, 49+i+tracks->firstVisibleTrack);
-		}
+		x = rightOffset+(i*tracksSpace)+6;
+		char* trackName = tracks->tracksNames+((tracks->firstVisibleTrack+i)*21);
+		String2Bitmaps(x, y, &fonts[3], trackName, 20, tracksSpace-fonts[3].width);
 	}
 
 	API_END();
@@ -898,8 +901,9 @@ void cTracker::tracksNumbers()
 void cTracker::notes()
 {
 	API_COLOR(colors[2]);
-	actualColor = lastColor = colors[2];
-	API_BITMAP_HANDLE(fonts[1].handle);
+	actualColor = lastFontColor = colors[2];
+	//API_BITMAP_HANDLE(fonts[1].handle);
+	lastFontHandle = -1;
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[0];
@@ -944,8 +948,9 @@ void cTracker::notes()
 void cTracker::instruments()
 {
 	API_COLOR(colors[3]);
-	actualColor = lastColor = colors[3];
-	API_BITMAP_HANDLE(fonts[1].handle);
+	actualColor = lastFontColor = colors[3];
+	//API_BITMAP_HANDLE(fonts[1].handle);
+	lastFontHandle = -1;
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[1]; // 59
@@ -992,8 +997,9 @@ void cTracker::instruments()
 void cTracker::fxes1()
 {
 	API_COLOR(colors[4]);
-	actualColor = lastColor = colors[4];
-	API_BITMAP_HANDLE(fonts[1].handle);
+	actualColor = lastFontColor = colors[4];
+	lastFontHandle = -1;
+	//API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[2]; // 99
@@ -1032,8 +1038,9 @@ void cTracker::fxes1()
 void cTracker::fxes2()
 {
 	API_COLOR(colors[5]);
-	actualColor = lastColor = colors[5];
-	API_BITMAP_HANDLE(fonts[1].handle);
+	actualColor = lastFontColor = colors[5];
+	lastFontHandle = -1;
+	//API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[3];
@@ -1085,14 +1092,20 @@ static inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 }
 
 
-void cTracker::String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length)
+void cTracker::String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length, int16_t w_limit)
 {
-	if(actualColor != lastColor)
+	if(actualColor != lastFontColor)
 	{
 		API_COLOR(actualColor);
-		lastColor = actualColor;
+		lastFontColor = actualColor;
+	}
+	if(lastFontHandle != font->handle)
+	{
+		API_BITMAP_HANDLE(font->handle);
+		lastFontHandle = font->handle;
 	}
 
+	w_limit += x;
 	y = y - font->height/2;
 	uint8_t strPtr = 0;
 
@@ -1100,21 +1113,18 @@ void cTracker::String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* s
 
 	for(uint8_t i = 0; i < length; i++)
 	{
+		if(string[strPtr] == 0 || x > w_limit) return;
+
 		if(x > 799 || y > 480 || x < 0 || y < 0)
 		{
 			strPtr++;
 		}
 		else if((x > 511 || y > 511) && string[strPtr] >=32)
 		{
-			if(lastHandle != font->handle)
-			{
-				API_BITMAP_HANDLE(font->handle);
-				lastHandle = font->handle;
-			}
 			API_CELL(string[strPtr++]);
 			API_VERTEX2F(x, y);
 		}
-		else if(string[strPtr] >=32)
+		else if(string[strPtr] >= 32)
 		{
 			API_VERTEX2II(x,y,font->handle, (char)string[strPtr++]);
 		}

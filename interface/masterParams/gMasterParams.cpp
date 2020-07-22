@@ -84,9 +84,32 @@ static uint32_t levelBarColors[][8] =
 	},
 };
 
+static uint32_t editModeLabelsColors[4] =
+{
+	0x777777, // tekst
+	0x323132, // tło
+	one_true_red, // ramka
+	one_true_red, // tekst2
+};
+
 void cMasterParams::initDisplayControls()
 {
 	// inicjalizacja kontrolek
+	strControlProperties prop3;
+	prop3.x = 13;
+	prop3.y = 143;
+	prop3.w = 780;
+	prop3.h = 260;
+	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
+
+	strControlProperties prop4;
+	prop4.text = (char*)"";
+	prop4.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleFont2);
+	prop4.x = 400;
+	prop4.y = 29;
+	prop4.w = 795;
+	prop4.h = 90;
+	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 
 	strControlProperties prop;
 	// ramka
@@ -225,6 +248,14 @@ void cMasterParams::destroyDisplayControls()
 
 	display.destroyControl(delaySyncRateList);
 	delaySyncRateList = nullptr;
+
+	display.destroyControl(keyboardControl);
+	keyboardControl = nullptr;
+
+	display.destroyControl(editName);
+	editName = nullptr;
+
+
 }
 
 void cMasterParams::showDefaultConfigScreen()
@@ -265,7 +296,7 @@ void cMasterParams::showDefaultConfigScreen()
 	frameData.places[3] = &framesPlacesConfig[3][0];
 
 	display.refreshControl(bgLabel);
-	display.setControlValue(bgLabel, 84);
+	display.setControlValue(bgLabel, 255);
 
 
 	activateLabelsBorder();
@@ -329,7 +360,7 @@ void cMasterParams::showMasterScreen()
 
 
 	display.refreshControl(bgLabel);
-	display.setControlValue(bgLabel, 0b11001111);
+	display.setControlValue(bgLabel, 255);
 
 
 
@@ -878,11 +909,11 @@ void cMasterParams::showMixerScreen()
 		}
 	}
 
-	if(displayType == display_t::masterValues)
+	if(displayType == display_t::mixer)
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			display.setControlText(label[i],mixerTrackLabel[i]);
+			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]); //mixerTrackLabel[i]);
 			showLevelBar(i);
 		}
 	}
@@ -958,7 +989,63 @@ void cMasterParams::showLevelBar(uint8_t n)
 }
 
 
+void cMasterParams::showEditTracksNamesMode()
+{
 
+	if(editTrackNameMode)
+	{
+//		if(displayType == display_t::masterValues)
+//		{
+//			for(uint8_t i = 0; i < 8; i++)
+//			{
+//				display.setControlText(label[i], &mtProject.values.TrackNames[i][0]); //mixerTrackLabel[i]);
+//				showLevelBar(i);
+//			}
+//		}
+
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			display.setControlColors(label[i], editModeLabelsColors);
+			display.setControlText2(label[i], "Edit");
+			display.refreshControl(label[i]);
+		}
+
+		display.synchronizeRefresh();
+	}
+	else
+	{
+		showMixerScreen();
+	}
+
+
+}
+
+void cMasterParams::showKeyboardExport()
+{
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlHide(barControl[i]);
+
+		display.setControlText(label[i],"");
+		display.setControlText2(label[i],"");
+	}
+
+	display.setControlValue(bgLabel, 255);
+	display.refreshControl(bgLabel);
+
+	display.setControlText(label[0], "Enter");
+	//display.setControlText(label[4], "Auto Name");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[7], "Save");
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
 
 
 

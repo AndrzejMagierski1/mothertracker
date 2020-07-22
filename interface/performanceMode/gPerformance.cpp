@@ -248,14 +248,19 @@ void cPerformanceMode::showPerformanceFxes()
 	display.setControlText(titleLabel, "Performance FX");
 	display.refreshControl(titleLabel);
 
-	display.setControlText(label[0], "Track 1");
-	display.setControlText(label[1], "Track 2");
-	display.setControlText(label[2], "Track 3");
-	display.setControlText(label[3], "Track 4");
-	display.setControlText(label[4], "Track 5");
-	display.setControlText(label[5], "Track 6");
-	display.setControlText(label[6], "Track 7");
-	display.setControlText(label[7], "Track 8");
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
+	}
+
+//	display.setControlText(label[1], "Track 2");
+//	display.setControlText(label[2], "Track 3");
+//	display.setControlText(label[3], "Track 4");
+//	display.setControlText(label[4], "Track 5");
+//	display.setControlText(label[5], "Track 6");
+//	display.setControlText(label[6], "Track 7");
+//	display.setControlText(label[7], "Track 8");
 
 //	display.setControlText2(label[0], "Pattern");
 //	display.setControlText2(label[1], "Pattern");
