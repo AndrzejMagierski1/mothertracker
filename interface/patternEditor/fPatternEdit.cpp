@@ -2295,14 +2295,19 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
-	if(sequencer.isRec())
+	if (sequencer.isRec())
 	{
-		sequencer.stop();
+		sequencer.recOff();
+		PTE->editMode = 0;
 	}
+	else
+	{
+		PTE->editMode = !PTE->editMode;
+	}
+
 
 	if(PTE->fillState == 1) return 1;
 
-	PTE->editMode = !PTE->editMode;
 
 
 

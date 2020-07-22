@@ -805,6 +805,8 @@ void cPatternEditor::showFillFx()
 	else
 		display.setControlText(label[4], "From");
 
+	refreshFillFrom();
+
 	// to
 	fillText2[0]  = 0;
 	display.setControlPosition(val2PopupBar, (800/8)*(5)+1, -1);
@@ -829,6 +831,8 @@ void cPatternEditor::showFillFx()
 		display.setControlValue(val2PopupBar, ((fillData[editParam].to-min_fx)*100)/(max_fx-min_fx));
 		display.setControlText(label[5], "To");
 	}
+
+	refreshFillTo();
 
 	for(uint8_t i = 0; i < 6; i++)
 	{

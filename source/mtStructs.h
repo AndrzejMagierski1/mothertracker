@@ -12,8 +12,8 @@
 
 
 const uint8_t FV_VER_1	=					1;		// device version
-const uint8_t FV_VER_2 =					0;		// official update
-const uint8_t FV_VER_3 =					26;		// fix version
+const uint8_t FV_VER_2 =					1;		// official update
+const uint8_t FV_VER_3 =					0;		// fix version
 const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
@@ -308,8 +308,9 @@ enum lfoShapeType
 	lfoShapeSquare,
 	lfoShapeRandom,
 
+	lfoShapeCount,
 
-	lfoShapeMax
+	lfoShapeDefault = lfoShapeTriangle
 };
 
 //---------------------------------------
@@ -396,6 +397,16 @@ enum powerStateType
 	powerStateRun
 };
 
+enum enRecOptions
+{
+	recOptions_onlyNotes,
+	recOptions_microtiming,
+	recOptions_velocity,
+	recOptions_microtimingAndVelocity,
+
+	recOptions_max = recOptions_microtimingAndVelocity,
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -434,7 +445,7 @@ struct strInstrument
 	envelopeGenerator::strEnv envelope[envMax];
 	struct strEnvBasedLfo
 	{
-		uint8_t shape = 0;
+		uint8_t shape = lfoShapeDefault;
 		uint8_t speed = 0;
 		float 	amount = 1.0;
 	} lfo[envMax];
@@ -492,12 +503,12 @@ const strInstrument defaultInstrumentParams =
 		},
 		.lfo =
 		{
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5},
-				{0,0,0.5}
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5},
+				{lfoShapeDefault,0,0.5}
 		},
 		.cutOff = 1.0,
 		.resonance = 0,
@@ -715,7 +726,7 @@ struct strMtConfig
 		uint8_t padsBrightness;
 		uint8_t mtpState;
 
-		uint8_t recQuantization;
+		uint8_t recOptions;
 		uint8_t performanceSource;
 
 		uint8_t padBoardScale;

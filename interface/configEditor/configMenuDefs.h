@@ -121,10 +121,21 @@ const char* const ptrRadioRegion[4] =
 		&radioRegion[3][0],
 };
 
-const char* const ptrRecQuantization[2] =
+
+const char recOptionsTexts[4][20] =
 {
-		&onOffStateTexts[0][0],
-		&onOffStateTexts[1][0],
+		"Only notes",
+		"Microtiming",
+		"Velocity",
+		"Microtiming + Velo",
+};
+
+const char* const ptrRecQuantization[4] =
+{
+		&recOptionsTexts[0][0],
+		&recOptionsTexts[1][0],
+		&recOptionsTexts[2][0],
+		&recOptionsTexts[3][0],
 };
 
 const char performanceSourceTexts[2][12] =

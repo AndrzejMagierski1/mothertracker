@@ -991,7 +991,7 @@ void changeEnvAmount(int16_t value)
 void changeLfoShape(int16_t value)
 {
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = 0;
-	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > (lfoShapeMax - 1) ) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = lfoShapeMax - 1;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > (lfoShapeCount - 1) ) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = lfoShapeCount - 1;
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].shape += value;
 
 	uint32_t statusByte = 0;

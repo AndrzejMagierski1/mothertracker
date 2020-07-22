@@ -170,7 +170,7 @@ public:
 	strTrackerPattern trackerPattern;
 
 	uint8_t editMode = 0;
-	uint8_t editParam = 0;
+	uint8_t editParam = 0; // 0 note, 1 instrument, 2 fx1, 3 fx 2
 	uint8_t previousEditParam = 0;
 	uint8_t isSelectingNow = 0;
 	uint8_t shiftAction = 0; // ustawić na 1 jeśli była akcja shift + cokolwiek

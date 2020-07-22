@@ -348,8 +348,8 @@ void checkConfig()
 		mtConfig.general.mtpState = 0;
 	}
 
-	if(mtConfig.general.recQuantization > 1) 		mtConfig.general.recQuantization = 0;
-	if(mtConfig.general.performanceSource > 1) 		mtConfig.general.performanceSource = 0;
+	if(mtConfig.general.recOptions > recOptions_max) 		mtConfig.general.recOptions = 0;
+	if(mtConfig.general.performanceSource > 1) 				mtConfig.general.performanceSource = 0;
 
 	if(mtConfig.general.padBoardScale > 39) 		mtConfig.general.padBoardScale = 0;
 	if(mtConfig.general.padBoardNoteOffset > 11) 	mtConfig.general.padBoardNoteOffset = 11;
@@ -455,7 +455,7 @@ void resetConfig()
 	mtConfig.general.radioRegion = 0;
 	mtConfig.general.mtpState = 0;
 
-	mtConfig.general.recQuantization = 0;
+	mtConfig.general.recOptions = 0;
 	mtConfig.general.performanceSource = 0;
 	mtConfig.general.padBoardScale = 0;
 	mtConfig.general.padBoardNoteOffset = 11;

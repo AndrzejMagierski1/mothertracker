@@ -1,3 +1,12 @@
+	1.0.merge
+			- domyślny lfo shape dla nowych instrumentów to triangle
+			- wciśniecie rec w trakcie nagrywania powoduje wylaczenie nagrywania 
+			a sekwencja gra dalej
+			- fix: otwarty popup fill -> przelaczanie fx1/2 -> nie odswieżaly sie 
+			poprawnie etykiety od-do
+			- tap-tempo - dwukrotne klikniecie i kazde kolejne ustala tempo
+			- config - rec options - only notes/velo/microtiming/velo+microtiming
+			 
 	1.0.26
 			- modyfikacja creditsów: usuniety Restis, dodane licencje
 			- home w song
