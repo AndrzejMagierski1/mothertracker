@@ -25,6 +25,9 @@ void mtKeyboardManager::activateKeyboard()
 
 	keyboardActiveFlag = 1;
 
+	editNameData.selectionWidth = editPosition;
+	editNameData.selectionStart = 0;
+
 	showKeyboard();
 	showKeyboardEditName();
 }
@@ -118,8 +121,16 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 			keyboardPosition = valueMapPads[pad];
 
 
+			// kasowanie/nadpisywanie calego zaznaczonego tekstu
+			if(editNameData.selectionWidth > 0 && smallKeyboard[keyboardPosition] != 1) // nie capslock
+			{
+				editSelectedText();
+				return;
+			}
+
 			char localName[MAX_NAME_LENGTH];
-			if(smallKeyboard[keyboardPosition] > 1)
+
+			if(smallKeyboard[keyboardPosition] > 1) // normlane litery
 			{
 				//if(editPosition >= nameLengthLimit) return;
 
@@ -133,8 +144,9 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 				strcpy(name,localName);
 				editPosition++;
 			}
-			else if(smallKeyboard[keyboardPosition] == 0)
+			else if(smallKeyboard[keyboardPosition] == 0) // backspace
 			{
+
 				if(editPosition == 0 ) return;
 
 				uint8_t localNameLen = strlen(name);
@@ -146,7 +158,7 @@ void mtKeyboardManager::onPadChange(uint8_t pad, uint8_t state)
 
 				editPosition--;
 			}
-			else if(smallKeyboard[keyboardPosition] == 1)
+			else if(smallKeyboard[keyboardPosition] == 1) // capslock
 			{
 				keyboardShiftFlag = ! keyboardShiftFlag;
 			}
@@ -166,7 +178,7 @@ void mtKeyboardManager::confirmKey()
 	if(keyboardActiveFlag)
 	{
 		if(strlen(name) >= nameLengthLimit) return;
-		if(isNameSelected) return;
+		if(editNameData.isFrame) return;
 		//****************************************************ledy
 		if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2) //backspace
 		{
@@ -226,6 +238,13 @@ void mtKeyboardManager::confirmKey()
 		}
 		//////////////////////////////////////
 
+		// kasowanie/nadpisywanie calego zaznaczonego tekstu
+		if(editNameData.selectionWidth > 0 && smallKeyboard[keyboardPosition] != 1) // nie capslock
+		{
+			editSelectedText();
+			return;
+		}
+
 		char localName[MAX_NAME_LENGTH];
 		if(smallKeyboard[keyboardPosition] > 1)
 		{
@@ -263,6 +282,36 @@ void mtKeyboardManager::confirmKey()
 	}
 }
 
+// kasowanie/nadpisywanie calego zaznaczonego tekstu
+void mtKeyboardManager::editSelectedText()
+{
+	char localName[MAX_NAME_LENGTH];
+
+	uint8_t localNameLen = strlen(name);
+
+	strcpy(localName, name);
+
+	if(smallKeyboard[keyboardPosition] == 0) //backspace
+	{
+		localName[editNameData.selectionStart] = 0;
+		editPosition = editNameData.selectionStart;
+	}
+	else //(smallKeyboard[keyboardPosition] > 1)
+	{
+		localName[editNameData.selectionStart] = keyboardShiftFlag ? bigKeyboard[keyboardPosition] : smallKeyboard[keyboardPosition];
+		localName[editNameData.selectionStart+1] = 0;
+		editPosition = editNameData.selectionStart+1;
+	}
+
+	if(editNameData.selectionStart+editNameData.selectionWidth < localNameLen)
+		strcat(localName, &name[editNameData.selectionStart+editNameData.selectionWidth]);
+	strcpy(name, localName);
+
+	editNameData.selectionWidth = 0;
+
+	showKeyboardEditName();
+}
+
 
 void mtKeyboardManager::makeBackspace()
 {
@@ -272,6 +321,22 @@ void mtKeyboardManager::makeBackspace()
 
 		uint8_t localNameLen = strlen(name);
 		char localName[MAX_NAME_LENGTH];
+
+		if(editNameData.selectionWidth > 0) // kasowanie calego zaznaczonego tekstu
+		{
+			strcpy(localName, name);
+			localName[editNameData.selectionStart] = 0;
+			if(editNameData.selectionStart+editNameData.selectionWidth < localNameLen)
+				strcat(localName, &name[editNameData.selectionStart+editNameData.selectionWidth]);
+			strcpy(name, localName);
+
+			editPosition = editNameData.selectionStart;
+			editNameData.selectionWidth = 0;
+
+			showKeyboardEditName();
+			return;
+		}
+
 
 		strncpy(localName,name, editPosition - 1);
 		localName[editPosition - 1] = 0;
@@ -287,27 +352,29 @@ void mtKeyboardManager::makeMove(char c)
 {
 	if(keyboardActiveFlag)
 	{
-		if(isNameSelected)
+		if(editNameData.isFrame)
 		{
 			if(c == 's')
 			{
-				isNameSelected = false;
+				editNameData.isFrame = 0;
 				keyboardPosition = 0;
 			}
 			else if(c == 'a')
 			{
 				if(editPosition > 0) editPosition--;
+				editNameData.selectionWidth = 0;
 			}
 			else if(c == 'd')
 			{
 				if(editPosition < strlen(name)) editPosition++;
+				editNameData.selectionWidth = 0;
 			}
 		}
 		else
 		{
 			if((c == 'w') && (keyboardPosition <= 10))
 			{
-				isNameSelected = true;
+				editNameData.isFrame = 1;
 			}
 			else
 			{
@@ -346,7 +413,7 @@ void mtKeyboardManager::showKeyboard()
 		leds.setLED(CAPS_LOCK_PAD_2, 1, mtConfig.values.padsLightBack);
 	}
 
-	if(isNameSelected)
+	if(editNameData.isFrame)
 	{
 		display.setControlValue(keyboardControl, -1);
 	}
@@ -402,7 +469,7 @@ void mtKeyboardManager::showKeyboardEditName()
 
 	display.setControlValue(editName, editPosition);
 
-	display.setControlData(editName,&isNameSelected);
+	display.setControlData(editName,&editNameData);
 
 	display.setControlText(editName, name);
 	display.setControlShow(editName);

@@ -24,6 +24,15 @@ typedef struct
 
 }multisel_control_t;
 
+
+
+struct strEditData
+{
+	uint8_t isFrame;
+	uint8_t selectionStart;
+	uint8_t selectionWidth;
+};
+
 struct strFrameData
 {
 	uint8_t startPlace;
@@ -106,7 +115,7 @@ public:
 	uint16_t textStyle;
 	const strFont* font;
 private:
-	uint8_t isFrame;
+	strEditData* data;
 };
 
 //--------------------------------------------------------------------

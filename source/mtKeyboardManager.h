@@ -149,15 +149,17 @@ private:
 	void hideKeyboard();
 	void showKeyboardEditName();
 	void hideEditName();
+	void editSelectedText();
 
 	hControl keyboardControl = nullptr;
 	hControl editName = nullptr;
+	strEditData editNameData;
+
 	uint8_t keyboardActiveFlag;
 	uint8_t lastPressedPad;
 	uint8_t keyboardShiftFlag;
 	uint8_t keyboardPosition;
 	uint8_t editPosition;
-	uint8_t isNameSelected;
 
 	uint8_t nameLengthLimit;
 

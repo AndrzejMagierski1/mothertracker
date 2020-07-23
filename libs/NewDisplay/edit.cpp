@@ -99,7 +99,7 @@ void cEdit::setDefaultColors(uint32_t colors[])
 
 void cEdit::setData(void* data)
 {
-	isFrame = *((uint8_t *)(data));
+	this->data = (strEditData*)data;
 }
 
 
@@ -162,7 +162,7 @@ uint8_t cEdit::update()
 		//text_y = posY + 2;
 	}
 
-	if(isFrame)
+	if(data->isFrame)
 	{
 		API_COLOR(colors[2]);
 
@@ -176,6 +176,8 @@ uint8_t cEdit::update()
 		API_VERTEX2F(border_x-1 , posY-1);
 		API_END();
 	}
+
+
 
 
 	API_COLOR(colors[2]);
@@ -208,6 +210,19 @@ uint8_t cEdit::update()
 
 //	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
 
+	if(data->selectionWidth > 0)
+	{
+		API_COLOR(0x222222);
+
+		API_LINE_WIDTH(8);
+
+		API_BEGIN(RECTS);
+
+		int16_t selStart = posX - font->width * (localTextLength/2) + font->width * data->selectionStart;
+		API_VERTEX2F(selStart, posY+height/2-font->height/2);
+		API_VERTEX2F(selStart + font->width * data->selectionWidth , posY+height/2+font->height/2);
+		API_END();
+	}
 
 
 
