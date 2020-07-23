@@ -1,9 +1,6 @@
 
 	1.1.1 
 			- mozliwosc zmiany nazwy trackow
-			- 
-
-	1.0.merge
 			- domyślny lfo shape dla nowych instrumentów to triangle
 			- wciśniecie rec w trakcie nagrywania powoduje wylaczenie nagrywania 
 			a sekwencja gra dalej
