@@ -34,7 +34,7 @@ static uint32_t popUpLabelColors[] =
 	one_true_red, // ramka
 };
 
-const char creditsText[1500] =
+const char creditsText[] =
 {
 
 /*
@@ -58,9 +58,9 @@ const char creditsText[1500] =
 */
 
 	"Polyend Team 2020:"
-	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Wojtek Jakobczyk, Andrzej Magierski, Maciej Pancer, Michal Pilat,"
-	"\nPiotr Raczynski, Daniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz, Krzysztof Ziejewski,"
-	"\nKrzysztof Zwolinski."
+	"\nMarcin Bortkiewicz, Cezary Fila, Katarzyna Florczak, Wojtek Jakobczyk, Andrzej Magierski, Jacek Olszewski, Maciej Pancer,"
+	"\nMichal Pilat, Piotr Raczynski, Daniel Romasiuk, Krzysztof Szulc, Jacek Tworkowski, Krystian Zemanowicz,"
+	"\nKrzysztof Ziejewski, Krzysztof Zwolinski."
 	"\n"
 	"\nSpecial thanks to the beta testers & artists for feedback, tests, demo tracks, tutorials, videos and reviews: "
 	"\nSam Barker, Gui Boratto, Cuckoo, Mike Coakley, Alfred Darlington (Daedelus), Matthew Dear, Richard Devine,"
@@ -70,7 +70,7 @@ const char creditsText[1500] =
 	"\nSarah Longfield, Ricky Martinez, Bryan Noll (Lightbath), Terrence O'Brien (Endgadget), Bogdan Raczynski,"
 	"\nSam Shepherd (Floating Points), Cenk Sayinli (Dataline), Lukasz Seliga (SLG), Jacek Sienkiewicz, Sam Slater,"
 	"\nTravis Stewart (Machinedrum), Jimi Tenor, Si Truss (Future Music), Brain Waltzera, Axel Willner (The Field),"
-	"\nDanny Wolfers (Legowelt)."
+	"\nDanny Wolfers (Legowelt), Alex Retsis."
 	"\n"
 	"\nMany thanks for the provided sample packs to:"
 	"\nAlex Cummings, The Flashbulb, Jamie Lidell, Legowelt, Sarah Longfield, Plughugger, Scot Solida, Stazma, Andrew Visser."
