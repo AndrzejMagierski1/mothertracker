@@ -1,4 +1,8 @@
-
+	1.1.2
+			- zmiany w klawiaturze edytujacej tekst (zaznaczenie na start, ustawialna maksymalna dlugosc edytowanej nazwy, porzadki)
+			- zmiany w creditsach
+			- od teraz możliwe zaznaczenie i prewiev w green mode
+			- zmiana etykiet lfo speed (dodanie step/steps)
 	1.1.1 
 			- mozliwosc zmiany nazwy trackow
 			- domyślny lfo shape dla nowych instrumentów to triangle
