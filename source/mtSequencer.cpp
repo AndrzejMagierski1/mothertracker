@@ -14,8 +14,9 @@
 #include "patternEditor/patternEditor.h"
 
 #include "core/interfacePopups.h"
-
 Sequencer sequencer;
+
+#include "playModeDefs.h"
 
 #include "debugLog.h"
 
@@ -1047,6 +1048,7 @@ void Sequencer::play(uint8_t fromPos)
 	{
 		player.track[a].uStep = 1;
 		player.track[a].actual_pos = fromPos;
+		player.track[a].custom_actual_pos = fromPos;
 	}
 
 	sendMidiStart();
@@ -1301,11 +1303,12 @@ void Sequencer::allNoteOffs(void)
 void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
-	int8_t playMode = player.track[row].performancePlayMode;
+	int8_t playMode = PLAYMODE_FORWARD;
 	int8_t patternLength = seq[player.ramBank].track[0].length;
 
 	if (player.performanceMode)
 	{
+		playMode = player.track[row].performancePlayMode;
 		patternLength = player.performance.trackLength[row];
 	}
 
@@ -1428,6 +1431,20 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	else if (playMode == PLAYMODE_RANDOM)
 	{
 		player.track[x].actual_pos = random(1, patternLength + 1);
+	}
+	else if (playMode == PLAYMODE_CUSTOM_1)
+	{
+
+		player.track[x].custom_actual_pos++;
+		if ((player.track[x].custom_actual_pos > patternLength) || (player.breakPattern))
+		{
+			player.track[x].custom_actual_pos = 0;
+		}
+
+		uint8_t orderTemp = player.track[x].custom_actual_pos % playOrder1Length;
+
+		player.track[x].actual_pos = playOrder1[orderTemp] - 1;
+
 	}
 
 }

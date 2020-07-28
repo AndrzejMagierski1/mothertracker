@@ -49,9 +49,8 @@ public:
 		PLAYMODE_FORWARD = 0,
 		PLAYMODE_BACKWARD,
 		PLAYMODE_RANDOM,
-		PLAYMODE_PINGPONG,
-		PLAYMODE_POLY,
-		PLAYMODE_MAX = 3
+		PLAYMODE_CUSTOM_1,
+		PLAYMODE_PINGPONG
 	};
 	enum enTempoDiv
 	{
@@ -462,6 +461,8 @@ public:
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
+			int16_t custom_actual_pos = 0;	// aktualna pozycja na potrzeby custom playMode
+
 			uint16_t stepTimer = 0;		// tu liczymy microstepy w górę
 			uint16_t stepLength = 0;	// z tym porównujemy timer
 			uint16_t noteTimer = 0;
