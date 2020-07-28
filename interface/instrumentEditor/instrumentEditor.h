@@ -66,33 +66,33 @@ const char lfoShapeLabels[lfoShapeCount][11]=
 		"Random"
 };
 
-const char lfoSpeedLabels[25][7]=
+const char lfoSpeedLabels[25][15]=
 {
-		"32",
-		"24",
-		"16",
-		"12",
-		"8",
-		"6",
-		"4",
-		"3",
-		"2",
-		"3/2",
-		"1",
-		"3/4",
-		"1/2",
-		"3/8",
-		"1/3",
-		"1/4",
-		"3/16",
-		"1/6",
-		"1/8",
-		"1/12",
-		"1/16",
-		"1/24",
-		"1/32",
-		"1/48",
-		"1/64"
+		"32 steps",
+		"24 steps",
+		"16 steps",
+		"12 steps",
+		"8 steps",
+		"6 steps",
+		"4 steps",
+		"3 steps",
+		"2 steps",
+		"3/2 step",
+		"1 step",
+		"3/4 step",
+		"1/2 step",
+		"3/8 step",
+		"1/3 step",
+		"1/4 step",
+		"3/16 step",
+		"1/6 step",
+		"1/8 step",
+		"1/12 step",
+		"1/16 step",
+		"1/24 step",
+		"1/32 step",
+		"1/48 step",
+		"1/64 step"
 };
 
 #undef MAX_SELECT_NODES
