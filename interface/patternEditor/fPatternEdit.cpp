@@ -333,17 +333,17 @@ void cPatternEditor::refreshPattern()
 	if(fillState)  trackerPattern.popupMode &= ~(2 | 4);
 	else trackerPattern.popupMode = 0;
 
-	if(editMode == 0)
+	if(editMode == 0) // nie rec
 	{
-		trackerPattern.selectState = 1; // xxx zielona ramka mod
-
-		if(!sequencer.isStop())
+		if(!sequencer.isStop())// jesli odtwarza
 		{
-			trackerPattern.actualStep = trackerPattern.playheadPosition;
+			if(!sequencer.isPreview())  // tylko jesli normalne odtwazanie, a nie podglad
+			{
+				trackerPattern.selectState = 1;  // jesli nie preveiw to kasuje zaznaczenie
+				trackerPattern.actualStep = trackerPattern.playheadPosition; // pozzycja podaza za playheadem
+			}
 
-			if(sequencer.isRec()) trackerPattern.selectState = 1;
-				//trackerPattern.playheadRecMode = 1;
-			//else 					trackerPattern.playheadRecMode = 0;
+			if(sequencer.isRec()) trackerPattern.selectState = 1; // jesli rec to kasuje zaznaczenie
 		}
 	}
 
@@ -578,17 +578,19 @@ void cPatternEditor::refreshPattern()
 
 void cPatternEditor::showFxInfo()
 {
-	if(editParam < 2) return;
-	if(editMode == 0) return;
+// "wylaczone" przez wykomentowanie
 
-	debugLog.setMaxLineCount(1);
-
-	seq = sequencer.getPatternToUI();
-	uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[1-(editParam-2)].type);
-	if(type_temp > 0 && type_temp < FX_MAX)
-	{
-		debugLog.addLine(&interfaceGlobals.fxNames[type_temp][0]);
-	}
+//	if(editParam < 2) return;
+//	if(editMode == 0) return;
+//
+//	debugLog.setMaxLineCount(1);
+//
+//	seq = sequencer.getPatternToUI();
+//	uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[1-(editParam-2)].type);
+//	if(type_temp > 0 && type_temp < FX_MAX)
+//	{
+//		debugLog.addLine(&interfaceGlobals.fxNames[type_temp][0]);
+//	}
 }
 
 char getHexFromInt(int16_t val, uint8_t index)
@@ -1148,7 +1150,11 @@ void cPatternEditor::refreshEditState()
 	}
 	else
 	{
-		trackerPattern.selectState = 1; //xxx zielona ramka mod
+		//trackerPattern.selectState = 1; //xxx zielona ramka mod
+		if(trackerPattern.selectState == 0) trackerPattern.selectState = 1; // teraz zawsze kursor i ewentualnie zaznaczenie
+
+		focusOnActual();
+
 		focusOnPattern();
 
 		hideEditModeLabels();
@@ -1674,17 +1680,13 @@ static  uint8_t functShift(uint8_t state)
 			PTE->trackerPattern.selectColumn = 0;
 		}
 
-		if(PTE->editMode && !PTE->isCursorInSelection())
-		{
-			PTE->trackerPattern.selectState = 1;
-			display.refreshControl(PTE->patternControl);
-		}
-
-//		if(PTE->editMode && !isMultiSelection() && !PTE->shiftAction )
+		// to chyba juz zbedne xxx wykomentowuje więc
+//		if(PTE->editMode && !PTE->isCursorInSelection())
 //		{
-//			sendSelection();
-//			sequencer.blinkSelectedStep();
+//			PTE->trackerPattern.selectState = 1;
+//			display.refreshControl(PTE->patternControl);
 //		}
+
 
 		PTE->setMuteFunct(0);
 
@@ -1726,7 +1728,7 @@ static  uint8_t functLeft()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
-	if(PTE->editMode)
+	if(PTE->editMode || sequencer.isStop())
 	{
 		if(shiftPressed && PTE->isSelectingNow == 0)// pierwsze wcisniecie kierunku po wcisnieciu shift
 		{
@@ -1807,7 +1809,7 @@ static  uint8_t functRight()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
-	if(PTE->editMode)
+	if(PTE->editMode || sequencer.isStop())
 	{
 		if(shiftPressed && PTE->isSelectingNow == 0)// pierwsze wcisniecie kierunku po wcisnieciu shift
 		{
@@ -1883,7 +1885,7 @@ static  uint8_t functUp()
 
 	if(PTE->editMode == 0)
 	{
-		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP) return 1;
+		if(!sequencer.isStop()) return 1;
 	}
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
@@ -1895,7 +1897,7 @@ static  uint8_t functUp()
 	}
 
 
-	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.actualStep == 0) // zaznaczanie calej kolumny
+	if(/*PTE->editMode == 1 &&*/ shiftPressed && PTE->trackerPattern.actualStep == 0) // zaznaczanie calej kolumny
 	{
 		if(PTE->trackerPattern.selectColumn == 1)  // zaznacz wszystko
 		{
@@ -1920,7 +1922,7 @@ static  uint8_t functUp()
 
 	}
 
-	if(PTE->editMode == 1 && shiftPressed && PTE->isSelectingNow == 0) // poczatek zaznaczenia
+	if(/*PTE->editMode == 1 &&*/ shiftPressed && PTE->isSelectingNow == 0) // poczatek zaznaczenia
 	{
 		PTE->trackerPattern.selectStartStep = PTE->trackerPattern.actualStep;
 		PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
@@ -1931,7 +1933,7 @@ static  uint8_t functUp()
 	if(PTE->trackerPattern.actualStep > 0 ) PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
 	else if(!shiftPressed) PTE->trackerPattern.actualStep = PTE->trackerPattern.patternLength;
 
-	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.selectColumn == 0) // kontynuacja zaznaczania
+	if(/*PTE->editMode == 1 &&*/ shiftPressed && PTE->trackerPattern.selectColumn == 0) // kontynuacja zaznaczania
 	{
 		PTE->trackerPattern.selectEndStep = PTE->trackerPattern.actualStep;
 		PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
@@ -1991,12 +1993,8 @@ static  uint8_t functDown()
 		return 1;
 	}
 
-//	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.selectColumn == 1)
-//	{
-//
-//	}
 
-	if(PTE->editMode == 1 && shiftPressed && PTE->isSelectingNow == 0)
+	if(/*PTE->editMode == 1 &&*/ shiftPressed && PTE->isSelectingNow == 0)
 	{
 		PTE->trackerPattern.selectStartStep = PTE->trackerPattern.actualStep;
 		PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
@@ -2007,7 +2005,7 @@ static  uint8_t functDown()
 	if(PTE->trackerPattern.actualStep < PTE->trackerPattern.patternLength-1) PTE->trackerPattern.actualStep++;
 	else if(!shiftPressed) PTE->trackerPattern.actualStep = 0;
 
-	if(PTE->editMode == 1 && shiftPressed)
+	if(/*PTE->editMode == 1 &&*/ shiftPressed)
 	{
 		PTE->trackerPattern.selectEndStep = PTE->trackerPattern.actualStep;
 		PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
@@ -2257,7 +2255,6 @@ static  uint8_t functPlayAction()
 {
 	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-
 		if (tactButtons.isButtonPressed(interfaceButtonRec))
 		{
 			sequencer.rec();
@@ -2273,8 +2270,6 @@ static  uint8_t functPlayAction()
 		{
 			sequencer.playPattern();
 		}
-
-		//PTE->lastPlayedPattern = 0;
 	}
 	else
 	{
