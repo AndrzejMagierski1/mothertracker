@@ -1234,6 +1234,7 @@ void cPatternEditor::hideFillPopup()
 //##############################################################################################
 //###############################                              #################################
 //##############################################################################################
+
 void cPatternEditor::activateFillPopupBorder()
 {
 	if(fillPlace < 0 || fillPlace > frameData.placesCount-1)
@@ -1261,6 +1262,31 @@ void cPatternEditor::activateLabelsBorder()
 	display.setControlValue(frameControl, selectedPlace);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
+}
+
+//##############################################################################################
+//###############################        MUTE BUTTONS          #################################
+//##############################################################################################
+void cPatternEditor::showMuteButtons(uint8_t state)
+{
+
+	if(state)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]); //mixerTrackLabel[i]);
+			display.setControlColors(label[i], mtProject.values.trackMute[i] ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+			display.setControlText2(label[i], mtProject.values.trackMute[i] ? (char*)"Unmute" :(char*)"Mute");
+			display.refreshControl(label[i]);
+		}
+
+		display.synchronizeRefresh();
+	}
+	else
+	{
+		showDefaultScreen();
+	}
+
 }
 
 //##############################################################################################

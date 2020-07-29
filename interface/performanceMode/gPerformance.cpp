@@ -335,8 +335,15 @@ void cPerformanceMode::showFxNames(uint8_t place)
 
 
 
-void cPerformanceMode::showTracksState()
+void cPerformanceMode::showTracksState(uint8_t shiftPressed)
 {
+	if(shiftPressed)
+	{
+		showMuteButtons(1);
+
+		return;
+	}
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		if(performance.getTrackState(i) == 1)
@@ -429,5 +436,40 @@ void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
 	}
 
 	display.refreshControl(label[track]);
+}
+
+
+//##############################################################################################
+//###############################        MUTE BUTTONS          #################################
+//##############################################################################################
+void cPerformanceMode::showMuteButtons(uint8_t state)
+{
+
+	if(state)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			uint32_t* ptrColors = activeTrackLabelsColors;
+			if(mtProject.values.trackMute[i] > 0) ptrColors = mutedTrackLabelColors;
+
+			display.setControlColors(label[i], ptrColors);
+
+			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
+			//display.setControlColors(label[i], mtProject.values.trackMute[i] ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+			display.setControlText2(label[i], mtProject.values.trackMute[i] ? (char*)"Unmute" : (char*)"Mute");
+			display.setControlStyle(label[i], controlStyleCenterX | controlStyleFont3);
+
+			display.setControlShow(label[i]);
+			display.refreshControl(label[i]);
+		}
+
+		display.synchronizeRefresh();
+	}
+	else
+	{
+		showTracksPatterns();
+		showTracksState();
+	}
+
 }
 

@@ -67,7 +67,7 @@ void cPerformanceMode::update()
 	if(refreshTrackState == 1)
 	{
 		refreshTrackState = 0;
-		showTracksState();
+		showTracksState(tactButtons.isButtonPressed(interfaceButtonShift));
 	}
 	if(refreshTrackPattern == 1)
 	{
@@ -485,9 +485,17 @@ static  uint8_t functRecAction()
 
 static uint8_t functShift(uint8_t value)
 {
+	if(value == buttonPress)
+	{
 
+		PM->showMuteButtons(1);
 
+	}
+	else if(value == buttonRelease)
+	{
+		PM->showMuteButtons(0);
 
+	}
 
 	return 1;
 }
@@ -613,7 +621,12 @@ void cPerformanceMode::blinkTrackUntilSwitch()
 
 	for(uint8_t track = 0; track < 8; track++)
 	{
-		if(sequencer.isPerformanceTrackChange(track))
+		if(tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			colorTracksLabel(track, 0);
+			continueBlink = 1;
+		}
+		else if(sequencer.isPerformanceTrackChange(track))
 		{
 			colorTracksLabel(track, blinkState);
 			continueBlink = 1;

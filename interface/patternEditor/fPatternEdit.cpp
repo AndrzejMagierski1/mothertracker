@@ -1067,6 +1067,7 @@ static uint8_t functMuteTrack(uint8_t button, uint8_t state)
 
 		 display.refreshControl(PTE->patternControl);
 
+		 PTE->showMuteButtons(1);
 
 		PTE->shiftAction = 1;
 
@@ -1669,6 +1670,7 @@ static  uint8_t functShift(uint8_t state)
 		}
 		else
 		{
+			PTE->showMuteButtons(1);
 			PTE->setMuteFunct(1);
 		}
 	}
@@ -1687,7 +1689,7 @@ static  uint8_t functShift(uint8_t state)
 //			display.refreshControl(PTE->patternControl);
 //		}
 
-
+		PTE->showMuteButtons(0);
 		PTE->setMuteFunct(0);
 
 		PTE->shiftAction = 0;

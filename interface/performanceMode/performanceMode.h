@@ -75,6 +75,7 @@ public:
 
 	//----------------------------------
 	void setDefaultScreenFunct();
+	void showMuteButtons(uint8_t state);
 
 	void setPerformanceMaster();
 	void setPerformanceFxes();
@@ -99,7 +100,7 @@ public:
 	void hideEditFrame();
 
 	void showPerformaceValue(uint8_t place);
-	void showTracksState();
+	void showTracksState(uint8_t shiftPressed = 0);
 	void showTracksPatterns();
 	void showFxNames(uint8_t place);
 	//----------------------------------

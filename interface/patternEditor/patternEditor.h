@@ -100,6 +100,7 @@ public:
 	void lightUpPadBoard();
 	void clearPadBoard();
 
+	void showMuteButtons(uint8_t state);
 	void setMuteFunct(uint8_t state);
 	void setProjectSaveFlags();
 //----------------------------------
