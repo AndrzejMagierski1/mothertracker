@@ -249,6 +249,8 @@ void cPatternEditor::stop()
 	sequencer.stopManualNotes();
 	sequencer.sequencialSwitch_Reset();
 
+	newFileManager.autosaveProjectStruct_ASAP();
+
 	if(fillState) fillState = 0;
 
 	padsBacklight.clearAllPads(1, 1, 1);
