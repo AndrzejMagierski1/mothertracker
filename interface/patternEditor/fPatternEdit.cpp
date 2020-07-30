@@ -175,7 +175,8 @@ void cPatternEditor::update()
 		}
 	}
 
-		showPattern();
+
+	showPattern(0,tactButtons.isButtonPressed(interfaceButtonShift));
 
 
 	if(sequencer.isStop())
@@ -2423,7 +2424,7 @@ static uint8_t functCopyPaste(uint8_t state)
 		}
 
 		PTE->refreshPattern();
-		PTE->showPattern();
+		PTE->showPattern(0,tactButtons.isButtonPressed(interfaceButtonShift));
 		PTE->showLength();
 	}
 

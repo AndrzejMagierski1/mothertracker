@@ -521,9 +521,10 @@ void cPatternEditor::hideEditModeLabels()
 
 static elapsedMillis lastShownPattern_blinkTimer;
 
-void cPatternEditor::showPattern(uint8_t forceShow)
+void cPatternEditor::showPattern(uint8_t forceShow, uint8_t shiftPressed)
 {
 	if (fillState) return;
+	if (shiftPressed) return;
 
 
 	// blink czy nie?

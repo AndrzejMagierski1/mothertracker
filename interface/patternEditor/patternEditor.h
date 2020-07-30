@@ -112,7 +112,7 @@ public:
 	void changeFillPlace(int8_t diff);
 	void refreshFillPlace();
 
-	void showPattern(uint8_t forceShow = 0);
+	void showPattern(uint8_t forceShow = 0, uint8_t shiftPressed = 0);
 	void showLength(uint8_t forceShow = 0);
 	void showStep();
 
