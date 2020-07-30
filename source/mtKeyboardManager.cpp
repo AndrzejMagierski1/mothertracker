@@ -25,6 +25,7 @@ void mtKeyboardManager::activateKeyboard()
 
 	keyboardActiveFlag = 1;
 
+	editNameData.isFrame = 0;
 	editNameData.selectionWidth = editPosition;
 	editNameData.selectionStart = 0;
 
@@ -461,7 +462,7 @@ void mtKeyboardManager:: hideKeyboard()
 	leds.setLED(J_PAD, 0, 0);
 
 	display.setControlHide(keyboardControl);
-	display.refreshControl(keyboardControl);
+	//display.refreshControl(keyboardControl);
 }
 void mtKeyboardManager::showKeyboardEditName()
 {
@@ -479,7 +480,7 @@ void mtKeyboardManager::showKeyboardEditName()
 void mtKeyboardManager::hideEditName()
 {
 	display.setControlHide(editName);
-	display.refreshControl(editName);
+	//display.refreshControl(editName);
 }
 
 void mtKeyboardManager::setNameLengthLimit(uint8_t limit)
