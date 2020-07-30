@@ -33,6 +33,7 @@ cEdit::cEdit(strControlProperties* properties): cDisplayControl(controlIdEdit)
 		height = 0;
 		style = 0;
 		value = 0;
+		data = nullptr;
 		return;
 	}
 
@@ -43,7 +44,7 @@ cEdit::cEdit(strControlProperties* properties): cDisplayControl(controlIdEdit)
 
 	value = properties->value;
 
-//	data = (strLabelData*)(properties->data);
+	data = (properties->data) != nullptr ? (strEditData*)(properties->data) : nullptr;
 
 	width = properties->w;
 	height = properties->h;
@@ -108,7 +109,6 @@ void cEdit::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cEdit::update()
 {
-
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
@@ -162,7 +162,7 @@ uint8_t cEdit::update()
 		//text_y = posY + 2;
 	}
 
-	if(data->isFrame)
+	if(data != nullptr && data->isFrame)
 	{
 		API_COLOR(colors[2]);
 
@@ -210,7 +210,7 @@ uint8_t cEdit::update()
 
 //	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
 
-	if(data->selectionWidth > 0)
+	if(data != nullptr && data->selectionWidth > 0)
 	{
 		API_COLOR(0x222222);
 
