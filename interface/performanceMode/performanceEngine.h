@@ -35,7 +35,7 @@ public:
 
 	void forceSaveConfig();
 
-	void setEditState(uint8_t state) { editState = state ? true : false;}
+	void setEditState(uint8_t state) { editState = (state ? true : false);}
 	void changeSlotFx(uint8_t slot, int8_t change);
 
 	void swapSlotFx(uint8_t slotFrom, uint8_t slotTo);
