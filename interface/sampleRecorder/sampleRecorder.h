@@ -115,8 +115,8 @@ public:
 	void processSpectrum1();
 	void processPoints();
 	void changeZoom(int16_t value);
-	void changeMonitorSelection(int16_t value);
-	void changeSourceSelection(int16_t value);
+	void changeMonitorSelection(int16_t value, bool rollListOver = false);
+	void changeSourceSelection(int16_t value, bool rollListOver = false);
 
 
 	void activateLabelsBorder();

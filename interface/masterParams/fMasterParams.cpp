@@ -719,6 +719,11 @@ static  uint8_t functSwitchToDelayWindow()
 }
 static 	uint8_t functSelectDelayPingpongEnable()
 {
+	if(MP->selectedPlaceDelay == 0) // zmienianie pozycji listy przyciskiem pod ekranem
+	{
+		MP->changeDelayPingPongEnable(1, true);
+	}
+
 	MP->selectedPlaceDelay = 0;
 	MP->refreshDelayFrame();
 	return 1;
@@ -726,6 +731,11 @@ static 	uint8_t functSelectDelayPingpongEnable()
 
 static 	uint8_t functSelectDelaySyncEnable()
 {
+	if(MP->selectedPlaceDelay == 1) // zmienianie pozycji listy przyciskiem pod ekranem
+	{
+		MP->changeDelaySyncEnable(1, true);
+	}
+
 	MP->selectedPlaceDelay = 1;
 	MP->refreshDelayFrame();
 	return 1;
@@ -734,6 +744,11 @@ static 	uint8_t functSelectDelaySyncEnable()
 static 	uint8_t functSelectDelaySyncRate()
 {
 	if(!(mtProject.values.delayParams & 0b01000000)) return 1;
+
+	if(MP->selectedPlaceDelay == 2) // zmienianie pozycji listy przyciskiem pod ekranem
+	{
+		MP->changeDelayRate(1, true);
+	}
 
 	MP->selectedPlaceDelay = 2;
 	MP->refreshDelayFrame();
@@ -1071,9 +1086,14 @@ void setDefaultBithDepth()
 
 
 
-void cMasterParams::changeDelayPingPongEnable(int16_t val)
+void cMasterParams::changeDelayPingPongEnable(int16_t val, bool rollListOver)
 {
-	if(val > 0) mtProject.values.delayParams &= 0b01111111;
+	if(val > 0)
+	{
+		if(rollListOver && !(mtProject.values.delayParams >> 7 & 1)) mtProject.values.delayParams |= 0b10000000;
+		else mtProject.values.delayParams &= 0b01111111;
+
+	}
 	else if( val < 0) mtProject.values.delayParams |= 0b10000000;
 
 	engine.setDelayParams(mtProject.values.delayParams);
@@ -1083,24 +1103,28 @@ void cMasterParams::changeDelayPingPongEnable(int16_t val)
 	showDelayPingPongEnable();
 
 }
-void cMasterParams::changeDelaySyncEnable(int16_t val)
+void cMasterParams::changeDelaySyncEnable(int16_t val, bool rollListOver)
 {
-	if(val > 0) mtProject.values.delayParams &= 0b10111111;
+	if(val > 0)
+	{
+		if(rollListOver && !(mtProject.values.delayParams >> 6 & 1))  mtProject.values.delayParams |= 0b01000000;
+		else mtProject.values.delayParams &= 0b10111111;
+	}
 	else if( val < 0) mtProject.values.delayParams |= 0b01000000;
 
 	engine.setDelayParams(mtProject.values.delayParams);
-	if(val > 0) engine.setDelayTime(mtProject.values.delayTime);
+	if(val > 0 && (mtProject.values.delayParams >> 6 & 1)) engine.setDelayTime(mtProject.values.delayTime);
 
 	newFileManager.setProjectStructChanged();
 
 	showDelaySyncEnable();
 }
-void cMasterParams::changeDelayRate(int16_t val)
+void cMasterParams::changeDelayRate(int16_t val, bool rollListOver)
 {
 	uint8_t temp = mtProject.values.delayParams & 0b00111111;
 
 	if(temp + val < 0) temp = 0;
-	else if(temp + val > 18) temp = 18;
+	else if(temp + val > 18) temp =  (rollListOver ? 0 : 18);
 	else temp+=val;
 
 	mtProject.values.delayParams &= 0b11000000;

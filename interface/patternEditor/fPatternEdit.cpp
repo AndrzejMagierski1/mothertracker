@@ -1173,7 +1173,7 @@ void cPatternEditor::refreshEditState()
 
 }
 
-void cPatternEditor::changeFillData(int16_t value)
+void cPatternEditor::changeFillData(int16_t value, bool rollListOver)
 {
 	if(fillPlace < 0 && fillPlace > 5) return;
 
@@ -1226,7 +1226,7 @@ void cPatternEditor::changeFillData(int16_t value)
 	}
 
 	if(*ptrVal + value < min) *ptrVal = min;
-	else if(*ptrVal + value > max) *ptrVal = max;
+	else if(*ptrVal + value > max) *ptrVal = (rollListOver ? min : max);
 	else *ptrVal += value;
 
 	switch(fillParam)
@@ -1327,6 +1327,41 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 }
 
 
+void cPatternEditor::changeFillDataByActionButton(uint8_t place)
+{
+
+	if(place > 5) return;
+
+	if(place == 0 && fillPlace == 0)
+	{
+		changeFillData(1, true);
+	}
+
+	if(editParam == 0)
+	{
+		if(place == 3 && fillPlace == 3)
+		{
+			changeFillData(1, true);
+		}
+
+	}
+	else if(editParam == 1)
+	{
+		if(place == 1 && fillPlace == 1)
+		{
+			changeFillData(1, true);
+		}
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		if(place == 3 && fillPlace == 3)
+		{
+			changeFillData(1, true);
+		}
+	}
+
+}
+
 void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 {
 	if(place < 0 || place > 5) return;
@@ -1342,7 +1377,7 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 			else
 			{
 				if(place == 2) fillPlace = 1;
-				else  fillPlace = place;
+				else fillPlace = place;
 			}
 			return;
 		}
@@ -2120,7 +2155,7 @@ static  uint8_t functInstrument(uint8_t state)
 		PTE->setStepButtonState(1,0);
 
 		// powrot do nuty po wybraniu instrumentu
-		if(PTE->wasNotesEditBefore && mtPopups.getStepPopupState() != stepPopupNone)
+		if(PTE->fillState == 0 && PTE->wasNotesEditBefore && mtPopups.getStepPopupState() != stepPopupNone)
 		{
 			PTE->wasNotesEditBefore = 0;
 			PTE->editParam = 0;
@@ -2841,6 +2876,7 @@ static  uint8_t functFillApply()
 static  uint8_t functFillAction1()
 {
 	//PTE->fillPlace = 0;
+	PTE->changeFillDataByActionButton(0);
 	PTE->setFillPlace(0);
 	PTE->activateFillPopupBorder();
 
@@ -2850,6 +2886,7 @@ static  uint8_t functFillAction1()
 static  uint8_t functFillAction2()
 {
 	//PTE->fillPlace = 1;
+	PTE->changeFillDataByActionButton(1);
 	PTE->setFillPlace(1);
 	PTE->activateFillPopupBorder();
 
@@ -2868,6 +2905,7 @@ static  uint8_t functFillAction3()
 static  uint8_t functFillAction4()
 {
 	//PTE->fillPlace = 3;
+	PTE->changeFillDataByActionButton(3);
 	PTE->setFillPlace(3);
 	PTE->activateFillPopupBorder();
 

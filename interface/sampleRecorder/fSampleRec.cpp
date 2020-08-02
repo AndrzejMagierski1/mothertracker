@@ -559,6 +559,12 @@ static  uint8_t functSelectButton0()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeConfig && SR->selectedPlace == 0)
+	{
+		SR->changeSourceSelection(1, true);
+	}
+
 	SR->selectedPlace = 0;
 	SR->activateLabelsBorder();
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
@@ -762,6 +768,12 @@ static  uint8_t functSelectButton6()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeConfig && SR->selectedPlace == 6)
+	{
+		SR->changeMonitorSelection(1, true);
+	}
+
 	SR->selectedPlace = 6;
 	SR->activateLabelsBorder();
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
@@ -847,6 +859,7 @@ static  uint8_t functActionButton0(uint8_t s)
 	if(s == 1)
 	{
 		if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton0();
+
 		switch(SR->currentScreen)
 		{
 			case cSampleRecorder::screenTypeConfig:		functActionSource(); 			break;
@@ -2181,7 +2194,7 @@ void cSampleRecorder::changeZoom(int16_t value)
 	showZoomValue();
 }
 
-void cSampleRecorder::changeSourceSelection(int16_t value)
+void cSampleRecorder::changeSourceSelection(int16_t value, bool rollListOver)
 {
     if(value > 0)
     {
@@ -2203,6 +2216,13 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 
         }
         if(recorderConfig.source < 3) recorderConfig.source++;
+        else if(rollListOver)
+        {
+        	recorderConfig.source = 0;
+
+        	digitalWrite(SI4703_KLUCZ,HIGH);
+        	hideRadio();
+        }
     }
     else if (value < 0)
     {
@@ -2252,11 +2272,15 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 
 }
 
-void cSampleRecorder::changeMonitorSelection(int16_t value)
+void cSampleRecorder::changeMonitorSelection(int16_t value, bool rollListOver)
 {
 	if(value > 0)
 	{
 		if(recorderConfig.monitor < 1) recorderConfig.monitor++;
+		else if(rollListOver)
+		{
+			recorderConfig.monitor = 0;
+		}
 	}
 	else if (value < 0)
 	{

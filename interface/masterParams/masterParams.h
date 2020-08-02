@@ -135,9 +135,9 @@ public:
 	void changeBitDepth(int16_t value);*/
 // delay
 
-	void changeDelayPingPongEnable(int16_t val);
-	void changeDelaySyncEnable(int16_t val);
-	void changeDelayRate(int16_t val);
+	void changeDelayPingPongEnable(int16_t val, bool rollListOver = false);
+	void changeDelaySyncEnable(int16_t val, bool rollListOver = false);
+	void changeDelayRate(int16_t val, bool rollListOver = false);
 	void changeDelayTime(int16_t val);
 	void changeDelayFeedback(int16_t val);
 

@@ -79,7 +79,7 @@ public:
 	void changeActualPatternEditStepByDefinedValues(int16_t value);
 	void setActualPatternEditStep(int16_t value);
 
-	void changeFillData(int16_t value);
+	void changeFillData(int16_t value, bool rollListOver = false);
 	void changeRandomiseData(int16_t value);
 	void setFillData(uint16_t value);
 	void setRandomiseData(uint16_t value);
@@ -108,6 +108,7 @@ public:
 	void activateLabelsBorder();
 	void activateFillPopupBorder();
 	void activateRandomisePopupBorder();
+	void changeFillDataByActionButton(uint8_t place);
 	void setFillPlace(uint8_t place, int8_t dir = 0);
 	void changeFillPlace(int8_t diff);
 	void refreshFillPlace();

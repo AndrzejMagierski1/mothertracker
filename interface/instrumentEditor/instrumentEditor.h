@@ -223,7 +223,7 @@ public:
 
 	strInstrument * editorInstrument;
 
-
+	bool rollListOver; // "przekrecanie" listy przy klikaniu przycisku pod ekranem
 
 	uint8_t selectedEnvelope = 0;
 
@@ -374,7 +374,7 @@ public:
 
 	select_node_t selectNodes[MAX_SELECT_NODES];
 
-	void addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput);
+	void addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput = 0);
 	void removeNode(uint8_t nodeNum);
 	void stepThroughNodes(int16_t value, uint8_t source);
 	void clearAllNodes();
