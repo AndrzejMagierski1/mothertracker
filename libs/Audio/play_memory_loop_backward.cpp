@@ -9,7 +9,6 @@ void AudioPlayMemory::playLoopBackward(uint8_t instrIdx, int8_t note)
 
 void AudioPlayMemory::updateLoopBackward()
 {
-	reverseDirectionFlag = 1;
 	if(reverseDirectionFlag) updateLoopBackwardReverse();
 	else updateLoopBackwardNormal();
 }

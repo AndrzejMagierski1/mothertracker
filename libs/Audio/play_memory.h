@@ -279,6 +279,9 @@ private:
 //loopBackward
 	void updateLoopBackwardNormal();
 	void updateLoopBackwardReverse();
+//loopPingPong
+	void updateLoopPingPongNormal();
+	void updateLoopPingPongReverse();
 // granular
 
 	void updateGranularLoopForward();

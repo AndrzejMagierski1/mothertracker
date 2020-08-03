@@ -674,7 +674,7 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = 	   ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		interpolationCondition = ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
 		int16_t * in_interpolation = in-1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
