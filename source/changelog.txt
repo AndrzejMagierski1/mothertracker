@@ -1,3 +1,6 @@
+	1.1.4
+			- optymalizacja silnika audio
+			- fix: trzaski już nie pojawiają się w trybach loop backward i pingpong
 	1.1.3
 			- shift powoduje zmiane labeli przycisków pod ekranem tam gdzie dziala mute
 			- fix zawieszanie przy przechodzeniu miedzy modulami 
