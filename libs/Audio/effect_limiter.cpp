@@ -54,9 +54,9 @@ void AudioEffectLimiter::update(void)
 
 		temp=*sbuf;
 
-		*sbuf = g * buffer[delay-1];
+		*sbuf = g * buffer[LIMITER_DELAY-1];
 
-		for(uint8_t i = delay-1; i>=1 ; i--)
+		for(uint8_t i = LIMITER_DELAY-1; i>=1 ; i--)
 		{
 			buffer[i]=buffer[i-1];
 		}

@@ -58,7 +58,7 @@ void playerEngine:: update()
 	}
 //***********************
 }
-void playerEngine::handleUpdateEndPlayDetect()
+inline void playerEngine::handleUpdateEndPlayDetect()
 {
 	currentPlayState = playMemPtr->isPlaying();
 	if(currentPlayState == 0 && lastPlayState == 1)
@@ -70,7 +70,7 @@ void playerEngine::handleUpdateEndPlayDetect()
 	lastPlayState = currentPlayState;
 }
 
-void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableCondition)
+inline void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableCondition)
 {
 	if(enableCondition)
 	{
@@ -149,7 +149,7 @@ void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableCondition)
 	}
 }
 
-void playerEngine::handleUpdateEndReleaseAction()
+inline void playerEngine::handleUpdateEndReleaseAction()
 {
 	if(envelopeAmpPtr->endRelease())
 	{
@@ -172,7 +172,7 @@ void playerEngine::handleUpdateEndReleaseAction()
 	}
 }
 
-void playerEngine::handleUpdateRefreshLP1()
+inline void playerEngine::handleUpdateRefreshLP1()
 {
 	if(statusBytes & LP1_MASK)
 	{
@@ -180,7 +180,7 @@ void playerEngine::handleUpdateRefreshLP1()
 		modLP1(mtProject.instrument[currentInstrument_idx].loopPoint1);
 	}
 }
-void playerEngine::handleUpdateRefreshLP2()
+inline void playerEngine::handleUpdateRefreshLP2()
 {
 	if(statusBytes & LP2_MASK)
 	{
@@ -188,7 +188,7 @@ void playerEngine::handleUpdateRefreshLP2()
 		modLP2(mtProject.instrument[currentInstrument_idx].loopPoint2);
 	}
 }
-void playerEngine::handleUpdateRefreshFinetune()
+inline void playerEngine::handleUpdateRefreshFinetune()
 {
 	if(statusBytes & FINETUNE_MASK)
 	{
@@ -221,7 +221,7 @@ void playerEngine::handleUpdateRefreshFinetune()
 		modFineTune(localFinetune);
 	}
 }
-void playerEngine::handleUpdateRefreshTune()
+inline void playerEngine::handleUpdateRefreshTune()
 {
 	if(statusBytes & TUNE_MASK)
 	{
@@ -229,7 +229,7 @@ void playerEngine::handleUpdateRefreshTune()
 		modTune(mtProject.instrument[currentInstrument_idx].tune);
 	}
 }
-void playerEngine::handleUpdateRefreshVolume()
+inline void playerEngine::handleUpdateRefreshVolume()
 {
 	if(statusBytes & VOLUME_MASK)
 	{
@@ -242,7 +242,7 @@ void playerEngine::handleUpdateRefreshVolume()
 
 	}
 }
-void playerEngine::handleUpdateRefreshPanning()
+inline void playerEngine::handleUpdateRefreshPanning()
 {
 	if(statusBytes & PANNING_MASK)
 	{
@@ -278,7 +278,7 @@ void playerEngine::handleUpdateRefreshPanning()
 		modPanning(localPanning);
 	}
 }
-void playerEngine::handleUpdateRefreshCutoff()
+inline void playerEngine::handleUpdateRefreshCutoff()
 {
 	if(statusBytes & CUTOFF_MASK)
 	{
@@ -312,7 +312,7 @@ void playerEngine::handleUpdateRefreshCutoff()
 		modCutoff(localCutoff);
 	}
 }
-void playerEngine::handleUpdateRefreshResonance()
+inline void playerEngine::handleUpdateRefreshResonance()
 {
 	if(statusBytes & RESONANCE_MASK)
 	{
@@ -320,7 +320,7 @@ void playerEngine::handleUpdateRefreshResonance()
 		modResonance(mtProject.instrument[currentInstrument_idx].resonance);
 	}
 }
-void playerEngine::handleUpdateRefreshDelay()
+inline void playerEngine::handleUpdateRefreshDelay()
 {
 	if(statusBytes & DELAY_SEND_MASK)
 	{
@@ -349,7 +349,7 @@ void playerEngine::handleUpdateRefreshDelay()
 	}
 }
 
-void playerEngine::handleUpdateRefreshReverb()
+inline void playerEngine::handleUpdateRefreshReverb()
 {
 	if(statusBytes & REVERB_SEND_MASK)
 	{
@@ -378,7 +378,7 @@ void playerEngine::handleUpdateRefreshReverb()
 	}
 }
 
-void playerEngine::handleUpdateRefreshWtPos()
+inline void playerEngine::handleUpdateRefreshWtPos()
 {
 	if(statusBytes & WT_POS_SEND_MASK)
 	{
@@ -421,7 +421,7 @@ void playerEngine::handleUpdateRefreshWtPos()
 		playMemPtr->setWavetableWindow(localWtPos);
 	}
 }
-void playerEngine::handleUpdateRefreshGranPos()
+inline void playerEngine::handleUpdateRefreshGranPos()
 {
 	if(statusBytes & GRANULAR_POS_SEND_MASK)
 	{
@@ -458,7 +458,7 @@ void playerEngine::handleUpdateRefreshGranPos()
 		modGranularPosition(localGranPosition);
 	}
 }
-void playerEngine::handleUpdateRefreshGranLen()
+inline void playerEngine::handleUpdateRefreshGranLen()
 {
 	if(statusBytes & GRANULAR_LEN_SEND_MASK)
 	{
@@ -466,7 +466,7 @@ void playerEngine::handleUpdateRefreshGranLen()
 		modGranularGrainLength();
 	}
 }
-void playerEngine::handleUpdateRefreshGranWave()
+inline void playerEngine::handleUpdateRefreshGranWave()
 {
 	if(statusBytes & GRANULAR_WAVE_SEND_MASK)
 	{
@@ -474,7 +474,7 @@ void playerEngine::handleUpdateRefreshGranWave()
 		playMemPtr->setGranularWave(mtProject.instrument[currentInstrument_idx].granular.shape);
 	}
 }
-void playerEngine::handleUpdateRefreshGranLoop()
+inline void playerEngine::handleUpdateRefreshGranLoop()
 {
 	if(statusBytes & GRANULAR_LOOP_SEND_MASK)
 	{
@@ -482,7 +482,7 @@ void playerEngine::handleUpdateRefreshGranLoop()
 		playMemPtr->setGranularLoopMode(mtProject.instrument[currentInstrument_idx].granular.type);
 	}
 }
-void playerEngine::handleUpdateRefreshAmpLFO()
+inline void playerEngine::handleUpdateRefreshAmpLFO()
 {
 	if(statusBytes & LFO_AMP_SEND_MASK)
 	{
@@ -507,7 +507,7 @@ void playerEngine::handleUpdateRefreshAmpLFO()
 		}
 	}
 }
-void playerEngine::handleUpdateRefreshCutoffLFO()
+inline void playerEngine::handleUpdateRefreshCutoffLFO()
 {
 	if(statusBytes & LFO_FILTER_SEND_MASK)
 	{
@@ -538,7 +538,7 @@ void playerEngine::handleUpdateRefreshCutoffLFO()
 
 	}
 }
-void playerEngine::handleUpdateRefreshWtPosLFO()
+inline void playerEngine::handleUpdateRefreshWtPosLFO()
 {
 	if(statusBytes & LFO_WT_POS_SEND_MASK)
 	{
@@ -568,7 +568,7 @@ void playerEngine::handleUpdateRefreshWtPosLFO()
 		}
 	}
 }
-void playerEngine::handleUpdateRefreshGranPosLFO()
+inline void playerEngine::handleUpdateRefreshGranPosLFO()
 {
 	if(statusBytes & LFO_GRAN_POS_SEND_MASK)
 	{
@@ -598,7 +598,7 @@ void playerEngine::handleUpdateRefreshGranPosLFO()
 		}
 	}
 }
-void playerEngine::handleUpdateRefreshPanningLFO()
+inline void playerEngine::handleUpdateRefreshPanningLFO()
 {
 	if(statusBytes & LFO_PANNING_SEND_MASK)
 	{
@@ -627,7 +627,7 @@ void playerEngine::handleUpdateRefreshPanningLFO()
 	}
 }
 
-void playerEngine::handleUpdateRefreshFinetuneLFO()
+inline void playerEngine::handleUpdateRefreshFinetuneLFO()
 {
 	if(statusBytes & LFO_FINETUNE_SEND_MASK)
 	{

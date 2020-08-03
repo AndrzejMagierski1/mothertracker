@@ -80,11 +80,39 @@ void AudioPlayMemory::playGranular(uint8_t instrIdx, int8_t note)
 
 void AudioPlayMemory::updateGranular()
 {
+	switch(granularLoopType)
+	{
+	case granularLoopForward: 		updateGranularLoopForward();	break;
+	case granularLoopBackward: 		updateGranularLoopBackward();	break;
+	case granularLoopPingPong: 		updateGranularLoopPingPong();	break;
+	default:	break;
+	}
+}
+
+void AudioPlayMemory::updateGranularLoopForward()
+{
+	if(reverseDirectionFlag) updateGranularLoopForwardReverse();
+	else updateGranularLoopForwardNormal();
+}
+void AudioPlayMemory::updateGranularLoopBackward()
+{
+	if(reverseDirectionFlag) updateGranularLoopBackwardReverse();
+	else updateGranularLoopBackwardNormal();
+}
+void AudioPlayMemory::updateGranularLoopPingPong()
+{
+	if(reverseDirectionFlag) updateGranularLoopPingPongReverse();
+	else updateGranularLoopPingPongNormal();
+}
+
+void AudioPlayMemory::updateGranularLoopForwardNormal()
+{
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
 	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
+	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
 	if (!block) return;
@@ -99,483 +127,651 @@ void AudioPlayMemory::updateGranular()
 		out = block->data;
 		in = (int16_t*)next;
 
-		castPitchControl = (int32_t) ((reverseDirectionFlag) ?  -pitchControl : pitchControl);
-		pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
+		castPitchControl = (int32_t)pitchControl;
+		pitchFraction = pitchControl - (int32_t)pitchControl;
 
-		interpolationCondition = 	   (!((iPitchCounter  < 1.0f) ||
-										   (( (iPitchCounter + 128 * pitchControl) < length) && (!reverseDirectionFlag)) ||
-										   (((int)(iPitchCounter - 128 * pitchControl) > 0) && (reverseDirectionFlag)) )) ? 1: 0;
-		int16_t * in_interpolation = reverseDirectionFlag ? in-1: in+1;
+		interpolationCondition = ( (pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length))  ? 0: 1;
+		int16_t * in_interpolation = in+1;
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			bool dataIsEnable = reverseDirectionFlag ? (iPitchCounter > 0) : (length > iPitchCounter);
+			//*********************************** GLIDE HANDLE
 
-			if (dataIsEnable)
+			if (constrainsInSamples.glide)
 			{
-				//*********************************** GLIDE HANDLE
-
-				if (constrainsInSamples.glide)
+				if (glideCounter <= constrainsInSamples.glide)
 				{
-					if (glideCounter <= constrainsInSamples.glide)
-					{
-						pitchControl += glideControl;
-						castPitchControl = (int32_t) ( (reverseDirectionFlag) ?  -pitchControl : pitchControl);
-						pitchFraction = ((reverseDirectionFlag) ?  - (pitchControl - (int32_t)pitchControl) : (pitchControl - (int32_t)pitchControl));
-						glideCounter++;
-					}
+					pitchControl += glideControl;
+					castPitchControl = (int32_t) pitchControl;
+
+					pitchFraction = pitchControl - (int32_t)pitchControl;
+
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+					glideCounter++;
 				}
-				//***********************************************
-				//*********************************** SMOOTHING HANDLE
-				// needSmoothingFlag ustawiana jest na play gdy jest aktywne odtwarzanie, więc iPitchCounter się zeruje, ale na wysokim pitchu i bardzo krotkich loopach
-				// moga zostac przekroczone wartosci graniczne - trzeba je obsluzyc
-				if(needSmoothingFlag && (i == 0))
-				{
-					needSmoothingFlag = 0;
-					uint16_t volIndex = 0;
-					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
-					{
-						volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
-						if(iPitchCounter <= length)
-						{
-							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
-							float granMult = granularEnvelopeTab[volIndex];
-							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j * granMult ) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ) ) )/(SMOOTHING_SIZE - 1));
-						}
-						else
-						{
-							*out++ = 0;
-						}
-
-						switch(granularLoopType)
-						{
-							case granularLoopForward:
-								//**************************************************************************
-								iPitchCounter += castPitchControl;
-								fPitchCounter += pitchFraction;
-								if (fPitchCounter >= 1.0f)
-								{
-									fPitchCounter -= 1.0f;
-									iPitchCounter++;
-								}
-								else if(fPitchCounter <= -1.0f)
-								{
-									fPitchCounter += 1.0f;
-									iPitchCounter--;
-								}
-								//**************************************************************************
-							break;
-							case granularLoopBackward:
-								//**************************************************************************
-								if (!loopBackwardFlag)
-								{
-									iPitchCounter += castPitchControl;
-									fPitchCounter += pitchFraction;
-									if (fPitchCounter >= 1.0f)
-									{
-										fPitchCounter -= 1.0f;
-										iPitchCounter++;
-									}
-									else if(fPitchCounter <= -1.0f)
-									{
-										fPitchCounter += 1.0f;
-										iPitchCounter--;
-									}
-								}
-								else
-								{
-									iPitchCounter -= castPitchControl;
-
-									fPitchCounter -= pitchFraction;
-									if (fPitchCounter <= -1.0f)
-									{
-										fPitchCounter += 1.0f;
-										iPitchCounter--;
-									}
-									else if (fPitchCounter >= 1.0f)
-									{
-										fPitchCounter -= 1.0f;
-										iPitchCounter++;
-									}
-								}
-								//**************************************************************************
-							break;
-							case granularLoopPingPong:
-								//**************************************************************************
-								if (!loopBackwardFlag)
-								{
-									iPitchCounter += castPitchControl;
-									fPitchCounter += pitchFraction;
-									if (fPitchCounter >= 1.0f)
-									{
-										fPitchCounter -= 1.0f;
-										iPitchCounter++;
-									}
-									else if(fPitchCounter <= -1.0f)
-									{
-										fPitchCounter += 1.0f;
-										iPitchCounter--;
-									}
-								}
-								else
-								{
-									iPitchCounter -= castPitchControl;
-									fPitchCounter -= pitchFraction;
-									if (fPitchCounter <= -1.0f)
-									{
-										fPitchCounter += 1.0f;
-										iPitchCounter--;
-									}
-									else if (fPitchCounter >= 1.0f)
-									{
-										fPitchCounter -= 1.0f;
-										iPitchCounter++;
-									}
-								}
-								//**************************************************************************
-							break;
-							default: break;
-						}
-
-						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-
-						switch(granularLoopType)
-						{
-							case granularLoopForward:
-								if(reverseDirectionFlag)
-								{
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										fPitchCounter = 0;
-									}
-								}
-								else
-								{
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										fPitchCounter = 0;
-									}
-								}
-							break;
-
-							case granularLoopBackward:
-								if(reverseDirectionFlag)
-								{
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-										fPitchCounter = 0;
-									}
-								}
-								else
-								{
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										fPitchCounter = 0;
-									}
-								}
-							break;
-
-							case granularLoopPingPong:
-								if(reverseDirectionFlag)
-								{
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										loopBackwardFlag = 0;
-										fPitchCounter = 0;
-									}
-								}
-								else
-								{
-									if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint2;
-										loopBackwardFlag = 1;
-										fPitchCounter = 0;
-									}
-									if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-									{
-										if(granularPositionRefreshFlag) refreshGranularPosition();
-										iPitchCounter = constrainsInSamples.loopPoint1;
-										loopBackwardFlag = 0;
-										fPitchCounter = 0;
-									}
-								}
-							break;
-							default: break;
-						}
-					}
-					if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-					{
-						iPitchCounter = length;
-					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
-					{
-						iPitchCounter = 0;
-					}
-					i = SMOOTHING_SIZE;
-
-				}
-				//***********************************************
+			}
+			//***********************************************
 
 //*************************************************************************************** poczatek przetwarzania pitchCountera
-				uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+			uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
 
-				currentSampelValue = *(in + iPitchCounter);
+			currentSampelValue = *(in + iPitchCounter);
 
-				if(interpolationCondition) interpolationDif = 0;
-				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
-				switch(granularLoopType)
-				{
-					case granularLoopForward:
-						//**************************************************************************
-						*out++ = (currentSampelValue + (int32_t)(fPitchCounter * interpolationDif)) * granularEnvelopeTab[volIndex];
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-						//**************************************************************************
-					break;
-					case granularLoopBackward:
-						//**************************************************************************
-						*out++ = (currentSampelValue + (int32_t)(fPitchCounter * interpolationDif)) * granularEnvelopeTab[volIndex];
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
-						if (!loopBackwardFlag)
-						{
-							iPitchCounter += castPitchControl;
-							fPitchCounter += pitchFraction;
-							if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-							else if(fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-						}
-						else
-						{
-							iPitchCounter -= castPitchControl;
 
-							fPitchCounter -= pitchFraction;
-							if (fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-							else if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-						}
-						//**************************************************************************
-					break;
-					case granularLoopPingPong:
-						//**************************************************************************
-						*out++ = (currentSampelValue + (int32_t)(fPitchCounter * interpolationDif)) * granularEnvelopeTab[volIndex];
-						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(out - 1);
-						if (!loopBackwardFlag)
-						{
-							iPitchCounter += castPitchControl;
-							fPitchCounter += pitchFraction;
-							if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-							else if(fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-						}
-						else
-						{
-							iPitchCounter -= castPitchControl;
-							fPitchCounter -= pitchFraction;
-							if (fPitchCounter <= -1.0f)
-							{
-								fPitchCounter += 1.0f;
-								iPitchCounter--;
-							}
-							else if (fPitchCounter >= 1.0f)
-							{
-								fPitchCounter -= 1.0f;
-								iPitchCounter++;
-							}
-						}
-						//**************************************************************************
-					break;
-					default: break;
-				}
-//*************************************************************************************** koniec przetwarzania pitchCountera
-				if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-//*************************************************************************************** warunki pointow
+			//**************************************************************************
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
 
-				switch(granularLoopType)
-				{
-					case granularLoopForward:
-						if(reverseDirectionFlag)
-						{
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1))
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								fPitchCounter = 0;
-							}
-						}
-						else
-						{
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2))
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								fPitchCounter = 0;
-							}
-						}
-					break;
+			iPitchCounter += castPitchControl;
 
-					case granularLoopBackward:
-						if(reverseDirectionFlag)
-						{
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-								fPitchCounter = 0;
-							}
-						}
-						else
-						{
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								fPitchCounter = 0;
-							}
-						}
-					break;
-
-					case granularLoopPingPong:
-						if(reverseDirectionFlag)
-						{
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && (!loopBackwardFlag))
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && loopBackwardFlag)
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								loopBackwardFlag = 0;
-								fPitchCounter = 0;
-							}
-						}
-						else
-						{
-							if ((iPitchCounter >= constrainsInSamples.loopPoint2) && (!loopBackwardFlag))
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint2;
-								loopBackwardFlag = 1;
-								fPitchCounter = 0;
-							}
-							if ((iPitchCounter <= constrainsInSamples.loopPoint1) && loopBackwardFlag)
-							{
-								if(granularPositionRefreshFlag) refreshGranularPosition();
-								iPitchCounter = constrainsInSamples.loopPoint1;
-								loopBackwardFlag = 0;
-								fPitchCounter = 0;
-							}
-						}
-					break;
-					default: break;
-				}
-			//*************************************************************************************** koniec warunków pointow
-			//*************************************************************************************** warunki pętli
-				if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-				{
-					iPitchCounter = length;
-				}
-				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag))
-				{
-					iPitchCounter = 0;
-				}
-			//*************************************************************************************** warunki pętli
-			}
-			else
+			currentFractionPitchCounter += currentFractionPitchControl;
+			if (currentFractionPitchCounter >= MAX_16BIT)
 			{
-				*out++ = 0;
-				playing = 0;
+				currentFractionPitchCounter -= MAX_16BIT;
+				iPitchCounter++;
 			}
+			//**************************************************************************
+
+//*************************************************************************************** koniec przetwarzania pitchCountera
+
+			//*************************************************************************************** warunki pętli
+			if (iPitchCounter >= loopEndPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint1;
+				currentFractionPitchCounter = 0;
+			}
+			//*************************************************************************************** warunki pętli
 
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
+		transmit(block);
+	}
+	release(block);
+
+}
+void AudioPlayMemory::updateGranularLoopForwardReverse()
+{
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
+	int32_t castPitchControl;
+	float pitchFraction;
+	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+
+	block = allocate();
+	if (!block) return;
+
+	if (!playing)
+	{
+		release(block);
+		return;
+	}
+	else if (playing == 1)
+	{
+		out = block->data;
+		in = (int16_t*)next;
+
+		castPitchControl = (int32_t) -pitchControl;
+		pitchFraction = - (pitchControl - (int32_t)pitchControl);
+
+		interpolationCondition = ((pitchControl  < 1.0f) && ((int)(iPitchCounter - 128 * pitchControl) > 0)) ? 0: 1;
+		int16_t * in_interpolation = in-1;
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		{
+			//*********************************** GLIDE HANDLE
+
+			if (constrainsInSamples.glide)
+			{
+				if (glideCounter <= constrainsInSamples.glide)
+				{
+					pitchControl += glideControl;
+					castPitchControl = (int32_t)  -pitchControl;
+					pitchFraction =  - (pitchControl - (int32_t)pitchControl);
+
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+					glideCounter++;
+				}
+			}
+			//***********************************************
+
+//*************************************************************************************** poczatek przetwarzania pitchCountera
+			uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+
+			currentSampelValue = *(in + iPitchCounter);
+
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+
+			//**************************************************************************
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( ( (-currentFractionPitchCounter) >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+
+			iPitchCounter += castPitchControl;
+			currentFractionPitchCounter += currentFractionPitchControl;
+
+			if(currentFractionPitchCounter <= -MAX_16BIT)
+			{
+				currentFractionPitchCounter += MAX_16BIT;
+				iPitchCounter--;
+			}
+			//**************************************************************************
+
+//*************************************************************************************** koniec przetwarzania pitchCountera
+
+			//*************************************************************************************** warunki pętli
+			if ((iPitchCounter <= loopStartPoint))
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint2;
+				currentFractionPitchCounter = 0;
+			}
+			//*************************************************************************************** warunki pętli
+		}
+
+		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
+		transmit(block);
+	}
+	release(block);
+
+}
+void AudioPlayMemory::updateGranularLoopBackwardNormal()
+{
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
+	int32_t castPitchControl;
+	float pitchFraction;
+	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
+
+	block = allocate();
+	if (!block) return;
+
+	if (!playing)
+	{
+		release(block);
+		return;
+	}
+	else if (playing == 1)
+	{
+		out = block->data;
+		in = (int16_t*)next;
+
+		castPitchControl = (int32_t) pitchControl;
+		pitchFraction =  pitchControl - (int32_t)pitchControl;
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
+		int32_t currentInterpolationFraction;
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		{
+			//*********************************** GLIDE HANDLE
+
+			if (constrainsInSamples.glide)
+			{
+				if (glideCounter <= constrainsInSamples.glide)
+				{
+					pitchControl += glideControl;
+					castPitchControl = (int32_t) pitchControl;
+					pitchFraction = pitchControl - (int32_t)pitchControl;
+
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+					glideCounter++;
+				}
+			}
+			//**********************************************
+//*************************************************************************************** poczatek przetwarzania pitchCountera
+			uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+
+			currentSampelValue = *(in + iPitchCounter);
+
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+			//**************************************************************************
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+
+			if (!loopBackwardFlag)
+			{
+				iPitchCounter += castPitchControl;
+				currentFractionPitchCounter += currentFractionPitchControl;
+				if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+				else if(currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+			}
+			else
+			{
+				iPitchCounter -= castPitchControl;
+
+				currentFractionPitchCounter -= currentFractionPitchControl;
+				if (currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+				else if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+			}
+			//**************************************************************************
+
+//*************************************************************************************** koniec przetwarzania pitchCountera
+
+			//*************************************************************************************** warunki pętli
+			if (iPitchCounter <= loopStartPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint2;
+				currentFractionPitchCounter = 0;
+			} else if (iPitchCounter >= loopEndPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+				loopBackwardFlag = 1;
+				in_interpolation = in+1;
+				currentFractionPitchCounter = 0;
+			}
+			//*************************************************************************************** warunki pętli
+
+		}
+
+		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
 		transmit(block);
 	}
 	release(block);
 }
+void AudioPlayMemory::updateGranularLoopBackwardReverse()
+{
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
+	int32_t castPitchControl;
+	float pitchFraction;
+	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
 
+	block = allocate();
+	if (!block) return;
+
+	if (!playing)
+	{
+		release(block);
+		return;
+	}
+	else if (playing == 1)
+	{
+		out = block->data;
+		in = (int16_t*)next;
+
+		castPitchControl = (int32_t)-pitchControl;
+		pitchFraction =  - (pitchControl - (int32_t)pitchControl);
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1: in-1;
+		int32_t currentInterpolationFraction;
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		{
+			//*********************************** GLIDE HANDLE
+
+			if (constrainsInSamples.glide)
+			{
+				if (glideCounter <= constrainsInSamples.glide)
+				{
+					pitchControl += glideControl;
+					castPitchControl = (int32_t)   -pitchControl;
+					pitchFraction =  -(pitchControl - (int32_t)pitchControl);
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+					glideCounter++;
+				}
+			}
+			//**********************************************
+//*************************************************************************************** poczatek przetwarzania pitchCountera
+			uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+
+			currentSampelValue = *(in + iPitchCounter);
+
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+			//**************************************************************************
+
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+
+			if (!loopBackwardFlag)
+			{
+				iPitchCounter += castPitchControl;
+				currentFractionPitchCounter += currentFractionPitchControl;
+				if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+				else if(currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+			}
+			else
+			{
+				iPitchCounter -= castPitchControl;
+
+				currentFractionPitchCounter -= currentFractionPitchControl;
+				if (currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+				else if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+			}
+			//**************************************************************************
+
+//*************************************************************************************** koniec przetwarzania pitchCountera
+			if (iPitchCounter >= loopEndPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
+				currentFractionPitchCounter = 0;
+			} else if (iPitchCounter <= loopStartPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+				loopBackwardFlag = 1;
+				in_interpolation = in+1;
+				currentFractionPitchCounter = 0;
+			}
+		}
+
+		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
+		transmit(block);
+	}
+	release(block);
+}
+void AudioPlayMemory::updateGranularLoopPingPongNormal()
+{
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
+	int32_t castPitchControl;
+	float pitchFraction;
+	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
+
+	block = allocate();
+	if (!block) return;
+
+	if (!playing)
+	{
+		release(block);
+		return;
+	}
+	else if (playing == 1)
+	{
+		out = block->data;
+		in = (int16_t*)next;
+
+		castPitchControl = (int32_t) pitchControl;
+		pitchFraction =  pitchControl - (int32_t)pitchControl;
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
+		int16_t * in_interpolation =  loopBackwardFlag ? in-1 : in+1;
+		int32_t currentInterpolationFraction;
+
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		{
+			//*********************************** GLIDE HANDLE
+
+			if (constrainsInSamples.glide)
+			{
+				if (glideCounter <= constrainsInSamples.glide)
+				{
+					pitchControl += glideControl;
+					castPitchControl = (int32_t) pitchControl;
+					pitchFraction = pitchControl - (int32_t)pitchControl;
+
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+					glideCounter++;
+				}
+			}
+			//***********************************************
+//*************************************************************************************** poczatek przetwarzania pitchCountera
+			uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+
+			currentSampelValue = *(in + iPitchCounter);
+
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			//**************************************************************************
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+
+			if (!loopBackwardFlag)
+			{
+				iPitchCounter += castPitchControl;
+				currentFractionPitchCounter += currentFractionPitchControl;
+				if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+				else if(currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+			}
+			else
+			{
+				iPitchCounter -= castPitchControl;
+				currentFractionPitchCounter -= currentFractionPitchControl;
+				if (currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+				else if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+			}
+			//**************************************************************************
+
+//*************************************************************************************** koniec przetwarzania pitchCountera
+			if (iPitchCounter <= loopStartPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+				loopBackwardFlag = 0;
+				currentFractionPitchCounter = 0;
+			}
+			else if (iPitchCounter >= loopEndPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+				loopBackwardFlag = 1;
+				currentFractionPitchCounter = 0;
+			}
+
+		}
+
+		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
+		transmit(block);
+	}
+	release(block);
+}
+void AudioPlayMemory::updateGranularLoopPingPongReverse()
+{
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
+	int32_t castPitchControl;
+	float pitchFraction;
+	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
+
+	block = allocate();
+	if (!block) return;
+
+	if (!playing)
+	{
+		release(block);
+		return;
+	}
+	else if (playing == 1)
+	{
+		out = block->data;
+		in = (int16_t*)next;
+
+		castPitchControl = (int32_t) -pitchControl;
+		pitchFraction =  - (pitchControl - (int32_t)pitchControl);
+
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
+		int32_t currentInterpolationFraction;
+
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		{
+			//*********************************** GLIDE HANDLE
+
+			if (constrainsInSamples.glide)
+			{
+				if (glideCounter <= constrainsInSamples.glide)
+				{
+					pitchControl += glideControl;
+					castPitchControl = (int32_t) -pitchControl;
+					pitchFraction = - (pitchControl - (int32_t)pitchControl) ;
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+					glideCounter++;
+				}
+			}
+			//***********************************************
+//*************************************************************************************** poczatek przetwarzania pitchCountera
+			uint16_t volIndex = map(iPitchCounter,constrainsInSamples.loopPoint1,constrainsInSamples.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
+
+			currentSampelValue = *(in + iPitchCounter);
+
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+
+			//**************************************************************************
+
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+			if (!loopBackwardFlag)
+			{
+				iPitchCounter += castPitchControl;
+				currentFractionPitchCounter += currentFractionPitchControl;
+				if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+				else if(currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+			}
+			else
+			{
+				iPitchCounter -= castPitchControl;
+				currentFractionPitchCounter -= currentFractionPitchControl;
+				if (currentFractionPitchCounter <= -MAX_16BIT)
+				{
+					currentFractionPitchCounter += MAX_16BIT;
+					iPitchCounter--;
+				}
+				else if (currentFractionPitchCounter >= MAX_16BIT)
+				{
+					currentFractionPitchCounter -= MAX_16BIT;
+					iPitchCounter++;
+				}
+			}
+			//**************************************************************************
+
+//*************************************************************************************** koniec przetwarzania pitchCountera
+
+//*************************************************************************************** warunki pointow
+
+			if (iPitchCounter >= loopEndPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+				loopBackwardFlag = 0;
+				in_interpolation = in-1;
+				currentFractionPitchCounter = 0;
+			}
+			if (iPitchCounter <= loopStartPoint)
+			{
+				if(granularPositionRefreshFlag) refreshGranularPosition();
+				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+				loopBackwardFlag = 1;
+				in_interpolation = in+1;
+				currentFractionPitchCounter = 0;
+			}
+
+		}
+
+		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
+		transmit(block);
+	}
+	release(block);
+}
 

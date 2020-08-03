@@ -61,7 +61,7 @@ void AudioEffectShortDelay::setFeedback(float f)
 
 	for(uint8_t i = 1 ; i<= delayVoicesNumber; i++)
 	{
-		if(i==1) feedbackVoiceMult[i-1] = f * 100; //(uint8_t)(100 * pow(f,i));
+		if(i==1) feedbackVoiceMult[i-1] = f * 128; //(uint8_t)(100 * pow(f,i));
 		else feedbackVoiceMult[i-1] = feedbackVoiceMult[i-2] * f;
 
 		feedbackVoiceShift[i-1] = i * timeInSamples;
@@ -132,6 +132,7 @@ void AudioEffectShortDelay::unblockUpdate()
 
 void AudioEffectShortDelay::update(void)
 {
+	elapsedMicros timer = 0;
 	if(noRefresh == true) return;
 	audio_block_t *sblock, *dblockL, *dblockR = nullptr ;
     int16_t *sbuf, *dbufL, *dbufR = nullptr;
@@ -204,8 +205,8 @@ void AudioEffectShortDelay::update(void)
 
 				}
 			}
-			outL /= 100;
-			outR /= 100;
+			outL >>= 7; // /128
+			outR >>= 7;
 
 			if(outL > 32767) *dbufL = 32767;
 			else if(outL < -32768) *dbufL = -32768;
@@ -252,7 +253,7 @@ void AudioEffectShortDelay::update(void)
         			out += feedbackVoiceMult[i] * (*currentPointer); //apply gain
         		}
         	}
-        	out /= 100;
+        	out >>= 7;
 
         	if(out > 32767) *dbufL = 32767;
         	else if(out < -32768) *dbufL = -32768;

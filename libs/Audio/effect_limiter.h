@@ -4,6 +4,8 @@
 #include "Arduino.h"
 #include "AudioStream.h"
 
+constexpr uint8_t LIMITER_DELAY = 5;
+
 class AudioEffectLimiter :
 public AudioStream
 {
@@ -20,13 +22,12 @@ public:
 
 private:
   audio_block_t *inputQueueArray[1];
-  int16_t buffer[5];
+  int16_t buffer[LIMITER_DELAY];
   uint16_t threshold;
   float g=1.0;
   uint16_t xpeak;
   float attack;
   float releaseTime;
-  const uint16_t delay = 5;
   uint16_t a;
   float coeff;
   float f;
