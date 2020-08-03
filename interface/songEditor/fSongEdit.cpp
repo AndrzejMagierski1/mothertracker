@@ -527,7 +527,17 @@ static  uint8_t functEncoder(int16_t value)
 	switch(SE->selectedPlace)
 	{
 	case 8: SE->changePatternsSelection(value); 	break;
-	case 9: SE->changeGlobalTempo(value);			break;
+	case 9:
+
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			SE->changeGlobalTempo(0.1 * float(value));
+		}
+		else
+		{
+			SE->changeGlobalTempo(1 * float(value));
+		}
+		break;
 	//case 2: SE->changeGlobalPatternLength(value); 	break;
 
 	default: break;
@@ -563,8 +573,17 @@ static  uint8_t functUp()
 	case 7: SE->walkOnSongPlayer(playerUp);		break;
 
 	case 8:	SE->changePatternsSelection(-1); 	break;
-	case 9:	SE->changeGlobalTempo(1); 			break;
-	//case 2:	SE->changeGlobalPatternLength(1);	break;
+	case 9:
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			SE->changeGlobalTempo(0.1);
+		}
+		else
+		{
+			SE->changeGlobalTempo(1);
+		}
+		break;
+		//case 2:	SE->changeGlobalPatternLength(1);	break;
 	}
 
 	return 1;
@@ -586,7 +605,16 @@ static  uint8_t functDown()
 	case 7: SE->walkOnSongPlayer(playerDown);		break;
 
 	case 8:	SE->changePatternsSelection(1); 		break;
-	case 9:	SE->changeGlobalTempo(-1); 				break;
+	case 9:
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			SE->changeGlobalTempo(-0.1);
+		}
+		else
+		{
+			SE->changeGlobalTempo(-1);
+		}
+		break;
 	//case 2:	SE->changeGlobalPatternLength(-1); 	break;
 	}
 
@@ -862,7 +890,7 @@ void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 	}
 }
 
-void cSongEditor::changeGlobalTempo(int16_t value)
+void cSongEditor::changeGlobalTempo(float value)
 {
 //	nie zmieniaj jak external clock
 	if(!sequencer.isInternalClock())
@@ -870,7 +898,10 @@ void cSongEditor::changeGlobalTempo(int16_t value)
 		return;
 	}
 
-	mtProject.values.globalTempo = (uint16_t) mtProject.values.globalTempo; // do calkowitych
+	if(remainder(value,1.0) == 0.0)
+	{
+		mtProject.values.globalTempo = (uint16_t) mtProject.values.globalTempo; // do calkowitych
+	}
 
 	if(mtProject.values.globalTempo+value < Sequencer::MIN_TEMPO) mtProject.values.globalTempo = Sequencer::MIN_TEMPO;
 	else if(mtProject.values.globalTempo+value > Sequencer::MAX_TEMPO) mtProject.values.globalTempo = Sequencer::MAX_TEMPO;
