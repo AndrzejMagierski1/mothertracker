@@ -913,7 +913,8 @@ void cMasterParams::showMixerScreen()
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]); //mixerTrackLabel[i]);
+			mtProject.values.TrackNames[i][7] = 0;
+			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
 			showLevelBar(i);
 		}
 	}

@@ -135,7 +135,7 @@ void cMasterParams::start(uint32_t options)
 //--------------------------------------------------------------------
 
 	keyboardManager.init(keyboardControl, editName);
-	keyboardManager.setNameLengthLimit(8);
+	keyboardManager.setNameLengthLimit(7);
 //--------------------------------------------------------------------
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -1391,8 +1391,8 @@ static  uint8_t functSaveTrackName()
 {
 	if(MP->actualEditingTrackName < 8)
 	{
-		strncpy(&mtProject.values.TrackNames[MP->actualEditingTrackName][0], MP->keyboardManager.getName(), 8);
-		mtProject.values.TrackNames[MP->actualEditingTrackName][8] = 0;
+		strncpy(&mtProject.values.TrackNames[MP->actualEditingTrackName][0], MP->keyboardManager.getName(), 7);
+		mtProject.values.TrackNames[MP->actualEditingTrackName][7] = 0;
 	}
 
 	newFileManager.setProjectStructChanged();

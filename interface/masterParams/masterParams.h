@@ -103,17 +103,8 @@ public:
 	uint8_t isSolo = 0;
 	int8_t soloTrack = -1;
 	char mixerLabel[8][7];
-	char * const mixerTrackLabel[8] =
-	{
-			(char*)"Track 1",
-			(char*)"Track 2",
-			(char*)"Track 3",
-			(char*)"Track 4",
-			(char*)"Track 5",
-			(char*)"Track 6",
-			(char*)"Track 7",
-			(char*)"Track 8"
-	};
+
+
 	//menu
 
 	//

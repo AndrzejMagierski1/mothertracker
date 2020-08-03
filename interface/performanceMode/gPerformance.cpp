@@ -259,6 +259,7 @@ void cPerformanceMode::showPerformanceFxes()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		mtProject.values.TrackNames[i][7] = 0;
 		display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
 	}
 
