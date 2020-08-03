@@ -43,8 +43,10 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) || (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
-		int16_t * in_interpolation = in+1;
+		interpolationCondition = ((pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0 : 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in-1 : in+1;
+
+		int32_t currentInterpolationFraction;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -71,7 +73,9 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 				if(interpolationCondition) interpolationDif = 0;
 				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
-				*out++ = (int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) );
+				currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+
+				*out++ = (int32_t)currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 );
 
 				if (!loopBackwardFlag)
 				{
@@ -115,6 +119,7 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 				{
 					iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 					loopBackwardFlag = 1;
+					in_interpolation = in - 1;
 					currentFractionPitchCounter = 0;
 				}
 			//*************************************************************************************** warunki pętli
@@ -138,7 +143,7 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
-	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0U);
 	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
 
 
@@ -162,8 +167,9 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
 
-		interpolationCondition = ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
-		int16_t * in_interpolation = in-1;
+		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
+		int32_t currentInterpolationFraction;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -189,7 +195,10 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 				if(interpolationCondition) interpolationDif = 0;
 				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
-				*out++ = currentSampelValue + (int32_t)(fPitchCounter * interpolationDif);
+				currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+
+				*out++ = (int32_t)currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 );
+
 				if (!loopBackwardFlag)
 				{
 					iPitchCounter += castPitchControl;
@@ -232,6 +241,7 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 				{
 					iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 					loopBackwardFlag = 1;
+					in_interpolation = in+1;
 					currentFractionPitchCounter = 0;
 				}
 			}

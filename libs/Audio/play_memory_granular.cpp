@@ -130,7 +130,7 @@ void AudioPlayMemory::updateGranularLoopForwardNormal()
 		castPitchControl = (int32_t)pitchControl;
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
-		interpolationCondition = ( (pitchControl  < 1.0f) ||  ((iPitchCounter + 128 * pitchControl) < length))  ? 0: 1;
+		interpolationCondition = ( (pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length))  ? 0: 1;
 		int16_t * in_interpolation = in+1;
 
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
@@ -223,7 +223,7 @@ void AudioPlayMemory::updateGranularLoopForwardReverse()
 		castPitchControl = (int32_t) -pitchControl;
 		pitchFraction = - (pitchControl - (int32_t)pitchControl);
 
-		interpolationCondition = 	   ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0) && (reverseDirectionFlag)) ) ? 0: 1;
+		interpolationCondition = ((pitchControl  < 1.0f) && ((int)(iPitchCounter - 128 * pitchControl) > 0)) ? 0: 1;
 		int16_t * in_interpolation = in-1;
 
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
@@ -258,7 +258,7 @@ void AudioPlayMemory::updateGranularLoopForwardReverse()
 
 
 			//**************************************************************************
-			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( ( (-currentFractionPitchCounter) >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
 
 			iPitchCounter += castPitchControl;
 			currentFractionPitchCounter += currentFractionPitchControl;
@@ -319,9 +319,9 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) || (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
-		int16_t * in_interpolation = in+1;
-
+		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
+		int32_t currentInterpolationFraction;
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
 			//*********************************** GLIDE HANDLE
@@ -349,8 +349,8 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
 			//**************************************************************************
-
-			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
 
 			if (!loopBackwardFlag)
 			{
@@ -398,6 +398,7 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 1;
+				in_interpolation = in+1;
 				currentFractionPitchCounter = 0;
 			}
 			//*************************************************************************************** warunki pętli
@@ -440,9 +441,9 @@ void AudioPlayMemory::updateGranularLoopBackwardReverse()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
-		int16_t * in_interpolation = in-1;
-
+		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1: in-1;
+		int32_t currentInterpolationFraction;
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
 			//*********************************** GLIDE HANDLE
@@ -470,7 +471,8 @@ void AudioPlayMemory::updateGranularLoopBackwardReverse()
 
 			//**************************************************************************
 
-			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
 
 			if (!loopBackwardFlag)
 			{
@@ -516,6 +518,7 @@ void AudioPlayMemory::updateGranularLoopBackwardReverse()
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 1;
+				in_interpolation = in+1;
 				currentFractionPitchCounter = 0;
 			}
 		}
@@ -556,8 +559,9 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = 	   ((pitchControl  < 1.0f) || (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
-		int16_t * in_interpolation =  in+1;
+		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
+		int16_t * in_interpolation =  loopBackwardFlag ? in-1 : in+1;
+		int32_t currentInterpolationFraction;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -585,9 +589,9 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 			if(interpolationCondition) interpolationDif = 0;
 			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
-
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
 			//**************************************************************************
-			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
 
 			if (!loopBackwardFlag)
 			{
@@ -628,7 +632,8 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 0;
 				currentFractionPitchCounter = 0;
-			} else if (iPitchCounter >= loopEndPoint)
+			}
+			else if (iPitchCounter >= loopEndPoint)
 			{
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
@@ -674,8 +679,9 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) || (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
-		int16_t * in_interpolation = in-1;
+		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
+		int32_t currentInterpolationFraction;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -703,7 +709,9 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 
 
 			//**************************************************************************
-			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
+
+			currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
+			*out++ = ((int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) ) * granularEnvelopeTab[volIndex]) >> 16;
 			if (!loopBackwardFlag)
 			{
 				iPitchCounter += castPitchControl;
@@ -745,6 +753,7 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 0;
+				in_interpolation = in-1;
 				currentFractionPitchCounter = 0;
 			}
 			if (iPitchCounter <= loopStartPoint)
@@ -752,6 +761,7 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 1;
+				in_interpolation = in+1;
 				currentFractionPitchCounter = 0;
 			}
 
