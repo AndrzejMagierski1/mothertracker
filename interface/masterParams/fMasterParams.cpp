@@ -1392,7 +1392,7 @@ static  uint8_t functSaveTrackName()
 	if(MP->actualEditingTrackName < 8)
 	{
 		strncpy(&mtProject.values.TrackNames[MP->actualEditingTrackName][0], MP->keyboardManager.getName(), 8);
-		mtProject.values.TrackNames[MP->actualEditingTrackName][9] = 0;
+		mtProject.values.TrackNames[MP->actualEditingTrackName][8] = 0;
 	}
 
 	newFileManager.setProjectStructChanged();
