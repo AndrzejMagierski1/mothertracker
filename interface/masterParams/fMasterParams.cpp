@@ -664,6 +664,7 @@ void cMasterParams::switchToMixer()
 
 	FM->setButtonObj(interfaceButtonShift, functSoloMute);
 
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functEditModeToggle);
 
 	editTrackNameMode = 0;
