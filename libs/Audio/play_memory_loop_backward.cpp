@@ -21,8 +21,8 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 	int32_t castPitchControl;
 	float pitchFraction;
 
-	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0U);
-	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
+	int32_t loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
 	if (!block) return;
@@ -50,7 +50,7 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if (length > iPitchCounter)
+			if ((int32_t)length > iPitchCounter)
 			{
 				//*********************************** GLIDE HANDLE
 				if (constrainsInSamples.glide)
@@ -86,11 +86,6 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 						currentFractionPitchCounter -= MAX_16BIT;
 						iPitchCounter++;
 					}
-					else if(currentFractionPitchCounter <= -MAX_16BIT)
-					{
-						currentFractionPitchCounter += MAX_16BIT;
-						iPitchCounter--;
-					}
 				}
 				else
 				{
@@ -101,11 +96,6 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 					{
 						currentFractionPitchCounter += MAX_16BIT;
 						iPitchCounter--;
-					}
-					else if (currentFractionPitchCounter >= MAX_16BIT)
-					{
-						currentFractionPitchCounter -= MAX_16BIT;
-						iPitchCounter++;
 					}
 				}
 //*************************************************************************************** koniec przetwarzania pitchCountera
@@ -145,8 +135,8 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
-	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0U);
-	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
+	int32_t loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 
 	block = allocate();
@@ -205,12 +195,7 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 				{
 					iPitchCounter += castPitchControl;
 					currentFractionPitchCounter += currentFractionPitchControl;
-					if (currentFractionPitchCounter >= MAX_16BIT)
-					{
-						currentFractionPitchCounter -= MAX_16BIT;
-						iPitchCounter++;
-					}
-					else if(currentFractionPitchCounter <= -MAX_16BIT)
+					if(currentFractionPitchCounter <= -MAX_16BIT)
 					{
 						currentFractionPitchCounter += MAX_16BIT;
 						iPitchCounter--;
@@ -221,12 +206,7 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 					iPitchCounter -= castPitchControl;
 
 					currentFractionPitchCounter -= currentFractionPitchControl;
-					if (currentFractionPitchCounter <= -MAX_16BIT)
-					{
-						currentFractionPitchCounter += MAX_16BIT;
-						iPitchCounter--;
-					}
-					else if (currentFractionPitchCounter >= MAX_16BIT)
+					if (currentFractionPitchCounter >= MAX_16BIT)
 					{
 						currentFractionPitchCounter -= MAX_16BIT;
 						iPitchCounter++;
