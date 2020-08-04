@@ -317,6 +317,7 @@ public:
 	void play(uint8_t fromPos);
 
 	void switchStep(uint8_t row);
+	uint8_t isCustomOrderMode(uint8_t row);
 
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
 	uint8_t getTempoDiv(int8_t val);
@@ -462,6 +463,8 @@ public:
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
 			int16_t custom_actual_pos = 0;	// aktualna pozycja na potrzeby custom playMode
+			int16_t custom_fx = 0;
+			int16_t custom_fx_value = 0;
 
 			uint16_t stepTimer = 0;		// tu liczymy microstepy w górę
 			uint16_t stepLength = 0;	// z tym porównujemy timer
