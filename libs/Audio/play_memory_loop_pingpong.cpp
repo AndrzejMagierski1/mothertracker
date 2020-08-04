@@ -74,7 +74,7 @@ void AudioPlayMemory::updateLoopPingPongNormal()
 
 				currentInterpolationFraction =  (currentFractionPitchCounter < 0) ? -currentFractionPitchCounter : currentFractionPitchCounter;
 
-				*out++ = (int32_t)(currentSampelValue + (int32_t) (( (currentInterpolationFraction >> 2) * interpolationDif) >> 14 ) );
+				*out++ = (int32_t)currentSampelValue + (int32_t) (((currentInterpolationFraction >> 2) * interpolationDif) >> 14 );
 
 				if (!loopBackwardFlag)
 				{
@@ -131,6 +131,7 @@ void AudioPlayMemory::updateLoopPingPongNormal()
 
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
 		transmit(block);
 	}
@@ -250,6 +251,7 @@ void AudioPlayMemory::updateLoopPingPongReverse()
 
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
 		transmit(block);
 	}
