@@ -100,7 +100,7 @@ void AudioPlayMemory::updateSingleShotNormal()
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if(length > iPitchCounter)
+			if((int32_t)length > iPitchCounter)
 			{
 				//*********************************** GLIDE HANDLE
 				if (constrainsInSamples.glide)
@@ -131,7 +131,7 @@ void AudioPlayMemory::updateSingleShotNormal()
 					iPitchCounter++;
 				}
 
-				if (iPitchCounter >= (constrainsInSamples.endPoint))
+				if (iPitchCounter >= (int32_t)(constrainsInSamples.endPoint))
 				{
 					iPitchCounter = length;
 				}

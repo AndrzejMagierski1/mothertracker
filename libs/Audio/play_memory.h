@@ -343,7 +343,7 @@ private:
 	//********* Pitch
 	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch
 	float fPitchCounter;									// Licznik probek uwzgledniajacy pitch - akumulacja zmienno przecinkowa
-	uint32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
+	int32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
 	uint16_t currentGlide;
 	uint32_t glideCounter;									// licznik glide'a w czasie
 	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl

@@ -97,7 +97,7 @@ void AudioPlayMemory::updateLoopForwardNormal()
 	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
-	uint32_t loopEndPoint = min(constrainsInSamples.loopPoint2, min(length, constrainsInSamples.endPoint));
+	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
 	if (!block) return;
@@ -123,7 +123,7 @@ void AudioPlayMemory::updateLoopForwardNormal()
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if (length > iPitchCounter)
+			if ((int32_t)length > iPitchCounter)
 			{
 				//*********************************** GLIDE HANDLE
 				if (constrainsInSamples.glide)
@@ -183,7 +183,7 @@ void AudioPlayMemory::updateLoopForwardReverse()
 	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
-	uint32_t loopStartPoint = max(constrainsInSamples.loopPoint1, 0);
+	int32_t loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
 
 	block = allocate();
 	if (!block) return;
