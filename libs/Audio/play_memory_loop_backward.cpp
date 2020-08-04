@@ -132,6 +132,8 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
 		transmit(block);
 	}
 	release(block);
@@ -253,6 +255,8 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
+
 		transmit(block);
 	}
 	release(block);

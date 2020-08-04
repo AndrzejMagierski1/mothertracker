@@ -201,11 +201,11 @@ void AudioPlayMemory::updateLoopForwardReverse()
 		castPitchControl = (int32_t) -pitchControl;
 		pitchFraction = - (pitchControl - (int32_t)pitchControl);
 
+		interpolationCondition = ((pitchControl  < 1.0f) && ((int)(iPitchCounter - 128 * pitchControl) > 0)) ? 0: 1;
+		int16_t * in_interpolation = in-1;
+
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
-
-		interpolationCondition = ((iPitchCounter  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
-		int16_t * in_interpolation = in-1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -231,7 +231,7 @@ void AudioPlayMemory::updateLoopForwardReverse()
 				if(interpolationCondition) interpolationDif = 0;
 				else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
 
-				*out++ = currentSampelValue + (int32_t)(( ( (-currentFractionPitchCounter) >> 2) * interpolationDif) >> 14);
+				*out++ = (int32_t)currentSampelValue + (int32_t)((((-currentFractionPitchCounter) >> 2) * interpolationDif) >> 14);
 				iPitchCounter += castPitchControl;
 				currentFractionPitchCounter += currentFractionPitchControl;
 

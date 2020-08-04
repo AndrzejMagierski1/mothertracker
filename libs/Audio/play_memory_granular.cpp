@@ -320,7 +320,7 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
 		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + 128 * pitchControl) < length))) ? 0: 1;
-		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
+		int16_t * in_interpolation = loopBackwardFlag ? in-1 : in+1;
 		int32_t currentInterpolationFraction;
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -631,6 +631,7 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 0;
+				in_interpolation = in+1;
 				currentFractionPitchCounter = 0;
 			}
 			else if (iPitchCounter >= loopEndPoint)
@@ -638,6 +639,7 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 				if(granularPositionRefreshFlag) refreshGranularPosition();
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 1;
+				in_interpolation = in-1;
 				currentFractionPitchCounter = 0;
 			}
 
