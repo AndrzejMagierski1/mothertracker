@@ -85,105 +85,53 @@ void AudioPlayMemory::updateWavetable()
 		castPitchControl = (int32_t)pitchControl;
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
+		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
+		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + waveTablePosition + 128 * pitchControl) < length))) ? 0: 1;
+		int16_t * in_interpolation = in+1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if (length > (iPitchCounter + waveTablePosition))
+
+			//*********************************** GLIDE HANDLE
+			if (constrainsInSamples.glide)
 			{
-				//*********************************** GLIDE HANDLE
-
-				if (constrainsInSamples.glide)
+				if (glideCounter <= constrainsInSamples.glide)
 				{
-					if (glideCounter <= constrainsInSamples.glide)
-					{
-						pitchControl += glideControl;
-						castPitchControl = (int32_t) pitchControl;
-						pitchFraction = pitchControl - (int32_t)pitchControl;
-						glideCounter++;
-					}
+					pitchControl += glideControl;
+					castPitchControl = (int32_t) pitchControl;
+					pitchFraction = pitchControl - (int32_t)pitchControl;
 
+					currentFractionPitchControl = pitchFraction * MAX_16BIT;
+
+					glideCounter++;
 				}
-				//***********************************************
-				//*********************************** SMOOTHING HANDLE
-				// needSmoothingFlag ustawiana jest na play gdy jest aktywne odtwarzanie, więc iPitchCounter się zeruje, ale na wysokim pitchu i bardzo krotkich loopach
-				// moga zostac przekroczone wartosci graniczne - trzeba je obsluzyc
-				if(needSmoothingFlag && (i == 0))
-				{
-					needSmoothingFlag = 0;
-					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
-					{
-						if(iPitchCounter <= length)
-						{
-							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
-							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ) ) )/(SMOOTHING_SIZE - 1));
-						}
-						else
-						{
-							*out++ = 0;
-						}
-
-						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchFraction;
-						if (fPitchCounter >= 1.0f)
-						{
-							fPitchCounter -= 1.0f;
-							iPitchCounter++;
-						}
-						else if(fPitchCounter <= -1.0f)
-						{
-							fPitchCounter += 1.0f;
-							iPitchCounter--;
-						}
-
-						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
-
-						if (iPitchCounter >= wavetableWindowSize)
-						{
-							iPitchCounter -= wavetableWindowSize;
-						}
-					}
-					if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-					{
-						iPitchCounter = length;
-					}
-					i = SMOOTHING_SIZE;
-
-				}
-				//***********************************************
-
-//*************************************************************************************** poczatek przetwarzania pitchCountera
-
-				*out++ = *(in + (uint32_t) iPitchCounter + waveTablePosition);
-				if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + (uint32_t) iPitchCounter + waveTablePosition);
-				iPitchCounter += castPitchControl;
-				fPitchCounter += pitchFraction;
-				if (fPitchCounter >= 1.0f)
-				{
-					fPitchCounter -= 1.0f;
-					iPitchCounter++;
-				}
-
-				if (iPitchCounter >= wavetableWindowSize)
-				{
-					iPitchCounter -= wavetableWindowSize;
-				}
-
-			//*************************************************************************************** koniec warunków pointow
-			//*************************************************************************************** warunki pętli
-				if ((iPitchCounter >= (constrainsInSamples.endPoint)) && (constrainsInSamples.endPoint != (constrainsInSamples.loopPoint2)) && !reverseDirectionFlag)
-				{
-					iPitchCounter = length;
-				}
-			//*************************************************************************************** warunki pętli
 			}
-			else
+//*************************************************************************************** poczatek przetwarzania pitchCountera
+			currentSampelValue = *(in + iPitchCounter + waveTablePosition);
+
+			if(interpolationCondition) interpolationDif = 0;
+			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
+
+			*out++ = currentSampelValue + (int32_t)(( (currentFractionPitchCounter >> 2) * interpolationDif) >> 14);
+
+			iPitchCounter += castPitchControl;
+			currentFractionPitchCounter += currentFractionPitchControl;
+			if (currentFractionPitchCounter >= MAX_16BIT)
 			{
-				*out++ = 0;
-				playing = 0;
+				currentFractionPitchCounter -= MAX_16BIT;
+				iPitchCounter++;
+			}
+
+			if (iPitchCounter >= wavetableWindowSize)
+			{
+				iPitchCounter = 0;
 			}
 
 		}
 		next = currentStartAddress + pointsInSamples.start;
+		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
 		transmit(block);
 	}
