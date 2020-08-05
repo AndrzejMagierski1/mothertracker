@@ -905,7 +905,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	}
 
 	filterDisconnect();
-	ampPtr->gain(ampLogValues[100]); //wracam z 50 do 100
+	ampPtr->gain(ampLogValues[50]); //wracam z 50 do 100, a teraz ze 100 do 50
 //	engine.clearDelay();
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
