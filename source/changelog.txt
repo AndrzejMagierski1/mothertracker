@@ -2,6 +2,7 @@
 			- [AM] optymalizacja silnika audio
 			- [AM] fix: trzaski już nie pojawiają się w trybach loop backward i pingpong
 			- [AM] glosnosc preview w Sample Editor zmieniona ze 100% na 50%
+			- [AM] normalizer w Sample Editor na górze listy
 	1.1.3
 			- shift powoduje zmiane labeli przycisków pod ekranem tam gdzie dziala mute
 			- fix zawieszanie przy przechodzeniu miedzy modulami 
