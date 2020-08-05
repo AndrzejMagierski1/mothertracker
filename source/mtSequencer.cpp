@@ -1268,7 +1268,7 @@ void Sequencer::stop(void)
 	sendMidiStop();
 }
 
-void Sequencer::rec(void)
+void Sequencer::recStart(void)
 {
 	player.isREC = 1;
 	if (isPreRollActive())
@@ -1300,6 +1300,10 @@ void Sequencer::rec(void)
 void Sequencer::recOff(void)
 {
 	player.isREC = 0;
+}
+void Sequencer::recOn(void)
+{
+	player.isREC = 1;
 }
 
 void Sequencer::allNoteOffs(void)

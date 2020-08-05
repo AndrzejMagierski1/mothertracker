@@ -677,8 +677,9 @@ public:
 	void playSong(void);
 	void playSong(uint8_t);
 	void pause(void);
-	void rec(void);
+	void recStart(void);
 	void recOff(void);
+	void recOn(void);
 	void stop(void);
 	void stopManualNotes(void);
 	uint8_t isMetronomeActive();

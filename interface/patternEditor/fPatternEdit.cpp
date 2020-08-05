@@ -2262,7 +2262,7 @@ static  uint8_t functPlayAction()
 
 		if (tactButtons.isButtonPressed(interfaceButtonRec))
 		{
-			sequencer.rec();
+			sequencer.recStart();
 			PTE->editMode = 0;
 
 			PTE->refreshEditState();
@@ -2300,6 +2300,11 @@ static  uint8_t functRecAction()
 	if (sequencer.isRec())
 	{
 		sequencer.recOff();
+		PTE->editMode = 0;
+	}
+	else if(sequencer.isPlay())
+	{
+		sequencer.recOn();
 		PTE->editMode = 0;
 	}
 	else
