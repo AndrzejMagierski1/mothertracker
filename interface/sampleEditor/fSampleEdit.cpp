@@ -783,7 +783,7 @@ void cSampleEditor::refreshEffectList()
 	display.setControlValue(effectList, currentEffectIdx);
 	showEffectList();
 
-	if(currentEffectIdx < 2 )
+	if((SE->currentEffectIdx == editorEffectCut) || (SE->currentEffectIdx == editorEffectReverse))
 	{
 		display.setControlText(label[5], "Apply");
 		display.setControlText2(label[5], "");
@@ -795,7 +795,7 @@ void cSampleEditor::refreshEffectList()
 	}
 	display.refreshControl(label[5]);
 
-	if(currentEffectIdx < 2 ) display.setControlText(titleLabel, "Sample Editor");
+	if((SE->currentEffectIdx == editorEffectCut) || (SE->currentEffectIdx == editorEffectReverse)) display.setControlText(titleLabel, "Sample Editor");
 	else display.setControlText(titleLabel, "Sample Editor 1/2");
 
 	display.refreshControl(titleLabel);
@@ -1361,7 +1361,7 @@ static  uint8_t functUndo()
 }
 static  uint8_t functApply()
 {
-	if(SE->currentEffectIdx < 2)
+	if((SE->currentEffectIdx == editorEffectCut) || (SE->currentEffectIdx == editorEffectReverse))
 	{
 		functSave();
 		return 1;

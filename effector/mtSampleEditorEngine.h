@@ -4,6 +4,7 @@
 
 enum enSampleEditorEffect
 {
+	editorEffectNormalizer,
 	editorEffectCut,
 	editorEffectReverse,
 	editorEffectAmplifier,
@@ -14,7 +15,7 @@ enum enSampleEditorEffect
 	editorEffectLimiter,
 	editorEffectCompresor,
 	editorEffectWavetableSmoother,
-	editorEffectNormalizer,
+
 
 //**********************//
 	editorEffectMax

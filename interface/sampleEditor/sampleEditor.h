@@ -8,6 +8,7 @@
 
 char * const effectNamesLabels[editorEffectMax] =
 {
+		(char*)"Normalizer",
 		(char*)"Crop",
 		(char*)"Reverse",
 		(char*)"Amplifier",
@@ -17,8 +18,7 @@ char * const effectNamesLabels[editorEffectMax] =
 		(char*)"Flanger",
 		(char*)"Limiter",
 		(char*)"Compressor",
-		(char*)"WT Smoother",
-		(char*)"Normalizer"
+		(char*)"WT Smoother"
 };
 
 class cSampleEditor: public cModuleBase
@@ -307,6 +307,7 @@ public:
 
 	const strEffectDefaultParams effectDefaultParams[editorEffectMax] =
 	{
+		{{100,0,0,0,0,0},{0,0,0,0,0,0}}, //normalizer
 		{},//cut - brak drugiego ekranu
 		{},//reverse - brak drugiego ekranu
 		{{0,0,0,0,0,0},{1.0,0,0,0,0,0}}, //amplifier
@@ -316,9 +317,7 @@ public:
 		{{128,50,1,0,0,0},{0,0,0,1.0,0,0}}, //flanger
 		{{(32767+1)/2,0,0,0,0,0},{0,100.0,1.0,0,0,0}}, //limiter
 		{{(32767+1)/2,1,100,100,0,0},{0,0,0,0,0,0}}, //compressor
-		{{256,2048,0,0,0,0},{0,0,0,0,0,0}}, //wt smoother
-		{{100,0,0,0,0,0},{0,0,0,0,0,0}} //normalizer
-
+		{{256,2048,0,0,0,0},{0,0,0,0,0,0}} //wt smoother
 	};
 	struct strEffectDisplayParams
 	{
@@ -341,6 +340,14 @@ public:
 		const char * displayType; //'f' = float 'd' = int
 	} effectDisplayParams[editorEffectMax] =
 	{
+			{
+				{100,0,0,0,0,0},{0,0,0,0,0,0}, //start values
+				1,normalizerParams::labelText,normalizerParams::paramsType,
+				normalizerParams::iUpConstrain,normalizerParams::fUpConstrain,
+				normalizerParams::iDownConstrain,normalizerParams::fDownConstrain,
+				normalizerParams::changeStep,normalizerParams::displayMult,
+				normalizerParams::afterValueText,normalizerParams::displayType
+			},
 			{},//cut - brak drugiego ekranu
 			{},//reverse - brak drugiego ekranu
 			{
@@ -406,14 +413,6 @@ public:
 				wavetableSmootherParams::iDownConstrain,wavetableSmootherParams::fDownConstrain,
 				wavetableSmootherParams::changeStep,wavetableSmootherParams::displayMult,
 				wavetableSmootherParams::afterValueText,wavetableSmootherParams::displayType
-			},
-			{
-				{100,0,0,0,0,0},{0,0,0,0,0,0}, //start values
-				1,normalizerParams::labelText,normalizerParams::paramsType,
-				normalizerParams::iUpConstrain,normalizerParams::fUpConstrain,
-				normalizerParams::iDownConstrain,normalizerParams::fDownConstrain,
-				normalizerParams::changeStep,normalizerParams::displayMult,
-				normalizerParams::afterValueText,normalizerParams::displayType
 			}
 	};
 
