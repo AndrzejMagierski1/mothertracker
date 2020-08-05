@@ -4,6 +4,13 @@
 			- [AM] glosnosc preview w Sample Editor zmieniona ze 100% na 50%
 			- [AM] normalizer w Sample Editor na górze listy
 			- [AM] fix: po autoslice juz odswieza sie liczba slicow
+			- [KZ] tryb green/red wartosci w performance zaleznie od REC
+			- [KZ] fix: dopracowanie przelaczania labeli pod ekranem przy wciskaniu shift (opcja mute tracks)
+			- [KZ] od teraz mozliwa zmiana pozycji list wyboru przyciskami pod ekranem
+			- [KZ] fix: poparwki zwiazane z nazywaniem trackow
+			- [KZ] fix: jasnosc wyswietlacza po restarcie nie jest zgodna z configiem
+			- [KZ] fix: nie dziala play w ekranie master-mixer
+			- [KZ] fix: nie tworzy nowego projektu po New Project > Save (current)
 	1.1.3
 			- shift powoduje zmiane labeli przycisków pod ekranem tam gdzie dziala mute
 			- fix zawieszanie przy przechodzeniu miedzy modulami 
