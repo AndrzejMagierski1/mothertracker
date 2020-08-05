@@ -148,7 +148,11 @@ void cSamplePlayback::update()
 	}
 
 	currentAutoSlice = sliceManager.getAutoSliceState();
-	if((currentAutoSlice == 0) && (currentAutoSlice != lastAutoSlice)) refreshSlicePoints = 1;
+	if((currentAutoSlice == 0) && (currentAutoSlice != lastAutoSlice))
+	{
+		refreshSlicePoints = 1;
+		SP->showSlicesSelectValue();
+	}
 	lastAutoSlice = currentAutoSlice;
 
 	if(refreshSlicePoints)
