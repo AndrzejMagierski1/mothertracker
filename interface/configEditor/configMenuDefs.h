@@ -127,7 +127,7 @@ const char recOptionsTexts[4][20] =
 		"Only notes",
 		"Microtiming",
 		"Velocity",
-		"Microtiming + Velo",
+		"Microtim + Velo",
 };
 
 const char* const ptrRecQuantization[4] =
