@@ -29,7 +29,15 @@ static uint32_t textLabelsColors[] =
 	0xFF0000, // ramka
 };
 
-static uint32_t valuesLabelColors[] =
+
+static uint32_t valuesLabelColorsNormal[] =
+{
+	0xFFFFFF, // tekst
+	0x0a0a0a, // tło
+	one_true_green, // zanzaczone
+};
+
+static uint32_t valuesLabelColorsEdit[] =
 {
 	0xFFFFFF, // tekst
 	0x0a0a0a, // tło
@@ -162,7 +170,7 @@ void cPerformanceMode::initDisplayControls()
 		//prop.style |= controlStyleBackground;
 		prop.x = 42  + 65*i;
 		prop.y = 249;
-		prop.colors = valuesLabelColors;
+		prop.colors = valuesLabelColorsNormal;
 		prop.w = 62;
 		prop.h = 174;
 		prop.data = &multiLabelData[i];
@@ -251,6 +259,7 @@ void cPerformanceMode::showPerformanceFxes()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		mtProject.values.TrackNames[i][7] = 0;
 		display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
 	}
 
@@ -408,13 +417,30 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 	performance.fillSlotFxValue(place, 3, &fxValuesText[place][3][0]);
 
 
+	if(performanceEditState)
+	{
+		display.setControlColors(value1Label[place], valuesLabelColorsEdit);
+	}
+	else
+	{
+		display.setControlColors(value1Label[place], valuesLabelColorsNormal);
+	}
+
 
 	display.setControlShow(value1Label[place]);
 	display.refreshControl(value1Label[place]);
 
 }
 
+void cPerformanceMode::showAllPerformanceValues()
+{
+	for(uint8_t place = 0; place < 12; place++)
+	{
+		showPerformaceValue(place);
+	}
 
+	display.synchronizeRefresh();
+}
 
 
 void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
@@ -431,8 +457,7 @@ void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
 			ptrColors = mutedTrackLabelColors;
 		}
 
-		display.setControlColors(label[track],
-									ptrColors);
+		display.setControlColors(label[track], ptrColors);
 	}
 
 	display.refreshControl(label[track]);

@@ -521,9 +521,10 @@ void cPatternEditor::hideEditModeLabels()
 
 static elapsedMillis lastShownPattern_blinkTimer;
 
-void cPatternEditor::showPattern(uint8_t forceShow)
+void cPatternEditor::showPattern(uint8_t forceShow, uint8_t shiftPressed)
 {
 	if (fillState) return;
+	if (shiftPressed) return;
 
 
 	// blink czy nie?
@@ -1274,6 +1275,7 @@ void cPatternEditor::showMuteButtons(uint8_t state)
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
+			mtProject.values.TrackNames[i][7] = 0;
 			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]); //mixerTrackLabel[i]);
 			display.setControlColors(label[i], mtProject.values.trackMute[i] ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
 			display.setControlText2(label[i], mtProject.values.trackMute[i] ? (char*)"Unmute" :(char*)"Mute");

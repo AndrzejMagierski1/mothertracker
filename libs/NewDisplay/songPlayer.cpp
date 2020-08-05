@@ -651,7 +651,7 @@ void cSongPlayer::drawBlocks()
 		localX = posX + track*(BLOCK_WIDTH + SPACING_X) +5;
 
 		API_CMD_TEXT((localX + BLOCK_WIDTH/2)+6, posY+18, fonts[4].handle,
-				textStyle | OPT_CENTERY | OPT_CENTERX, controlData->tracksNames+(track*21));//&tracksNames[track][0]);
+				textStyle | OPT_CENTERY | OPT_CENTERX, controlData->tracksNames+(track*21), 7);//&tracksNames[track][0]);
 	}
 }
 

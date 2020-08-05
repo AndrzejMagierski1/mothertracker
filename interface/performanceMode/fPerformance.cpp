@@ -226,6 +226,8 @@ void cPerformanceMode::toggleEditState()
 	{
 		hideEditFrame();
 	}
+
+	showAllPerformanceValues();
 }
 
 uint8_t cPerformanceMode::wasPatternOntrackChenged(uint8_t track)

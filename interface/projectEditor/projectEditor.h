@@ -160,7 +160,9 @@ public:
 	uint8_t createNewProjectFlag = 0;
 	//uint8_t currentOpeningStatus = 0;
 	uint8_t openInProgressFlag = 0;
-	//uint8_t lastOpeningStatus = 0;
+
+	uint8_t newProjectAfterSaveFlag = 0;
+
 	//uint8_t openingProgress = 0;
 	uint8_t saveInProgressFlag = 0;
 	uint8_t deleteInProgressFlag = 0;

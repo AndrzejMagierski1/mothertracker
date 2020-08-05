@@ -10,6 +10,7 @@
 #include "sampleEditor/sampleEditor.h"
 #include "sampleRecorder/sampleRecorder.h"
 #include "configEditor/configEditor.h"
+#include "configEditor/configMenuActions.h"
 #include "imageViewer/imageViewer.h"
 #include "performanceMode/performanceMode.h"
 #include "core/interfacePopups.h"
@@ -205,9 +206,12 @@ void cInterface::doStartTasks()
 	readConfig();
 
 	// dzialania z uzyciem odczytanych wartosci z configu
+
 	mtPadBoard.setPadNotes(	mtConfig.values.padBoardScale,
 							mtConfig.values.padBoardNoteOffset,
 							mtConfig.values.padBoardRootNote);
+
+	setDisplayBrightness(); // ustawienie jasnosci wyswietlacza wg configu
 
 	////////////////////////////
 	//readSdConfig();

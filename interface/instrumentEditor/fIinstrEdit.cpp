@@ -78,7 +78,7 @@ void changeParamsReverbSend(int16_t value);
 void changeParamsVelocity(int16_t value);
 
 
-void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput = 0)
+void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput)
 {
 	if(selectNodes[nodeNum].isActive == 0)
 	{
@@ -306,11 +306,34 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 
 	if(IE->mode == mtInstEditModeEnv)
 	{
+		if(state == buttonPress) // zmienianie pozycji listy przyciskiem pod ekranem
+		{
+			IE->rollListOver = true;
+
+			if(button == 2 && IE->selectedPlace[IE->mode] == 1) changeEnvState(1);
+			if(button == 3 && IE->selectedPlace[IE->mode] == 2)
+				if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoShape(1);
+			if(button == 4 && IE->selectedPlace[IE->mode] == 3)
+				if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoSpeed(1);
+
+			IE->rollListOver = false;
+		}
+
 		if((button > 2) && (!IE->editorInstrument->envelope[IE->selectedEnvelope].enable)) return 1;
 	}
 
-	if( IE->mode == mtInstEditModeParams)
+	if(IE->mode == mtInstEditModeParams)
 	{
+		if(state == buttonPress) // zmienianie pozycji listy przyciskiem pod ekranem
+		{
+			if(button == 4 && IE->selectedPlace[IE->mode] == 4)
+			{
+				IE->rollListOver = true;
+				changeFilterFilterType(1);
+				IE->rollListOver = false;
+			}
+		}
+
 		if( (button == 5) || (button == 6) )
 		{
 			if((!IE->selectNodes[button].isActive) && (!IE->editorInstrument->filterEnable)) return 1;
@@ -877,13 +900,31 @@ void changeEnvState(int16_t value)
 {
 	if(value > 0)
 	{
-		if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable == 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
-		else IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+		if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable == 0)
+		{
+			IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+			IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+		}
+		else if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop == 0) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+		else if(IE->rollListOver)
+		{
+			IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+			IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+		}
 	}
 	else if(value < 0)
 	{
-		if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop == 1) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
-		else IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+		if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop == 1)
+		{
+			IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+			IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+		}
+		else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable == 1) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+//		else if(IE->rollListOver)
+//		{
+//			IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+//			IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+//		}
 	}
 //	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 //	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
@@ -991,7 +1032,10 @@ void changeEnvAmount(int16_t value)
 void changeLfoShape(int16_t value)
 {
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = 0;
-	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > (lfoShapeCount - 1) ) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = lfoShapeCount - 1;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > (lfoShapeCount - 1) )
+	{
+		IE->editorInstrument->lfo[IE->selectedEnvelope].shape = (IE->rollListOver ? 0 : lfoShapeCount - 1);
+	}
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].shape += value;
 
 	uint32_t statusByte = 0;
@@ -1019,7 +1063,10 @@ void changeLfoSpeed(int16_t value)
 	uint8_t speedConstrain = IE->selectedEnvelope == 0 ? 23 : 24;
 
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = 0;
-	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value > speedConstrain ) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = speedConstrain;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value > speedConstrain )
+	{
+		IE->editorInstrument->lfo[IE->selectedEnvelope].speed = (IE->rollListOver ? 0 : speedConstrain);
+	}
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].speed += value;
 
 	uint32_t statusByte = 0;
@@ -1086,7 +1133,7 @@ void changeLfoAmount(int16_t value)
 void changeFilterFilterType(int16_t value)
 {
 	if(IE->filterModeListPos + value < 0) IE->filterModeListPos = 0;
-	else if(IE->filterModeListPos + value > filterModeCount-1) IE->filterModeListPos = filterModeCount-1;
+	else if(IE->filterModeListPos + value > filterModeCount-1) IE->filterModeListPos = ( IE->rollListOver ? 0 : filterModeCount-1);
 	else IE->filterModeListPos += value;
 
 	if(IE->filterModeListPos == 0)

@@ -338,4 +338,10 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 	source->reverb.diffusion = DEFAULT_REVERB_DIFFUSION;
 	source->reverb.predelay = DEFAULT_REVERB_PREDELAY;
 	source->reverb.size = DEFAULT_REVERB_SIZE;
+
+	for(uint8_t track = 0; track < 8; track++)
+	{
+		sprintf(&source->TrackNames[track][0],"Track %d",track+1);
+	}
+
 }

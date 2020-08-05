@@ -870,7 +870,9 @@ void cTracker::tracksNumbers()
 		if(tracks->inactive[tracks->firstVisibleTrack+i]) API_COLOR(colors[12]);
 		else  API_COLOR(0xffffff);
 
-		w = strlen(tracks->tracksNames+((tracks->firstVisibleTrack+i)*21))*fonts[3].width+6;
+		w = strlen(tracks->tracksNames+((tracks->firstVisibleTrack+i)*21)) * fonts[3].width+6;
+
+		if(w > tracksSpace-2) w = tracksSpace-2;
 
 		x = rightOffset+(i*tracksSpace)+1;
 
@@ -891,7 +893,7 @@ void cTracker::tracksNumbers()
 	{
 		x = rightOffset+(i*tracksSpace)+6;
 		char* trackName = tracks->tracksNames+((tracks->firstVisibleTrack+i)*21);
-		String2Bitmaps(x, y, &fonts[3], trackName, 20, tracksSpace-fonts[3].width);
+		String2Bitmaps(x, y, &fonts[3], trackName, 7, tracksSpace-fonts[3].width);
 	}
 
 	API_END();

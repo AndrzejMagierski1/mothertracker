@@ -100,6 +100,7 @@ public:
 	void hideEditFrame();
 
 	void showPerformaceValue(uint8_t place);
+	void showAllPerformanceValues();
 	void showTracksState(uint8_t shiftPressed = 0);
 	void showTracksPatterns();
 	void showFxNames(uint8_t place);

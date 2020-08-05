@@ -117,6 +117,12 @@ void cProjectEditor::update()
 		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 		interfaceGlobals.refreshFileExplorer = true;
+
+		if(newProjectAfterSaveFlag == 1) // docelowo stworz nowy projekt po zapisie
+		{
+			newProjectAfterSaveFlag = 0;
+			createNewProject();
+		}
 	}
 	else if (managerStatus == fmBrowseModsEnd)
 	{
@@ -133,7 +139,7 @@ void cProjectEditor::update()
 	}
 	else if(managerStatus >=  fmError) // a tu wszelakie errory
 	{
-		debugLog.addLine("File Manager Opretion Error");
+		debugLog.addLine("File - File Manager Opretion Error");
 		setDefaultScreenFunct();
 		showDefaultScreen();
 		FM->unblockAllInputs();
@@ -541,6 +547,8 @@ static uint8_t functOpenProject()
 
 static uint8_t functSaveProject()
 {
+	PE->newProjectAfterSaveFlag = 0; // na wszelki czego zerowanie flagi takiej o
+
 	PE->saveProject();
 
 	return 1;
@@ -622,7 +630,8 @@ static uint8_t functSaveChangesSaveNewProject()
 {
 	PE->showDefaultScreen();
 	PE->setDefaultScreenFunct();
-
+
+	PE->newProjectAfterSaveFlag = 1;
 	PE->saveProject();
 
 	return 1;
