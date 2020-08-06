@@ -1484,17 +1484,185 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 		uint8_t orderTemp = player.track[x].custom_actual_pos % playOrderWithFxLength;
 
-		player.track[x].actual_pos = playOrderWithFx[orderTemp].stepNumberToPlay;
-
-		if (random(0, 100) < playOrderWithFx[orderTemp].fxProbability)
+		// 0 nie mozna
+		if (playOrderWithFx[orderTemp].stepNumberToPlay != 0)
 		{
-			player.track[x].custom_fx = playOrderWithFx[orderTemp].fx;
-			player.track[x].custom_fx_value = playOrderWithFx[orderTemp].fxValue;
+			player.track[x].actual_pos = playOrderWithFx[orderTemp].stepNumberToPlay - 1;
 		}
 		else
 		{
+			player.track[x].actual_pos = 0;
+		}
+
+
+
+		// szukamy fxOptions
+		switch(playOrderWithFx[orderTemp].fxOption)
+		{
+		case playModeFx_none:
 			player.track[x].custom_fx = fx.FX_TYPE_NONE;
-			player.track[x].custom_fx_value = 0;
+			break;
+		case playModeFx_rollFlat_1_4_P30:
+			if (random(0, 100) < 30)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_const
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollFlat_1_4_P60:
+			if (random(0, 100) < 60)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_const
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollFlat_1_4_P100:
+			if (random(0, 100) < 100)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_const
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+
+			//****************
+
+		case playModeFx_rollIncVelo_1_4_P30:
+			if (random(0, 100) < 30)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollIncVelo_1_4_P60:
+			if (random(0, 100) < 60)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollIncVelo_1_4_P100:
+			if (random(0, 100) < 100)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+
+
+			//****************
+
+		case playModeFx_rollDecVelo_1_4_P30:
+			if (random(0, 100) < 30)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollDecVelo_1_4_P60:
+			if (random(0, 100) < 60)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollDecVelo_1_4_P100:
+			if (random(0, 100) < 100)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+
+			//****************
+
+		case playModeFx_rollIncVelo_1_2_P30:
+			if (random(0, 100) < 30)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollIncVelo_1_2_P60:
+			if (random(0, 100) < 60)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollIncVelo_1_2_P100:
+			if (random(0, 100) < 100)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+
+			//****************
+
+		case playModeFx_rollIncVelo_1_1_P30:
+			if (random(0, 100) < 30)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollIncVelo_1_1_P60:
+			if (random(0, 100) < 60)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+		case playModeFx_rollIncVelo_1_1_P100:
+			if (random(0, 100) < 100)
+			{
+				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+				player.track[x].custom_fx_value =
+						fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+								* (fx.ROLL_PERIOD_MAX + 1);
+			}
+			break;
+
+
+
+
+
+
+
+
+
+
+		default:
+			player.track[x].custom_fx = fx.FX_TYPE_NONE;
+			break;
 		}
 	}
 
