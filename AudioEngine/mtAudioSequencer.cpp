@@ -1385,16 +1385,16 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 {
 	if(n == envAmp)
 	{
-		if(env->enable) envelopeAmpPtr->setPassFlag(0);
-		else envelopeAmpPtr->setPassFlag(1);
+		if(env->enable) playMemPtr->envelopeSetPassFlag(0);
+		else playMemPtr->envelopeSetPassFlag(1);
 
-		envelopeAmpPtr->delay(env->delay);
-		envelopeAmpPtr->attack(env->attack);
-		envelopeAmpPtr->hold(env->hold);
-		envelopeAmpPtr->decay(env->decay);
-		envelopeAmpPtr->sustain(env->sustain);
-		envelopeAmpPtr->release(env->release);
-		envelopeAmpPtr->setLoop(env->loop);
+		playMemPtr->envelopeDelay(env->delay);
+		playMemPtr->envelopeAttack(env->attack);
+		playMemPtr->envelopeHold(env->hold);
+		playMemPtr->envelopeDecay(env->decay);
+		playMemPtr->envelopeSustain(env->sustain);
+		playMemPtr->envelopeRelease(env->release);
+		playMemPtr->envelopeSetLoop(env->loop);
 
 		uint8_t localVol = getMostSignificantVolume();
 
@@ -1501,8 +1501,8 @@ void playerEngine::setSyncParamsAmpLFO()
 		}
 
 
-		envelopeAmpPtr->setSyncRate(tempoSyncRatesAmp[localRate]);
-		envelopeAmpPtr->setSyncStartStep(sequencer.getActualPos());
+		playMemPtr->envelopeSetSyncRate(tempoSyncRatesAmp[localRate]);
+		playMemPtr->envelopeSetSyncStartStep(sequencer.getActualPos());
 
 /*			Magiczne liczby:
 			2 - attack,
@@ -1512,11 +1512,11 @@ void playerEngine::setSyncParamsAmpLFO()
 */
 		switch(mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape)
 		{
-		case (int)lfoShapeType::lfoShapeSaw: envelopeAmpPtr->setPhaseNumbers(2, -1);	 			break;
-		case (int)lfoShapeType::lfoShapeReverseSaw: envelopeAmpPtr->setPhaseNumbers(4, -1);			break;
-		case (int)lfoShapeType::lfoShapeTriangle: envelopeAmpPtr->setPhaseNumbers(2, 4);			break;
-		case (int)lfoShapeType::lfoShapeSquare: envelopeAmpPtr->setPhaseNumbers(3, 6);				break;
-		case (int)lfoShapeType::lfoShapeRandom: envelopeAmpPtr->setPhaseNumbers(3, -1);				break;
+		case (int)lfoShapeType::lfoShapeSaw: playMemPtr->envelopeSetPhaseNumbers(2, -1);	 			break;
+		case (int)lfoShapeType::lfoShapeReverseSaw: playMemPtr->envelopeSetPhaseNumbers(4, -1);			break;
+		case (int)lfoShapeType::lfoShapeTriangle: playMemPtr->envelopeSetPhaseNumbers(2, 4);			break;
+		case (int)lfoShapeType::lfoShapeSquare: playMemPtr->envelopeSetPhaseNumbers(3, 6);				break;
+		case (int)lfoShapeType::lfoShapeRandom: playMemPtr->envelopeSetPhaseNumbers(3, -1);				break;
 		default:	break;
 		}
 	}
@@ -1887,13 +1887,13 @@ void playerEngine::clearFxAmpRateLFO()
 			else
 			{
 				initEnvelopesParamiters(envAmp,&mtProject.instrument[currentInstrument_idx].envelope[envAmp]);
-				if(envelopeAmpPtr->getState() != 0 ) envelopeAmpPtr->setSustain();
+				if(playMemPtr->envelopeGetState() != 0 ) playMemPtr->envelopeSetSustain();
 			}
 		}
 		else
 		{
 			initEnvelopesParamiters(envAmp,(envelopeGenerator::strEnv *)&passEnvelope);
-			if(envelopeAmpPtr->getState() != 0 ) envelopeAmpPtr->setSustain();
+			if(playMemPtr->envelopeGetState() != 0 ) playMemPtr->envelopeSetSustain();
 		}
 	}
 
@@ -1901,9 +1901,9 @@ void playerEngine::clearFxAmpRateLFO()
 
 void playerEngine::syncFxAmpLFO()
 {
-	envelopeAmpPtr->noteOff();
-	envelopeAmpPtr->setIdle();
+	playMemPtr->envelopeNoteOff();
+	playMemPtr->envelopeSetIdle();
 	bool isAmpRandom = (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) && (mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape == lfoShapeRandom);
-	envelopeAmpPtr->setIsRandom(isAmpRandom);
-	envelopeAmpPtr->noteOn();
+	playMemPtr->envelopeSetIsRandom(isAmpRandom);
+	playMemPtr->envelopeNoteOn();
 }

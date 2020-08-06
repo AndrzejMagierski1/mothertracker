@@ -3,7 +3,6 @@
 #include "utility/dspinst.h"
 #include "mtAudioEngine.h"
 
-
 //**************************************************************************************UPDATE START
 
 void AudioPlayMemory::update(void)
@@ -668,57 +667,6 @@ void AudioPlayMemory::setGranularPosition(uint16_t val)
 	currentGranularPosition = val;
 
 	granularPositionRefreshFlag = 1;
-//	switch(granularLoopType)
-//	{
-//		case granularLoopForward:
-//			if(reverseDirectionFlag)
-//			{
-//				if ((iPitchCounter <= sampleConstrains.loopPoint1))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint2;
-//					fPitchCounter = 0;
-//				}
-//			}
-//			else
-//			{
-//				if ((iPitchCounter >= sampleConstrains.loopPoint2))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint1;
-//					fPitchCounter = 0;
-//				}
-//			}
-//		break;
-//
-//		case granularLoopBackward:
-//			if(reverseDirectionFlag)
-//			{
-//				if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint1;
-//					loopBackwardFlag = 1;
-//					fPitchCounter = 0;
-//				}
-//				if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint1;
-//					fPitchCounter = 0;
-//				}
-//			}
-//			else
-//			{
-//				if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint2;
-//					loopBackwardFlag = 1;
-//					fPitchCounter = 0;
-//				}
-//				if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint2;
-//					fPitchCounter = 0;
-//				}
-//			}
-//	}
 }
 void AudioPlayMemory::setGranularGrainLength()
 {

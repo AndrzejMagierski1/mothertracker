@@ -24,20 +24,53 @@
  * THE SOFTWARE.
  */
 
-#include "effect_envelope.h"
 #include "Audio.h"
 #include "debugLog.h"
 #include "mtSequencer.h"
+#include "play_memory.h"
 
-void AudioEffectEnvelope::delay(float milliseconds)
+
+#define SAMPLES_PER_MSEC (AUDIO_SAMPLE_RATE_EXACT/1000.0)
+
+void AudioPlayMemory::envelopeSetSustain()
+{
+	envelope.state = 5;
+	envelope.count = 0xFFFF;
+	envelope.mult_hires = envelope.sustain_mult;
+	envelope.inc_hires = 0;
+}
+
+void AudioPlayMemory::envelopeReleaseNoteOn(float milliseconds)
+{
+	envelope.release_forced_count = envelopeMilliseconds2count(milliseconds);
+	if (envelope.release_forced_count == 0) envelope.release_forced_count = 1;
+//		release_forced_count = 16;
+}
+void AudioPlayMemory::envelopeSetLoop(uint8_t state)
+{
+	envelope.loopFlag = state;
+}
+
+void AudioPlayMemory::envelopeSetPassFlag(uint8_t state)
+{
+	envelope.passFlag = state;
+}
+
+void AudioPlayMemory::envelopeSetIsRandom(bool value)
+{
+	envelope.isRandom = value;
+}
+
+
+void AudioPlayMemory::envelopeDelay(float milliseconds)
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	uint16_t lastDelayCount = delay_count;
-	delay_count = milliseconds2count(milliseconds);
-	if (delay_count == 0) delay_count = 1;
+	uint16_t lastDelayCount = envelope.delay_count;
+	envelope.delay_count = envelopeMilliseconds2count(milliseconds);
+	if (envelope.delay_count == 0) envelope.delay_count = 1;
 
-	if(delay_count == lastDelayCount)
+	if(envelope.delay_count == lastDelayCount)
 	{
 		AudioInterrupts();
 		__enable_irq();
@@ -45,28 +78,28 @@ void AudioEffectEnvelope::delay(float milliseconds)
 	}
 
 
-	if(state == envelopePhaseDelay)
+	if(envelope.state == envelopePhaseDelay)
 	{
-		int32_t dif = delay_count - lastDelayCount;
+		int32_t dif = envelope.delay_count - lastDelayCount;
 
-		if((int)(count + dif) < 1 ) count = 1;
-		else if ((int)(count + dif) > 65535) count = 65535;
-		else count += dif;
+		if((int)(envelope.count + dif) < 1 ) envelope.count = 1;
+		else if ((int)(envelope.count + dif) > 65535) envelope.count = 65535;
+		else envelope.count += dif;
 	}
 	AudioInterrupts();
 	__enable_irq();
 }
-void  AudioEffectEnvelope::attack(float milliseconds)
+void  AudioPlayMemory::envelopeAttack(float milliseconds)
 {
 	__disable_irq();
 	AudioNoInterrupts();
 
-	uint16_t lastAttackCount = attack_count;
+	uint16_t lastAttackCount = envelope.attack_count;
 
-	attack_count = milliseconds2count(milliseconds);
-	if (attack_count == 0) attack_count = 1;
+	envelope.attack_count = envelopeMilliseconds2count(milliseconds);
+	if (envelope.attack_count == 0) envelope.attack_count = 1;
 
-	if(attack_count == lastAttackCount)
+	if(envelope.attack_count == lastAttackCount)
 	{
 		AudioInterrupts();
 		__enable_irq();
@@ -74,60 +107,60 @@ void  AudioEffectEnvelope::attack(float milliseconds)
 	}
 
 
-	if(state == envelopePhaseAttack)
+	if(envelope.state == envelopePhaseAttack)
 	{
-		int32_t dif = attack_count - lastAttackCount;
+		int32_t dif = envelope.attack_count - lastAttackCount;
 
-		if((int)(count + dif) < 1 ) count = 1;
-		else if ((int)(count + dif) > 65535) count = 65535;
-		else count += dif;
+		if((int)(envelope.count + dif) < 1 ) envelope.count = 1;
+		else if ((int)(envelope.count + dif) > 65535) envelope.count = 65535;
+		else envelope.count += dif;
 
-		int32_t y = 0x3FFFFFFF - mult_hires;
-		int32_t x = count;
+		int32_t y = 0x3FFFFFFF - envelope.mult_hires;
+		int32_t x = envelope.count;
 
 		if(x < 0) x = 0;
 
-		inc_hires = x ?  y /x : y;
+		envelope.inc_hires = x ?  y /x : y;
 
 	}
 	AudioInterrupts();
 	__enable_irq();
 }
-void  AudioEffectEnvelope::hold(float milliseconds)
+void  AudioPlayMemory::envelopeHold(float milliseconds)
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	uint16_t lastHoldCount = hold_count;
-	hold_count = milliseconds2count(milliseconds);
-	if (hold_count == 0) hold_count = 1;
-	if(hold_count == lastHoldCount)
+	uint16_t lastHoldCount = envelope.hold_count;
+	envelope.hold_count = envelopeMilliseconds2count(milliseconds);
+	if (envelope.hold_count == 0) envelope.hold_count = 1;
+	if(envelope.hold_count == lastHoldCount)
 	{
 		AudioInterrupts();
 		__enable_irq();
 		return;
 	}
 
-	if(state == envelopePhaseHold)
+	if(envelope.state == envelopePhaseHold)
 	{
-		int32_t dif = hold_count - lastHoldCount;
+		int32_t dif = envelope.hold_count - lastHoldCount;
 
-		if((int)(count + dif) < 1 ) count = 1;
-		else if ((int)(count + dif) > 65535) count = 65535;
-		else count += dif;
+		if((int)(envelope.count + dif) < 1 ) envelope.count = 1;
+		else if ((int)(envelope.count + dif) > 65535) envelope.count = 65535;
+		else envelope.count += dif;
 
 	}
 	AudioInterrupts();
 	__enable_irq();
 }
-void  AudioEffectEnvelope::decay(float milliseconds)
+void  AudioPlayMemory::envelopeDecay(float milliseconds)
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	uint16_t lastDecayCount = decay_count;
-	decay_count = milliseconds2count(milliseconds);
-	if (decay_count == 0) decay_count = 1;
+	uint16_t lastDecayCount = envelope.decay_count;
+	envelope.decay_count = envelopeMilliseconds2count(milliseconds);
+	if (envelope.decay_count == 0) envelope.decay_count = 1;
 
-	if(decay_count == lastDecayCount)
+	if(envelope.decay_count == lastDecayCount)
 	{
 		AudioInterrupts();
 		__enable_irq();
@@ -135,40 +168,40 @@ void  AudioEffectEnvelope::decay(float milliseconds)
 	}
 
 
-	if(state == envelopePhaseDecay)
+	if(envelope.state == envelopePhaseDecay)
 	{
-		int32_t dif = decay_count - lastDecayCount;
+		int32_t dif = envelope.decay_count - lastDecayCount;
 
-		if((int)(count + dif) < 1 ) count = 1;
-		else if ((int)(count + dif) > 65535) count = 65535;
-		else count += dif;
+		if((int)(envelope.count + dif) < 1 ) envelope.count = 1;
+		else if ((int)(envelope.count + dif) > 65535) envelope.count = 65535;
+		else envelope.count += dif;
 
-		inc_hires = count ? (sustain_mult - mult_hires) / count : (sustain_mult - mult_hires) ;
+		envelope.inc_hires = envelope.count ? (envelope.sustain_mult - envelope.mult_hires) / envelope.count : (envelope.sustain_mult - envelope.mult_hires) ;
 
 	}
 	AudioInterrupts();
 	__enable_irq();
 }
-void  AudioEffectEnvelope::sustain(float level)
+void  AudioPlayMemory::envelopeSustain(float level)
 {
 	__disable_irq();
 	AudioNoInterrupts();
 	if (level < 0.0) level = 0;
 	else if (level > 1.0) level = 1.0;
-	sustain_mult = level * 1073741823.0;
-	if(state == envelopePhaseSustain) mult_hires = sustain_mult;
+	envelope.sustain_mult = level * 1073741823.0;
+	if(envelope.state == envelopePhaseSustain) envelope.mult_hires = envelope.sustain_mult;
 	AudioInterrupts();
 	__enable_irq();
 }
-void  AudioEffectEnvelope::release(float milliseconds)
+void  AudioPlayMemory::envelopeRelease(float milliseconds)
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	uint16_t lastReleaseCount = release_count;
-	release_count = milliseconds2count(milliseconds);
-	if (release_count == 0) release_count = 1;
+	uint16_t lastReleaseCount = envelope.release_count;
+	envelope.release_count = envelopeMilliseconds2count(milliseconds);
+	if (envelope.release_count == 0) envelope.release_count = 1;
 
-	if(release_count == lastReleaseCount)
+	if(envelope.release_count == lastReleaseCount)
 	{
 		AudioInterrupts();
 		__enable_irq();
@@ -176,15 +209,15 @@ void  AudioEffectEnvelope::release(float milliseconds)
 	}
 
 
-	if(state == envelopePhaseRelease)
+	if(envelope.state == envelopePhaseRelease)
 	{
-		int32_t dif = release_count - lastReleaseCount;
+		int32_t dif = envelope.release_count - lastReleaseCount;
 
-		if( (int)(count + dif) < 1 ) count = 1;
-		else if ((int)(count + dif) > 65535) count = 65535;
-		else count += dif;
+		if( (int)(envelope.count + dif) < 1 ) envelope.count = 1;
+		else if ((int)(envelope.count + dif) > 65535) envelope.count = 65535;
+		else envelope.count += dif;
 
-		inc_hires = count ? (-mult_hires) / count : -mult_hires;
+		envelope.inc_hires = envelope.count ? (-envelope.mult_hires) / envelope.count : -envelope.mult_hires;
 
 	}
 	AudioInterrupts();
@@ -192,53 +225,53 @@ void  AudioEffectEnvelope::release(float milliseconds)
 }
 
 
-void AudioEffectEnvelope::noteOn(void)
+void AudioPlayMemory::envelopeNoteOn(void)
 {
 	__disable_irq();
 
-	pressedFlag = 1;
+	envelope.pressedFlag = 1;
 
-	if(passFlag)
+	if(envelope.passFlag)
 	{
-		switchPhase(envelopePhaseIdle);
+		envelopeSwitchPhase(envelopePhaseIdle);
 	}
-	else if (state == envelopePhaseIdle || state == envelopePhaseDelay)
+	else if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
 	{
-		switchPhase(envelopePhaseDelay);
+		envelopeSwitchPhase(envelopePhaseDelay);
 	}
-	else if (state != envelopePhaseForced)
+	else if (envelope.state != envelopePhaseForced)
 	{
-		switchPhase(envelopePhaseForced);
+		envelopeSwitchPhase(envelopePhaseForced);
 	}
-	else endKillReleaseFlag = 1;
+	else envelope.endKillReleaseFlag = 1;
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
 	__enable_irq();
 }
 
-void AudioEffectEnvelope::noteOff(void)
+void AudioPlayMemory::envelopeNoteOff(void)
 {
-	pressedFlag = 0;
-	if (state != envelopePhaseIdle)
+	envelope.pressedFlag = 0;
+	if (envelope.state != envelopePhaseIdle)
 	{
-		if(loopFlag) switchPhase(envelopePhaseIdle);
+		if(envelope.loopFlag) envelopeSwitchPhase(envelopePhaseIdle);
 		else
 		{
-			switchPhase(envelopePhaseRelease);
+			envelopeSwitchPhase(envelopePhaseRelease);
 		}
 
 	}
 	__enable_irq();
 }
 
-void AudioEffectEnvelope::setIdle(void)
+void AudioPlayMemory::envelopeSetIdle(void)
 {
 	__disable_irq();
-	pressedFlag = 0;
-	switchPhase(envelopePhaseIdle);
+	envelope.pressedFlag = 0;
+	envelopeSwitchPhase(envelopePhaseIdle);
 	__enable_irq();
 }
 
-void AudioEffectEnvelope::update(void)
+void AudioPlayMemory::envelopeUpdate(void)
 {
 	__disable_irq();
 	audio_block_t *block;
@@ -252,13 +285,13 @@ void AudioEffectEnvelope::update(void)
 		else memset(block->data,0,AUDIO_BLOCK_SAMPLES * 2);
 	}
 
-	if(passFlag)
+	if(envelope.passFlag)
 	{
 		transmit(block);
 		AudioStream::release(block);
 		return;
 	}
-	if (state == envelopePhaseIdle)
+	if (envelope.state == envelopePhaseIdle)
 	{
 		memset(block->data,0,AUDIO_BLOCK_SAMPLES * 2);
 		transmit(block);
@@ -273,64 +306,64 @@ void AudioEffectEnvelope::update(void)
 	while (p < end)
 	{
 		// we only care about the state when completing a region
-		if (state == envelopePhaseSustain)
+		if (envelope.state == envelopePhaseSustain)
 		{
-			if(loopFlag && pressedFlag)
+			if(envelope.loopFlag && envelope.pressedFlag)
 			{
-				switchPhase(envelopePhaseRelease);
+				envelopeSwitchPhase(envelopePhaseRelease);
 			}
 		}
 
-		if (count == 0)
+		if (envelope.count == 0)
 		{
-			if (state == envelopePhaseAttack)
+			if (envelope.state == envelopePhaseAttack)
 			{
-				switchPhase(envelopePhaseHold);
-				if(isRandom)
+				envelopeSwitchPhase(envelopePhaseHold);
+				if(envelope.isRandom)
 				{
 					randomSeed(micros());
-					mult_hires = random(0,0x3FFFFFFF);
+					envelope.mult_hires = random(0,0x3FFFFFFF);
 				}
 				continue;
 			}
-			else if (state == envelopePhaseHold)
+			else if (envelope.state == envelopePhaseHold)
 			{
-				if(isRandom)
+				if(envelope.isRandom)
 				{
-					switchPhase(envelopePhaseHold);
+					envelopeSwitchPhase(envelopePhaseHold);
 					randomSeed(micros());
-					mult_hires = random(0,0x3FFFFFFF);
+					envelope.mult_hires = random(0,0x3FFFFFFF);
 				}
-				else switchPhase(envelopePhaseDecay);
+				else envelopeSwitchPhase(envelopePhaseDecay);
 				continue;
 			}
-			else if (state == envelopePhaseDecay)
+			else if (envelope.state == envelopePhaseDecay)
 			{
-				if(loopFlag && pressedFlag)
+				if(envelope.loopFlag && envelope.pressedFlag)
 				{
-					switchPhase(envelopePhaseRelease);
+					envelopeSwitchPhase(envelopePhaseRelease);
 					continue;
 				}
 				else
 				{
-					switchPhase(envelopePhaseSustain);
+					envelopeSwitchPhase(envelopePhaseSustain);
 				}
 			}
-			else if (state == envelopePhaseSustain)
+			else if (envelope.state == envelopePhaseSustain)
 			{
-				switchPhase(envelopePhaseSustain);
+				envelopeSwitchPhase(envelopePhaseSustain);
 			}
-			else if (state == envelopePhaseRelease)
+			else if (envelope.state == envelopePhaseRelease)
 			{
-				if(loopFlag && pressedFlag)
+				if(envelope.loopFlag && envelope.pressedFlag)
 				{
-					switchPhase(envelopePhaseDelay);
+					envelopeSwitchPhase(envelopePhaseDelay);
 					continue;
 				}
 				else
 				{
-					switchPhase(envelopePhaseIdle);
-					endReleaseFlag=1;
+					envelopeSwitchPhase(envelopePhaseIdle);
+					envelope.endReleaseFlag=1;
 					while (p < end)
 					{
 
@@ -342,326 +375,156 @@ void AudioEffectEnvelope::update(void)
 					break;
 				}
 			}
-			else if (state == envelopePhaseForced)
+			else if (envelope.state == envelopePhaseForced)
 			{
-				switchPhase(envelopePhaseDelay);
-				endKillReleaseFlag = 1;
+				envelopeSwitchPhase(envelopePhaseDelay);
+				envelope.endKillReleaseFlag = 1;
 				continue;
 
 			}
-			else if (state == envelopePhaseDelay)
+			else if (envelope.state == envelopePhaseDelay)
 			{
-				switchPhase(envelopePhaseAttack);
+				envelopeSwitchPhase(envelopePhaseAttack);
 				continue;
 			}
 		}
 
-//		if( (mult_hires + inc_hires) > 0x3FFFFFFF)
-//		{
-//			if(mult_hires >= 0x3FFFFFFF)
-//			{
-//				mult_hires= 0x3FFFFFFF;
-//				inc_hires = 0;
-//			}
-//			else
-//			{
-//				mult_hires -= inc_hires;
-//			}
-////			count = 1;
-//		}
-//		else if( (mult_hires + inc_hires) < 0)
-//		{
-//			if(mult_hires <= 0)
-//			{
-//				mult_hires = 0;
-//				inc_hires = 0;
-//			}
-//			else
-//			{
-//				mult_hires -= inc_hires;
-//			}
-////			count = 1;
-//		}
-//		mult_hires = 0x3FFFFFFF;
-//		inc_hires = 0;
+		int32_t mult = envelope.mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x3FFFFFFF zajmuje 30 bitow
+		int32_t inc = envelope.inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) obslugiwala 8 probek (inc_hires wyliczone dla 8 bitowego cyklu)
 
-		int32_t mult = mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x3FFFFFFF zajmuje 30 bitow
-
-
-		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) obslugiwala 8 probek (inc_hires wyliczone dla 8 bitowego cyklu)
-
-
-
-		sample12 = *p;
-		sample34 = *(p+1);
-		sample56 = *(p+2);
-		sample78 = *(p+3);
-//		sample12 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//		sample34 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//		sample56 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//		sample78 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-
+		envelope.sample12 = *p;
+		envelope.sample34 = *(p+1);
+		envelope.sample56 = *(p+2);
+		envelope.sample78 = *(p+3);
 //		p -= 4;
 		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample12);
+		envelope.tmp1 = signed_multiply_32x16b(mult, envelope.sample12);
 		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample12);
-		sample12 = pack_16b_16b(tmp2, tmp1);
+		envelope.tmp2 = signed_multiply_32x16t(mult, envelope.sample12);
+		envelope.sample12 = pack_16b_16b(envelope.tmp2, envelope.tmp1);
 		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample34);
+		envelope.tmp1 = signed_multiply_32x16b(mult, envelope.sample34);
 		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample34);
-		sample34 = pack_16b_16b(tmp2, tmp1);
+		envelope.tmp2 = signed_multiply_32x16t(mult, envelope.sample34);
+		envelope.sample34 = pack_16b_16b(envelope.tmp2, envelope.tmp1);
 		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample56);
+		envelope.tmp1 = signed_multiply_32x16b(mult, envelope.sample56);
 		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample56);
-		sample56 = pack_16b_16b(tmp2, tmp1);
+		envelope.tmp2 = signed_multiply_32x16t(mult, envelope.sample56);
+		envelope.sample56 = pack_16b_16b(envelope.tmp2, envelope.tmp1);
 		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample78);
+		envelope.tmp1 = signed_multiply_32x16b(mult, envelope.sample78);
 		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample78);
-		sample78 = pack_16b_16b(tmp2, tmp1);
+		envelope.tmp2 = signed_multiply_32x16t(mult, envelope.sample78);
+		envelope.sample78 = pack_16b_16b(envelope.tmp2, envelope.tmp1);
 
-//		mult = 0;
-//		inc = 0;
-
-//		sample12 = *p;
-//		sample34 = *(p+1);
-//		sample56 = *(p+2);
-//		sample78 = *(p+3);
-//
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp1 = mult * (*sample1);
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp2 = mult * (*sample2);
-//
-//		*sample1 = *tmp1Shifted;
-//		*sample2 = *tmp2Shifted;
-//
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp1 = mult * (*sample3);
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp2 = mult * (*sample4);
-//
-//		*sample3 = *tmp1Shifted;
-//		*sample4 = *tmp2Shifted;
-//
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp1 = mult * (*sample5);
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp2 = mult * (*sample6);
-//
-//		*sample5 = *tmp1Shifted;
-//		*sample6 = *tmp2Shifted;
-//
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp1 = mult * (*sample7);
-//		mult+=inc;
-////		if( mult >= 0x10000)
-////		{
-////			mult = 0xFFFF;
-////			inc = 0;
-////		}
-////		else if( mult < 0)
-////		{
-////			mult = 0;
-////			inc = 0;
-////		}
-//		tmp2 = mult * (*sample8);
-//
-//
-//
-//		*sample7 = *tmp1Shifted;
-//		*sample8 = *tmp2Shifted;
-//
-//		if(state == envelopePhaseForced)
-//		{
-//			sample12 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//			sample34 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//			sample56 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//			sample78 = (MAX_SIGNED_16BIT| (MAX_SIGNED_16BIT<<16));
-//		}
-
-		*p++ = sample12;
-		*p++ = sample34;
-		*p++ = sample56;
-		*p++ = sample78;
-
-
+		*p++ = envelope.sample12;
+		*p++ = envelope.sample34;
+		*p++ = envelope.sample56;
+		*p++ = envelope.sample78;
 
 		// adjust the long-term gain using 30 bit resolution (fix #102)
 		// https://github.com/PaulStoffregen/Audio/issues/102
-		mult_hires += inc_hires;
-		if(mult_hires < 0 )
+		envelope.mult_hires += envelope.inc_hires;
+		if(envelope.mult_hires < 0 )
 		{
-			mult_hires = 0;
-			count = 1;
+			envelope.mult_hires = 0;
+			envelope.count = 1;
 			debugLog.setMaxLineCount(9);
 			debugLog.addLine("MH<0 ");
-			debugLog.addValue(state);
+			debugLog.addValue(envelope.state);
 			debugLog.addText(" ");
-			debugLog.addValue(count);
+			debugLog.addValue(envelope.count);
 		}
-		else if(mult_hires > 0x3FFFFFFF)
+		else if(envelope.mult_hires > 0x3FFFFFFF)
 		{
-			mult_hires = 0x3FFFFFFF;
-			count = 1;
+			envelope.mult_hires = 0x3FFFFFFF;
+			envelope.count = 1;
 			debugLog.setMaxLineCount(9);
 			debugLog.addLine("MH>MAX ");
-			debugLog.addValue(state);
+			debugLog.addValue(envelope.state);
 			debugLog.addText(" ");
-			debugLog.addValue(count);
+			debugLog.addValue(envelope.count);
 		}
 
-		if(count > 0 )
+		if(envelope.count > 0 )
 		{
-			count--;
+			envelope.count--;
 		}
 		else
 		{
 			debugLog.setMaxLineCount(10);
 			debugLog.addLine("count = 0 ");
-			debugLog.addValue(state);
+			debugLog.addValue(envelope.state);
 		}
 	}
 	transmit(block);
 	AudioStream::release(block);
 }
 
-uint8_t AudioEffectEnvelope::endRelease()
+uint8_t AudioPlayMemory::envelopeEndRelease()
 {
-	return  endReleaseFlag;
+	return  envelope.endReleaseFlag;
 }
-void AudioEffectEnvelope::clearEndReleaseFlag()
+void AudioPlayMemory::envelopeClearEndReleaseFlag()
 {
-	endReleaseFlag = 0;
-}
-
-uint8_t AudioEffectEnvelope::getEndReleaseKill()
-{
-	return endKillReleaseFlag;
-}
-void AudioEffectEnvelope::clearEndReleaseKill()
-{
-	endKillReleaseFlag = 0;
+	envelope.endReleaseFlag = 0;
 }
 
-uint8_t AudioEffectEnvelope:: getState()
+uint8_t AudioPlayMemory::envelopeGetEndReleaseKill()
 {
-	return state;
+	return envelope.endKillReleaseFlag;
+}
+void AudioPlayMemory::envelopeClearEndReleaseKill()
+{
+	envelope.endKillReleaseFlag = 0;
 }
 
-void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
+uint8_t AudioPlayMemory:: envelopeGetState()
 {
-	if(state == envelopePhaseForced) return;
+	return envelope.state;
+}
+
+void AudioPlayMemory::envelopeSyncTrackerSeq(uint32_t val, float seqSpeed)
+{
+	if(envelope.state == envelopePhaseForced) return;
 
 	AudioNoInterrupts();
-	uint16_t ticksOnPeriod = (6912/12) * syncRate;
+	uint16_t ticksOnPeriod = (6912/12) * envelope.syncRate;
 
-	uint16_t stepShift = (startStep % 36) * (6912/12);
+	uint16_t stepShift = (envelope.startStep % 36) * (6912/12);
 
 	val += stepShift;
 
 	uint16_t currentPointInPhase = val % ticksOnPeriod;
 
 	float lfoFrequency = (seqSpeed/15.0);
-	float periodTime = (1000 / lfoFrequency) * syncRate;
+	float periodTime = (1000 / lfoFrequency) * envelope.syncRate;
 
-	if(phaseNumber[0] != -1 && phaseNumber[1] != -1)
+	if(envelope.phaseNumber[0] != -1 && envelope.phaseNumber[1] != -1)
 	{
 		float fullPhaseTime = periodTime/2.0f;
-		uint16_t fullPhaseCount = milliseconds2count(fullPhaseTime);
+		uint16_t fullPhaseCount = envelopeMilliseconds2count(fullPhaseTime);
 
 		if(currentPointInPhase > ticksOnPeriod/2)
 		{
-			state = phaseNumber[1];
-			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
-			if(count == 0) count = 1;
+			envelope.state = envelope.phaseNumber[1];
+			envelope.count = envelopeMilliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
+			if(envelope.count == 0) envelope.count = 1;
 
-			if(phaseNumber[1] == envelopePhaseDecay)
+			if(envelope.phaseNumber[1] == envelopePhaseDecay)
 			{
-				decay_count = fullPhaseCount;
-				if (decay_count == 0) decay_count = 1;
-				inc_hires = fullPhaseCount ? -(0x3FFFFFFF/fullPhaseCount) : 0;
-				mult_hires = 0x3FFFFFFF + (inc_hires * (fullPhaseCount - count));
+				envelope.decay_count = fullPhaseCount;
+				if (envelope.decay_count == 0) envelope.decay_count = 1;
+				envelope.inc_hires = fullPhaseCount ? -(0x3FFFFFFF/fullPhaseCount) : 0;
+				envelope.mult_hires = 0x3FFFFFFF + (envelope.inc_hires * (fullPhaseCount - envelope.count));
 			}
-			else if(phaseNumber[1] == envelopePhaseRelease)
+			else if(envelope.phaseNumber[1] == envelopePhaseRelease)
 			{
-				release_count = fullPhaseCount;
-				if (release_count == 0) release_count = 1;
-				inc_hires = 0;
-				mult_hires = 0;
+				envelope.release_count = fullPhaseCount;
+				if (envelope.release_count == 0) envelope.release_count = 1;
+				envelope.inc_hires = 0;
+				envelope.mult_hires = 0;
 				// w normalnym przypadku powinno byc od ostatniego mult_hires - ale  w lfo stan poczatkowy release = 1.0
 			}
 
@@ -669,124 +532,134 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 		}
 		else
 		{
-			if(phaseNumber[0] == envelopePhaseAttack)
+			if(envelope.phaseNumber[0] == envelopePhaseAttack)
 			{
-				attack_count = fullPhaseCount;
-				if (attack_count == 0) attack_count = 1;
-				inc_hires = fullPhaseCount ? 0x3FFFFFFF/fullPhaseCount : 0;
+				envelope.attack_count = fullPhaseCount;
+				if (envelope.attack_count == 0) envelope.attack_count = 1;
+				envelope.inc_hires = fullPhaseCount ? 0x3FFFFFFF/fullPhaseCount : 0;
 			}
-			else if(phaseNumber[0] == envelopePhaseHold)
+			else if(envelope.phaseNumber[0] == envelopePhaseHold)
 			{
-				hold_count = fullPhaseCount;
-				if (hold_count == 0) hold_count = 1;
+				envelope.hold_count = fullPhaseCount;
+				if (envelope.hold_count == 0) envelope.hold_count = 1;
 			}
 
-			state = phaseNumber[0];
-			count = milliseconds2count((fullPhaseTime) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f)));
-			if(count == 0) count = 1;
-			if(phaseNumber[0] == envelopePhaseAttack)
+			envelope.state = envelope.phaseNumber[0];
+			envelope.count = envelopeMilliseconds2count((fullPhaseTime) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f)));
+			if(envelope.count == 0) envelope.count = 1;
+			if(envelope.phaseNumber[0] == envelopePhaseAttack)
 			{
-				mult_hires = inc_hires * (fullPhaseCount - count);
+				envelope.mult_hires = envelope.inc_hires * (fullPhaseCount - envelope.count);
 			}
-			else if(phaseNumber[0] == envelopePhaseHold)
+			else if(envelope.phaseNumber[0] == envelopePhaseHold)
 			{
-				mult_hires = 0x3FFFFFFF;
-				inc_hires = 0;
+				envelope.mult_hires = 0x3FFFFFFF;
+				envelope.inc_hires = 0;
 			}
 		}
 	}
-	else if(phaseNumber[0] != -1)
+	else if(envelope.phaseNumber[0] != -1)
 	{
-		uint16_t fullPhaseCount = milliseconds2count(periodTime);
+		uint16_t fullPhaseCount = envelopeMilliseconds2count(periodTime);
 
-		state = phaseNumber[0];
-		count = milliseconds2count((periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod));
-		if(count == 0) count = 1;
-		if(phaseNumber[0] == envelopePhaseAttack)
+		envelope.state = envelope.phaseNumber[0];
+		envelope.count = envelopeMilliseconds2count((periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod));
+		if(envelope.count == 0) envelope.count = 1;
+		if(envelope.phaseNumber[0] == envelopePhaseAttack)
 		{
-			attack_count = fullPhaseCount;
-			if (attack_count == 0) attack_count = 1;
-			inc_hires = fullPhaseCount ? 0x3FFFFFFF/fullPhaseCount : 0;
-			mult_hires = inc_hires * (fullPhaseCount - count);
+			envelope.attack_count = fullPhaseCount;
+			if (envelope.attack_count == 0) envelope.attack_count = 1;
+			envelope.inc_hires = fullPhaseCount ? 0x3FFFFFFF/fullPhaseCount : 0;
+			envelope.mult_hires = envelope.inc_hires * (fullPhaseCount - envelope.count);
 		}
-		else if(phaseNumber[0] == envelopePhaseDecay)
+		else if(envelope.phaseNumber[0] == envelopePhaseDecay)
 		{
-			decay_count = fullPhaseCount;
-			if (decay_count == 0) decay_count = 1;
-			inc_hires = fullPhaseCount ? -(0x3FFFFFFF/fullPhaseCount) : 0;
-			mult_hires = 0x3FFFFFFF + (inc_hires * (fullPhaseCount - count));
+			envelope.decay_count = fullPhaseCount;
+			if (envelope.decay_count == 0) envelope.decay_count = 1;
+			envelope.inc_hires = fullPhaseCount ? -(0x3FFFFFFF/fullPhaseCount) : 0;
+			envelope.mult_hires = 0x3FFFFFFF + (envelope.inc_hires * (fullPhaseCount - envelope.count));
 		}
 	}
 	AudioInterrupts();
 }
-void AudioEffectEnvelope::setSyncStartStep(uint16_t n)
+void AudioPlayMemory::envelopeSetSyncStartStep(uint16_t n)
 {
-	startStep = n;
+	envelope.startStep = n;
 }
-void AudioEffectEnvelope::setPhaseNumbers(int8_t n1, int8_t n2)
+void AudioPlayMemory::envelopeSetPhaseNumbers(int8_t n1, int8_t n2)
 {
-	phaseNumber[0] = n1;
-	phaseNumber[1] = n2;
+	envelope.phaseNumber[0] = n1;
+	envelope.phaseNumber[1] = n2;
 }
-void AudioEffectEnvelope::setSyncRate(float sync)
+void AudioPlayMemory::envelopeSetSyncRate(float sync)
 {
-	syncRate = sync;
+	envelope.syncRate = sync;
 }
 
-void AudioEffectEnvelope::switchPhase(uint8_t nextPhase)
+void AudioPlayMemory::envelopeSwitchPhase(uint8_t nextPhase)
 {
 	switch(nextPhase)
 	{
 		case envelopePhaseIdle:
-			state = envelopePhaseIdle;
-			mult_hires = 0;
-			inc_hires = 0;
-			count = 0xFFFF;
+			envelope.state = envelopePhaseIdle;
+			envelope.mult_hires = 0;
+			envelope.inc_hires = 0;
+			envelope.count = 0xFFFF;
 		break;
 		case envelopePhaseDelay:
-			state = envelopePhaseDelay;
-			count = delay_count;
-			mult_hires = 0;
-			inc_hires = 0;
+			envelope.state = envelopePhaseDelay;
+			envelope.count = envelope.delay_count;
+			envelope.mult_hires = 0;
+			envelope.inc_hires = 0;
 		break;
 
 		case envelopePhaseAttack:
-			state = envelopePhaseAttack;
-			count = attack_count;
-			inc_hires = count? 0x3FFFFFFF / count : 0x3FFFFFFF;
-			mult_hires = 0;
+			envelope.state = envelopePhaseAttack;
+			envelope.count = envelope.attack_count;
+			envelope.inc_hires = envelope.count? 0x3FFFFFFF / envelope.count : 0x3FFFFFFF;
+			envelope.mult_hires = 0;
 		break;
 		case envelopePhaseHold:
-			state = envelopePhaseHold;
-			count = hold_count;
-			inc_hires = 0;
-			mult_hires = 0x3FFFFFFF;
+			envelope.state = envelopePhaseHold;
+			envelope.count = envelope.hold_count;
+			envelope.inc_hires = 0;
+			envelope.mult_hires = 0x3FFFFFFF;
 		break;
 		case envelopePhaseDecay:
-			state = envelopePhaseDecay;
-			count = decay_count;
-			inc_hires = count ? (sustain_mult - 0x3FFFFFFF) / count : (sustain_mult - 0x3FFFFFFF);
-			mult_hires = 0x3FFFFFFF;
+			envelope.state = envelopePhaseDecay;
+			envelope.count = envelope.decay_count;
+			envelope.inc_hires = envelope.count ? (envelope.sustain_mult - 0x3FFFFFFF) / envelope.count : (envelope.sustain_mult - 0x3FFFFFFF);
+			envelope.mult_hires = 0x3FFFFFFF;
 		break;
 		case envelopePhaseSustain:
-			state = envelopePhaseSustain;
-			count = 0xFFFF;
-			inc_hires = 0;
-			mult_hires = sustain_mult;
+			envelope.state = envelopePhaseSustain;
+			envelope.count = 0xFFFF;
+			envelope.inc_hires = 0;
+			envelope.mult_hires = envelope.sustain_mult;
 		break;
 		case envelopePhaseRelease:
-			state = envelopePhaseRelease;
-			count = release_count;
-			inc_hires = count ? (-mult_hires) / count : (-mult_hires);
+			envelope.state = envelopePhaseRelease;
+			envelope.count = envelope.release_count;
+			envelope.inc_hires = envelope.count ? (-envelope.mult_hires) / envelope.count : (-envelope.mult_hires);
 			//mult bez zmian
 		break;
 		case envelopePhaseForced:
-			state = envelopePhaseForced;
-			count = release_forced_count;
-			inc_hires = count ? (-mult_hires) / count : (-mult_hires);
+			envelope.state = envelopePhaseForced;
+			envelope.count = envelope.release_forced_count;
+			envelope.inc_hires = envelope.count ? (-envelope.mult_hires) / envelope.count : (-envelope.mult_hires);
 			//mult bez zmian
 		break;
 		default:
 		break;
 	}
 }
+
+uint16_t AudioPlayMemory::envelopeMilliseconds2count(float milliseconds)
+{
+	if (milliseconds < 0.0) milliseconds = 0.0;
+	uint32_t c = ((uint32_t)(milliseconds*SAMPLES_PER_MSEC)+7)>>3;
+	if (c > 65535) c = 65535; // allow up to 11.88 seconds
+	return c;
+}
+
+#undef SAMPLES_PER_MSEC

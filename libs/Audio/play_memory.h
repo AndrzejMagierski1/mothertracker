@@ -165,7 +165,17 @@ const double notes[MAX_NOTE] =
 class AudioPlayMemory : public AudioStream
 {
 public:
-	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
+	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0)
+	{
+		envelope.state = 0;
+		envelopeDelay(0.0f);  // default values...
+		envelopeAttack(10.5f);
+		envelopeHold(2.5f);
+		envelopeDecay(35.0f);
+		envelopeSustain(0.5f);
+		envelopeRelease(300.0f);
+		envelopeReleaseNoteOn(0.0f);
+	}
 	uint8_t play(uint8_t instr_idx,int8_t note); 										// dla sequencer'a
 	uint8_t playForPrev(uint8_t instr_idx,int8_t n); 									// dla padboard'a - po indeksie instrumentu
 	uint8_t playForPrev(int16_t * addr,uint32_t len,uint8_t type);						// dla importera (odgrywa sample z banku) + umieszczony w wewnętrznym module recordera ale nie uzywany
@@ -239,6 +249,52 @@ public:
 	//************************************************
 
 	void setCurrentInstrIdx(uint8_t n);
+
+//******************************************************************ENVELOPE PUBLIC BLOCK START****************************************************************************//
+	void envelopeNoteOn();
+	void envelopeNoteOff();
+	void envelopeSetIdle();
+
+	void envelopeDelay(float milliseconds);
+	void envelopeAttack(float milliseconds);
+	void envelopeHold(float milliseconds);
+	void envelopeDecay(float milliseconds);
+	void envelopeSustain(float level);
+	void envelopeRelease(float milliseconds);
+	void envelopeSetSustain();
+	void envelopeReleaseNoteOn(float milliseconds);
+	void envelopeSetLoop(uint8_t state);
+	void envelopeSetPassFlag(uint8_t state);
+	void envelopeSetIsRandom(bool value);
+
+	void envelopeUpdate(void);
+	uint8_t envelopeEndRelease();
+	void envelopeClearEndReleaseFlag();
+
+	uint8_t envelopeGetEndReleaseKill();
+	void envelopeClearEndReleaseKill();
+	uint8_t envelopeGetState();
+
+	void envelopeSyncTrackerSeq(uint32_t val, float seqSpeed);
+	void envelopeSetSyncStartStep(uint16_t n);
+	void envelopeSetPhaseNumbers(int8_t n1, int8_t n2);
+	void envelopeSetSyncRate(float sync);
+	enum enEnvelopePhase
+	{
+		envelopePhaseIdle,
+		envelopePhaseDelay,
+		envelopePhaseAttack,
+		envelopePhaseHold,
+		envelopePhaseDecay,
+		envelopePhaseSustain,
+		envelopePhaseRelease,
+		envelopePhaseForced
+	};
+
+
+
+
+//******************************************************************ENVELOPE PUBLIC BLOCK END****************************************************************************//
 private:
 
 //  PLAY OBSLUGA OGÓLNA
@@ -388,11 +444,45 @@ private:
 	uint16_t forcedGranularPosition;
 
 	//*****************
+//******************************************************************ENVELOPE PRIVATE BLOCK START****************************************************************************//
+	void envelopeSwitchPhase(uint8_t nextPhase);
+	uint16_t envelopeMilliseconds2count(float milliseconds);
 
+	struct strEnvelopeData
+	{
+		uint8_t endReleaseFlag = 0;
+		uint8_t endKillReleaseFlag = 0;
+		bool isRandom;
+		audio_block_t *inputQueueArray[1];
+		// state
+		uint8_t  state;      // idle, delay, attack, hold, decay, sustain, release, forced
+		uint16_t count;      // how much time remains in this state, in 8 sample units
+		int32_t  mult_hires; // attenuation, 0=off, 0x40000000=unity gain
+		int32_t  inc_hires;  // amount to change mult_hires every 8 samples
+
+		// settings
+		uint16_t delay_count;
+		uint16_t attack_count;
+		uint16_t hold_count;
+		uint16_t decay_count;
+		int32_t  sustain_mult;
+		uint16_t release_count;
+		uint16_t release_forced_count;
+		uint8_t loopFlag = 0;
+		uint8_t pressedFlag = 0;
+		uint8_t passFlag = 0;
+		uint32_t sample12, sample34, sample56, sample78;
+		uint32_t tmp1, tmp2;
+
+		uint16_t startStep = 0;
+		int8_t phaseNumber[2] = {-1,-1};
+		float syncRate = 1;
+		uint16_t periodTime = 0;
+	} envelope;
+
+//******************************************************************ENVELOPE PRIVATE BLOCK END****************************************************************************//
 
 };
-
-
 
 
 #endif
