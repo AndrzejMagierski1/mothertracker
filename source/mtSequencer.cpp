@@ -784,7 +784,7 @@ void Sequencer::play_microStep(uint8_t row)
 		if (playerRow.rollIsOn)
 		{
 			playerRow.rollPeriod = playerRow.rollVal;
-			playerRow.noteLength = rollValToPeriod(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
+			playerRow.noteLength = rollValToMicroSteps(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 			playerRow.stepOpen = 1;
 		}
 		if (stepToSend.note >= 0)
@@ -866,7 +866,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 //			if(forceFirstRollWhenNoNote)
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) &&
+			if (((playerRow.stepTimer % rollValToMicroSteps(playerRow.rollPeriod)) == 1) &&
 					(playerRow.stepTimer != 1 || forceFirstRollWhenNoNote))
 			{
 				playerRow.stepToSend = playerRow.stepSent;
@@ -874,7 +874,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-				playerRow.noteLength = rollValToPeriod(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
+				playerRow.noteLength = rollValToMicroSteps(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 
 				if (playerRow.rollDir == fx.rollType_noteUp)
 				{
@@ -932,7 +932,7 @@ Sequencer::strPattern* Sequencer::getPattern()
 	return &seq[player.ramBank];
 }
 
-uint16_t Sequencer::rollValToPeriod(int8_t rollVal)
+uint16_t Sequencer::rollValToMicroSteps(int8_t rollVal)
 {
 
 	rollVal = rollVal % (fx.ROLL_PERIOD_MAX + 1);
@@ -1501,6 +1501,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		{
 		case playModeFx_none:
 			player.track[x].custom_fx = fx.FX_TYPE_NONE;
+			player.track[x].custom_fx_value = 0;
 			break;
 		case playModeFx_rollFlat_1_4_P30:
 			if (random(0, 100) < 30)
@@ -1662,6 +1663,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 		default:
 			player.track[x].custom_fx = fx.FX_TYPE_NONE;
+			player.track[x].custom_fx_value = 0;
 			break;
 		}
 	}

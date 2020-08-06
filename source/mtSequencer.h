@@ -333,7 +333,7 @@ public:
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
 
-	inline uint16_t rollValToPeriod(int8_t rollType);
+	inline uint16_t rollValToMicroSteps(int8_t rollType);
 	inline uint16_t stutterValToPeriod(int8_t rollType);
 
 	void divChangeQuantize(uint8_t row);
