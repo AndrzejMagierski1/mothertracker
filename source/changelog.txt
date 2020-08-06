@@ -28,7 +28,8 @@
 			poprawnie etykiety od-do
 			- tap-tempo - dwukrotne klikniecie i kazde kolejne ustala tempo
 			- config - rec options - only notes/velo/microtiming/velo+microtiming
-			 
+	
+	1.1 == 1.0.26		 
 	1.0.26
 			- modyfikacja creditsów: usuniety Restis, dodane licencje
 			- home w song

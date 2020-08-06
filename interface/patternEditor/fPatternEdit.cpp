@@ -250,6 +250,8 @@ void cPatternEditor::stop()
 	sequencer.stopManualNotes();
 	sequencer.sequencialSwitch_Reset();
 
+	newFileManager.autosaveProjectStruct_ASAP();
+
 	if(fillState) fillState = 0;
 
 	padsBacklight.clearAllPads(1, 1, 1);
@@ -2295,7 +2297,7 @@ static  uint8_t functPlayAction()
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonRec))
 		{
-			sequencer.rec();
+			sequencer.recStart();
 			PTE->editMode = 0;
 
 			PTE->refreshEditState();
@@ -2331,6 +2333,11 @@ static  uint8_t functRecAction()
 	if (sequencer.isRec())
 	{
 		sequencer.recOff();
+		PTE->editMode = 0;
+	}
+	else if(sequencer.isPlay())
+	{
+		sequencer.recOn();
 		PTE->editMode = 0;
 	}
 	else

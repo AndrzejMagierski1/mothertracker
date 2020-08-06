@@ -142,6 +142,8 @@ void cPerformanceMode::start(uint32_t options)
 	PM->showPerformanceFxes();
 	PM->setPerformanceFxes();
 
+	sequencer.enterPerformanceMode();
+
 }
 
 void cPerformanceMode::stop()

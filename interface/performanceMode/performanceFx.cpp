@@ -174,8 +174,8 @@ cPerformFx stepRepeaterPerfFx(mtPerfStepStutter, "Step repeater", stepRepeaterSe
 //########## PATTERN PLAY MODE ########################################################################
 void patternPlayModeSet(uint8_t track, int16_t value) { sequencer.setPerformancePlayMode(track, value); }
 void patternPlayModeClear(uint8_t track) { sequencer.setPerformancePlayMode(track, 0); sequencer.alignToGlobalPos(track); }
-const char patternPlayModePerfLabels[3][5] = { "Fwd", "Back", "Rnd", };
-const fxSetup patternPlayModeSetup = {0, 2, &patternPlayModePerfLabels[0][0], 5};
+const char patternPlayModePerfLabels[4][5] = { "Fwd", "Back", "Rnd", "CSM" };
+const fxSetup patternPlayModeSetup = {0, 3, &patternPlayModePerfLabels[0][0], 5};
 
 cPerformFx patternPlayModePerfFx(mtPerfPatternPlayMode, "Pattern play mode", patternPlayModeSet, patternPlayModeClear, &patternPlayModeSetup);
 
