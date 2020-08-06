@@ -59,7 +59,7 @@ void AudioPlayMemory::playWavetable(uint8_t instrIdx, int8_t note)
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::updateWavetable()
+audio_block_t * AudioPlayMemory::updateWavetable()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -68,12 +68,12 @@ void AudioPlayMemory::updateWavetable()
 	float pitchFraction;
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -133,8 +133,7 @@ void AudioPlayMemory::updateWavetable()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
 

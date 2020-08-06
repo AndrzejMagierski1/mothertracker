@@ -9,18 +9,20 @@ void AudioPlayMemory::update(void)
 {
 	if(isCurrentLoadInstrument[currentInstrIdx]) return;
 
+	audio_block_t * block = nullptr;
 	switch(currentPlayMode)
 	{
-		case playModeSingleShot: 		updateSingleShot(); 		return;
-		case playModeLoopForward:		updateLoopForward(); 		return;
-		case playModeLoopBackward:		updateLoopBackward(); 		return;
-		case playModePingpong:			updateLoopPingpong(); 		return;
-		case playModeSlice:				updateSlice();				return;
-		case playModeBeatSlice:			updateBeatSlice();			return;
-		case playModeGranular:			updateGranular();			return;
-		case playModeWavetable:			updateWavetable();			return;
+		case playModeSingleShot: 		block = updateSingleShot(); 		break;
+		case playModeLoopForward:		block = updateLoopForward(); 		break;
+		case playModeLoopBackward:		block = updateLoopBackward(); 		break;
+		case playModePingpong:			block = updateLoopPingpong(); 		break;
+		case playModeSlice:				block = updateSlice();				break;
+		case playModeBeatSlice:			block = updateBeatSlice();			break;
+		case playModeGranular:			block = updateGranular();			break;
+		case playModeWavetable:			block = updateWavetable();			break;
 		default: break;
 	}
+	envelopeUpdate(block);
 }
 
 //**************************************************************************************UPDATE END

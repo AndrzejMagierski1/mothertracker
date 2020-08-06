@@ -267,7 +267,7 @@ public:
 	void envelopeSetPassFlag(uint8_t state);
 	void envelopeSetIsRandom(bool value);
 
-	void envelopeUpdate(void);
+	void envelopeUpdate(audio_block_t *block);
 	uint8_t envelopeEndRelease();
 	void envelopeClearEndReleaseFlag();
 
@@ -317,39 +317,39 @@ private:
 
 
 // UPDATE Z PODZIALEM NA TRYBY
-	void updateSingleShot();
-	void updateLoopForward();
-	void updateLoopBackward();
-	void updateLoopPingpong();
-	void updateSlice();
-	void updateBeatSlice();
-	void updateGranular();
-	void updateWavetable();
+	audio_block_t * updateSingleShot();
+	audio_block_t * updateLoopForward();
+	audio_block_t * updateLoopBackward();
+	audio_block_t * updateLoopPingpong();
+	audio_block_t * updateSlice();
+	audio_block_t * updateBeatSlice();
+	audio_block_t * updateGranular();
+	audio_block_t * updateWavetable();
 
 //singleShot
-	void updateSingleShotNormal();
-	void updateSingleShotReverse();
+	audio_block_t * updateSingleShotNormal();
+	audio_block_t * updateSingleShotReverse();
 //loopForward
-	void updateLoopForwardNormal();
-	void updateLoopForwardReverse();
+	audio_block_t * updateLoopForwardNormal();
+	audio_block_t * updateLoopForwardReverse();
 //loopBackward
-	void updateLoopBackwardNormal();
-	void updateLoopBackwardReverse();
+	audio_block_t * updateLoopBackwardNormal();
+	audio_block_t * updateLoopBackwardReverse();
 //loopPingPong
-	void updateLoopPingPongNormal();
-	void updateLoopPingPongReverse();
+	audio_block_t * updateLoopPingPongNormal();
+	audio_block_t * updateLoopPingPongReverse();
 // granular
 
-	void updateGranularLoopForward();
-	void updateGranularLoopBackward();
-	void updateGranularLoopPingPong();
+	audio_block_t * updateGranularLoopForward();
+	audio_block_t * updateGranularLoopBackward();
+	audio_block_t * updateGranularLoopPingPong();
 
-	void updateGranularLoopForwardNormal();
-	void updateGranularLoopForwardReverse();
-	void updateGranularLoopBackwardNormal();
-	void updateGranularLoopBackwardReverse();
-	void updateGranularLoopPingPongNormal();
-	void updateGranularLoopPingPongReverse();
+	audio_block_t * updateGranularLoopForwardNormal();
+	audio_block_t * updateGranularLoopForwardReverse();
+	audio_block_t * updateGranularLoopBackwardNormal();
+	audio_block_t * updateGranularLoopBackwardReverse();
+	audio_block_t * updateGranularLoopPingPongNormal();
+	audio_block_t * updateGranularLoopPingPongReverse();
 /////////////////////////
 
 	void refreshGranularPosition();

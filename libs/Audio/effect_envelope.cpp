@@ -271,13 +271,12 @@ void AudioPlayMemory::envelopeSetIdle(void)
 	__enable_irq();
 }
 
-void AudioPlayMemory::envelopeUpdate(void)
+void AudioPlayMemory::envelopeUpdate(audio_block_t *block)
 {
 	__disable_irq();
-	audio_block_t *block;
+	;
 	uint32_t *p, *end;
 
-	block = receiveWritable();
 	if (!block)
 	{
 		block = allocate();

@@ -77,35 +77,35 @@ void AudioPlayMemory::playGranular(uint8_t instrIdx, int8_t note)
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::updateGranular()
+audio_block_t * AudioPlayMemory::updateGranular()
 {
 	switch(granularLoopType)
 	{
-	case granularLoopForward: 		updateGranularLoopForward();	break;
-	case granularLoopBackward: 		updateGranularLoopBackward();	break;
-	case granularLoopPingPong: 		updateGranularLoopPingPong();	break;
+	case granularLoopForward: 		return updateGranularLoopForward();		break;
+	case granularLoopBackward: 		return updateGranularLoopBackward();	break;
+	case granularLoopPingPong: 		return updateGranularLoopPingPong();	break;
 	default:	break;
 	}
 }
 
-void AudioPlayMemory::updateGranularLoopForward()
+audio_block_t * AudioPlayMemory::updateGranularLoopForward()
 {
-	if(reverseDirectionFlag) updateGranularLoopForwardReverse();
-	else updateGranularLoopForwardNormal();
+	if(reverseDirectionFlag) return updateGranularLoopForwardReverse();
+	else return updateGranularLoopForwardNormal();
 }
-void AudioPlayMemory::updateGranularLoopBackward()
+audio_block_t * AudioPlayMemory::updateGranularLoopBackward()
 {
 	loopBackwardFlag = 1;
-	if(reverseDirectionFlag) updateGranularLoopBackwardReverse();
-	else updateGranularLoopBackwardNormal();
+	if(reverseDirectionFlag) return updateGranularLoopBackwardReverse();
+	else return updateGranularLoopBackwardNormal();
 }
-void AudioPlayMemory::updateGranularLoopPingPong()
+audio_block_t * AudioPlayMemory::updateGranularLoopPingPong()
 {
-	if(reverseDirectionFlag) updateGranularLoopPingPongReverse();
-	else updateGranularLoopPingPongNormal();
+	if(reverseDirectionFlag) return updateGranularLoopPingPongReverse();
+	else return updateGranularLoopPingPongNormal();
 }
 
-void AudioPlayMemory::updateGranularLoopForwardNormal()
+audio_block_t * AudioPlayMemory::updateGranularLoopForwardNormal()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -115,12 +115,12 @@ void AudioPlayMemory::updateGranularLoopForwardNormal()
 	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -193,12 +193,10 @@ void AudioPlayMemory::updateGranularLoopForwardNormal()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
-
 }
-void AudioPlayMemory::updateGranularLoopForwardReverse()
+audio_block_t * AudioPlayMemory::updateGranularLoopForwardReverse()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -208,12 +206,12 @@ void AudioPlayMemory::updateGranularLoopForwardReverse()
 	int32_t loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -285,12 +283,11 @@ void AudioPlayMemory::updateGranularLoopForwardReverse()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 
 }
-void AudioPlayMemory::updateGranularLoopBackwardNormal()
+audio_block_t * AudioPlayMemory::updateGranularLoopBackwardNormal()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -301,12 +298,12 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -398,11 +395,10 @@ void AudioPlayMemory::updateGranularLoopBackwardNormal()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
-void AudioPlayMemory::updateGranularLoopBackwardReverse()
+audio_block_t * AudioPlayMemory::updateGranularLoopBackwardReverse()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -413,12 +409,12 @@ void AudioPlayMemory::updateGranularLoopBackwardReverse()
 	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -506,11 +502,10 @@ void AudioPlayMemory::updateGranularLoopBackwardReverse()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
-void AudioPlayMemory::updateGranularLoopPingPongNormal()
+audio_block_t * AudioPlayMemory::updateGranularLoopPingPongNormal()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -521,12 +516,12 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -618,11 +613,10 @@ void AudioPlayMemory::updateGranularLoopPingPongNormal()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
-void AudioPlayMemory::updateGranularLoopPingPongReverse()
+audio_block_t * AudioPlayMemory::updateGranularLoopPingPongReverse()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -633,12 +627,12 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length,constrainsInSamples.endPoint));
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -732,8 +726,7 @@ void AudioPlayMemory::updateGranularLoopPingPongReverse()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
 
