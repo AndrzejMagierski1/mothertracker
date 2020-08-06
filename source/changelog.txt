@@ -1,3 +1,5 @@
+	1.1.5
+			- [AM] fix: delay juz sie odswieza po uruchomieniu
 	1.1.4
 			- [AM] optymalizacja silnika audio
 			- [AM] fix: trzaski już nie pojawiają się w trybach loop backward i pingpong
