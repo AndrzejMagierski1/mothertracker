@@ -1,5 +1,14 @@
 	1.1.5
+			- [KS] zmiana tempa +- 0.1 z sziftem
+			- [KS] nowy 'Pattern play mode' w performance - CST/custom, 
+					na ten moment jeden, do rozbudowania
+			- [KS] skrócenie za dlugiej etykiety "Microtim + velo"
+			- [KS] wlaczanie 'REC' w trakcie dzialania sekwencji
+			- [KS] fix: undo rozwalal pattern (jesli tworzylo sie nowy wiersz)
+			- [KS] fix: instrument wprowadzany z popupu nie byl zapisywany 
+					przy zmianie patternu
 			- [AM] fix: delay juz sie odswieza po uruchomieniu
+	
 	1.1.4
 			- [AM] optymalizacja silnika audio
 			- [AM] fix: trzaski już nie pojawiają się w trybach loop backward i pingpong
