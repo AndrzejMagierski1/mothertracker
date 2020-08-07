@@ -833,10 +833,10 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	}
 
-	status = playMemPtr->playForPrev(instr_idx,note);
+	status = 1; //playMemPtr->playForPrev(instr_idx,note);
 
 	playMemPtr->envelopeSetIsRandom(false);
-	playMemPtr->envelopeNoteOn();
+	playMemPtr->envelopeNoteOnForPrev(instr_idx,note);
 
 	return status;
 	__enable_irq();
@@ -873,10 +873,10 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 
-	status = playMemPtr->playForPrev(addr,len,type);
+	status = 1;// playMemPtr->playForPrev(addr,len,type);
 
 	playMemPtr->envelopeSetIsRandom(false);
-	playMemPtr->envelopeNoteOn();
+	playMemPtr->envelopeNoteOnForPrev(addr,len,type);
 
 	return status;
 
@@ -909,10 +909,10 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 
-	status = playMemPtr->playForPrev(addr,len,note,type);
+	status = 1;//playMemPtr->playForPrev(addr,len,note,type);
 
 	playMemPtr->envelopeSetIsRandom(false);
-	playMemPtr->envelopeNoteOn();
+	playMemPtr->envelopeNoteOnForPrev(addr,len,note,type);
 
 	return status;
 }

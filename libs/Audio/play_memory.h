@@ -251,8 +251,13 @@ public:
 	void setCurrentInstrIdx(uint8_t n);
 
 //******************************************************************ENVELOPE PUBLIC BLOCK START****************************************************************************//
-	void envelopeNoteOn();
+	void envelopeNoteOn(uint8_t instr_idx,int8_t note);
 	void envelopeNoteOff();
+
+	void envelopeNoteOnForPrev(uint8_t instr_idx,int8_t note);
+	void envelopeNoteOnForPrev(int16_t * addr,uint32_t len,uint8_t type);
+	void envelopeNoteOnForPrev(int16_t * addr,uint32_t len, uint8_t n,uint8_t type);
+
 	void envelopeSetIdle();
 
 	void envelopeDelay(float milliseconds);
@@ -422,6 +427,14 @@ private:
 	//********
 
 	//*************** Zmienne wymuszajace zmiany parametrow instrumentow przez Sequencer lub Performance Mode
+
+	struct strStackedPlay
+	{
+		bool enable;
+		uint8_t instr_idx;
+		int8_t note;
+		bool isPrev;
+	} stackedPlay;
 
 	uint8_t tuneForceFlag;
 	uint8_t pointsForceFlag;

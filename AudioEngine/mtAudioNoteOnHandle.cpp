@@ -32,12 +32,12 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	handleNoteOnReverbSend();
 
-	status = playMemPtr->play(instr_idx,note);
+	status = 1; //playMemPtr->play(instr_idx,note);
 	if(isTrackDisplayed) onEndDisplay = true;
 
 	bool isAmpRandom = (mtProject.instrument[instr_idx].envelope[envAmp].loop) && (mtProject.instrument[instr_idx].lfo[envAmp].shape == lfoShapeRandom);
 	playMemPtr->envelopeSetIsRandom(isAmpRandom);
-	playMemPtr->envelopeNoteOn();
+	playMemPtr->envelopeNoteOn(instr_idx,note);
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
 	{
@@ -118,7 +118,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	bool isAmpRandom = (mtProject.instrument[instr_idx].envelope[envAmp].loop) && (mtProject.instrument[instr_idx].lfo[envAmp].shape == lfoShapeRandom);
 	playMemPtr->envelopeSetIsRandom(isAmpRandom);
-	playMemPtr->envelopeNoteOn(); // zawsze odpalamy nawet jak nie aktywny
+	playMemPtr->envelopeNoteOn(instr_idx, note); // zawsze odpalamy nawet jak nie aktywny
 
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
@@ -134,7 +134,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 //*******
 
 //*******
-	status = playMemPtr->play(instr_idx,note);
+	status = 1;
 	if(isTrackDisplayed) onEndDisplay = true;
 //******* start env
 	__enable_irq();
@@ -229,7 +229,7 @@ void playerEngine::noteOffOrdinary()
 
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 	{
-		playMemPtr->stop();
+//		playMemPtr->stop();
 		if(isTrackDisplayed) onEndDisplay = true;
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 		{
@@ -246,7 +246,7 @@ void playerEngine::noteOffOrdinary()
 	{
 		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 		{
-			playMemPtr->stop();
+//			playMemPtr->stop();
 			if(isTrackDisplayed) onEndDisplay = true;
 			for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 			{

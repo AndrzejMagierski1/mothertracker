@@ -44,7 +44,6 @@ void AudioPlayMemory::envelopeReleaseNoteOn(float milliseconds)
 {
 	envelope.release_forced_count = envelopeMilliseconds2count(milliseconds);
 	if (envelope.release_forced_count == 0) envelope.release_forced_count = 1;
-//		release_forced_count = 16;
 }
 void AudioPlayMemory::envelopeSetLoop(uint8_t state)
 {
@@ -225,7 +224,72 @@ void  AudioPlayMemory::envelopeRelease(float milliseconds)
 }
 
 
-void AudioPlayMemory::envelopeNoteOn(void)
+void AudioPlayMemory::envelopeNoteOn(uint8_t instr_idx,int8_t note)
+{
+	__disable_irq();
+	envelope.pressedFlag = 1;
+
+	if(envelope.passFlag)
+	{
+		envelopeSwitchPhase(envelopePhaseIdle);
+		play(instr_idx,note);
+	}
+	else if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
+	{
+		envelopeSwitchPhase(envelopePhaseDelay);
+		play(instr_idx,note);
+	}
+	else if (envelope.state != envelopePhaseForced)
+	{
+		envelopeSwitchPhase(envelopePhaseForced);
+		stackedPlay.enable = true;
+		stackedPlay.instr_idx = instr_idx;
+		stackedPlay.note = note;
+		stackedPlay.isPrev = false;
+	}
+	else
+	{
+		envelope.endKillReleaseFlag = 1;
+		play(instr_idx,note);
+	}
+	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
+	__enable_irq();
+}
+
+void AudioPlayMemory::envelopeNoteOnForPrev(uint8_t instr_idx,int8_t note)
+{
+	__disable_irq();
+
+	envelope.pressedFlag = 1;
+
+	if(envelope.passFlag)
+	{
+		envelopeSwitchPhase(envelopePhaseIdle);
+		playForPrev(instr_idx,note);
+	}
+	else if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
+	{
+		envelopeSwitchPhase(envelopePhaseDelay);
+		playForPrev(instr_idx,note);
+	}
+	else if (envelope.state != envelopePhaseForced)
+	{
+		envelopeSwitchPhase(envelopePhaseForced);
+		stackedPlay.enable = true;
+		stackedPlay.instr_idx = instr_idx;
+		stackedPlay.note = note;
+		stackedPlay.isPrev = true;
+	}
+	else
+	{
+		playForPrev(instr_idx,note);
+		envelope.endKillReleaseFlag = 1;
+	}
+	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
+	__enable_irq();
+}
+
+void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len,uint8_t type)
 {
 	__disable_irq();
 
@@ -235,30 +299,53 @@ void AudioPlayMemory::envelopeNoteOn(void)
 	{
 		envelopeSwitchPhase(envelopePhaseIdle);
 	}
-	else if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
-	{
-		envelopeSwitchPhase(envelopePhaseDelay);
-	}
-	else if (envelope.state != envelopePhaseForced)
-	{
-		envelopeSwitchPhase(envelopePhaseForced);
-	}
-	else envelope.endKillReleaseFlag = 1;
+	playForPrev(addr,len,type);
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
+	__enable_irq();
+}
+void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len, uint8_t n,uint8_t type)
+{
+	__disable_irq();
+
+	envelope.pressedFlag = 1;
+
+	if(envelope.passFlag)
+	{
+		envelopeSwitchPhase(envelopePhaseIdle);
+	}
+	playForPrev(addr,len,n,type);
 	__enable_irq();
 }
 
 void AudioPlayMemory::envelopeNoteOff(void)
 {
 	envelope.pressedFlag = 0;
+	if(stackedPlay.enable) stackedPlay.enable = false;
+
 	if (envelope.state != envelopePhaseIdle)
 	{
-		if(envelope.loopFlag) envelopeSwitchPhase(envelopePhaseIdle);
+		if(envelope.loopFlag)
+		{
+			envelopeSwitchPhase(envelopePhaseIdle);
+			stop();
+		}
 		else
 		{
-			envelopeSwitchPhase(envelopePhaseRelease);
+			if(envelope.state == envelopePhaseDelay)
+			{
+				envelopeSwitchPhase(envelopePhaseIdle);
+				stop();
+			}
+			else if(envelope.state != envelopePhaseForced)
+			{
+				envelopeSwitchPhase(envelopePhaseRelease);
+			}
+			else stop();
 		}
-
+	}
+	else
+	{
+		stop();
 	}
 	__enable_irq();
 }
@@ -363,6 +450,7 @@ void AudioPlayMemory::envelopeUpdate(audio_block_t *block)
 				{
 					envelopeSwitchPhase(envelopePhaseIdle);
 					envelope.endReleaseFlag=1;
+					stop();
 					while (p < end)
 					{
 
@@ -378,6 +466,23 @@ void AudioPlayMemory::envelopeUpdate(audio_block_t *block)
 			{
 				envelopeSwitchPhase(envelopePhaseDelay);
 				envelope.endKillReleaseFlag = 1;
+				if(stackedPlay.enable)
+				{
+					while (p < end)
+					{
+
+						*p++ = 0;
+						*p++ = 0;
+						*p++ = 0;
+						*p++ = 0;
+					}
+					if(stackedPlay.isPrev) playForPrev(stackedPlay.instr_idx,stackedPlay.note);
+					else
+					{
+						play(stackedPlay.instr_idx,stackedPlay.note);
+					}
+					stackedPlay.enable = false;
+				}
 				continue;
 
 			}

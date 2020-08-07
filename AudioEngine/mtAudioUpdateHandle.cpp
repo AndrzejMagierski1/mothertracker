@@ -156,8 +156,7 @@ inline void playerEngine::handleUpdateEndReleaseAction()
 		playMemPtr->envelopeClearEndReleaseFlag();
 		interfaceEndReleaseFlag = 1;
 		if(isTrackDisplayed) onEndDisplay = true;
-		playMemPtr->stop();
-
+//		playMemPtr->stop();
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 		{
 			if((mtProject.instrument[currentInstrument_idx].envelope[i].enable && mtProject.instrument[currentInstrument_idx].envelope[i].loop)||
