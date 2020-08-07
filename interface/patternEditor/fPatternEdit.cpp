@@ -774,6 +774,8 @@ void cPatternEditor::cancelPopups()
 					newFileManager.storePatternUndoRevision();
 					sendSelection();
 					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+
+					newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 				}
 				break;
 

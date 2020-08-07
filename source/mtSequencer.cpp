@@ -1065,6 +1065,11 @@ void Sequencer::play(uint8_t fromPos)
 		player.track[a].uStep = 1;
 		player.track[a].actual_pos = fromPos;
 		player.track[a].custom_actual_pos = fromPos;
+
+		if (isCustomOrderMode(a))
+		{
+			applyRowCustomFx(a, fromPos);
+		}
 	}
 
 	sendMidiStart();
@@ -1323,7 +1328,7 @@ uint8_t Sequencer::isCustomOrderMode(uint8_t row)
 {
 	return player.performanceMode && player.track[row].performancePlayMode >= PLAYMODE_CUSTOM_1;
 }
-void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
+void Sequencer::switchRowStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
 	int8_t playMode = PLAYMODE_FORWARD;
@@ -1482,193 +1487,192 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			player.track[x].custom_actual_pos = 0;
 		}
 
-		uint8_t orderTemp = player.track[x].custom_actual_pos % playOrderWithFxLength;
+
+
+
+
+		uint8_t nextStepInOrder = player.track[x].custom_actual_pos % playOrderWithFxLength;
 
 		// 0 nie mozna
-		if (playOrderWithFx[orderTemp].stepNumberToPlay != 0)
+		if (playOrderWithFx[nextStepInOrder].stepNumberToPlay != 0)
 		{
-			player.track[x].actual_pos = playOrderWithFx[orderTemp].stepNumberToPlay - 1;
+			player.track[x].actual_pos = playOrderWithFx[nextStepInOrder].stepNumberToPlay - 1;
 		}
 		else
 		{
 			player.track[x].actual_pos = 0;
 		}
 
+		applyRowCustomFx(x, nextStepInOrder);
 
-
-		// szukamy fxOptions
-		switch(playOrderWithFx[orderTemp].fxOption)
-		{
-		case playModeFx_none:
-			player.track[x].custom_fx = fx.FX_TYPE_NONE;
-			player.track[x].custom_fx_value = 0;
-			break;
-		case playModeFx_rollFlat_1_4_P30:
-			if (random(0, 100) < 30)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_const
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollFlat_1_4_P60:
-			if (random(0, 100) < 60)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_const
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollFlat_1_4_P100:
-			if (random(0, 100) < 100)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_const
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-
-			//****************
-
-		case playModeFx_rollIncVelo_1_4_P30:
-			if (random(0, 100) < 30)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollIncVelo_1_4_P60:
-			if (random(0, 100) < 60)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollIncVelo_1_4_P100:
-			if (random(0, 100) < 100)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-
-
-			//****************
-
-		case playModeFx_rollDecVelo_1_4_P30:
-			if (random(0, 100) < 30)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollDecVelo_1_4_P60:
-			if (random(0, 100) < 60)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollDecVelo_1_4_P100:
-			if (random(0, 100) < 100)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-
-			//****************
-
-		case playModeFx_rollIncVelo_1_2_P30:
-			if (random(0, 100) < 30)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollIncVelo_1_2_P60:
-			if (random(0, 100) < 60)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollIncVelo_1_2_P100:
-			if (random(0, 100) < 100)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-
-			//****************
-
-		case playModeFx_rollIncVelo_1_1_P30:
-			if (random(0, 100) < 30)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollIncVelo_1_1_P60:
-			if (random(0, 100) < 60)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-		case playModeFx_rollIncVelo_1_1_P100:
-			if (random(0, 100) < 100)
-			{
-				player.track[x].custom_fx = fx.FX_TYPE_ROLL;
-				player.track[x].custom_fx_value =
-						fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
-								* (fx.ROLL_PERIOD_MAX + 1);
-			}
-			break;
-
-
-
-
-
-
-
-
-
-
-		default:
-			player.track[x].custom_fx = fx.FX_TYPE_NONE;
-			player.track[x].custom_fx_value = 0;
-			break;
-		}
 	}
 
 }
+
+
+void Sequencer::applyRowCustomFx(uint8_t x, uint8_t stepInCustomOrder)
+{
+	switch (playOrderWithFx[stepInCustomOrder].fxOption)
+	{
+	case playModeFx_none:
+		player.track[x].custom_fx = fx.FX_TYPE_NONE;
+		player.track[x].custom_fx_value = 0;
+		break;
+	case playModeFx_rollFlat_1_4_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_const
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollFlat_1_4_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_const
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollFlat_1_4_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_const
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollIncVelo_1_4_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_4_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_4_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollDecVelo_1_4_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollDecVelo_1_4_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollDecVelo_1_4_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollIncVelo_1_2_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_2_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_2_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollIncVelo_1_1_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_1_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_1_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+	default:
+		player.track[x].custom_fx = fx.FX_TYPE_NONE;
+		player.track[x].custom_fx_value = 0;
+		break;
+	}
+}
+
 void Sequencer::alignToGlobalPos()
 {
 	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
@@ -1804,7 +1808,7 @@ void Sequencer::incr_uStep(uint8_t row)
 		if (player.track[row].uStep > 48)
 		{
 			player.track[row].uStep = 1;
-			switchStep(row);
+			switchRowStep(row);
 		}
 	}
 }
@@ -1823,7 +1827,7 @@ void Sequencer::divChangeQuantize(uint8_t row)
 	{
 		player.track[row].divChange = 0;
 		player.track[row].uStep = 1;
-		switchStep(row);
+		switchRowStep(row);
 	}
 }
 

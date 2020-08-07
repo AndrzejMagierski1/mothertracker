@@ -316,7 +316,9 @@ public:
 	void play(void);
 	void play(uint8_t fromPos);
 
-	void switchStep(uint8_t row);
+	void switchRowStep(uint8_t row);
+	void applyRowCustomFx(uint8_t x, uint8_t orderTemp);
+
 	uint8_t isCustomOrderMode(uint8_t row);
 
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
