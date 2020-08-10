@@ -296,7 +296,6 @@ public:
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t type);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
-	AudioEffectEnvelope * envelopeAmpPtr;
 
 	uint8_t currentInstrument_idx;
 
@@ -757,7 +756,6 @@ extern AudioPlaySdWav           playSdWav;
 extern AudioPlaySdWavFloat 		playSdWavFloat;
 extern AudioPlaySdWav24bit 	 	playSdWav24Bit;
 extern AudioPlayMemory          playMem[8];
-extern AudioEffectEnvelope      envelopeAmp[8];
 extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];

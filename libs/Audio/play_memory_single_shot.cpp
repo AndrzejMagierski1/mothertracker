@@ -62,13 +62,13 @@ void AudioPlayMemory::playSingleShot(uint8_t instrIdx, int8_t note)
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::updateSingleShot()
+audio_block_t * AudioPlayMemory::updateSingleShot()
 {
-	if(reverseDirectionFlag) updateSingleShotReverse();
-	else updateSingleShotNormal();
+	if(reverseDirectionFlag) return updateSingleShotReverse();
+	else return updateSingleShotNormal();
 }
 
-void AudioPlayMemory::updateSingleShotNormal()
+audio_block_t * AudioPlayMemory::updateSingleShotNormal()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -77,12 +77,12 @@ void AudioPlayMemory::updateSingleShotNormal()
 	float pitchFraction;
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -144,11 +144,10 @@ void AudioPlayMemory::updateSingleShotNormal()
 		}
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
-void AudioPlayMemory::updateSingleShotReverse()
+audio_block_t * AudioPlayMemory::updateSingleShotReverse()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -157,12 +156,12 @@ void AudioPlayMemory::updateSingleShotReverse()
 	float pitchFraction;
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -225,9 +224,8 @@ void AudioPlayMemory::updateSingleShotReverse()
 		}
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
 
 

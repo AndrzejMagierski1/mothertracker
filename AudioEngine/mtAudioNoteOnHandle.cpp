@@ -32,12 +32,12 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	handleNoteOnReverbSend();
 
-	status = playMemPtr->play(instr_idx,note);
+	status = 1; //playMemPtr->play(instr_idx,note);
 	if(isTrackDisplayed) onEndDisplay = true;
 
 	bool isAmpRandom = (mtProject.instrument[instr_idx].envelope[envAmp].loop) && (mtProject.instrument[instr_idx].lfo[envAmp].shape == lfoShapeRandom);
-	envelopeAmpPtr->setIsRandom(isAmpRandom);
-	envelopeAmpPtr->noteOn();
+	playMemPtr->envelopeSetIsRandom(isAmpRandom);
+	playMemPtr->envelopeNoteOn(instr_idx,note);
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
 	{
@@ -117,8 +117,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 
 	bool isAmpRandom = (mtProject.instrument[instr_idx].envelope[envAmp].loop) && (mtProject.instrument[instr_idx].lfo[envAmp].shape == lfoShapeRandom);
-	envelopeAmpPtr->setIsRandom(isAmpRandom);
-	envelopeAmpPtr->noteOn(); // zawsze odpalamy nawet jak nie aktywny
+	playMemPtr->envelopeSetIsRandom(isAmpRandom);
+	playMemPtr->envelopeNoteOn(instr_idx, note); // zawsze odpalamy nawet jak nie aktywny
 
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++)
@@ -134,7 +134,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 //*******
 
 //*******
-	status = playMemPtr->play(instr_idx,note);
+	status = 1;
 	if(isTrackDisplayed) onEndDisplay = true;
 //******* start env
 	__enable_irq();
@@ -156,8 +156,8 @@ void playerEngine::noteOffFade()
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	envelopeAmpPtr->release(300);
-	envelopeAmpPtr->noteOff();
+	playMemPtr->envelopeRelease(300);
+	playMemPtr->envelopeNoteOff();
 	//lfo ma dzialac do konca fade
 
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
@@ -179,8 +179,8 @@ void playerEngine::noteOffCut()
 	__disable_irq();
 	AudioNoInterrupts();
 	// caly voice i automatyka zabijane
-	envelopeAmpPtr->noteOff();
-	envelopeAmpPtr->setIdle();
+	playMemPtr->envelopeNoteOff();
+	playMemPtr->envelopeSetIdle();
 	for(uint8_t i = envPan; i < ACTIVE_ENVELOPES ; i++)
 	{
 		envelopePtr[i]->stop();
@@ -197,7 +197,7 @@ void playerEngine::noteOffOrdinary()
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	envelopeAmpPtr->noteOff();
+	playMemPtr->envelopeNoteOff();
 
 	if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 	 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
@@ -229,7 +229,7 @@ void playerEngine::noteOffOrdinary()
 
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 	{
-		playMemPtr->stop();
+//		playMemPtr->stop();
 		if(isTrackDisplayed) onEndDisplay = true;
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 		{
@@ -246,7 +246,7 @@ void playerEngine::noteOffOrdinary()
 	{
 		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 		{
-			playMemPtr->stop();
+//			playMemPtr->stop();
 			if(isTrackDisplayed) onEndDisplay = true;
 			for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 			{

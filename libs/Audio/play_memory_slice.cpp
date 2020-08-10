@@ -62,8 +62,8 @@ void AudioPlayMemory::playSlice(uint8_t instrIdx, int8_t note)
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::updateSlice()
+audio_block_t * AudioPlayMemory::updateSlice()
 {
-	updateSingleShot();
+	return updateSingleShot();
 }
 
