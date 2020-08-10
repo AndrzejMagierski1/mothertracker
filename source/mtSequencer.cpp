@@ -663,10 +663,14 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		if (playerRow.stepOpen && playerRow.stepToSend.note >= 0)
 		{
-			sendNoteOff(row,
-						playerRow.stepSent.note,
-						0,
-						playerRow.stepSent.instrument);
+			if(playerRow.stepToSend.instrument > INSTRUMENTS_MAX)
+			{
+				sendNoteOff(row,
+							playerRow.stepSent.note,
+							0,
+							playerRow.stepSent.instrument);
+			}
+
 
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
