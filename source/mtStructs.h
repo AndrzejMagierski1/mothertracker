@@ -210,8 +210,8 @@ const float DEFAULT_REVERB_DIFFUSION 		=	 0.68f;
 
 const uint8_t LIMITER_ATTACK_MIN 			=	1;
 const uint16_t LIMITER_ATTACK_MAX  			=	1000;
-const float LIMITER_RELEASE_MIN  			=	0.02;
-const float LIMITER_RELEASE_MAX  			=	10;
+const float LIMITER_RELEASE_MIN  			=	1;
+const float LIMITER_RELEASE_MAX  			=	1000;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
 const uint16_t LIMITER_TRESHOLD_MAX 		=	32767;
 

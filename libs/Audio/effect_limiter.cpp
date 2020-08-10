@@ -16,11 +16,11 @@ void AudioEffectLimiter::setThreshold(uint16_t ts)
 }
 void AudioEffectLimiter::setAttack(uint16_t a)
 {
-	attack = a/1000.0;
+	attack = 1 - expf( -2.2f *  (1000.0f/(44100.0f * a)) );
 }
 void AudioEffectLimiter::setRelease(float r)
 {
-	releaseTime = r/1000.0;
+	releaseTime = expf(-2.2f *  (1000.0f/(44100.0f * r))); ;
 }
 
 void AudioEffectLimiter::update(void)

@@ -987,11 +987,11 @@ void changeLimiterAttack(int16_t value)
 
 void changeLimiterRelease(int16_t value)
 {
-	float fvalue = value * (LIMITER_RELEASE_MAX/1000);
+	value *= (LIMITER_RELEASE_MAX/1000);
 
-	if(mtProject.values.limiterRelease + fvalue < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
-	else if(mtProject.values.limiterRelease + fvalue > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
-	else mtProject.values.limiterRelease += fvalue;
+	if(mtProject.values.limiterRelease + value < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
+	else if(mtProject.values.limiterRelease + value > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
+	else mtProject.values.limiterRelease += value;
 
 
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
