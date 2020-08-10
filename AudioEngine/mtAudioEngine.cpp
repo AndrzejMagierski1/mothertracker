@@ -422,7 +422,19 @@ void audioEngine::makeMetronomeTick(uint8_t accent)
 {
 	mixerSourceL.gain(5,ampLogValues[mtConfig.metronome.volume]);
 	mixerSourceR.gain(5,ampLogValues[mtConfig.metronome.volume]);
-	metronomeTick.playForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
+
+	metronomeTick.envelopeSetPassFlag(1);
+
+	metronomeTick.envelopeDelay(0);
+	metronomeTick.envelopeAttack(0);
+	metronomeTick.envelopeHold(0);
+	metronomeTick.envelopeDecay(0);
+	metronomeTick.envelopeSustain(1.0f);
+	metronomeTick.envelopeRelease(0);
+	metronomeTick.envelopeSetLoop(0);
+
+	metronomeTick.envelopeSetIsRandom(false);
+	metronomeTick.envelopeNoteOnForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
 
 	if(accent)metronomeTick.setFineTune(100, 30);
 	else metronomeTick.setFineTune(45, 30);
