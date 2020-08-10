@@ -229,14 +229,11 @@ void AudioPlayMemory::envelopeNoteOn(uint8_t instr_idx,int8_t note)
 	__disable_irq();
 	envelope.pressedFlag = 1;
 
-	if(envelope.passFlag)
+	if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
 	{
-		envelopeSwitchPhase(envelopePhaseIdle);
-		play(instr_idx,note);
-	}
-	else if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
-	{
-		envelopeSwitchPhase(envelopePhaseDelay);
+		if(envelope.passFlag) envelopeSwitchPhase(envelopePhaseSustain);
+		else envelopeSwitchPhase(envelopePhaseDelay);
+
 		play(instr_idx,note);
 	}
 	else if (envelope.state != envelopePhaseForced)
@@ -262,14 +259,10 @@ void AudioPlayMemory::envelopeNoteOnForPrev(uint8_t instr_idx,int8_t note)
 
 	envelope.pressedFlag = 1;
 
-	if(envelope.passFlag)
+	if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
 	{
-		envelopeSwitchPhase(envelopePhaseIdle);
-		playForPrev(instr_idx,note);
-	}
-	else if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
-	{
-		envelopeSwitchPhase(envelopePhaseDelay);
+		if(envelope.passFlag) envelopeSwitchPhase(envelopePhaseSustain);
+		else envelopeSwitchPhase(envelopePhaseDelay);
 		playForPrev(instr_idx,note);
 	}
 	else if (envelope.state != envelopePhaseForced)
@@ -297,7 +290,7 @@ void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len,uint8_t 
 
 	if(envelope.passFlag)
 	{
-		envelopeSwitchPhase(envelopePhaseIdle);
+		envelopeSwitchPhase(envelopePhaseSustain);
 	}
 	playForPrev(addr,len,type);
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
@@ -311,7 +304,7 @@ void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len, uint8_t
 
 	if(envelope.passFlag)
 	{
-		envelopeSwitchPhase(envelopePhaseIdle);
+		envelopeSwitchPhase(envelopePhaseSustain);
 	}
 	playForPrev(addr,len,n,type);
 	__enable_irq();
@@ -321,6 +314,13 @@ void AudioPlayMemory::envelopeNoteOff(void)
 {
 	envelope.pressedFlag = 0;
 	if(stackedPlay.enable) stackedPlay.enable = false;
+
+	if(envelope.passFlag)
+	{
+		envelopeSwitchPhase(envelopePhaseIdle);
+		stop();
+		return;
+	}
 
 	if (envelope.state != envelopePhaseIdle)
 	{
@@ -371,12 +371,12 @@ void AudioPlayMemory::envelopeUpdate(audio_block_t *block)
 		else memset(block->data,0,AUDIO_BLOCK_SAMPLES * 2);
 	}
 
-	if(envelope.passFlag)
-	{
-		transmit(block);
-		AudioStream::release(block);
-		return;
-	}
+//	if(envelope.passFlag)
+//	{
+//		transmit(block);
+//		AudioStream::release(block);
+//		return;
+//	}
 	if (envelope.state == envelopePhaseIdle)
 	{
 		memset(block->data,0,AUDIO_BLOCK_SAMPLES * 2);
@@ -464,7 +464,8 @@ void AudioPlayMemory::envelopeUpdate(audio_block_t *block)
 			}
 			else if (envelope.state == envelopePhaseForced)
 			{
-				envelopeSwitchPhase(envelopePhaseDelay);
+				if(envelope.passFlag) envelopeSwitchPhase(envelopePhaseSustain);
+				else envelopeSwitchPhase(envelopePhaseDelay);
 				envelope.endKillReleaseFlag = 1;
 				if(stackedPlay.enable)
 				{
