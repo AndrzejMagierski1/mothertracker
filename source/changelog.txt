@@ -1,3 +1,7 @@
+	next release:
+			- [AM] fix: parametry czasowe limitera wyliczane są w nowy sposób
+			- [AM] algorytm declickujący przy "note stealingu" 
+	
 	1.1.5
 			- [KS] zmiana tempa +- 0.1 z sziftem
 			- [KS] nowy 'Pattern play mode' w performance - CST/custom, 
