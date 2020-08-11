@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					1;		// device version
 const uint8_t FV_VER_2 =					1;		// official update
-const uint8_t FV_VER_3 =					5;		// fix version
+const uint8_t FV_VER_3 =					6;		// fix version
 const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
