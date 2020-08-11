@@ -561,7 +561,7 @@ void playerEngine :: modReverbSend(uint8_t value)
 }
 
 
-void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
+void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep, uint8_t fx_n)
 {
 	if(ep != NOT_MOD_POINTS) currentSeqModValues.endPoint = ep;
 	if(sp != NOT_MOD_POINTS) currentSeqModValues.startPoint = sp;
@@ -603,13 +603,13 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 					loopPoint1 = startPoint + 1;
 					loopPoint2 = loopPoint1 + loopSize;
 				}
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 1;
 			}
 			else //endPoint > od loopPoint2 , startPoint < od loopPoint1  - nic nie trzeba ruszac
 			{
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 0;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 0;
 			}
 		}
 		else
@@ -618,8 +618,8 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 			{
 				startPoint = loopPoint1 > 0 ? loopPoint1 - 1: 0;
 				endPoint = loopPoint2 < SAMPLE_POINT_POS_MAX ? loopPoint2 + 1: SAMPLE_POINT_POS_MAX;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 0;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 0;
 			}
 			else
 			{
@@ -634,8 +634,8 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 					loopPoint2 = endPoint - 1;
 					loopPoint1 = loopPoint2 - loopSize;
 				}
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 1;
 			}
 		}
 	}
@@ -647,6 +647,9 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 		if(endPoint < SAMPLE_POINT_POS_MIN) endPoint = SAMPLE_POINT_POS_MIN;
 		else if(endPoint > SAMPLE_POINT_POS_MAX) endPoint = SAMPLE_POINT_POS_MAX;
 	}
+
+	currentSeqModValues.loopPoint1 = loopPoint1;
+	currentSeqModValues.loopPoint2 = loopPoint2;
 
 	playMemPtr->setForcedPoints(startPoint,loopPoint1,loopPoint2,endPoint);
 	playMemPtr->setPointsForceFlag();

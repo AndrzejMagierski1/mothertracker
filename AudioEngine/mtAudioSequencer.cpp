@@ -295,7 +295,7 @@ void playerEngine::fxPositionStartPoint(uint8_t fx_val, uint8_t fx_n)
 		}
 	}
 
-	setFxStartPoint();
+	setFxStartPoint(fx_n);
 }
 void playerEngine::fxPositionWavetable(uint8_t fx_val, uint8_t fx_n)
 {
@@ -866,25 +866,42 @@ void playerEngine::endFxReversePlayback(uint8_t fx_n)
 //******** position
 void playerEngine::endFxPosition(uint8_t fx_n)
 {
-	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable) && (mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable))
+//	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable) && (mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable))
+//	{
+//		endFxPositionWavetable(fx_n);
+//	}
+//	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
+//	{
+//		endFxPositionGranular(fx_n);
+//	}
+//	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
+//			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
+//	{
+//		endFxPositionStartPoint(fx_n);
+//	}
+
+
+	if(trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition])
 	{
 		endFxPositionWavetable(fx_n);
 	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
+	else if(trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition])
 	{
 		endFxPositionGranular(fx_n);
 	}
-	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
-			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
+	else if(trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint])
 	{
 		endFxPositionStartPoint(fx_n);
 	}
+
 }
 void playerEngine::endFxPositionStartPoint(uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 0;
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 0;
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 0;
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
@@ -899,7 +916,7 @@ void playerEngine::endFxPositionStartPoint(uint8_t fx_n)
 
 	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
 	{
-		setFxStartPoint();
+		setFxStartPoint(otherFx_n);
 	}
 	else
 	{
@@ -1691,7 +1708,7 @@ void playerEngine::clearFxPositionWavetable()
 	}
 }
 //START POINT
-void playerEngine::setFxStartPoint()
+void playerEngine::setFxStartPoint(uint8_t fx_n)
 {
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 	{
@@ -1701,7 +1718,7 @@ void playerEngine::setFxStartPoint()
 	{
 //		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
 //		else modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
-		modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
+		modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS, fx_n);
 	}
 }
 void playerEngine::clearFxStartPoint()

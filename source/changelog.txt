@@ -2,6 +2,7 @@
 			- [AM] fix: parametry czasowe limitera wyliczane są w nowy sposób
 			- [AM] algorytm declickujący przy "note stealingu" 
 			- [AM] fix: glitche "reverbowe" usunięte z exportu
+			- [AM] fix: "track1 dziala co drugie przejscie songa"
 	
 	1.1.5
 			- [KS] zmiana tempa +- 0.1 z sziftem

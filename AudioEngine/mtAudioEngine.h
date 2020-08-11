@@ -264,7 +264,7 @@ public:
 	void modCutoff(float value);
 	void modResonance(float value);
 
-	void modSeqPoints(uint32_t sp, uint32_t ep);
+	void modSeqPoints(uint32_t sp, uint32_t ep, uint8_t fx_n);
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
@@ -711,7 +711,7 @@ private:
 	void setFxPositionWavetable();
 	void clearFxPositionWavetable();
 
-	void setFxStartPoint();
+	void setFxStartPoint(uint8_t fx_n);
 	void clearFxStartPoint();
 
 	void setFxSlice();
