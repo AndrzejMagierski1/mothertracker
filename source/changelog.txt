@@ -1,6 +1,9 @@
-	next release:
+	1.1.7
 			- [AM] fix: zmiana nazw w limiterze
 			- [AM] fix: zwiecha systemy przy detuningu
+			- [KS] zmiana: ponowne zalaczenie nagrywania RECiem tylko jesli start byl z rec+play
+			- [KS] fix: kilka zmian wplywajacych na trzymanie tempa, do tej pory rozjezdzalo sie
+					co kilkadziesiat stepow
 	
 	1.1.6
 			- [AM] fix: parametry czasowe limitera wyliczane są w nowy sposób
