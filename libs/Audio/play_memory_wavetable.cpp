@@ -88,7 +88,9 @@ audio_block_t * AudioPlayMemory::updateWavetable()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + waveTablePosition + 128 * pitchControl) < length))) ? 0: 1;
+		if(enableInterpolation) interpolationCondition = ((pitchControl  < 1.0f) && (( (iPitchCounter + waveTablePosition + 128 * pitchControl) < length))) ? 0: 1;
+		else interpolationCondition = 1;
+
 		int16_t * in_interpolation = in+1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
