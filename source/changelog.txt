@@ -1,3 +1,6 @@
+	next release:
+			- [AM] fix: zmiana nazw w limiterze
+	
 	1.1.6
 			- [AM] fix: parametry czasowe limitera wyliczane są w nowy sposób
 			- [AM] algorytm declickujący przy "note stealingu" 

@@ -331,9 +331,9 @@ void cMasterParams::showMasterScreen()
 	display.setControlText(label[2], "Delay");
 	display.setControlText2(label[2], " ");
 	display.setControlText(label[3], "Bit Depth");
-	display.setControlText(label[4], "Limit. A");
-	display.setControlText(label[5], "Limit. R");
-	display.setControlText(label[6], "Limit. T");
+	display.setControlText(label[4], "LimiterAtt");
+	display.setControlText(label[5], "LimiterRls");
+	display.setControlText(label[6], "LimiterThr");
 	display.setControlText(label[7], " ");
 	display.setControlText2(label[7], " ");
 
