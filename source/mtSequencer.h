@@ -396,6 +396,7 @@ public:
 
 		bool isPlay = 0;
 		bool isREC = 0;
+		bool isPlayFromRec = 0; // jesli wystartowalo z RECa
 		bool isStop = 1;
 
 		bool ramBank = 0;
@@ -545,7 +546,10 @@ public:
 	void printNotes(bool val);
 
 	uint8_t isPlay(void);
+
 	uint8_t isRec(void);
+	uint8_t isPlayFromRec(void);
+
 	uint8_t isStop(void);
 	uint8_t isPreview(void)
 	{

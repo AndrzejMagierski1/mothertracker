@@ -5,7 +5,7 @@
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 {
 	AudioNoInterrupts();
-	__disable_irq();
+//	__disable_irq();
 
 	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	endFx(lastSeqFx[fx_n],fx_n);
@@ -44,7 +44,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 	lastSeqVal[fx_n] = fx_val;
 
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 //*** Jeżeli kończy się mniej znaczący efekt mimo, że aktywny jest bardziej znaczący efekt to nie wykonujemy żadnej akcji poza wyzerowaniem flag ***/
 //*** Jeżeli kończy się bardziej znaczący efekt i aktywny jest mniej znaczący efekt to mniej znaczący efekt przejmuje kontrolę lub performanceMode wykonuje

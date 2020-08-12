@@ -139,7 +139,7 @@ void mtPatternExporter::refreshReceiving()
 
 			if(position == SEND_BUF_SIZE)
 			{
-				__disable_irq();
+//				__disable_irq();
 				position = 0;
 				switchBuffer();
 				requiredSave = true;
