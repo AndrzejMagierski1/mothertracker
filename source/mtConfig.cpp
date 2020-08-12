@@ -503,23 +503,34 @@ void resetConfig()
 }
 
 
-uint8_t dataa[100];
+
+uint16_t sizes[10];
 
 // odczytanie eepromu w starej konwencji i wstawienie do nowej
 void recoverConfigFromOldVerison()
 {
 
-	EEPROM.readData(0, 						&dataa		,100);
+	EEPROM.readData(36, 	&mtConfig.audioCodecConfig+2	,13);
+	EEPROM.readData(52, 	&mtConfig.firmware+2			,5);
+	EEPROM.readData(57, 	&mtConfig.midi+2				,18);
+	EEPROM.readData(76, 	(&mtConfig.values)+2			,151);
+	EEPROM.readData(228, 	&mtConfig.general+2				,10);
+	EEPROM.readData(238, 	&mtConfig.interface+2			,1);
+	EEPROM.readData(239, 	&mtConfig.metronome+2			,5);
+	EEPROM.readData(244, 	&mtConfig.debug+2				,1);
+	EEPROM.readData(245, 	&mtConfig.common+2				,1);
 
-	EEPROM.readData(34, 						&mtConfig.audioCodecConfig		,13);
-	EEPROM.readData(34+13, 						&mtConfig.firmware+2			,5);
-	EEPROM.readData(34+13+5, 					&mtConfig.values+2				,18);
-	EEPROM.readData(34+13+5+18, 				&mtConfig.midi+2				,151);
-	EEPROM.readData(34+13+5+18+151, 			&mtConfig.general+2				,10);
-	EEPROM.readData(34+13+5+18+151+10, 			&mtConfig.interface+2			,1);
-	EEPROM.readData(34+13+5+18+151+10+1, 		&mtConfig.metronome+2			,5);
-	EEPROM.readData(34+13+5+18+151+10+1+5, 		&mtConfig.debug+2				,1);
-	EEPROM.readData(34+13+5+18+151+10+1+5+1, 	&mtConfig.common+2				,1);
+	sizes[0] = sizeof(mtConfig.audioCodecConfig);
+	sizes[1] = sizeof(mtConfig.firmware);
+	sizes[2] = sizeof(mtConfig.midi);
+	sizes[3] = sizeof(mtConfig.values);
+	sizes[4] = sizeof(mtConfig.general);
+	sizes[5] = sizeof(mtConfig.interface);
+	sizes[6] = sizeof(mtConfig.metronome);
+	sizes[7] = sizeof(mtConfig.debug);
+	sizes[8] = sizeof(mtConfig.common);
+
+
 
 	strcpy(mtConfig.header.id, "EEPROM");
 	mtConfig.header.id[6] = 0;

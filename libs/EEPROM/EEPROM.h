@@ -127,12 +127,13 @@ struct EEPROMClass{
     void readData(int idx, void* data, uint16_t size)
     {
     	EEPtr e = idx;
-    	uint8_t* ptr = (uint8_t*)&data;
+    	uint8_t* ptr = (uint8_t*)data;
     	for (; size ; --size, ++e)
     	{
     		*ptr++ = *e;
     	}
     }
+
     void write( int idx, uint8_t val )   { (EERef( idx )) = val; }
     void update( int idx, uint8_t val )  { EERef( idx ).update( val ); }
 
