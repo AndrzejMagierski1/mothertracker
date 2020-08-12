@@ -694,7 +694,7 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
 
 uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velocity)
 {
-//	__disable_irq();
+	AudioNoInterrupts();
 	uint8_t status;
 //	engine.clearDelay();
 	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
@@ -854,7 +854,10 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	playMemPtr->envelopeNoteOnForPrev(instr_idx,note);
 
 	return status;
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
+
+
 }
 
 

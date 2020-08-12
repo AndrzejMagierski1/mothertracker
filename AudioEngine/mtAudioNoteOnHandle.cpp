@@ -49,7 +49,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		}
 	}
 
-	__enable_irq();
+//	__enable_irq();
 	AudioInterrupts();
 	return status;
 }
@@ -137,7 +137,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	status = 1;
 	if(isTrackDisplayed) onEndDisplay = true;
 //******* start env
-	__enable_irq();
+//	__enable_irq();
 	AudioInterrupts();
 	return status;
 }
@@ -172,7 +172,7 @@ void playerEngine::noteOffFade()
 	}
 
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void playerEngine::noteOffCut()
 {
@@ -191,7 +191,7 @@ void playerEngine::noteOffCut()
 	if(isTrackDisplayed) onEndDisplay = true;
 
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void playerEngine::noteOffOrdinary()
 {
