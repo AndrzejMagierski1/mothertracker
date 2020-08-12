@@ -187,6 +187,7 @@ public:
 	bool isPlaying(void) { return playing; }											// status odtwarzania
 	virtual void update(void);
 	uint16_t getPosition();
+	void setInterpolationEnable(bool value);
 
 	//****************** modyfikacja parametrow z instrumentów
 	void setLP1(uint16_t value);
@@ -400,6 +401,8 @@ private:
 	uint8_t currentInstrIdx;
 	int8_t currentInstrIdxInPlay = -1;
 	int8_t lastInstrIdxInPlay = - 1;
+
+	bool enableInterpolation = true;
 	//*******
 	//********* Pitch
 	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch

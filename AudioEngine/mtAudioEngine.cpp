@@ -334,6 +334,14 @@ void audioEngine::setReverbDamping(uint8_t value)
 //	reverb.damping(value/100.0);
 }
 
+void audioEngine::setInterpolationEnable(bool value)
+{
+	for(uint8_t i = 0 ; i < 8 ; i++)
+	{
+		instrumentPlayer[i].setInterpolationEnable(value);
+	}
+}
+
 void audioEngine::setDelayFeedback(uint8_t value)
 {
 	shortDelay.setFeedback(value/100.0);
@@ -685,6 +693,11 @@ void playerEngine :: clean(void)
 	currentNote=0;
 	statusBytes=0;
 	playMemPtr->clean();
+}
+
+void playerEngine::setInterpolationEnable(bool value)
+{
+	playMemPtr->setInterpolationEnable(value);
 }
 
 float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, float out_max)

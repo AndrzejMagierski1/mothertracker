@@ -814,7 +814,10 @@ void AudioPlayMemory::clearReverse()
 {
 	reverseDirectionFlag = 0;
 }
-
+void AudioPlayMemory::setInterpolationEnable(bool value )
+{
+	enableInterpolation = value;
+}
 uint16_t AudioPlayMemory::getPosition()
 {
 	return  (uint16_t)(65535 * ((pointsInSamples.start + iPitchCounter)/(float)currentSampleLength));

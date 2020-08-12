@@ -43,7 +43,9 @@ audio_block_t * AudioPlayMemory::updateLoopBackwardNormal()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0 : 1;
+		if(enableInterpolation) interpolationCondition = ((pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0 : 1;
+		else interpolationCondition = 1;
+
 		int16_t * in_interpolation = loopBackwardFlag ? in-1 : in+1;
 
 		int32_t currentInterpolationFraction;
@@ -157,8 +159,9 @@ audio_block_t * AudioPlayMemory::updateLoopBackwardReverse()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
+		if(enableInterpolation) interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		else interpolationCondition = 1;
 
-		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
 		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
 		int32_t currentInterpolationFraction;
 
