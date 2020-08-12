@@ -182,6 +182,12 @@ const char* const ptrPadsLayout[12] =
 	&padsLayoutTexts[11][0],
 };
 
+const char* const ptrAntyaliasingEnable[2] =
+{
+	&onOffStateTexts[0][0],
+	&onOffStateTexts[1][0]
+};
+
 /*
 const char Texts[2][7] =
 {

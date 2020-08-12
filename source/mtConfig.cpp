@@ -355,7 +355,7 @@ void checkConfig()
 	if(mtConfig.general.padBoardNoteOffset > 11) 	mtConfig.general.padBoardNoteOffset = 11;
 	if(mtConfig.general.padBoardRootNote > 25) 		mtConfig.general.padBoardRootNote = 12;
 	//if(mtConfig.general.padBoardMaxVoices > 8) 		mtConfig.general.padBoardMaxVoices = 8;
-
+	if(mtConfig.general.antialiasingEnable > 1) mtConfig.general.antialiasingEnable = 0;
 
 	// interface ----------------------------------------
 	if(mtConfig.interface.fxPopupDescription > 1)
@@ -461,7 +461,7 @@ void resetConfig()
 	mtConfig.general.padBoardNoteOffset = 11;
 	mtConfig.general.padBoardRootNote = 12;
 	//mtConfig.general.padBoardMaxVoices = 8;
-
+	mtConfig.general.antialiasingEnable = 1;
 
 	// interface ----------------------------------------
 	mtConfig.interface.fxPopupDescription = 0;

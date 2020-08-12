@@ -22,7 +22,7 @@ const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 const uint8_t PROJECT_FILE_VERSION 	=		4;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
-const uint8_t EEPROM_STRUCT_VER =			3;
+const uint8_t EEPROM_STRUCT_VER =			4;
 
 
 const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
@@ -732,7 +732,7 @@ struct strMtConfig
 		uint8_t padBoardScale;
 		uint8_t padBoardNoteOffset;
 		uint8_t padBoardRootNote;
-
+		uint8_t antialiasingEnable;
 
 	} general;
 

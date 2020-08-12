@@ -8,6 +8,7 @@ void setDisplayBrightness();
 void setPadsBrightness();
 
 void setPadBoardValues();
+void setAntyaliasingEnable();
 
 void setMetronomValues();
 

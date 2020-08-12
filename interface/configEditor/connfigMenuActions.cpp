@@ -4,7 +4,7 @@
 
 
 #include "mtPadBoard.h"
-
+#include "mtAudioEngine.h"
 
 #include "configEditor/configMenuActions.h"
 
@@ -49,7 +49,10 @@ void setPadBoardValues()
 
 }
 
-
+void setAntyaliasingEnable()
+{
+	engine.setInterpolationEnable(mtConfig.general.antialiasingEnable);
+}
 
 
 
