@@ -5,7 +5,7 @@
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 {
 	AudioNoInterrupts();
-	__disable_irq();
+//	__disable_irq();
 
 	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	endFx(lastSeqFx[fx_n],fx_n);

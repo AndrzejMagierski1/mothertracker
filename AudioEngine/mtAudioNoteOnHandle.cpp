@@ -12,7 +12,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	endFx(lastSeqFx[0],0);
 	endFx(lastSeqFx[1],1);
 
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 
 	uint8_t status;
@@ -60,7 +60,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	uint8_t status;
 
@@ -154,7 +154,7 @@ void playerEngine::noteOff(int8_t option)
 //************************************* handle noteOff
 void playerEngine::noteOffFade()
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	playMemPtr->envelopeRelease(300);
 	playMemPtr->envelopeNoteOff();
@@ -176,7 +176,7 @@ void playerEngine::noteOffFade()
 }
 void playerEngine::noteOffCut()
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	// caly voice i automatyka zabijane
 	playMemPtr->envelopeNoteOff();
@@ -195,7 +195,7 @@ void playerEngine::noteOffCut()
 }
 void playerEngine::noteOffOrdinary()
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	playMemPtr->envelopeNoteOff();
 
