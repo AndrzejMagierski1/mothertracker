@@ -2337,7 +2337,7 @@ static  uint8_t functRecAction()
 		sequencer.recOff();
 		PTE->editMode = 0;
 	}
-	else if(sequencer.isPlay())
+	else if(sequencer.isPlayFromRec())
 	{
 		sequencer.recOn();
 		PTE->editMode = 0;

@@ -1227,6 +1227,7 @@ void Sequencer::stop(void)
 	player.isPlay = 0;
 	player.isStop = 1;
 	player.isREC = 0;
+	player.isPlayFromRec = 0;
 	player.uStep = 0;
 	player.selectionMode = 0;
 
@@ -1280,6 +1281,7 @@ void Sequencer::stop(void)
 void Sequencer::recStart(void)
 {
 	player.isREC = 1;
+	player.isPlayFromRec = 1;
 	if (isPreRollActive())
 	{
 		player.preRecMetronomeActive = 1;
@@ -1880,6 +1882,10 @@ uint8_t Sequencer::getTempoDiv(int8_t val)
 uint8_t Sequencer::isPlay(void)
 {
 	return player.isPlay;
+}
+uint8_t Sequencer::isPlayFromRec(void)
+{
+	return player.isPlayFromRec;
 }
 
 uint8_t Sequencer::isRec(void)
