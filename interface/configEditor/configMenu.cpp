@@ -16,7 +16,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 6);
 //=====================================================================================================================================
 
 // grupy glowne
-cMenuGroup menuGeneral	(menuBase, 0, "General", 	9);
+cMenuGroup menuGeneral	(menuBase, 0, "General", 	10);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	5);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
@@ -38,6 +38,7 @@ const strItemTypeListText setupPerfSource 		{ &mtConfig.general.performanceSourc
 const strItemTypeListTextWithAction setupPadsScale		{ &mtConfig.general.padBoardScale,  	40, ptrScaleNames,		setPadBoardValues };
 const strItemTypeListTextWithAction setupPadsRootNote	{ &mtConfig.general.padBoardRootNote,  	25,	&ptrAllNotes[24],	setPadBoardValues };
 const strItemTypeListTextWithAction setupPadsLayout		{ &mtConfig.general.padBoardNoteOffset,	12, ptrPadsLayout,		setPadBoardValues };
+const strItemTypeListTextWithAction setupAntialiasing 	{ &mtConfig.general.antialiasingEnable,	2,  ptrAntyaliasingEnable,	setAntyaliasingEnable };
 
 
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
@@ -49,7 +50,7 @@ cMenuItem melPerformanceSource	(menuGeneral, 	5, "Performance presets", 	menuTyp
 cMenuItem melPadsScale			(menuGeneral, 	6, "Pads Scale", 			menuTypeItemListTextWithAction, &setupPadsScale);
 cMenuItem melPadsRootNote		(menuGeneral, 	7, "Pads Root Note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
 cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
-
+cMenuItem melAntialiasingEnable		(menuGeneral, 	9, "Antialiasing", 		menuTypeItemListTextWithAction, &setupAntialiasing);
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
 ///////////////////
