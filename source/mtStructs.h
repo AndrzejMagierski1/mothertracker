@@ -22,10 +22,10 @@ const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 const uint8_t PROJECT_FILE_VERSION 	=		4;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
-const uint8_t EEPROM_STRUCT_VER =			3;
+const uint8_t EEPROM_STRUCT_VER =			4;		// od 4 wersji nowy eeprom/mtConfig
 
 
-const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				false;	// wlaczanie dopiero po wcisnieciu przycisku itp
 
 
 
@@ -36,7 +36,8 @@ const bool FILE_TRANS_FROM_CONFIG_PAD	=	false;	// mtp  wl/wyl z pod 12 pada w co
 
 const float DEFAULT_TEMPO = 130;
 
-const uint32_t CONFIG_EEPROM_ADRESS =        	0;
+const uint32_t START_STATE_EEPROM_ADRESS 	=	0;  // 1 bajt = start_state
+const uint32_t CONFIG_EEPROM_ADRESS 		=	10; // 9 bajtow na zapas, potem config
 
 const uint16_t MAX_16BIT =              		65535;
 const int16_t MAX_SIGNED_16BIT =				32767;
@@ -643,19 +644,21 @@ struct strMtProject
 
 };
 
-//-------------------------------------------------
+
 struct strMtConfig
 {
-	struct strStartup
+	struct strConfigHeader
 	{
-		uint8_t startMode = interfaceOpenLastProject;
-		char lastProjectName[PROJECT_NAME_SIZE];
-		uint8_t powerState = powerStateSleep;
+		char id[7];
+		uint8_t version;
+		uint16_t total_size;
 
-	} startup;
+	} header;
 
 	struct strAudioCodecConfig
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t inSelect;
 		uint8_t outSelect;
 
@@ -676,6 +679,8 @@ struct strMtConfig
 
 	struct strVersion
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t ver_1;
 		uint8_t ver_2;
 		uint8_t ver_3;
@@ -687,6 +692,8 @@ struct strMtConfig
 
 	struct strMIDIValues
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t clkIn;
 		uint8_t clkOut;
 		uint8_t transportIn;
@@ -700,6 +707,8 @@ struct strMtConfig
 
 	struct strGlobalValues
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 		uint8_t padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
@@ -720,6 +729,8 @@ struct strMtConfig
 
 	struct strGeneralValues
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t patternDiv;
 		uint8_t radioRegion;
 		uint8_t dispBrightness;
@@ -738,11 +749,15 @@ struct strMtConfig
 
 	struct strInterfaceState
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t fxPopupDescription;
 	} interface;
 
 	struct strMetronome
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t state; // 0-1
 		uint8_t preRoll; // 0-1
 		uint8_t timeSignatureNumerator; // 0-11 - do zmiany pewnie
@@ -752,12 +767,16 @@ struct strMtConfig
 
 	struct strDebugState
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t debugLogState;
 	} debug;
 
 	 // tu wszystko co nie ma jakiejsc szczegulnej kategori
 	struct strCommonValues
 	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
 		uint8_t equalSliceNumber = 8;
 	} common;
 
@@ -770,6 +789,140 @@ struct strMtConfig
 
 };
 
+
+
+//-------------------------------------------------
+
+/* OLD CONFIG
+struct strMtConfig
+{
+	struct strStartup
+	{
+		uint8_t startMode = interfaceOpenLastProject;
+		char lastProjectName[PROJECT_NAME_SIZE];
+		uint8_t powerState = powerStateSleep;
+
+	} startup;  // 34B
+
+	struct strAudioCodecConfig
+	{
+		uint8_t inSelect;
+		uint8_t outSelect;
+
+		float headphoneVolume;
+		uint8_t inputGain; // 0-63
+		uint8_t mutedHeadphone;
+		uint8_t mutedLineOut;
+
+		uint8_t lineInLeft; // 0-15
+		uint8_t lineInRight; // 0-15
+
+		uint8_t lineOutLeft; // 13-31
+		uint8_t lineOutRight; //13-31
+
+		//uint8_t changeFlag;
+
+	} audioCodecConfig; // 13B
+
+	struct strVersion
+	{
+		uint8_t ver_1;
+		uint8_t ver_2;
+		uint8_t ver_3;
+		uint8_t beta;
+		//uint8_t memoryStructVer;
+		uint8_t eepromStructVer;
+
+	} firmware; // 5B
+
+	struct strMIDIValues
+	{
+		uint8_t clkIn;
+		uint8_t clkOut;
+		uint8_t transportIn;
+		uint8_t transportOut;
+		uint8_t notesInMode;
+		uint8_t notesInChannel; // od 0 = all channels
+		uint8_t notesOutMode;
+		uint8_t notesOutChannel; // od 0 = channel 1
+		uint8_t ccOut[10];
+	} midi; // 18B
+
+	struct strGlobalValues
+	{
+		uint8_t padsLightBack = PADS_LIGHT_BACK_DEFAULT;
+		uint8_t padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
+		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
+
+		uint8_t padBoardScale;
+		uint8_t padBoardNoteOffset;
+		uint8_t padBoardRootNote;
+		uint8_t padBoardMaxVoices;
+
+		uint16_t perfTracksPatterns[8]  = {1,1,1,1,1,1,1,1};
+		uint8_t perfFxPlaces[12] 		= {1,2,3,4,5,6,7,8,9,10,11,12}; // jakie efekty w 12 slotach
+		int16_t perfFxValues[12][4] 	= {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
+		uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
+		uint8_t perfTracksState[8] 		= {0,0,0,0,0,0,0,0}; // narazie nie uzywana
+
+	} values; // 151B
+
+
+	struct strGeneralValues
+	{
+		uint8_t patternDiv;
+		uint8_t radioRegion;
+		uint8_t dispBrightness;
+		uint8_t padsBrightness;
+		uint8_t mtpState;
+
+		uint8_t recOptions;
+		uint8_t performanceSource;
+
+		uint8_t padBoardScale;
+		uint8_t padBoardNoteOffset;
+		uint8_t padBoardRootNote;
+
+	} general; // 10B
+
+	struct strInterfaceState
+	{
+		uint8_t fxPopupDescription;
+
+	} interface; // 1B
+
+	struct strMetronome
+	{
+		uint8_t state; // 0-1
+		uint8_t preRoll; // 0-1
+		uint8_t timeSignatureNumerator; // 0-11 - do zmiany pewnie
+		uint8_t timeSignatureDenominator; // 0-11 - do zmiany pewnie
+		uint8_t volume; // 0-100
+
+	} metronome; // 5B
+
+	struct strDebugState
+	{
+		uint8_t debugLogState;
+
+	} debug; // 1B
+
+	 // tu wszystko co nie ma jakiejsc szczegulnej kategori
+	struct strCommonValues
+	{
+		uint8_t equalSliceNumber = 8;
+
+	} common; //1B
+
+
+
+
+	// dodawac powyzej
+	// \/ to niech zostanie na koncu itak narazie nie uzywane
+	uint32_t arcanoidHighestScore;
+
+};
+*/
 
 //-------------------------------------------------
 

@@ -15,12 +15,13 @@ void saveConfigAsap();
 void readConfig();
 
 
+
 uint8_t readStartState();
 //void saveStartState();
 void saveStartState(uint8_t state);
 
 void checkConfig();
-
+void recoverConfigFromOldVerison();
 
 void readSdConfig();
 void executeSdConfig(char* buff);

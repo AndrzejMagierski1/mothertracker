@@ -124,6 +124,15 @@ struct EEPROMClass{
     //Basic user access methods.
     EERef operator[]( const int idx )    { return idx; }
     uint8_t read( int idx )              { return EERef( idx ); }
+    void readData(int idx, void* data, uint16_t size)
+    {
+    	EEPtr e = idx;
+    	uint8_t* ptr = (uint8_t*)&data;
+    	for (; size ; --size, ++e)
+    	{
+    		*ptr++ = *e;
+    	}
+    }
     void write( int idx, uint8_t val )   { (EERef( idx )) = val; }
     void update( int idx, uint8_t val )  { EERef( idx ).update( val ); }
 
@@ -133,14 +142,16 @@ struct EEPROMClass{
     uint16_t length()                    { return E2END + 1; }
 
     //Functionality to 'get' and 'put' objects to and from EEPROM.
-    template< typename T > T &get( int idx, T &t ){
+    template< typename T > T &get( int idx, T &t )
+    {
         EEPtr e = idx;
         uint8_t *ptr = (uint8_t*) &t;
         for( int count = sizeof(T) ; count ; --count, ++e )  *ptr++ = *e;
         return t;
     }
 
-    template< typename T > const T &put( int idx, const T &t ){        
+    template< typename T > const T &put( int idx, const T &t )
+    {
         const uint8_t *ptr = (const uint8_t*) &t;
 #ifdef __arm__
         eeprom_write_block(ptr, (void *)idx, sizeof(T));

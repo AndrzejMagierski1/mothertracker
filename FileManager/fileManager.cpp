@@ -461,7 +461,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 		changesFlags.project = 0;
 	}
 
-	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
+	//strcpy(mtConfig.startup.lastProjectName, currentProjectName); // nie uzywane juz
 	sprintf(currentProjectPatch,"Projects/%s", currentProjectName);
 
 
