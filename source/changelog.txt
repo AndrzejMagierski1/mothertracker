@@ -1,5 +1,6 @@
 	next release:
 			- [AM] fix: zmiana nazw w limiterze
+			- [AM] fix: zwiecha systemy przy detuningu
 	
 	1.1.6
 			- [AM] fix: parametry czasowe limitera wyliczane są w nowy sposób

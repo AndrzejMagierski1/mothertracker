@@ -700,8 +700,14 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 
 	uint8_t localPlaymode = mtProject.instrument[currentInstrIdx].playMode;
 
+
 	float localPitchControl = pitchControl;
-	localPitchControl -= (localPlaymode != playModeWavetable) ? (float)notes[currentNote+currentTune] : (float)wt_notes[currentNote+currentTune];
+
+	int8_t lastNoteAndTuneIdx = currentNote + currentTune;
+	if(lastNoteAndTuneIdx < 0) lastNoteAndTuneIdx = 0;
+	else if(lastNoteAndTuneIdx >= MAX_NOTE) lastNoteAndTuneIdx = MAX_NOTE;
+
+	localPitchControl -= (localPlaymode != playModeWavetable) ? (float)notes[lastNoteAndTuneIdx] : (float)wt_notes[lastNoteAndTuneIdx];
 	localPitchControl += (localPlaymode != playModeWavetable) ? (float)notes[currentNote+value] : (float)wt_notes[currentNote+value];
 	AudioNoInterrupts();
 	pitchControl = localPitchControl;
