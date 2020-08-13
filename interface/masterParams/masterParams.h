@@ -215,6 +215,7 @@ public:
 	hControl delaySyncRateList;
 	hControl keyboardControl;
 	hControl editName;
+	hControl trackNameLabel[8];
 
 	uint8_t selectedPlace = 0;
 
@@ -262,6 +263,7 @@ public:
 
 	void resizeToDefaultConfig();
 	void resizeToDefaultMaster();
+	void resizeBarControl(display_t val);
 	void resizeToSmallConfig(uint8_t labelIdx);
 
 	void showGeneralSubmenus(uint8_t listPosition);

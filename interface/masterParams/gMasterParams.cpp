@@ -141,6 +141,17 @@ void cMasterParams::initDisplayControls()
 		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
+		prop2.value = 0;
+		prop2.colors = nullptr;
+		prop2.style = ( controlStyleShow | controlStyleBackground | controlStyleCenterY | controlStyleCenterX| controlStyleFont4);
+		prop2.x = (800/8)*i + (800/16);
+		prop2.w = 800/8-6;
+		prop2.y = 32;
+		prop2.h = 26;
+		if(trackNameLabel[i] == nullptr) trackNameLabel[i] = display.createControl<cLabel>(&prop2);
+
+
+
 		prop2.colors = levelBarColors[i];
 		prop2.value = 0;
 		prop2.x = (800/8)*i+1;
@@ -232,6 +243,8 @@ void cMasterParams::destroyDisplayControls()
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
 
+		display.destroyControl(trackNameLabel[i]);
+		trackNameLabel[i] = nullptr;
 	}
 
 	display.destroyControl(bgLabel);
@@ -275,6 +288,11 @@ void cMasterParams::showDefaultConfigScreen()
 	display.setControlText(titleLabel, "Config");
 	display.refreshControl(titleLabel);
 
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(trackNameLabel[i]);
+		display.refreshControl(trackNameLabel[i]);
+	}
 
 	display.setControlText(label[0], "Config");
 	display.setControlText(label[1], "");
@@ -383,6 +401,14 @@ void cMasterParams::showMasterScreen()
 	frameData.places[7] = &framesPlaces[7][0];
 
 	activateLabelsBorder();
+
+	resizeBarControl(display_t::masterValues);
+
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(trackNameLabel[i]);
+		display.refreshControl(trackNameLabel[i]);
+	}
 	display.synchronizeRefresh();
 
 }
@@ -454,6 +480,13 @@ void cMasterParams::showReverbScreen()
 	frameData.places[7] = &framesPlaces[7][0];
 
 	refreshReverbFrame();
+
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(trackNameLabel[i]);
+		display.refreshControl(trackNameLabel[i]);
+	}
+
 	display.synchronizeRefresh();
 }
 
@@ -549,6 +582,13 @@ void cMasterParams::showDelayScreen()
 		frameData.places[7] = &framesPlaces[7][0];
 
 		refreshDelayFrame();
+
+		for(uint8_t i = 0 ; i < 8; i++)
+		{
+			display.setControlHide(trackNameLabel[i]);
+			display.refreshControl(trackNameLabel[i]);
+		}
+
 		display.synchronizeRefresh();
 }
 
@@ -662,6 +702,29 @@ void cMasterParams::resizeToDefaultConfig()
 	{
 		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 	}
+}
+
+void cMasterParams::resizeBarControl(display_t val)
+{
+	if(val == display_t::masterValues)
+	 {
+		 for(uint8_t i = 0; i < 8 ; i++)
+		 {
+			display.setControlPosition(barControl[i],  (800/8)*i+1, 29);
+			display.setControlSize(barControl[i],  800/8-3,  394);
+			display.refreshControl(barControl[i]);
+		 }
+	 }
+	 else if(val == display_t::mixer)
+	 {
+		 for(uint8_t i = 0; i < 8 ; i++)
+		 {
+			display.setControlPosition(barControl[i],  (800/8)*i+1,  58 + (394 - 29)/2);
+			display.setControlSize(barControl[i],  800/8-3,  (394 - 29)/2);
+			display.refreshControl(barControl[i]);
+		 }
+	 }
+
 }
 
 void cMasterParams::resizeToDefaultMaster()
@@ -916,6 +979,10 @@ void cMasterParams::showMixerScreen()
 			mtProject.values.TrackNames[i][7] = 0;
 			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
 			showLevelBar(i);
+
+			display.setControlText(trackNameLabel[i],&mtProject.values.TrackNames[i][0]);
+			display.setControlShow(trackNameLabel[i]);
+			display.refreshControl(trackNameLabel[i]);
 		}
 	}
 
@@ -937,6 +1004,8 @@ void cMasterParams::showMixerScreen()
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
+
+	resizeBarControl(display_t::mixer);
 
 	display.synchronizeRefresh();
 }
