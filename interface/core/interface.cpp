@@ -246,7 +246,7 @@ void cInterface::doStartTasks()
 		showDisplayNoSdCard();
 	}
 	engine.setInterpolationEnable(mtConfig.general.antialiasingEnable);
-
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
 }
 
 void cInterface::processStartScreen()

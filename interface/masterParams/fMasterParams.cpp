@@ -958,14 +958,13 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 //master
 void changeVolume(int16_t value)
 {
-	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
-	else if(mtProject.values.volume + value > MASTER_VOLUME_MAX) mtProject.values.volume = MASTER_VOLUME_MAX;
-	else mtProject.values.volume += value;
+	if(mtConfig.audioCodecConfig.volume + value < MASTER_VOLUME_MIN) mtConfig.audioCodecConfig.volume = MASTER_VOLUME_MIN;
+	else if(mtConfig.audioCodecConfig.volume + value > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.volume = MASTER_VOLUME_MAX;
+	else mtConfig.audioCodecConfig.volume += value;
 
 
-	engine.setHeadphonesVolume(mtProject.values.volume);
-
-	newFileManager.setProjectStructChanged();
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
+	saveConfig();
 
 	MP->showVolume();
 }
@@ -1041,10 +1040,10 @@ void changeBitDepth(int16_t value)
 
 void setDefaultMasterVolume()
 {
-	mtProject.values.volume = 50;
-	engine.setHeadphonesVolume(mtProject.values.volume);
+	mtConfig.audioCodecConfig.volume = MASTER_VOLUME_DEFAULT;
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
 
-	newFileManager.setProjectStructChanged();
+	saveConfig();
 
 	MP->showVolume();
 }

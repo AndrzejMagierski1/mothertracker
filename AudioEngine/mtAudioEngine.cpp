@@ -231,7 +231,7 @@ void audioEngine::init()
 			mtProject.values.delayParams & 0b10000000,mtProject.values.delayParams & 0b01000000,
 			mtProject.values.delayParams & 0b00111111);
 
-	audioShield.volume(mtProject.values.volume/100.0);
+	audioShield.volume(mtConfig.audioCodecConfig.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
 

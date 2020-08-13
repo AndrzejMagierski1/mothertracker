@@ -279,7 +279,7 @@ static  uint8_t functPlayAction()
 
 uint8_t cProjectEditor::loadProjectValues()
 {
-	engine.setHeadphonesVolume(mtProject.values.volume);
+//	engine.setHeadphonesVolume(mtProject.values.volume);
 	engine.setDelayFeedback(mtProject.values.delayFeedback);
 	engine.setDelayTime(mtProject.values.delayTime);
 	engine.setDelayParams(mtProject.values.delayParams);

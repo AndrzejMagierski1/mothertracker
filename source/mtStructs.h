@@ -22,7 +22,7 @@ const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 const uint8_t PROJECT_FILE_VERSION 	=		4;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
-const uint8_t EEPROM_STRUCT_VER =			4;
+const uint8_t EEPROM_STRUCT_VER =			5;
 
 
 const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
@@ -549,7 +549,7 @@ struct strMtValues
 	uint8_t padBoardRootNote = 36;
 	uint8_t padBoardMaxVoices = 8;
 
-	uint8_t volume = 50;
+	uint8_t oldVolume = 50; // juz nie uzywana wartosc nowa jest w mtConfig
 
 //	uint8_t reverbRoomSize = 80;
 //	uint8_t reverbDamping = 25;
@@ -678,6 +678,7 @@ struct strMtConfig
 		uint8_t lineOutLeft; // 13-31
 		uint8_t lineOutRight; //13-31
 
+		uint8_t volume;
 		//uint8_t changeFlag;
 
 	} audioCodecConfig;
