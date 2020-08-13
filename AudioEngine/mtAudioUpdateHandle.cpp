@@ -63,7 +63,7 @@ inline void playerEngine::handleUpdateEndPlayDetect()
 	currentPlayState = playMemPtr->isPlaying();
 	if(currentPlayState == 0 && lastPlayState == 1)
 	{
-		playMemPtr->envelopeNoteOff();
+//		playMemPtr->envelopeNoteOff();
 		interfacePlayingEndFlag = 1;
 		if(isTrackDisplayed) onEndDisplay = true;
 	}
