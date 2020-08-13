@@ -1,6 +1,7 @@
 	next release:
 			
 			- [AM] Process w Sample Editor (zmiana na preview) - processuje i od razu odpala odsluch
+			- [AM] Dodanie lfo speed(dla innych niz amp): 48, 64, 96, 128
 	1.1.8
 			- [AM] fix: znikające nuty
 	1.1.7

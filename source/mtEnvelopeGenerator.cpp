@@ -409,13 +409,13 @@ void envelopeGenerator::calcSyncSeq()
 {
 	if (!syncState) return;
 
-	uint16_t ticksOnPeriod = (6912/12) * syncRate;
+	uint32_t ticksOnPeriod = (6912/12) * syncRate;
 
 	uint16_t stepShift = (startStep % 36) * (6912/12);
 
 	currentSeqTicks += stepShift;
 
-	uint16_t currentPointInPhase = currentSeqTicks%ticksOnPeriod;
+	uint32_t currentPointInPhase = currentSeqTicks%ticksOnPeriod;
 
 	float lfoFrequency = (currentSeqSpeed/15.0);
 	float periodTime = (1000000.0f / lfoFrequency) * syncRate;
@@ -444,6 +444,7 @@ void envelopeGenerator::calcSyncSeq()
 		if(currentPointInPhase > ticksOnPeriod/2)
 		{
 			envTemp.phase = phaseNumber[1];
+
 			envTemp.timer = (halfPeriod) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f));
 		}
 		else
