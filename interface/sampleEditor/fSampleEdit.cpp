@@ -200,7 +200,7 @@ void cSampleEditor::update()
 
 			if(processingInProgress)
 			{
-				processingInProgress = false;
+//				processingInProgress = false;
 				processingProgress = 0;
 				showProgressProcessing();
 				setPlayFunction();
@@ -226,6 +226,12 @@ void cSampleEditor::update()
 			refreshUndoState();
 
 			restoreFunctions();
+
+			if(processingInProgress)
+			{
+				processingInProgress = false; // kasowanie dopiero  tutaj zeby moc odpalic play po przeprocesowaniu wszystkich danych
+				functPlay();
+			}
 		}
 	}
 
