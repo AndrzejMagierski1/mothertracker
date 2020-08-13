@@ -1209,7 +1209,8 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	env->enable = 1;
 	env->amount = lfo->amount;
 
-	if(rate > 23) rate = 23;
+	uint8_t envelopeConstrain = isAmp ? CONSTRAIN_SPEED_AMP_ENVELOPE : CONSTRAIN_SPEED_OTHER_ENVELOPE;
+	if(rate > envelopeConstrain) rate = envelopeConstrain;
 
 	float lfoFrequency = (sequencer.getActualTempo()/15.0);
 
