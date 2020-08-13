@@ -315,7 +315,7 @@ void cSampleEditor::showEffectParamsScreen()
 
 	switch(previewState)
 	{
-	case previewStatePreview: 		display.setControlText(label[6], "Process"); 	break;
+	case previewStatePreview: 		display.setControlText(label[6], "Preview"); 	break;
 	case previewStatePlay:			display.setControlText(label[6], "Preview");	break;
 	case previewStateStop:			display.setControlText(label[6], "Stop");	break;
 	}
@@ -611,7 +611,7 @@ void cSampleEditor::showPopupTooLongProcessedSampleWindow()
 //************* play/stop/preview
 void cSampleEditor::showPreviewLabel()
 {
-	display.setControlText(label[6], "Process");
+	display.setControlText(label[6], "Preview");
 	display.refreshControl(label[6]);
 }
 void cSampleEditor::showPlayLabel()

@@ -1,3 +1,6 @@
+	next release:
+			
+			- [AM] Process w Sample Editor (zmiana na preview) - processuje i od razu odpala odsluch
 	1.1.8
 			- [AM] fix: znikające nuty
 	1.1.7
