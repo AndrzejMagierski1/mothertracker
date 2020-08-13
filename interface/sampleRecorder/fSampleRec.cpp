@@ -348,7 +348,7 @@ void cSampleRecorder::start(uint32_t options)
 	}
 	else audioShield.headphoneSourceSelect(0);
 
-	engine.setHeadphonesVolume(mtProject.values.volume * 0.85);
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume * 0.85);
 
 	//mtPadBoard.configureInstrumentPlayer(8);
 
@@ -368,7 +368,7 @@ void cSampleRecorder::stop()
 		audioShield.headphoneSourceSelect(0);
 		radio.clearRDS();
 		radio.resetSeekCallback();
-		engine.setHeadphonesVolume(mtProject.values.volume);
+		engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
 
 	}
 
@@ -2535,7 +2535,7 @@ void turnOffRecorder()
 	audioShield.headphoneSourceSelect(0);
 	radio.clearRDS();
 	radio.resetSeekCallback();
-	engine.setHeadphonesVolume(mtProject.values.volume);
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
 }
 
 

@@ -209,6 +209,7 @@ void checkConfig()
 	else if(mtConfig.audioCodecConfig.lineOutRight < 13)
 			mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
 
+	if(mtConfig.audioCodecConfig.volume > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.volume = MASTER_VOLUME_MAX;
 
 
 	mtConfig.startup.lastProjectName[PROJECT_NAME_SIZE-1] = 0;
@@ -407,6 +408,7 @@ void resetConfig()
 	mtConfig.audioCodecConfig.lineInRight = LINE_IN_SENS_LEVEL_DEFAULT;
 	mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
 	mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
+	mtConfig.audioCodecConfig.volume = MASTER_VOLUME_DEFAULT;
 
 	// midi ----------------------------------------
 	for(uint8_t i = 0; i < 10; i++)

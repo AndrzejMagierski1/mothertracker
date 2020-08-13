@@ -267,7 +267,7 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 	source->padBoardRootNote = 36;
 	source->padBoardMaxVoices = 8;
 
-	source->volume = 50;
+	source->oldVolume = 0;
 
 //	source->reverbRoomSize = 80;
 //	source->reverbDamping = 25;

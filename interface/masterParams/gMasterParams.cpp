@@ -696,9 +696,9 @@ void cMasterParams::resizeToSmallConfig(uint8_t labelIdx)
 
 void cMasterParams::showVolume()
 {
-	sprintf(volumeVal,"%d", mtProject.values.volume);
+	sprintf(volumeVal,"%d", mtConfig.audioCodecConfig.volume);
 
-	display.setControlValue(barControl[0], mtProject.values.volume);
+	display.setControlValue(barControl[0], mtConfig.audioCodecConfig.volume);
 //	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
