@@ -1341,10 +1341,10 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		case fx.FX_TYPE_PANNING_LFO:
 		case fx.FX_TYPE_FINETUNE_LFO:
 		case fx.FX_TYPE_POSITION_LFO:
-		return 24;
+		return CONSTRAIN_SPEED_OTHER_ENVELOPE ;
 
 	case fx.FX_TYPE_VOLUME_LFO:
-		return 23;
+		return CONSTRAIN_SPEED_AMP_ENVELOPE ;
 
 	default:
 		return 100;
@@ -1447,8 +1447,8 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 		return value;
 	}
 }
-const uint8_t MAX_LFOSPEED_LABELS_AMP = 24;
-const uint8_t MAX_LFOSPEED_LABELS = 25;
+const uint8_t MAX_LFOSPEED_LABELS_AMP = ENVELOPE_SPEED_AMP_COUNT;
+const uint8_t MAX_LFOSPEED_LABELS = ENVELOPE_SPEED_OTHER_COUNT ;
 const char seqlfoSpeedLabels_ampOnly[MAX_LFOSPEED_LABELS_AMP+1][4] =
 {
 		" 24",
@@ -1479,6 +1479,10 @@ const char seqlfoSpeedLabels_ampOnly[MAX_LFOSPEED_LABELS_AMP+1][4] =
 };
 const char seqlfoSpeedLabels[MAX_LFOSPEED_LABELS+1][4] =
 {
+		"128",
+		" 96",
+		" 64",
+		" 48",
 		" 32",
 		" 24",
 		" 16",
