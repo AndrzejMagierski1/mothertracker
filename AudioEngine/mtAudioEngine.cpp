@@ -318,6 +318,13 @@ void audioEngine::performanceModeEndAll()
 		instrumentPlayer[i].endFinetuneLfoRatePerformanceMode();
 	}
 }
+void audioEngine::refreshTrackVolume()
+{
+	for(uint8_t track = 0 ; track < 8; track++)
+	{
+		instrumentPlayer[track].setStatusBytes(VOLUME_MASK);
+	}
+}
 
 void audioEngine::setHeadphonesVolume(uint8_t value)
 {
@@ -515,8 +522,13 @@ void playerEngine :: modPanning(int16_t value)
 
 	mixerL.gain(nChannel,gainL);
 	mixerR.gain(nChannel,gainR);
-
 }
+
+void playerEngine::modVolume(float value)
+{
+	ampPtr->gain(value * (mtProject.values.trackVolume[nChannel]/100.0));
+}
+
 
 void playerEngine :: modLP1(uint16_t value)
 {
@@ -834,7 +846,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	/*==================================================GAIN================================================*/
 	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
 
-	ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[instr_idx].volume]);
+	modVolume(localAmount * ampLogValues[mtProject.instrument[instr_idx].volume]);
 
 
 	/*======================================================================================================*/
@@ -889,7 +901,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 //	engine.clearDelay();
 
 	filterDisconnect();
-	ampPtr->gain(ampLogValues[50]);
+	modVolume(ampLogValues[50]);
 
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
@@ -925,7 +937,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	}
 
 	filterDisconnect();
-	ampPtr->gain(ampLogValues[50]); //wracam z 50 do 100, a teraz ze 100 do 50
+	modVolume(ampLogValues[50]); //wracam z 50 do 100, a teraz ze 100 do 50
 //	engine.clearDelay();
 	modPanning(50);
 	modDelaySend(AMP_MUTED);

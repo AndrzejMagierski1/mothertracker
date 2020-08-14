@@ -145,12 +145,20 @@ void cMasterParams::initDisplayControls()
 		prop2.colors = nullptr;
 		prop2.style = ( controlStyleShow | controlStyleBackground | controlStyleCenterY | controlStyleCenterX| controlStyleFont4);
 		prop2.x = (800/8)*i + (800/16);
-		prop2.w = 800/8-6;
+		prop2.w = 800/8-4;
 		prop2.y = 32;
 		prop2.h = 26;
 		if(trackNameLabel[i] == nullptr) trackNameLabel[i] = display.createControl<cLabel>(&prop2);
 
 
+		prop2.colors = interfaceGlobals.activeBarColors;
+		prop2.value = 0;
+		prop2.x = (800/8)*i+1;
+		prop2.y = 64;
+		prop2.w = 800/16-3;
+		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
+		prop2.h = 359;
+		if(trackVolumeBar[i] == nullptr) trackVolumeBar[i] = display.createControl<cBar>(&prop2);
 
 		prop2.colors = levelBarColors[i];
 		prop2.value = 0;
@@ -245,6 +253,9 @@ void cMasterParams::destroyDisplayControls()
 
 		display.destroyControl(trackNameLabel[i]);
 		trackNameLabel[i] = nullptr;
+
+		display.destroyControl(trackVolumeBar[i]);
+		trackVolumeBar[i] = nullptr;
 	}
 
 	display.destroyControl(bgLabel);
@@ -292,6 +303,8 @@ void cMasterParams::showDefaultConfigScreen()
 	{
 		display.setControlHide(trackNameLabel[i]);
 		display.refreshControl(trackNameLabel[i]);
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
 	}
 
 	display.setControlText(label[0], "Config");
@@ -408,6 +421,8 @@ void cMasterParams::showMasterScreen()
 	{
 		display.setControlHide(trackNameLabel[i]);
 		display.refreshControl(trackNameLabel[i]);
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
 	}
 	display.synchronizeRefresh();
 
@@ -485,6 +500,9 @@ void cMasterParams::showReverbScreen()
 	{
 		display.setControlHide(trackNameLabel[i]);
 		display.refreshControl(trackNameLabel[i]);
+
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
 	}
 
 	display.synchronizeRefresh();
@@ -587,6 +605,8 @@ void cMasterParams::showDelayScreen()
 		{
 			display.setControlHide(trackNameLabel[i]);
 			display.refreshControl(trackNameLabel[i]);
+			display.setControlHide(trackVolumeBar[i]);
+			display.refreshControl(trackVolumeBar[i]);
 		}
 
 		display.synchronizeRefresh();
@@ -706,6 +726,7 @@ void cMasterParams::resizeToDefaultConfig()
 
 void cMasterParams::resizeBarControl(display_t val)
 {
+
 	if(val == display_t::masterValues)
 	 {
 		 for(uint8_t i = 0; i < 8 ; i++)
@@ -719,8 +740,8 @@ void cMasterParams::resizeBarControl(display_t val)
 	 {
 		 for(uint8_t i = 0; i < 8 ; i++)
 		 {
-			display.setControlPosition(barControl[i],  (800/8)*i+1,  58 + (394 - 29)/2);
-			display.setControlSize(barControl[i],  800/8-3,  (394 - 29)/2);
+			display.setControlPosition(barControl[i],  (800/8)*i+1 + 800/16 ,  64);
+			display.setControlSize(barControl[i],  800/16-3,  359);
 			display.refreshControl(barControl[i]);
 		 }
 	 }
@@ -977,8 +998,9 @@ void cMasterParams::showMixerScreen()
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			mtProject.values.TrackNames[i][7] = 0;
-			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
+
 			showLevelBar(i);
+			showTrackVolumeBar(i);
 
 			display.setControlText(trackNameLabel[i],&mtProject.values.TrackNames[i][0]);
 			display.setControlShow(trackNameLabel[i]);
@@ -1056,6 +1078,26 @@ void cMasterParams::showLevelBar(uint8_t n)
 	display.setControlColors(barControl[n], levelBarColors[n]);
 	display.setControlValue(barControl[n], trackLevel[n].value);
 	display.refreshControl(barControl[n]);
+}
+
+void cMasterParams::showTrackVolumeBar(uint8_t n)
+{
+	sprintf(mixerVolumeLabel[n],"%d",mtProject.values.trackVolume[n]);
+
+
+	display.setControlShow(trackVolumeBar[n]);
+
+	if(mtProject.values.trackMute[n]) display.setControlColors(trackVolumeBar[n], interfaceGlobals.inactiveBarColors);
+	else display.setControlColors(trackVolumeBar[n], interfaceGlobals.activeBarColors);
+
+	display.setControlValue(trackVolumeBar[n], mtProject.values.trackVolume[n]);
+
+	display.setControlText(label[n],mixerVolumeLabel[n]);
+
+	display.refreshControl(label[n]);
+	display.refreshControl(trackVolumeBar[n]);
+
+	display.synchronizeRefresh();
 }
 
 

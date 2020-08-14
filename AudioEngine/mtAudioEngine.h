@@ -197,6 +197,7 @@ public:
 	void update();
 	void prevSdConnect();
 	void prevSdDisconnect();
+	void refreshTrackVolume();
 	void setHeadphonesVolume(uint8_t value);
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
@@ -265,6 +266,7 @@ public:
 	void modFineTune(int8_t value);
 
 	void modPanning(int16_t value);
+	void modVolume(float value);
 	void modSP(uint16_t value);
 	void modLP1(uint16_t value);
 	void modLP2(uint16_t value);

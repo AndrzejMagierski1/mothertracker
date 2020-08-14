@@ -84,6 +84,7 @@ public:
 	//mixer
 	void showMixerScreen();
 	void showLevelBar(uint8_t n);
+	void showTrackVolumeBar(uint8_t n);
 	void switchToMaster();
 	void switchToMixer();
 	void switchToDelayScreen();
@@ -103,7 +104,10 @@ public:
 	uint8_t isSolo = 0;
 	int8_t soloTrack = -1;
 	char mixerLabel[8][7];
+	char mixerVolumeLabel[8][5];
 
+	bool trackIsEdited[8];
+	bool ignoreMuteRelease[8];
 
 	//menu
 
@@ -143,6 +147,10 @@ public:
 	void changeReverbDamp(int16_t val);
 	void changeReverbPredelay(int16_t val);
 	void changeReverbDiffusion(int16_t val);
+// Mixer
+	void changeTrackVolume(int16_t val, uint8_t track);
+	void changeReverbVolume(int16_t val);
+	void changeDelayVolume(int16_t val);
 
 	void setDefaultReverbSize();
 	void setDefaultReverbDamp();
@@ -216,6 +224,7 @@ public:
 	hControl keyboardControl;
 	hControl editName;
 	hControl trackNameLabel[8];
+	hControl trackVolumeBar[8];
 
 	uint8_t selectedPlace = 0;
 
