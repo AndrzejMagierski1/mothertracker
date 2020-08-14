@@ -1415,7 +1415,7 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 
 		uint8_t localVol = getMostSignificantVolume();
 
-		ampPtr->gain( ampLogValues[localVol] * env->amount);
+		modVolume( ampLogValues[localVol] * env->amount);
 
 	}
 	else
@@ -1552,7 +1552,7 @@ void playerEngine::setFxVolume()
 	{
 		float localAmount = getMostSignificantAmount();
 
-		ampPtr->gain( ampLogValues[getMostSignificantVolume()] * localAmount);
+		modVolume( ampLogValues[getMostSignificantVolume()] * localAmount);
 	}
 }
 void playerEngine::clearFxVolume()
@@ -1566,7 +1566,7 @@ void playerEngine::clearFxVolume()
 		float localAmount = getMostSignificantAmount();
 		uint8_t localVolume = getMostSignificantVolume();
 
-		ampPtr->gain( ampLogValues[localVolume] * localAmount);
+		modVolume( ampLogValues[localVolume] * localAmount);
 	}
 }
 //PANNING

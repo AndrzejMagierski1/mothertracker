@@ -24,7 +24,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
 
-	ampPtr->gain(ampLogValues[currentPerformanceValues.volume] * localAmount);
+	modVolume(ampLogValues[currentPerformanceValues.volume] * localAmount);
 
 
 }
@@ -555,7 +555,7 @@ void playerEngine::endVolumePerformanceMode()
 
 	float localAmount = getMostSignificantAmount();
 	uint8_t localVolume = getMostSignificantVolume();
-	ampPtr->gain(ampLogValues[localVolume] * localAmount);
+	modVolume(ampLogValues[localVolume] * localAmount);
 
 }
 void playerEngine::endPanningPerformanceMode()

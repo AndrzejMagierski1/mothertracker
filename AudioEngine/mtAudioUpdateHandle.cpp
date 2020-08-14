@@ -237,7 +237,7 @@ inline void playerEngine::handleUpdateRefreshVolume()
 		uint8_t volume = getMostSignificantVolume();
 		float localAmount = getMostSignificantAmount();
 
-		ampPtr->gain( ampLogValues[volume] * localAmount );
+		modVolume( ampLogValues[volume] * localAmount );
 
 	}
 }

@@ -1,4 +1,5 @@
 	next release:
+			- [AM] dodanie do Master 2/2 dodatkowych volumów per track
 			- [AM] Master volume nie jest juz zapisywane w projekcie
 			- [AM] Process w Sample Editor (zmiana na preview) - processuje i od razu odpala odsluch
 			- [AM] Dodanie lfo speed(dla innych niz amp): 48, 64, 96, 128

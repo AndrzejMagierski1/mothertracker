@@ -314,7 +314,7 @@ void playerEngine::handleNoteOnGain()
 	float localAmount = getMostSignificantAmount();
 	uint8_t localVolume = getMostSignificantVolume();
 
-	ampPtr->gain(localAmount * ampLogValues[localVolume]);
+	modVolume(localAmount * ampLogValues[localVolume]);
 }
 
 void playerEngine::handleNoteOnPanning()
@@ -541,7 +541,7 @@ void playerEngine::handleFxNoteOnGain()
 	else
 	{
 
-		ampPtr->gain( ampLogValues[getMostSignificantVolume()] * localAmount);
+		modVolume( ampLogValues[getMostSignificantVolume()] * localAmount);
 	}
 
 }
