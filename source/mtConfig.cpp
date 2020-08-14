@@ -24,6 +24,35 @@ elapsedMillis save_delay;
 static uint8_t saveFlag = 0;
 static uint8_t saveAsapFlag = 0;
 
+static uint8_t* eepromStructsPtr[]
+{
+		(uint8_t*)&mtConfig.audioCodecConfig,
+        (uint8_t*)&mtConfig.firmware,
+        (uint8_t*)&mtConfig.midi,
+        (uint8_t*)&mtConfig.values,
+        (uint8_t*)&mtConfig.general,
+        (uint8_t*)&mtConfig.interface,
+        (uint8_t*)&mtConfig.metronome,
+        (uint8_t*)&mtConfig.debug,
+        (uint8_t*)&mtConfig.common,
+
+
+};
+
+static uint16_t eepromStructsSizes[]
+{
+		sizeof(mtConfig.audioCodecConfig),
+		sizeof(mtConfig.firmware),
+		sizeof(mtConfig.midi),
+		sizeof(mtConfig.values),
+		sizeof(mtConfig.general),
+		sizeof(mtConfig.interface),
+		sizeof(mtConfig.metronome),
+		sizeof(mtConfig.debug),
+		sizeof(mtConfig.common),
+};
+
+
 void eepromUpdate(bool force)
 {
 	if(saveFlag  && ( save_delay > 5000 || force || saveAsapFlag))
@@ -49,21 +78,50 @@ void saveConfigAsap()
 void forceSaveConfig()
 {
 
-	//EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup - (uint32_t)&mtConfig) , 			mtConfig.startup);
+	strcpy(mtConfig.header.id, "EEPROM");
+	mtConfig.header.id[6] = 0;
+	mtConfig.header.version = EEPROM_STRUCT_VER;
+	mtConfig.header.totalSize = sizeof(mtConfig);
+
+
+	mtConfig.audioCodecConfig.size = sizeof(mtConfig.audioCodecConfig);
+	mtConfig.firmware.size = sizeof(mtConfig.firmware);
+	mtConfig.midi.size = sizeof(mtConfig.midi);
+	mtConfig.values.size = sizeof(mtConfig.values);
+	mtConfig.general.size = sizeof(mtConfig.general);
+	mtConfig.interface.size = sizeof(mtConfig.interface);
+	mtConfig.metronome.size = sizeof(mtConfig.metronome);
+	mtConfig.debug.size = sizeof(mtConfig.debug);
+	mtConfig.common.size = sizeof(mtConfig.common);
 
 
 
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.values -  (uint32_t)&mtConfig) , 			mtConfig.values);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.midi -  (uint32_t)&mtConfig) , 				mtConfig.midi);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.general -  (uint32_t)&mtConfig) , 			mtConfig.general);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.metronome -  (uint32_t)&mtConfig) , 			mtConfig.metronome);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.common -  (uint32_t)&mtConfig) , 			mtConfig.common);
+//	uint16_t writedSize = 0;
 //
-//	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
+//	for(uint8_t i = 0; writedSize < mtConfig.header.totalSize-1; i++)
+//	{
+//
+//
+//		// nadanie aktulanej wielkosci podstruktury
+//		memcpy(eepromStructsPtr[i], &eepromStructsSizes[i], 2);
+//
+//		writedSize += eepromStructsSizes[i];
+//	}
+
+
+
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.header -  (uint32_t)&mtConfig) , 			mtConfig.header);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.midi -  (uint32_t)&mtConfig) , 				mtConfig.midi);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.values -  (uint32_t)&mtConfig) , 			mtConfig.values);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.general -  (uint32_t)&mtConfig) , 			mtConfig.general);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.metronome -  (uint32_t)&mtConfig) , 			mtConfig.metronome);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.common -  (uint32_t)&mtConfig) , 			mtConfig.common);
+
+
 
 }
 
@@ -101,14 +159,64 @@ void readConfig()
 
 	EEPROM.readData(CONFIG_EEPROM_ADRESS, &mtConfig.header, sizeof(mtConfig.header));
 
-	if(strcmp(mtConfig.header.id, "EEPROM") != 0)
+	if(strcmp(mtConfig.header.id, "EEPROM") != 0) // nie rozpoznana zawartosc eepromu
 	{
-		// nie rozpoznana zawartosc eepromu
 		// mozliwe ze w eepromie jest stary config wiec dokonaj konwersji
 		recoverConfigFromOldVerison();
 
 		// teraz napraw zawartosc jesli bylo inaczej i byl tam po prostu syf
 		checkConfig();
+	}
+	else // normalny odczyt configu w nowej wersji
+	{
+
+		uint16_t offsetToRead, sizeToRead, sizeFromEeprom;
+
+		uint16_t configMinSize = mtConfig.header.totalSize < sizeof(mtConfig)
+								? mtConfig.header.totalSize
+								: sizeof(mtConfig);
+
+		// pierwsza pozycja do odczytu podstruktury
+		offsetToRead = CONFIG_EEPROM_ADRESS + ((uint32_t)eepromStructsPtr[0] - (uint32_t)&mtConfig); // start+header
+
+		for(uint8_t i = 0; offsetToRead < configMinSize-1; i++)
+		{
+			// odczyt zapisanej wielksoci podstruktury
+			EEPROM.readData(offsetToRead, &sizeFromEeprom, 2);
+
+			// ustalenie ilosci danych do odczytania
+			sizeToRead = sizeFromEeprom < eepromStructsSizes[i]
+						? sizeFromEeprom
+						: eepromStructsSizes[i];
+
+			// odczyt
+			EEPROM.readData(offsetToRead, eepromStructsPtr[i], sizeToRead);
+
+			// nadanie aktulanej wielkosci podstruktury - to jest przy zapisie
+			//memcpy(eepromStructsPtr[i], &eepromStructsSizes[i], 2);
+
+			// kolejna pozycja do odczytu podstruktury
+			offsetToRead += sizeFromEeprom;
+
+		}
+
+
+//		mtConfig.audioCodecConfig.size = sizeof(mtConfig.audioCodecConfig);
+//		mtConfig.firmware.size = sizeof(mtConfig.firmware);
+//		mtConfig.midi.size = sizeof(mtConfig.midi);
+//		mtConfig.values.size = sizeof(mtConfig.values);
+//		mtConfig.general.size = sizeof(mtConfig.general);
+//		mtConfig.interface.size = sizeof(mtConfig.interface);
+//		mtConfig.metronome.size = sizeof(mtConfig.metronome);
+//		mtConfig.debug.size = sizeof(mtConfig.debug);
+//		mtConfig.common.size = sizeof(mtConfig.common);
+
+
+
+		// napraw zawartosc
+		checkConfig();
+
+
 	}
 
 
@@ -145,7 +253,12 @@ void readConfig()
 //	debugLog.addValue(save_micros);
 //	debugLog.forceRefresh();
 
-	checkConfig();
+//	checkConfig();
+
+
+	forceSaveConfig();
+
+
 
 	if ((mtConfig.firmware.ver_1 != FV_VER_1) ||
 	    (mtConfig.firmware.ver_2 != FV_VER_2)||
@@ -168,7 +281,7 @@ void readConfig()
 
 		mtConfig.firmware.eepromStructVer = EEPROM_STRUCT_VER;
 
-		//forceSaveConfig();
+		forceSaveConfig();
 	}
 
 
@@ -238,9 +351,9 @@ void checkConfig()
 
 	//  ----------------------------------------
 
-	if(mtConfig.arcanoidHighestScore > 20000)
+	if(mtConfig.common.arcanoidHighestScore > 20000)
 	{
-		mtConfig.arcanoidHighestScore = 0;
+		mtConfig.common.arcanoidHighestScore = 0;
 	}
 
 	// midi ----------------------------------------
@@ -402,7 +515,6 @@ void checkConfig()
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO
 // TODO
-	forceSaveConfig();
 }
 
 void resetConfig()
@@ -499,7 +611,7 @@ void resetConfig()
 
 
 	// game ----------------------------------------
-	mtConfig.arcanoidHighestScore = 0;
+	mtConfig.common.arcanoidHighestScore = 0;
 }
 
 
@@ -510,15 +622,15 @@ uint16_t sizes[10];
 void recoverConfigFromOldVerison()
 {
 
-	EEPROM.readData(36, 	&mtConfig.audioCodecConfig+2	,13);
-	EEPROM.readData(52, 	&mtConfig.firmware+2			,5);
-	EEPROM.readData(57, 	&mtConfig.midi+2				,18);
-	EEPROM.readData(76, 	(&mtConfig.values)+2			,151);
-	EEPROM.readData(228, 	&mtConfig.general+2				,10);
-	EEPROM.readData(238, 	&mtConfig.interface+2			,1);
-	EEPROM.readData(239, 	&mtConfig.metronome+2			,5);
-	EEPROM.readData(244, 	&mtConfig.debug+2				,1);
-	EEPROM.readData(245, 	&mtConfig.common+2				,1);
+	EEPROM.readData(36, 	((uint8_t*)&mtConfig.audioCodecConfig)+2	,13);
+	EEPROM.readData(52, 	((uint8_t*)&mtConfig.firmware)+2			,5);
+	EEPROM.readData(57, 	((uint8_t*)&mtConfig.midi)+2				,18);
+	EEPROM.readData(76, 	((uint8_t*)&mtConfig.values)+2				,151);
+	EEPROM.readData(228, 	((uint8_t*)&mtConfig.general)+2				,10);
+	EEPROM.readData(238, 	((uint8_t*)&mtConfig.interface)+2			,1);
+	EEPROM.readData(239, 	((uint8_t*)&mtConfig.metronome)+2			,5);
+	EEPROM.readData(244, 	((uint8_t*)&mtConfig.debug)+2				,1);
+	EEPROM.readData(245, 	((uint8_t*)&mtConfig.common)+2				,1);
 
 	sizes[0] = sizeof(mtConfig.audioCodecConfig);
 	sizes[1] = sizeof(mtConfig.firmware);
@@ -535,6 +647,7 @@ void recoverConfigFromOldVerison()
 	strcpy(mtConfig.header.id, "EEPROM");
 	mtConfig.header.id[6] = 0;
 	mtConfig.header.version = EEPROM_STRUCT_VER;
+	mtConfig.header.totalSize = sizeof(mtConfig);
 }
 
 

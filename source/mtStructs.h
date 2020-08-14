@@ -25,7 +25,7 @@ const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			4;		// od 4 wersji nowy eeprom/mtConfig
 
 
-const bool START_STATE_SAVE	=				false;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
 
 
 
@@ -651,7 +651,7 @@ struct strMtConfig
 	{
 		char id[7];
 		uint8_t version;
-		uint16_t total_size;
+		uint16_t totalSize;
 
 	} header;
 
@@ -673,7 +673,6 @@ struct strMtConfig
 		uint8_t lineOutLeft; // 13-31
 		uint8_t lineOutRight; //13-31
 
-		//uint8_t changeFlag;
 
 	} audioCodecConfig;
 
@@ -685,8 +684,8 @@ struct strMtConfig
 		uint8_t ver_2;
 		uint8_t ver_3;
 		uint8_t beta;
-		//uint8_t memoryStructVer;
 		uint8_t eepromStructVer;
+
 
 	} firmware;
 
@@ -703,6 +702,8 @@ struct strMtConfig
 		uint8_t notesOutMode;
 		uint8_t notesOutChannel; // od 0 = channel 1
 		uint8_t ccOut[10];
+
+
 	} midi;
 
 	struct strGlobalValues
@@ -724,8 +725,8 @@ struct strMtConfig
 		uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
 		uint8_t perfTracksState[8] 		= {0,0,0,0,0,0,0,0}; // narazie nie uzywana
 
-	} values;
 
+	} values;
 
 	struct strGeneralValues
 	{
@@ -752,6 +753,8 @@ struct strMtConfig
 		uint16_t size; // zawsze na poczatku wielkosc struktury
 
 		uint8_t fxPopupDescription;
+
+
 	} interface;
 
 	struct strMetronome
@@ -763,6 +766,8 @@ struct strMtConfig
 		uint8_t timeSignatureNumerator; // 0-11 - do zmiany pewnie
 		uint8_t timeSignatureDenominator; // 0-11 - do zmiany pewnie
 		uint8_t volume; // 0-100
+
+
 	} metronome;
 
 	struct strDebugState
@@ -770,6 +775,8 @@ struct strMtConfig
 		uint16_t size; // zawsze na poczatku wielkosc struktury
 
 		uint8_t debugLogState;
+
+
 	} debug;
 
 	 // tu wszystko co nie ma jakiejsc szczegulnej kategori
@@ -778,14 +785,14 @@ struct strMtConfig
 		uint16_t size; // zawsze na poczatku wielkosc struktury
 
 		uint8_t equalSliceNumber = 8;
+
+		uint32_t arcanoidHighestScore;
+
+
 	} common;
 
-
-
-
-	// dodawac powyzej
-	// \/ to niech zostanie na koncu itak narazie nie uzywane
-	uint32_t arcanoidHighestScore;
+	// /\ dodawac nowe wartosci do podstruktur powyżej na końcach każdej ze struktur
+	// \/ jesli chcemy dodawac nowe podstruktury wymagana jest edycja mtConfig.cpp
 
 };
 

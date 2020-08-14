@@ -44,9 +44,9 @@ static void handle_audio();
 
 void ARKANOID_saveScore()
 {
-	if(game.highestScore > mtConfig.arcanoidHighestScore)
+	if(game.highestScore > mtConfig.common.arcanoidHighestScore)
 	{
-		mtConfig.arcanoidHighestScore = game.highestScore;
+		mtConfig.common.arcanoidHighestScore = game.highestScore;
 		forceSaveConfig();
 	}
 }
@@ -78,7 +78,7 @@ void ARKANOID_gameStart()
 	{
 		if(game.gameStage == waitingForInit)
 		{
-			game.highestScore = mtConfig.arcanoidHighestScore;
+			game.highestScore = mtConfig.common.arcanoidHighestScore;
 		}
 
 		game.gameStage=initialized;
