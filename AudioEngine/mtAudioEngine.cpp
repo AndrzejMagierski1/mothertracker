@@ -22,7 +22,6 @@ AudioPlaySdWavFloat		 playSdWavFloat;
 AudioPlaySdWav24bit 	 playSdWav24Bit;
 
 AudioPlayMemory          playMem[8];
-AudioEffectEnvelope      envelopeAmp[8];
 AudioAmplifier           amp[8];
 AudioFilterStateVariable filter[8];
 AudioAnalyzeRMS			 trackRMS[8];
@@ -52,23 +51,14 @@ AudioConnection          connect6(&playMem[5], 0, &filter[5], 0);
 AudioConnection          connect7(&playMem[6], 0, &filter[6], 0);
 AudioConnection          connect8(&playMem[7], 0, &filter[7], 0);
 
-AudioConnection          connect9(&filter[0], 0, &envelopeAmp[0], 0);
-AudioConnection          connect10(&filter[1], 0, &envelopeAmp[1], 0);
-AudioConnection          connect11(&filter[2], 0, &envelopeAmp[2], 0);
-AudioConnection          connect12(&filter[3], 0, &envelopeAmp[3], 0);
-AudioConnection          connect13(&filter[4], 0, &envelopeAmp[4], 0);
-AudioConnection          connect14(&filter[5], 0, &envelopeAmp[5], 0);
-AudioConnection          connect15(&filter[6], 0, &envelopeAmp[6], 0);
-AudioConnection          connect16(&filter[7], 0, &envelopeAmp[7], 0);
-
-AudioConnection          connect17(&envelopeAmp[0], &amp[0]);
-AudioConnection          connect18(&envelopeAmp[1], &amp[1]);
-AudioConnection          connect19(&envelopeAmp[2], &amp[2]);
-AudioConnection          connect20(&envelopeAmp[3], &amp[3]);
-AudioConnection          connect21(&envelopeAmp[4], &amp[4]);
-AudioConnection          connect22(&envelopeAmp[5], &amp[5]);
-AudioConnection          connect23(&envelopeAmp[6], &amp[6]);
-AudioConnection          connect24(&envelopeAmp[7], &amp[7]);
+AudioConnection          connect9(&filter[0], 0, &amp[0], 0);
+AudioConnection          connect10(&filter[1], 0, &amp[1], 0);
+AudioConnection          connect11(&filter[2], 0, &amp[2], 0);
+AudioConnection          connect12(&filter[3], 0, &amp[3], 0);
+AudioConnection          connect13(&filter[4], 0, &amp[4], 0);
+AudioConnection          connect14(&filter[5], 0, &amp[5], 0);
+AudioConnection          connect15(&filter[6], 0, &amp[6], 0);
+AudioConnection          connect16(&filter[7], 0, &amp[7], 0);
 
 AudioConnection          connect25(&amp[0], 0, &mixerL, 0);
 AudioConnection          connect26(&amp[1], 0, &mixerL, 1);
@@ -99,24 +89,24 @@ AudioConnection          connect96(&amp[6], &trackRMS[6]);
 AudioConnection          connect97(&amp[7], &trackRMS[7]);
 
 
-AudioConnection          connect41(&envelopeAmp[0], 0, &mixerDelay, 0);
-AudioConnection          connect42(&envelopeAmp[1], 0, &mixerDelay, 1);
-AudioConnection          connect43(&envelopeAmp[2], 0, &mixerDelay, 2);
-AudioConnection          connect44(&envelopeAmp[3], 0, &mixerDelay, 3);
-AudioConnection          connect45(&envelopeAmp[4], 0, &mixerDelay, 4);
-AudioConnection          connect46(&envelopeAmp[5], 0, &mixerDelay, 5);
-AudioConnection          connect47(&envelopeAmp[6], 0, &mixerDelay, 6);
-AudioConnection          connect48(&envelopeAmp[7], 0, &mixerDelay, 7);
+AudioConnection          connect41(&filter[0], 0, &mixerDelay, 0);
+AudioConnection          connect42(&filter[1], 0, &mixerDelay, 1);
+AudioConnection          connect43(&filter[2], 0, &mixerDelay, 2);
+AudioConnection          connect44(&filter[3], 0, &mixerDelay, 3);
+AudioConnection          connect45(&filter[4], 0, &mixerDelay, 4);
+AudioConnection          connect46(&filter[5], 0, &mixerDelay, 5);
+AudioConnection          connect47(&filter[6], 0, &mixerDelay, 6);
+AudioConnection          connect48(&filter[7], 0, &mixerDelay, 7);
 
 
-AudioConnection          connectSendReverb1(&envelopeAmp[0], 0, &mixerReverb, 0);
-AudioConnection          connectSendReverb2(&envelopeAmp[1], 0, &mixerReverb, 1);
-AudioConnection          connectSendReverb3(&envelopeAmp[2], 0, &mixerReverb, 2);
-AudioConnection          connectSendReverb4(&envelopeAmp[3], 0, &mixerReverb, 3);
-AudioConnection          connectSendReverb5(&envelopeAmp[4], 0, &mixerReverb, 4);
-AudioConnection          connectSendReverb6(&envelopeAmp[5], 0, &mixerReverb, 5);
-AudioConnection          connectSendReverb7(&envelopeAmp[6], 0, &mixerReverb, 6);
-AudioConnection          connectSendReverb8(&envelopeAmp[7], 0, &mixerReverb, 7);
+AudioConnection          connectSendReverb1(&filter[0], 0, &mixerReverb, 0);
+AudioConnection          connectSendReverb2(&filter[1], 0, &mixerReverb, 1);
+AudioConnection          connectSendReverb3(&filter[2], 0, &mixerReverb, 2);
+AudioConnection          connectSendReverb4(&filter[3], 0, &mixerReverb, 3);
+AudioConnection          connectSendReverb5(&filter[4], 0, &mixerReverb, 4);
+AudioConnection          connectSendReverb6(&filter[5], 0, &mixerReverb, 5);
+AudioConnection          connectSendReverb7(&filter[6], 0, &mixerReverb, 6);
+AudioConnection          connectSendReverb8(&filter[7], 0, &mixerReverb, 7);
 
 AudioConnection          connect49(&mixerDelay,&shortDelay);
 
@@ -241,7 +231,7 @@ void audioEngine::init()
 			mtProject.values.delayParams & 0b10000000,mtProject.values.delayParams & 0b01000000,
 			mtProject.values.delayParams & 0b00111111);
 
-	audioShield.volume(mtProject.values.volume/100.0);
+	audioShield.volume(mtConfig.audioCodecConfig.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
 
@@ -328,6 +318,13 @@ void audioEngine::performanceModeEndAll()
 		instrumentPlayer[i].endFinetuneLfoRatePerformanceMode();
 	}
 }
+void audioEngine::refreshTrackVolume()
+{
+	for(uint8_t track = 0 ; track < 8; track++)
+	{
+		instrumentPlayer[track].setStatusBytes(VOLUME_MASK);
+	}
+}
 
 void audioEngine::setHeadphonesVolume(uint8_t value)
 {
@@ -342,6 +339,14 @@ void audioEngine::setReverbRoomsize(uint8_t value)
 void audioEngine::setReverbDamping(uint8_t value)
 {
 //	reverb.damping(value/100.0);
+}
+
+void audioEngine::setInterpolationEnable(bool value)
+{
+	for(uint8_t i = 0 ; i < 8 ; i++)
+	{
+		instrumentPlayer[i].setInterpolationEnable(value);
+	}
 }
 
 void audioEngine::setDelayFeedback(uint8_t value)
@@ -432,7 +437,19 @@ void audioEngine::makeMetronomeTick(uint8_t accent)
 {
 	mixerSourceL.gain(5,ampLogValues[mtConfig.metronome.volume]);
 	mixerSourceR.gain(5,ampLogValues[mtConfig.metronome.volume]);
-	metronomeTick.playForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
+
+	metronomeTick.envelopeSetPassFlag(1);
+
+	metronomeTick.envelopeDelay(0);
+	metronomeTick.envelopeAttack(0);
+	metronomeTick.envelopeHold(0);
+	metronomeTick.envelopeDecay(0);
+	metronomeTick.envelopeSustain(1.0f);
+	metronomeTick.envelopeRelease(0);
+	metronomeTick.envelopeSetLoop(0);
+
+	metronomeTick.envelopeSetIsRandom(false);
+	metronomeTick.envelopeNoteOnForPrev((int16_t *)metronomeBeep, sizeof(metronomeBeep)/sizeof(int16_t), 30, 0);
 
 	if(accent)metronomeTick.setFineTune(100, 30);
 	else metronomeTick.setFineTune(45, 30);
@@ -456,7 +473,6 @@ playerEngine::playerEngine()
 	// na tej podstawie jest wyznaczany index(nChannel)
 	nChannel = ((uint32_t)this - (uint32_t)instrumentPlayer)/sizeof(playerEngine);
 	playMemPtr = &playMem[nChannel];
-	envelopeAmpPtr = &envelopeAmp[nChannel];
 	filterPtr = &filter[nChannel];
 	ampPtr = &amp[nChannel];
 	rmsPtr = &trackRMS[nChannel];
@@ -466,7 +482,7 @@ playerEngine::playerEngine()
 	envelopePtr[envGranPos] = &envelopeGranPosition[nChannel];
 	envelopePtr[envFinetune] = &envelopeFinetune[nChannel];
 
-	envelopeAmpPtr->releaseNoteOn(RELEASE_NOTE_ON_VAL);
+	playMemPtr->envelopeReleaseNoteOn(RELEASE_NOTE_ON_VAL);
 }
 
 
@@ -506,8 +522,13 @@ void playerEngine :: modPanning(int16_t value)
 
 	mixerL.gain(nChannel,gainL);
 	mixerR.gain(nChannel,gainR);
-
 }
+
+void playerEngine::modVolume(float value)
+{
+	ampPtr->gain(value * (mtProject.values.trackVolume[nChannel]/100.0));
+}
+
 
 void playerEngine :: modLP1(uint16_t value)
 {
@@ -560,7 +581,7 @@ void playerEngine :: modReverbSend(uint8_t value)
 }
 
 
-void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
+void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep, uint8_t fx_n)
 {
 	if(ep != NOT_MOD_POINTS) currentSeqModValues.endPoint = ep;
 	if(sp != NOT_MOD_POINTS) currentSeqModValues.startPoint = sp;
@@ -602,13 +623,13 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 					loopPoint1 = startPoint + 1;
 					loopPoint2 = loopPoint1 + loopSize;
 				}
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 1;
 			}
 			else //endPoint > od loopPoint2 , startPoint < od loopPoint1  - nic nie trzeba ruszac
 			{
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 0;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 0;
 			}
 		}
 		else
@@ -617,8 +638,8 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 			{
 				startPoint = loopPoint1 > 0 ? loopPoint1 - 1: 0;
 				endPoint = loopPoint2 < SAMPLE_POINT_POS_MAX ? loopPoint2 + 1: SAMPLE_POINT_POS_MAX;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 0;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 0;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 0;
 			}
 			else
 			{
@@ -633,8 +654,8 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 					loopPoint2 = endPoint - 1;
 					loopPoint1 = loopPoint2 - loopSize;
 				}
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
-				trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 1;
 			}
 		}
 	}
@@ -646,6 +667,9 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 		if(endPoint < SAMPLE_POINT_POS_MIN) endPoint = SAMPLE_POINT_POS_MIN;
 		else if(endPoint > SAMPLE_POINT_POS_MAX) endPoint = SAMPLE_POINT_POS_MAX;
 	}
+
+	currentSeqModValues.loopPoint1 = loopPoint1;
+	currentSeqModValues.loopPoint2 = loopPoint2;
 
 	playMemPtr->setForcedPoints(startPoint,loopPoint1,loopPoint2,endPoint);
 	playMemPtr->setPointsForceFlag();
@@ -683,6 +707,11 @@ void playerEngine :: clean(void)
 	playMemPtr->clean();
 }
 
+void playerEngine::setInterpolationEnable(bool value)
+{
+	playMemPtr->setInterpolationEnable(value);
+}
+
 float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, float out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -690,7 +719,7 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
 
 uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velocity)
 {
-	__disable_irq();
+	AudioNoInterrupts();
 	uint8_t status;
 //	engine.clearDelay();
 	for(uint8_t i = envPan ; i < ACTIVE_ENVELOPES; i++)
@@ -817,7 +846,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	/*==================================================GAIN================================================*/
 	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
 
-	ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[instr_idx].volume]);
+	modVolume(localAmount * ampLogValues[mtProject.instrument[instr_idx].volume]);
 
 
 	/*======================================================================================================*/
@@ -844,13 +873,16 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	}
 
-	status = playMemPtr->playForPrev(instr_idx,note);
+	status = 1; //playMemPtr->playForPrev(instr_idx,note);
 
-	envelopeAmpPtr->setIsRandom(false);
-	envelopeAmpPtr->noteOn();
+	playMemPtr->envelopeSetIsRandom(false);
+	playMemPtr->envelopeNoteOnForPrev(instr_idx,note);
 
 	return status;
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
+
+
 }
 
 
@@ -869,7 +901,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 //	engine.clearDelay();
 
 	filterDisconnect();
-	ampPtr->gain(ampLogValues[50]);
+	modVolume(ampLogValues[50]);
 
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
@@ -884,10 +916,10 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 
-	status = playMemPtr->playForPrev(addr,len,type);
+	status = 1;// playMemPtr->playForPrev(addr,len,type);
 
-	envelopeAmpPtr->setIsRandom(false);
-	envelopeAmpPtr->noteOn();
+	playMemPtr->envelopeSetIsRandom(false);
+	playMemPtr->envelopeNoteOnForPrev(addr,len,type);
 
 	return status;
 
@@ -905,7 +937,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	}
 
 	filterDisconnect();
-	ampPtr->gain(ampLogValues[50]); //wracam z 50 do 100, a teraz ze 100 do 50
+	modVolume(ampLogValues[50]); //wracam z 50 do 100, a teraz ze 100 do 50
 //	engine.clearDelay();
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
@@ -920,10 +952,10 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 
-	status = playMemPtr->playForPrev(addr,len,note,type);
+	status = 1;//playMemPtr->playForPrev(addr,len,note,type);
 
-	envelopeAmpPtr->setIsRandom(false);
-	envelopeAmpPtr->noteOn();
+	playMemPtr->envelopeSetIsRandom(false);
+	playMemPtr->envelopeNoteOnForPrev(addr,len,note,type);
 
 	return status;
 }
@@ -1189,7 +1221,8 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	env->enable = 1;
 	env->amount = lfo->amount;
 
-	if(rate > 23) rate = 23;
+	uint8_t envelopeConstrain = isAmp ? CONSTRAIN_SPEED_AMP_ENVELOPE : CONSTRAIN_SPEED_OTHER_ENVELOPE;
+	if(rate > envelopeConstrain) rate = envelopeConstrain;
 
 	float lfoFrequency = (sequencer.getActualTempo()/15.0);
 
@@ -1262,7 +1295,7 @@ float playerEngine::getRMSValue()
 
 void playerEngine::setPassEnvelope(uint8_t state)
 {
-	envelopeAmpPtr->setPassFlag(state);
+	playMemPtr->envelopeSetPassFlag(state);
 	envelopePassFlag = state;
 }
 

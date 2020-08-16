@@ -7,13 +7,13 @@ void AudioPlayMemory::playLoopBackward(uint8_t instrIdx, int8_t note)
 	playLoopForward(instrIdx, note);
 }
 
-void AudioPlayMemory::updateLoopBackward()
+audio_block_t * AudioPlayMemory::updateLoopBackward()
 {
-	if(reverseDirectionFlag) updateLoopBackwardReverse();
-	else updateLoopBackwardNormal();
+	if(reverseDirectionFlag) return updateLoopBackwardReverse();
+	else return updateLoopBackwardNormal();
 }
 
-void AudioPlayMemory::updateLoopBackwardNormal()
+audio_block_t * AudioPlayMemory::updateLoopBackwardNormal()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -25,12 +25,12 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 	int32_t loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -43,7 +43,9 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0 : 1;
+		if(enableInterpolation) interpolationCondition = ((pitchControl  < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0 : 1;
+		else interpolationCondition = 1;
+
 		int16_t * in_interpolation = loopBackwardFlag ? in-1 : in+1;
 
 		int32_t currentInterpolationFraction;
@@ -124,11 +126,10 @@ void AudioPlayMemory::updateLoopBackwardNormal()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
-void AudioPlayMemory::updateLoopBackwardReverse()
+audio_block_t * AudioPlayMemory::updateLoopBackwardReverse()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -140,12 +141,12 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -158,8 +159,9 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
+		if(enableInterpolation) interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		else interpolationCondition = 1;
 
-		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
 		int16_t * in_interpolation = loopBackwardFlag ? in+1 : in-1;
 		int32_t currentInterpolationFraction;
 
@@ -237,7 +239,6 @@ void AudioPlayMemory::updateLoopBackwardReverse()
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
 
-		transmit(block);
+		return block;
 	}
-	release(block);
 }

@@ -93,7 +93,7 @@ void receiveJackStart();
 void receiveJackStop();
 void receiveJackClock();
 void handleUsbSongPosition(uint16_t beats);
-
+void handleJackSongPosition(unsigned int );
 
 void receiveClock();
 void receiveStart();

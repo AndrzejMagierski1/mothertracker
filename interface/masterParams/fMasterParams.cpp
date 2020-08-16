@@ -247,7 +247,20 @@ void cMasterParams::setKeyboardExportFunctions()
 
 static  uint8_t functEncoder(int16_t value)
 {
-	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
+	if(MP->displayType == cMasterParams::display_t::mixer)
+	{
+		for(uint8_t track = 0 ; track < 8; track++)
+		{
+			if(MP->trackIsEdited[track])
+			{
+				MP->changeTrackVolume(value, track);
+				MP->ignoreMuteRelease[track] = true;
+			}
+
+		}
+
+		return 1;
+	}
 
 	if(MP->isDelayScreen)
 	{
@@ -363,7 +376,20 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
+	if(MP->displayType == cMasterParams::display_t::mixer)
+	{
+		for(uint8_t track = 0 ; track < 8; track++)
+		{
+			if(MP->trackIsEdited[track])
+			{
+				MP->changeTrackVolume(1, track);
+				MP->ignoreMuteRelease[track] = true;
+			}
+		}
+
+		return 1;
+	}
+
 
 	if(MP->isDelayScreen)
 	{
@@ -409,7 +435,21 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
+	if(MP->displayType == cMasterParams::display_t::mixer)
+	{
+		for(uint8_t track = 0 ; track < 8; track++)
+		{
+			if(MP->trackIsEdited[track])
+			{
+				MP->changeTrackVolume(-1, track);
+				MP->ignoreMuteRelease[track] = true;
+			}
+
+		}
+
+		return 1;
+	}
+
 
 	if(MP->isDelayScreen)
 	{
@@ -864,11 +904,12 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 {
 	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
 
-	if(state == buttonPress)
+	if(state == buttonRelease)
 	{
-		if(MP->editTrackNameMode)
+		MP->trackIsEdited[n] = 0;
+		if(MP->ignoreMuteRelease[n])
 		{
-			MP->editTrackName(n);
+			MP->ignoreMuteRelease[n] = false;
 			return 1;
 		}
 
@@ -904,7 +945,16 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 			MP->showLevelBar(i);
 		}
 		MP->showMixerScreen();
+	}
 
+	if(state == buttonPress)
+	{
+		if(MP->editTrackNameMode)
+		{
+			MP->editTrackName(n);
+			return 1;
+		}
+		MP->trackIsEdited[n] = true;
 	}
 	return 1;
 }
@@ -958,14 +1008,13 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 //master
 void changeVolume(int16_t value)
 {
-	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
-	else if(mtProject.values.volume + value > MASTER_VOLUME_MAX) mtProject.values.volume = MASTER_VOLUME_MAX;
-	else mtProject.values.volume += value;
+	if(mtConfig.audioCodecConfig.volume + value < MASTER_VOLUME_MIN) mtConfig.audioCodecConfig.volume = MASTER_VOLUME_MIN;
+	else if(mtConfig.audioCodecConfig.volume + value > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.volume = MASTER_VOLUME_MAX;
+	else mtConfig.audioCodecConfig.volume += value;
 
 
-	engine.setHeadphonesVolume(mtProject.values.volume);
-
-	newFileManager.setProjectStructChanged();
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
+	saveConfig();
 
 	MP->showVolume();
 }
@@ -987,11 +1036,11 @@ void changeLimiterAttack(int16_t value)
 
 void changeLimiterRelease(int16_t value)
 {
-	float fvalue = value * (LIMITER_RELEASE_MAX/1000);
+	value *= (LIMITER_RELEASE_MAX/1000);
 
-	if(mtProject.values.limiterRelease + fvalue < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
-	else if(mtProject.values.limiterRelease + fvalue > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
-	else mtProject.values.limiterRelease += fvalue;
+	if(mtProject.values.limiterRelease + value < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
+	else if(mtProject.values.limiterRelease + value > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
+	else mtProject.values.limiterRelease += value;
 
 
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
@@ -1041,10 +1090,10 @@ void changeBitDepth(int16_t value)
 
 void setDefaultMasterVolume()
 {
-	mtProject.values.volume = 50;
-	engine.setHeadphonesVolume(mtProject.values.volume);
+	mtConfig.audioCodecConfig.volume = MASTER_VOLUME_DEFAULT;
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
 
-	newFileManager.setProjectStructChanged();
+	saveConfig();
 
 	MP->showVolume();
 }
@@ -1221,6 +1270,40 @@ void cMasterParams::changeReverbDiffusion(int16_t val)
 
 	newFileManager.setProjectStructChanged();
 }
+
+// Mixer
+void cMasterParams::changeTrackVolume(int16_t val, uint8_t track)
+{
+	if(mtProject.values.trackVolume[track] + val > TRACK_VOLUME_MAX) mtProject.values.trackVolume[track] =  TRACK_VOLUME_MAX;
+	else if(mtProject.values.trackVolume[track] + val < TRACK_VOLUME_MIN) mtProject.values.trackVolume[track] =  TRACK_VOLUME_MIN;
+	else mtProject.values.trackVolume[track] += val;
+
+	engine.refreshTrackVolume();
+	newFileManager.setProjectStructChanged();
+	showTrackVolumeBar(track);
+}
+void cMasterParams::changeReverbVolume(int16_t val)
+{
+	if(mtProject.values.reverbVolume + val > REVERB_VOLUME_MAX) mtProject.values.reverbVolume =  REVERB_VOLUME_MAX;
+	else if(mtProject.values.reverbVolume + val < REVERB_VOLUME_MIN) mtProject.values.reverbVolume =  REVERB_VOLUME_MIN;
+	else mtProject.values.reverbVolume += val;
+
+	newFileManager.setProjectStructChanged();
+	//todo: zmiana w silniku
+	//todo: interface
+}
+void cMasterParams::changeDelayVolume(int16_t val)
+{
+	if(mtProject.values.delayVolume + val > DELAY_VOLUME_MAX) mtProject.values.delayVolume =  DELAY_VOLUME_MAX;
+	else if(mtProject.values.delayVolume + val < DELAY_VOLUME_MIN) mtProject.values.delayVolume =  DELAY_VOLUME_MIN;
+	else mtProject.values.delayVolume += val;
+
+	newFileManager.setProjectStructChanged();
+	//todo: zmiana w silniku
+	//todo: interface
+}
+
+
 
 void cMasterParams::setDefaultReverbSize()
 {

@@ -115,7 +115,6 @@ void mtPatternExporter::refreshReceiving()
 
 		if((requiredSave) && (position == SEND_BUF_SIZE - 256  ))
 		{
-			debugLog.addLine("Wait for save");
 			return;
 		}
 		if ((exportL.available() >= 1) || (exportR.available() >= 1 ))
@@ -140,7 +139,7 @@ void mtPatternExporter::refreshReceiving()
 
 			if(position == SEND_BUF_SIZE)
 			{
-				__disable_irq();
+//				__disable_irq();
 				position = 0;
 				switchBuffer();
 				requiredSave = true;

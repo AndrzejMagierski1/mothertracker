@@ -141,6 +141,25 @@ void cMasterParams::initDisplayControls()
 		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
+		prop2.value = 0;
+		prop2.colors = nullptr;
+		prop2.style = ( controlStyleShow | controlStyleBackground | controlStyleCenterY | controlStyleCenterX| controlStyleFont4);
+		prop2.x = (800/8)*i + (800/16);
+		prop2.w = 800/8-4;
+		prop2.y = 32;
+		prop2.h = 26;
+		if(trackNameLabel[i] == nullptr) trackNameLabel[i] = display.createControl<cLabel>(&prop2);
+
+
+		prop2.colors = interfaceGlobals.activeBarColors;
+		prop2.value = 0;
+		prop2.x = (800/8)*i+1;
+		prop2.y = 64;
+		prop2.w = 800/16-3;
+		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
+		prop2.h = 359;
+		if(trackVolumeBar[i] == nullptr) trackVolumeBar[i] = display.createControl<cBar>(&prop2);
+
 		prop2.colors = levelBarColors[i];
 		prop2.value = 0;
 		prop2.x = (800/8)*i+1;
@@ -232,6 +251,11 @@ void cMasterParams::destroyDisplayControls()
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
 
+		display.destroyControl(trackNameLabel[i]);
+		trackNameLabel[i] = nullptr;
+
+		display.destroyControl(trackVolumeBar[i]);
+		trackVolumeBar[i] = nullptr;
 	}
 
 	display.destroyControl(bgLabel);
@@ -275,6 +299,13 @@ void cMasterParams::showDefaultConfigScreen()
 	display.setControlText(titleLabel, "Config");
 	display.refreshControl(titleLabel);
 
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(trackNameLabel[i]);
+		display.refreshControl(trackNameLabel[i]);
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
+	}
 
 	display.setControlText(label[0], "Config");
 	display.setControlText(label[1], "");
@@ -331,9 +362,9 @@ void cMasterParams::showMasterScreen()
 	display.setControlText(label[2], "Delay");
 	display.setControlText2(label[2], " ");
 	display.setControlText(label[3], "Bit Depth");
-	display.setControlText(label[4], "Limit. A");
-	display.setControlText(label[5], "Limit. R");
-	display.setControlText(label[6], "Limit. T");
+	display.setControlText(label[4], "LimiterAtt");
+	display.setControlText(label[5], "LimiterRls");
+	display.setControlText(label[6], "LimiterThr");
 	display.setControlText(label[7], " ");
 	display.setControlText2(label[7], " ");
 
@@ -383,6 +414,16 @@ void cMasterParams::showMasterScreen()
 	frameData.places[7] = &framesPlaces[7][0];
 
 	activateLabelsBorder();
+
+	resizeBarControl(display_t::masterValues);
+
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(trackNameLabel[i]);
+		display.refreshControl(trackNameLabel[i]);
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
+	}
 	display.synchronizeRefresh();
 
 }
@@ -454,6 +495,16 @@ void cMasterParams::showReverbScreen()
 	frameData.places[7] = &framesPlaces[7][0];
 
 	refreshReverbFrame();
+
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(trackNameLabel[i]);
+		display.refreshControl(trackNameLabel[i]);
+
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
+	}
+
 	display.synchronizeRefresh();
 }
 
@@ -549,6 +600,15 @@ void cMasterParams::showDelayScreen()
 		frameData.places[7] = &framesPlaces[7][0];
 
 		refreshDelayFrame();
+
+		for(uint8_t i = 0 ; i < 8; i++)
+		{
+			display.setControlHide(trackNameLabel[i]);
+			display.refreshControl(trackNameLabel[i]);
+			display.setControlHide(trackVolumeBar[i]);
+			display.refreshControl(trackVolumeBar[i]);
+		}
+
 		display.synchronizeRefresh();
 }
 
@@ -664,6 +724,30 @@ void cMasterParams::resizeToDefaultConfig()
 	}
 }
 
+void cMasterParams::resizeBarControl(display_t val)
+{
+
+	if(val == display_t::masterValues)
+	 {
+		 for(uint8_t i = 0; i < 8 ; i++)
+		 {
+			display.setControlPosition(barControl[i],  (800/8)*i+1, 29);
+			display.setControlSize(barControl[i],  800/8-3,  394);
+			display.refreshControl(barControl[i]);
+		 }
+	 }
+	 else if(val == display_t::mixer)
+	 {
+		 for(uint8_t i = 0; i < 8 ; i++)
+		 {
+			display.setControlPosition(barControl[i],  (800/8)*i+1 + 800/16 ,  64);
+			display.setControlSize(barControl[i],  800/16-3,  359);
+			display.refreshControl(barControl[i]);
+		 }
+	 }
+
+}
+
 void cMasterParams::resizeToDefaultMaster()
 {
 	display.setControlPosition(label[0],  (800/8)*0+(800/16),  -1);
@@ -696,9 +780,9 @@ void cMasterParams::resizeToSmallConfig(uint8_t labelIdx)
 
 void cMasterParams::showVolume()
 {
-	sprintf(volumeVal,"%d", mtProject.values.volume);
+	sprintf(volumeVal,"%d", mtConfig.audioCodecConfig.volume);
 
-	display.setControlValue(barControl[0], mtProject.values.volume);
+	display.setControlValue(barControl[0], mtConfig.audioCodecConfig.volume);
 //	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
@@ -728,7 +812,7 @@ void cMasterParams::showLimiterRelease()
 {
 	uint8_t length;
 
-	sprintf(limitReleaseVal,"%.4f",(float)(mtProject.values.limiterRelease/1000.0f));
+	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.values.limiterRelease/1000.0f));
 	length=strlen(limitReleaseVal);
 	limitReleaseVal[length]='s';
 	limitReleaseVal[length+1]=0;
@@ -914,8 +998,13 @@ void cMasterParams::showMixerScreen()
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			mtProject.values.TrackNames[i][7] = 0;
-			display.setControlText(label[i], &mtProject.values.TrackNames[i][0]);
+
 			showLevelBar(i);
+			showTrackVolumeBar(i);
+
+			display.setControlText(trackNameLabel[i],&mtProject.values.TrackNames[i][0]);
+			display.setControlShow(trackNameLabel[i]);
+			display.refreshControl(trackNameLabel[i]);
 		}
 	}
 
@@ -937,6 +1026,8 @@ void cMasterParams::showMixerScreen()
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
+
+	resizeBarControl(display_t::mixer);
 
 	display.synchronizeRefresh();
 }
@@ -987,6 +1078,26 @@ void cMasterParams::showLevelBar(uint8_t n)
 	display.setControlColors(barControl[n], levelBarColors[n]);
 	display.setControlValue(barControl[n], trackLevel[n].value);
 	display.refreshControl(barControl[n]);
+}
+
+void cMasterParams::showTrackVolumeBar(uint8_t n)
+{
+	sprintf(mixerVolumeLabel[n],"%d",mtProject.values.trackVolume[n]);
+
+
+	display.setControlShow(trackVolumeBar[n]);
+
+	if(mtProject.values.trackMute[n]) display.setControlColors(trackVolumeBar[n], interfaceGlobals.inactiveBarColors);
+	else display.setControlColors(trackVolumeBar[n], interfaceGlobals.activeBarColors);
+
+	display.setControlValue(trackVolumeBar[n], mtProject.values.trackVolume[n]);
+
+	display.setControlText(label[n],mixerVolumeLabel[n]);
+
+	display.refreshControl(label[n]);
+	display.refreshControl(trackVolumeBar[n]);
+
+	display.synchronizeRefresh();
 }
 
 

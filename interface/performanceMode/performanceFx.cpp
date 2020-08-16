@@ -131,35 +131,35 @@ cPerformFx samplePlaybackPerfFx(mtPerfSamplePlayback, "Sample playback", sampleP
 //########## VOLUME LFO SPEED ########################################################################
 void volumeLfoSpeedSet(uint8_t track, int16_t value) { instrumentPlayer[track].changeAmpLfoRatePerformanceMode(value); }
 void volumeLfoSpeedClear(uint8_t track) { instrumentPlayer[track].endAmpLfoRatePerformanceMode(); }
-const fxSetup volumeLfoSpeedSetup = {-20, 20, nullptr};
+const fxSetup volumeLfoSpeedSetup = {-CONSTRAIN_SPEED_AMP_ENVELOPE, CONSTRAIN_SPEED_AMP_ENVELOPE, nullptr};
 
 cPerformFx volumeLfoSpeedPerfFx(mtPerfVolumeLfoSpeed, "Volume LFO Speed", volumeLfoSpeedSet, volumeLfoSpeedClear, &volumeLfoSpeedSetup);
 
 //########## PANNING LFO SPEED ########################################################################
 void panningLfoSpeedSet(uint8_t track, int16_t value) { instrumentPlayer[track].changePanningLfoRatePerformanceMode(value); }
 void panningLfoSpeedClear(uint8_t track) { instrumentPlayer[track].endPanningLfoRatePerformanceMode(); }
-const fxSetup panningLfoSpeedSetup = {-20, 20, nullptr};
+const fxSetup panningLfoSpeedSetup = {-CONSTRAIN_SPEED_OTHER_ENVELOPE, CONSTRAIN_SPEED_OTHER_ENVELOPE, nullptr};
 
 cPerformFx panningLfoSpeedPerfFx(mtPerfPanningLfoSpeed, "Panning LFO Speed", panningLfoSpeedSet, panningLfoSpeedClear, &panningLfoSpeedSetup);
 
 //########## PITCH LFO SPEED ########################################################################
 void finetuneLfoSpeedSet(uint8_t track, int16_t value) { instrumentPlayer[track].changeFinetuneLfoRatePerformanceMode(value); }
 void finetuneLfoSpeedClear(uint8_t track) { instrumentPlayer[track].endFinetuneLfoRatePerformanceMode(); }
-const fxSetup finetuneLfoSpeedSetup = {-20, 20, nullptr};
+const fxSetup finetuneLfoSpeedSetup = {-CONSTRAIN_SPEED_OTHER_ENVELOPE, CONSTRAIN_SPEED_OTHER_ENVELOPE, nullptr};
 
 cPerformFx finetuneLfoSpeedPerfFx(mtPerfFinetuneLfoSpeed, "Finetune LFO Speed", finetuneLfoSpeedSet, finetuneLfoSpeedClear, &finetuneLfoSpeedSetup);
 
 //########## FILTER LFO SPEED ########################################################################
 void filterLfoSpeedSet(uint8_t track, int16_t value) { instrumentPlayer[track].changeCutoffLfoRatePerformanceMode(value); }
 void filterLfoSpeedClear(uint8_t track) { instrumentPlayer[track].endCutoffLfoRatePerformanceMode(); }
-const fxSetup filterLfoSpeedSetup = {-20, 20, nullptr};
+const fxSetup filterLfoSpeedSetup = {-CONSTRAIN_SPEED_OTHER_ENVELOPE, CONSTRAIN_SPEED_OTHER_ENVELOPE, nullptr};
 
 cPerformFx filterLfoSpeedPerfFx(mtPerfFilterfoSpeed, "Filter LFO Speed", filterLfoSpeedSet, filterLfoSpeedClear, &filterLfoSpeedSetup);
 
 //########## GRAN/WT LFO SPEED ########################################################################
 void granWtLfoSpeedSet(uint8_t track, int16_t value) { instrumentPlayer[track].changePositionLfoRatePerformanceMode(value); }
 void granWtLfoSpeedClear(uint8_t track) { instrumentPlayer[track].endPositionLfoRatePerformanceMode(); }
-const fxSetup granWtLfoSpeedSetup = {-20, 20, nullptr};
+const fxSetup granWtLfoSpeedSetup = {-CONSTRAIN_SPEED_OTHER_ENVELOPE, CONSTRAIN_SPEED_OTHER_ENVELOPE, nullptr};
 
 cPerformFx granWtLfoSpeedPerfFx(mtPerfGranWtfoSpeed, "Gran/Wt LFO Speed", granWtLfoSpeedSet, granWtLfoSpeedClear, &granWtLfoSpeedSetup);
 
@@ -174,8 +174,8 @@ cPerformFx stepRepeaterPerfFx(mtPerfStepStutter, "Step repeater", stepRepeaterSe
 //########## PATTERN PLAY MODE ########################################################################
 void patternPlayModeSet(uint8_t track, int16_t value) { sequencer.setPerformancePlayMode(track, value); }
 void patternPlayModeClear(uint8_t track) { sequencer.setPerformancePlayMode(track, 0); sequencer.alignToGlobalPos(track); }
-const char patternPlayModePerfLabels[3][5] = { "Fwd", "Back", "Rnd", };
-const fxSetup patternPlayModeSetup = {0, 2, &patternPlayModePerfLabels[0][0], 5};
+const char patternPlayModePerfLabels[4][5] = { "Fwd", "Back", "Rnd", "CSM" };
+const fxSetup patternPlayModeSetup = {0, 3, &patternPlayModePerfLabels[0][0], 5};
 
 cPerformFx patternPlayModePerfFx(mtPerfPatternPlayMode, "Pattern play mode", patternPlayModeSet, patternPlayModeClear, &patternPlayModeSetup);
 

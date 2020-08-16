@@ -24,7 +24,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
 
-	ampPtr->gain(ampLogValues[currentPerformanceValues.volume] * localAmount);
+	modVolume(ampLogValues[currentPerformanceValues.volume] * localAmount);
 
 
 }
@@ -396,7 +396,7 @@ void playerEngine::changeAmpLfoRatePerformanceMode(int8_t value)
 		localAmpRate = mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed;
 	}
 
-	if(localAmpRate + value >= 19) currentPerformanceValues.lfoAmpRate = 19;
+	if(localAmpRate + value > CONSTRAIN_SPEED_AMP_ENVELOPE) currentPerformanceValues.lfoAmpRate = CONSTRAIN_SPEED_AMP_ENVELOPE;
 	else if(localAmpRate + value < 0) currentPerformanceValues.lfoAmpRate = 0;
 	else currentPerformanceValues.lfoAmpRate = localAmpRate + value;
 
@@ -423,7 +423,7 @@ void playerEngine::changeCutoffLfoRatePerformanceMode(int8_t value)
 		localCutoffRate = mtProject.instrument[currentInstrument_idx].lfo[envCutoff].speed;
 	}
 
-	if(localCutoffRate + value > 19) currentPerformanceValues.lfoCutoffRate = 19;
+	if(localCutoffRate + value > CONSTRAIN_SPEED_OTHER_ENVELOPE) currentPerformanceValues.lfoCutoffRate = CONSTRAIN_SPEED_OTHER_ENVELOPE;
 	else if(localCutoffRate + value < 0) currentPerformanceValues.lfoCutoffRate = 0;
 	else currentPerformanceValues.lfoCutoffRate = localCutoffRate + value;
 
@@ -452,7 +452,7 @@ void playerEngine::changePositionLfoRatePerformanceMode(int8_t value)
 			localGranularRate = mtProject.instrument[currentInstrument_idx].lfo[envGranPos].speed;
 		}
 
-		if(localGranularRate + value > 19) currentPerformanceValues.lfoGranularPositionRate = 19;
+		if(localGranularRate + value > CONSTRAIN_SPEED_OTHER_ENVELOPE) currentPerformanceValues.lfoGranularPositionRate = CONSTRAIN_SPEED_OTHER_ENVELOPE;
 		else if(localGranularRate + value < 0) currentPerformanceValues.lfoGranularPositionRate = 0;
 		else currentPerformanceValues.lfoGranularPositionRate = localGranularRate + value;
 
@@ -479,7 +479,7 @@ void playerEngine::changePositionLfoRatePerformanceMode(int8_t value)
 			localWavetablePosRate = mtProject.instrument[currentInstrument_idx].lfo[envWtPos].speed;
 		}
 
-		if(localWavetablePosRate + value > 19) currentPerformanceValues.lfoWavetablePositionRate = 19;
+		if(localWavetablePosRate + value > CONSTRAIN_SPEED_OTHER_ENVELOPE) currentPerformanceValues.lfoWavetablePositionRate = CONSTRAIN_SPEED_OTHER_ENVELOPE;
 		else if(localWavetablePosRate + value < 0) currentPerformanceValues.lfoWavetablePositionRate = 0;
 		else currentPerformanceValues.lfoWavetablePositionRate = localWavetablePosRate + value;
 
@@ -508,7 +508,7 @@ void playerEngine::changePanningLfoRatePerformanceMode(int8_t value)
 		localPanningRate = mtProject.instrument[currentInstrument_idx].lfo[envPan].speed;
 	}
 
-	if(localPanningRate + value > 19) currentPerformanceValues.lfoPanningRate = 19;
+	if(localPanningRate + value > CONSTRAIN_SPEED_OTHER_ENVELOPE) currentPerformanceValues.lfoPanningRate = CONSTRAIN_SPEED_OTHER_ENVELOPE;
 	else if(localPanningRate + value < 0) currentPerformanceValues.lfoPanningRate = 0;
 	else currentPerformanceValues.lfoPanningRate = localPanningRate + value;
 
@@ -535,7 +535,7 @@ void playerEngine::changeFinetuneLfoRatePerformanceMode(int8_t value)
 		localFinetuneRate = mtProject.instrument[currentInstrument_idx].lfo[envFinetune].speed;
 	}
 
-	if(localFinetuneRate + value > 19) currentPerformanceValues.lfoFinetuneRate = 19;
+	if(localFinetuneRate + value > CONSTRAIN_SPEED_OTHER_ENVELOPE) currentPerformanceValues.lfoFinetuneRate = CONSTRAIN_SPEED_OTHER_ENVELOPE;
 	else if(localFinetuneRate + value < 0) currentPerformanceValues.lfoFinetuneRate = 0;
 	else currentPerformanceValues.lfoFinetuneRate = localFinetuneRate + value;
 
@@ -555,7 +555,7 @@ void playerEngine::endVolumePerformanceMode()
 
 	float localAmount = getMostSignificantAmount();
 	uint8_t localVolume = getMostSignificantVolume();
-	ampPtr->gain(ampLogValues[localVolume] * localAmount);
+	modVolume(ampLogValues[localVolume] * localAmount);
 
 }
 void playerEngine::endPanningPerformanceMode()

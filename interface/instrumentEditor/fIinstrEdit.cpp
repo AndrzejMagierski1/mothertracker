@@ -1060,7 +1060,7 @@ void changeLfoShape(int16_t value)
 }
 void changeLfoSpeed(int16_t value)
 {
-	uint8_t speedConstrain = IE->selectedEnvelope == 0 ? 23 : 24;
+	uint8_t speedConstrain = IE->selectedEnvelope == envAmp ? CONSTRAIN_SPEED_AMP_ENVELOPE : CONSTRAIN_SPEED_OTHER_ENVELOPE;
 
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = 0;
 	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value > speedConstrain )

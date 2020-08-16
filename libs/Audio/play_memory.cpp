@@ -3,25 +3,26 @@
 #include "utility/dspinst.h"
 #include "mtAudioEngine.h"
 
-
 //**************************************************************************************UPDATE START
 
 void AudioPlayMemory::update(void)
 {
 	if(isCurrentLoadInstrument[currentInstrIdx]) return;
 
+	audio_block_t * block = nullptr;
 	switch(currentPlayMode)
 	{
-		case playModeSingleShot: 		updateSingleShot(); 		return;
-		case playModeLoopForward:		updateLoopForward(); 		return;
-		case playModeLoopBackward:		updateLoopBackward(); 		return;
-		case playModePingpong:			updateLoopPingpong(); 		return;
-		case playModeSlice:				updateSlice();				return;
-		case playModeBeatSlice:			updateBeatSlice();			return;
-		case playModeGranular:			updateGranular();			return;
-		case playModeWavetable:			updateWavetable();			return;
+		case playModeSingleShot: 		block = updateSingleShot(); 		break;
+		case playModeLoopForward:		block = updateLoopForward(); 		break;
+		case playModeLoopBackward:		block = updateLoopBackward(); 		break;
+		case playModePingpong:			block = updateLoopPingpong(); 		break;
+		case playModeSlice:				block = updateSlice();				break;
+		case playModeBeatSlice:			block = updateBeatSlice();			break;
+		case playModeGranular:			block = updateGranular();			break;
+		case playModeWavetable:			block = updateWavetable();			break;
 		default: break;
 	}
+	envelopeUpdate(block);
 }
 
 //**************************************************************************************UPDATE END
@@ -668,57 +669,6 @@ void AudioPlayMemory::setGranularPosition(uint16_t val)
 	currentGranularPosition = val;
 
 	granularPositionRefreshFlag = 1;
-//	switch(granularLoopType)
-//	{
-//		case granularLoopForward:
-//			if(reverseDirectionFlag)
-//			{
-//				if ((iPitchCounter <= sampleConstrains.loopPoint1))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint2;
-//					fPitchCounter = 0;
-//				}
-//			}
-//			else
-//			{
-//				if ((iPitchCounter >= sampleConstrains.loopPoint2))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint1;
-//					fPitchCounter = 0;
-//				}
-//			}
-//		break;
-//
-//		case granularLoopBackward:
-//			if(reverseDirectionFlag)
-//			{
-//				if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint1;
-//					loopBackwardFlag = 1;
-//					fPitchCounter = 0;
-//				}
-//				if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint1;
-//					fPitchCounter = 0;
-//				}
-//			}
-//			else
-//			{
-//				if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint2;
-//					loopBackwardFlag = 1;
-//					fPitchCounter = 0;
-//				}
-//				if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
-//				{
-//					iPitchCounter = sampleConstrains.loopPoint2;
-//					fPitchCounter = 0;
-//				}
-//			}
-//	}
 }
 void AudioPlayMemory::setGranularGrainLength()
 {
@@ -750,8 +700,14 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 
 	uint8_t localPlaymode = mtProject.instrument[currentInstrIdx].playMode;
 
+
 	float localPitchControl = pitchControl;
-	localPitchControl -= (localPlaymode != playModeWavetable) ? (float)notes[currentNote+currentTune] : (float)wt_notes[currentNote+currentTune];
+
+	int8_t lastNoteAndTuneIdx = currentNote + currentTune;
+	if(lastNoteAndTuneIdx < 0) lastNoteAndTuneIdx = 0;
+	else if(lastNoteAndTuneIdx >= MAX_NOTE) lastNoteAndTuneIdx = MAX_NOTE;
+
+	localPitchControl -= (localPlaymode != playModeWavetable) ? (float)notes[lastNoteAndTuneIdx] : (float)wt_notes[lastNoteAndTuneIdx];
 	localPitchControl += (localPlaymode != playModeWavetable) ? (float)notes[currentNote+value] : (float)wt_notes[currentNote+value];
 	AudioNoInterrupts();
 	pitchControl = localPitchControl;
@@ -858,7 +814,10 @@ void AudioPlayMemory::clearReverse()
 {
 	reverseDirectionFlag = 0;
 }
-
+void AudioPlayMemory::setInterpolationEnable(bool value )
+{
+	enableInterpolation = value;
+}
 uint16_t AudioPlayMemory::getPosition()
 {
 	return  (uint16_t)(65535 * ((pointsInSamples.start + iPitchCounter)/(float)currentSampleLength));

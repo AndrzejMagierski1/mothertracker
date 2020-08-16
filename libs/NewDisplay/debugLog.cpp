@@ -73,7 +73,7 @@ void cDebugLog::forceRefresh()
 
 void cDebugLog::addLine(const char text[])
 {
-	//if(!mtConfig.debug.debugLogState) return;
+	if(!mtConfig.debug.debugLogState) return;
 
 	if(logBott == logTop)		logLinesCount = 0;
 	else if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
@@ -105,7 +105,7 @@ void cDebugLog::addLine(const char text[])
 
 void cDebugLog::addText(const char text[])
 {
-	//if(!mtConfig.debug.debugLogState) return;
+	if(!mtConfig.debug.debugLogState) return;
 
 	if(logBott == logTop) return;
 
@@ -129,7 +129,7 @@ void cDebugLog::addText(const char text[])
 
 void cDebugLog::addValue(int value)
 {
-	//if(!mtConfig.debug.debugLogState) return;
+	if(!mtConfig.debug.debugLogState) return;
 	if(logBott == logTop)return;
 
 

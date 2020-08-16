@@ -127,7 +127,7 @@ const char recOptionsTexts[4][20] =
 		"Only notes",
 		"Microtiming",
 		"Velocity",
-		"Microtiming + Velo",
+		"Microtim + Velo",
 };
 
 const char* const ptrRecQuantization[4] =
@@ -180,6 +180,12 @@ const char* const ptrPadsLayout[12] =
 	&padsLayoutTexts[9][0],
 	&padsLayoutTexts[10][0],
 	&padsLayoutTexts[11][0],
+};
+
+const char* const ptrAntyaliasingEnable[2] =
+{
+	&onOffStateTexts[0][0],
+	&onOffStateTexts[1][0]
 };
 
 /*

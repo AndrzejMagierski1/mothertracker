@@ -211,6 +211,7 @@ void cInterface::doStartTasks()
 							mtConfig.values.padBoardNoteOffset,
 							mtConfig.values.padBoardRootNote);
 
+
 	setDisplayBrightness(); // ustawienie jasnosci wyswietlacza wg configu
 
 	////////////////////////////
@@ -244,7 +245,8 @@ void cInterface::doStartTasks()
 		//hideStartScreen();
 		showDisplayNoSdCard();
 	}
-
+	engine.setInterpolationEnable(mtConfig.general.antialiasingEnable);
+	engine.setHeadphonesVolume(mtConfig.audioCodecConfig.volume);
 }
 
 void cInterface::processStartScreen()

@@ -62,13 +62,13 @@ void AudioPlayMemory::playSingleShot(uint8_t instrIdx, int8_t note)
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::updateSingleShot()
+audio_block_t * AudioPlayMemory::updateSingleShot()
 {
-	if(reverseDirectionFlag) updateSingleShotReverse();
-	else updateSingleShotNormal();
+	if(reverseDirectionFlag) return updateSingleShotReverse();
+	else return updateSingleShotNormal();
 }
 
-void AudioPlayMemory::updateSingleShotNormal()
+audio_block_t * AudioPlayMemory::updateSingleShotNormal()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -77,12 +77,12 @@ void AudioPlayMemory::updateSingleShotNormal()
 	float pitchFraction;
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -95,7 +95,9 @@ void AudioPlayMemory::updateSingleShotNormal()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+		if(enableInterpolation) interpolationCondition = ((pitchControl < 1.0f) && ((iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+		else interpolationCondition = 1;
+
 		int16_t * in_interpolation = in+1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
@@ -144,11 +146,10 @@ void AudioPlayMemory::updateSingleShotNormal()
 		}
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
-void AudioPlayMemory::updateSingleShotReverse()
+audio_block_t * AudioPlayMemory::updateSingleShotReverse()
 {
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
@@ -157,12 +158,12 @@ void AudioPlayMemory::updateSingleShotReverse()
 	float pitchFraction;
 
 	block = allocate();
-	if (!block) return;
+	if (!block) return nullptr;
 
 	if (!playing)
 	{
 		release(block);
-		return;
+		return nullptr;
 	}
 	else if (playing == 1)
 	{
@@ -175,7 +176,9 @@ void AudioPlayMemory::updateSingleShotReverse()
 		int32_t currentFractionPitchCounter = fPitchCounter * MAX_16BIT;
 		int32_t currentFractionPitchControl = pitchFraction * MAX_16BIT;
 
-		interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		if(enableInterpolation) interpolationCondition = ((pitchControl  < 1.0f) && (((int)(iPitchCounter - 128 * pitchControl) > 0)) ) ? 0: 1;
+		else interpolationCondition = 1;
+
 		int16_t * in_interpolation = in-1;
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
@@ -225,9 +228,8 @@ void AudioPlayMemory::updateSingleShotReverse()
 		}
 		next = currentStartAddress + pointsInSamples.start;
 		fPitchCounter = (float)currentFractionPitchCounter/MAX_16BIT;
-		transmit(block);
+		return block;
 	}
-	release(block);
 }
 
 

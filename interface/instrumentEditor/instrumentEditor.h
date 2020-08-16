@@ -66,8 +66,12 @@ const char lfoShapeLabels[lfoShapeCount][11]=
 		"Random"
 };
 
-const char lfoSpeedLabels[25][15]=
+const char lfoSpeedLabels[ENVELOPE_SPEED_OTHER_COUNT][15]=
 {
+		"128 steps",
+		"96 steps",
+		"64 steps",
+		"48 steps",
 		"32 steps",
 		"24 steps",
 		"16 steps",
@@ -293,35 +297,35 @@ public:
 		&lfoShapeLabels[4][0]
 	};
 
-	const char * lfoSpeedNamesAmp[24] =
+	const char * lfoSpeedNamesAmp[ENVELOPE_SPEED_AMP_COUNT] =
 	{
-		&lfoSpeedLabels[1][0],
-		&lfoSpeedLabels[2][0],
-		&lfoSpeedLabels[3][0],
-		&lfoSpeedLabels[4][0],
-		&lfoSpeedLabels[5][0],
-		&lfoSpeedLabels[6][0],
-		&lfoSpeedLabels[7][0],
-		&lfoSpeedLabels[8][0],
-		&lfoSpeedLabels[9][0],
-		&lfoSpeedLabels[10][0],
-		&lfoSpeedLabels[11][0],
-		&lfoSpeedLabels[12][0],
-		&lfoSpeedLabels[13][0],
-		&lfoSpeedLabels[14][0],
-		&lfoSpeedLabels[15][0],
-		&lfoSpeedLabels[16][0],
-		&lfoSpeedLabels[17][0],
-		&lfoSpeedLabels[18][0],
-		&lfoSpeedLabels[19][0],
-		&lfoSpeedLabels[20][0],
-		&lfoSpeedLabels[21][0],
-		&lfoSpeedLabels[22][0],
-		&lfoSpeedLabels[23][0],
-		&lfoSpeedLabels[24][0]
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 1][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 2][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 3][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 4][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 5][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 6][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 7][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 8][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 9][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 10][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 11][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 12][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 13][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 14][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 15][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 16][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 17][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 18][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 19][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 20][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 21][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 22][0],
+		&lfoSpeedLabels[ENVELOPE_SPEED_CONSTRAIN_OFFSET + 23][0]
 	};
 
-	const char * lfoSpeedNamesOthers[25] =
+	const char * lfoSpeedNamesOthers[ENVELOPE_SPEED_OTHER_COUNT] =
 	{
 		&lfoSpeedLabels[0][0],
 		&lfoSpeedLabels[1][0],
@@ -347,7 +351,11 @@ public:
 		&lfoSpeedLabels[21][0],
 		&lfoSpeedLabels[22][0],
 		&lfoSpeedLabels[23][0],
-		&lfoSpeedLabels[24][0]
+		&lfoSpeedLabels[24][0],
+		&lfoSpeedLabels[25][0],
+		&lfoSpeedLabels[26][0],
+		&lfoSpeedLabels[27][0],
+		&lfoSpeedLabels[28][0],
 	};
 
 	char volumeVal[4];

@@ -14,8 +14,9 @@
 #include "patternEditor/patternEditor.h"
 
 #include "core/interfacePopups.h"
-
 Sequencer sequencer;
+
+#include "playModeDefs.h"
 
 #include "debugLog.h"
 
@@ -296,7 +297,8 @@ void Sequencer::play_microStep(uint8_t row)
 	strPattern::strTrack &patternRow = seq[player.ramBank].track[row];
 	strPlayer::strPlayerTrack &playerRow = player.track[row];
 
-	strPattern::strTrack::strStep &patternStep = patternRow.step[playerRow.actual_pos];
+//	strPattern::strTrack::strStep &stepToSend = patternRow.step[playerRow.actual_pos];
+
 	strPlayer::strPlayerTrack::strSendStep &stepToSend = player.track[row].stepToSend;
 	strPlayer::strPlayerTrack::strSendStep &stepSent = player.track[row].stepSent;
 
@@ -320,10 +322,27 @@ void Sequencer::play_microStep(uint8_t row)
 
 
 
-	memcpy((uint8_t*) &stepToSend, (uint8_t*) &patternStep,
-			sizeof(patternStep));
 	if (playerRow.uStep == 1)
 	{
+		memcpy((uint8_t*) &stepToSend, (uint8_t*) &patternRow.step[playerRow.actual_pos],
+			sizeof(strPattern::strTrack::strStep));
+
+		if(isCustomOrderMode(row)){
+			if(playerRow.custom_fx){
+				if(stepToSend.fx[0].type == fx.FX_TYPE_NONE)
+				{
+					stepToSend.fx[0].type = playerRow.custom_fx;
+					stepToSend.fx[0].value = playerRow.custom_fx_value;
+				}
+				else if(stepToSend.fx[1].type == fx.FX_TYPE_NONE)
+				{
+					stepToSend.fx[1].type = playerRow.custom_fx;
+					stepToSend.fx[1].value = playerRow.custom_fx_value;
+				}
+			}
+		}
+
+
 		stepToSend.velocity = STEP_VELO_DEFAULT;
 
 		// init stepowy
@@ -416,32 +435,32 @@ void Sequencer::play_microStep(uint8_t row)
 	if (playerRow.uStep == 1)
 	{
 
-		if (patternStep.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
+		if (stepToSend.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
 		{
 			int16_t lowVal = constrain(
-					patternStep.fx[1].value - patternStep.fx[0].value,
-					getFxMin(patternStep.fx[1].type),
-					getFxMax(patternStep.fx[1].type));
+					stepToSend.fx[1].value - stepToSend.fx[0].value,
+					getFxMin(stepToSend.fx[1].type),
+					getFxMax(stepToSend.fx[1].type));
 
 			int16_t hiVal = constrain(
-					patternStep.fx[1].value + patternStep.fx[0].value,
-					getFxMin(patternStep.fx[1].type),
-					getFxMax(patternStep.fx[1].type));
+					stepToSend.fx[1].value + stepToSend.fx[0].value,
+					getFxMin(stepToSend.fx[1].type),
+					getFxMax(stepToSend.fx[1].type));
 
 			randomisedValue = random(lowVal, hiVal + 1);
 
 		}
-		else if (patternStep.fx[1].type == fx.FX_TYPE_RANDOM_VALUE)
+		else if (stepToSend.fx[1].type == fx.FX_TYPE_RANDOM_VALUE)
 		{
 			int16_t lowVal = constrain(
-					patternStep.fx[0].value - patternStep.fx[1].value,
-					getFxMin(patternStep.fx[0].type),
-					getFxMax(patternStep.fx[0].type));
+					stepToSend.fx[0].value - stepToSend.fx[1].value,
+					getFxMin(stepToSend.fx[0].type),
+					getFxMax(stepToSend.fx[0].type));
 
 			int16_t hiVal = constrain(
-					patternStep.fx[0].value + patternStep.fx[1].value,
-					getFxMin(patternStep.fx[0].type),
-					getFxMax(patternStep.fx[0].type));
+					stepToSend.fx[0].value + stepToSend.fx[1].value,
+					getFxMin(stepToSend.fx[0].type),
+					getFxMax(stepToSend.fx[0].type));
 
 			randomisedValue = random(lowVal, hiVal + 1);
 		}
@@ -449,10 +468,10 @@ void Sequencer::play_microStep(uint8_t row)
 //		uint8_t fxIndex = 0;
 		uint8_t noMoFx = 0;
 		uint8_t setBreakPattern = 0;
-//		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
+//		for (strPattern::strTrack::strStep::strFx &_fxStep : stepToSend.fx)
 		for (int8_t fxIndex = 1; fxIndex >= 0; fxIndex--)
 		{
-			strPattern::strTrack::strStep::strFx _fx = patternStep.fx[fxIndex];
+			strPlayer::strPlayerTrack::strSendStep::strFx _fx = stepToSend.fx[fxIndex];
 
 			if (randomisedValue != -1)
 			{
@@ -475,7 +494,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
-				if (patternStep.note >= 0)
+				if (stepToSend.note >= 0)
 				{
 					killFxOnSlot(row, fxIndex);
 					noMoFx = 1;
@@ -567,7 +586,7 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
-				if (patternStep.note >= 0)
+				if (stepToSend.note >= 0)
 				{
 					killFxOnSlot(row, fxIndex);
 					noMoFx = 1;
@@ -584,7 +603,7 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 			}
 
-			if (patternStep.note == STEP_NOTE_EMPTY && !noMoFx)
+			if (stepToSend.note == STEP_NOTE_EMPTY && !noMoFx)
 			{
 				// wysyłam tylko fxa jeśli nie ma nuty
 				switch (_fx.type)
@@ -622,7 +641,7 @@ void Sequencer::play_microStep(uint8_t row)
 //			fxIndex++;
 		}
 
-		if (patternStep.note == STEP_NOTE_OFF)
+		if (stepToSend.note == STEP_NOTE_OFF)
 		{
 //			playerRow.isOffset = 1;
 //			playerRow.offsetValue = 10;
@@ -640,7 +659,7 @@ void Sequencer::play_microStep(uint8_t row)
 	// 		odpalamy step?
 	// **************************
 
-	if (patternStep.note != STEP_NOTE_EMPTY)
+	if (stepToSend.note != STEP_NOTE_EMPTY)
 	{
 
 		// nie-offset
@@ -663,10 +682,14 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		if (playerRow.stepOpen && playerRow.stepToSend.note >= 0)
 		{
-			sendNoteOff(row,
-						playerRow.stepSent.note,
-						0,
-						playerRow.stepSent.instrument);
+			if(playerRow.stepToSend.instrument > INSTRUMENTS_MAX)
+			{
+				sendNoteOff(row,
+							playerRow.stepSent.note,
+							0,
+							playerRow.stepSent.instrument);
+			}
+
 
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
@@ -675,11 +698,9 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
-//		uint8_t fxIndex = 0;
-//		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		for (int8_t fxIndex = 1; fxIndex >= 0; fxIndex--)
 		{
-			strPattern::strTrack::strStep::strFx _fx = patternStep.fx[fxIndex];
+			strPlayer::strPlayerTrack::strSendStep::strFx _fx = stepToSend.fx[fxIndex];
 
 			if (randomisedValue != -1)
 				_fx.value = randomisedValue;
@@ -710,8 +731,8 @@ void Sequencer::play_microStep(uint8_t row)
 				for (uint8_t a = 0; a < 100; a++)
 				{
 					stepToSend.note = constrain(
-							random(patternStep.note - _fx.value,
-									patternStep.note + _fx.value + 1),
+							random(stepToSend.note - _fx.value,
+									stepToSend.note + _fx.value + 1),
 							0,
 							127);
 					if (isInScale(stepToSend.note,
@@ -725,16 +746,16 @@ void Sequencer::play_microStep(uint8_t row)
 				if (stepToSend.instrument < INSTRUMENTS_COUNT)
 				{
 					stepToSend.instrument = constrain(
-							random(patternStep.instrument - _fx.value,
-									patternStep.instrument + _fx.value + 1),
+							random(stepToSend.instrument - _fx.value,
+									stepToSend.instrument + _fx.value + 1),
 							0,
 							INSTRUMENTS_COUNT - 1);
 				}
 				else
 				{
 					stepToSend.instrument = constrain(
-							random(patternStep.instrument - _fx.value,
-									patternStep.instrument + _fx.value + 1),
+							random(stepToSend.instrument - _fx.value,
+									stepToSend.instrument + _fx.value + 1),
 							INSTRUMENTS_COUNT,
 							INSTRUMENTS_COUNT + 16 + 1);
 				}
@@ -767,10 +788,10 @@ void Sequencer::play_microStep(uint8_t row)
 		if (playerRow.rollIsOn)
 		{
 			playerRow.rollPeriod = playerRow.rollVal;
-			playerRow.noteLength = rollValToPeriod(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
+			playerRow.noteLength = rollValToMicroSteps(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 			playerRow.stepOpen = 1;
 		}
-		if (patternStep.note >= 0)
+		if (stepToSend.note >= 0)
 		{
 			if (playerRow.rollDir == fx.rollType_noteRandom && playerRow.rollIsOn)
 			{
@@ -795,7 +816,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 			playerRow.stepSent = playerRow.stepToSend;
 		}
-		else if (patternStep.note == STEP_NOTE_OFF)
+		else if (stepToSend.note == STEP_NOTE_OFF)
 		{
 			sendNoteOff(row, &playerRow.stepSent);
 			playerRow.noteOpen = 0;
@@ -804,12 +825,12 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.rollPeriod = fx.ROLL_PERIOD_NONE;
 
 		}
-		else if (patternStep.note == STEP_NOTE_CUT)
+		else if (stepToSend.note == STEP_NOTE_CUT)
 		{
 			instrumentPlayer[row].noteOff(STEP_NOTE_CUT);
 			playerRow.noteOpen = 0;
 		}
-		else if (patternStep.note == STEP_NOTE_FADE)
+		else if (stepToSend.note == STEP_NOTE_FADE)
 		{
 			instrumentPlayer[row].noteOff(STEP_NOTE_FADE);
 			playerRow.noteOpen = 0;
@@ -849,7 +870,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 //			if(forceFirstRollWhenNoNote)
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) &&
+			if (((playerRow.stepTimer % rollValToMicroSteps(playerRow.rollPeriod)) == 1) &&
 					(playerRow.stepTimer != 1 || forceFirstRollWhenNoNote))
 			{
 				playerRow.stepToSend = playerRow.stepSent;
@@ -857,7 +878,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-				playerRow.noteLength = rollValToPeriod(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
+				playerRow.noteLength = rollValToMicroSteps(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 
 				if (playerRow.rollDir == fx.rollType_noteUp)
 				{
@@ -915,7 +936,7 @@ Sequencer::strPattern* Sequencer::getPattern()
 	return &seq[player.ramBank];
 }
 
-uint16_t Sequencer::rollValToPeriod(int8_t rollVal)
+uint16_t Sequencer::rollValToMicroSteps(int8_t rollVal)
 {
 
 	rollVal = rollVal % (fx.ROLL_PERIOD_MAX + 1);
@@ -1047,6 +1068,12 @@ void Sequencer::play(uint8_t fromPos)
 	{
 		player.track[a].uStep = 1;
 		player.track[a].actual_pos = fromPos;
+		player.track[a].custom_actual_pos = fromPos;
+
+		if (isCustomOrderMode(a))
+		{
+			applyRowCustomFx(a, fromPos);
+		}
 	}
 
 	sendMidiStart();
@@ -1200,6 +1227,7 @@ void Sequencer::stop(void)
 	player.isPlay = 0;
 	player.isStop = 1;
 	player.isREC = 0;
+	player.isPlayFromRec = 0;
 	player.uStep = 0;
 	player.selectionMode = 0;
 
@@ -1250,9 +1278,10 @@ void Sequencer::stop(void)
 	sendMidiStop();
 }
 
-void Sequencer::rec(void)
+void Sequencer::recStart(void)
 {
 	player.isREC = 1;
+	player.isPlayFromRec = 1;
 	if (isPreRollActive())
 	{
 		player.preRecMetronomeActive = 1;
@@ -1283,6 +1312,10 @@ void Sequencer::recOff(void)
 {
 	player.isREC = 0;
 }
+void Sequencer::recOn(void)
+{
+	player.isREC = 1;
+}
 
 void Sequencer::allNoteOffs(void)
 {
@@ -1297,15 +1330,19 @@ void Sequencer::allNoteOffs(void)
 	}
 }
 
-
-void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
+uint8_t Sequencer::isCustomOrderMode(uint8_t row)
+{
+	return player.performanceMode && player.track[row].performancePlayMode >= PLAYMODE_CUSTOM_1;
+}
+void Sequencer::switchRowStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
-	int8_t playMode = player.track[row].performancePlayMode;
+	int8_t playMode = PLAYMODE_FORWARD;
 	int8_t patternLength = seq[player.ramBank].track[0].length;
 
 	if (player.performanceMode)
 	{
+		playMode = player.track[row].performancePlayMode;
 		patternLength = player.performance.trackLength[row];
 	}
 
@@ -1429,8 +1466,219 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	{
 		player.track[x].actual_pos = random(1, patternLength + 1);
 	}
+//	else if (playMode == PLAYMODE_CUSTOM_1)
+//	{
+//
+//		player.track[x].custom_actual_pos++;
+//		if ((player.track[x].custom_actual_pos > patternLength) || (player.breakPattern))
+//		{
+//			player.track[x].custom_actual_pos = 0;
+//		}
+//
+//		uint8_t orderTemp = player.track[x].custom_actual_pos % playOrder1Length;
+//
+//		player.track[x].actual_pos = playOrder1[orderTemp] - 1;
+//
+//	}
+
+	else if (playMode == PLAYMODE_CUSTOM_1)
+	{
+
+		///zerowanie
+//		player.track[x].custom_fx = fx.FX_TYPE_NONE;
+
+		player.track[x].custom_actual_pos++;
+		if ((player.track[x].custom_actual_pos > patternLength) || (player.breakPattern))
+		{
+			player.track[x].custom_actual_pos = 0;
+		}
+
+
+
+
+
+		uint8_t nextStepInOrder = player.track[x].custom_actual_pos % playOrderWithFxLength;
+
+		// 0 nie mozna
+		if (playOrderWithFx[nextStepInOrder].stepNumberToPlay != 0)
+		{
+			player.track[x].actual_pos = playOrderWithFx[nextStepInOrder].stepNumberToPlay - 1;
+		}
+		else
+		{
+			player.track[x].actual_pos = 0;
+		}
+
+		applyRowCustomFx(x, nextStepInOrder);
+
+	}
 
 }
+
+
+void Sequencer::applyRowCustomFx(uint8_t x, uint8_t stepInCustomOrder)
+{
+	switch (playOrderWithFx[stepInCustomOrder].fxOption)
+	{
+	case playModeFx_none:
+		player.track[x].custom_fx = fx.FX_TYPE_NONE;
+		player.track[x].custom_fx_value = 0;
+		break;
+	case playModeFx_rollFlat_1_4_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_const
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollFlat_1_4_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_const
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollFlat_1_4_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_const
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollIncVelo_1_4_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_4_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_4_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollDecVelo_1_4_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollDecVelo_1_4_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollDecVelo_1_4_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_4 + fx.rollType_volDown
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollIncVelo_1_2_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_2_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_2_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_2 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+		//****************
+
+	case playModeFx_rollIncVelo_1_1_P30:
+		if (random(0, 100) < 30)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_1_P60:
+		if (random(0, 100) < 60)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+	case playModeFx_rollIncVelo_1_1_P100:
+		if (random(0, 100) < 100)
+		{
+			player.track[x].custom_fx = fx.FX_TYPE_ROLL;
+			player.track[x].custom_fx_value =
+					fx.ROLL_PERIOD_1_1 + fx.rollType_volUp
+							* (fx.ROLL_PERIOD_MAX + 1);
+		}
+		break;
+
+	default:
+		player.track[x].custom_fx = fx.FX_TYPE_NONE;
+		player.track[x].custom_fx_value = 0;
+		break;
+	}
+}
+
 void Sequencer::alignToGlobalPos()
 {
 	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
@@ -1566,7 +1814,7 @@ void Sequencer::incr_uStep(uint8_t row)
 		if (player.track[row].uStep > 48)
 		{
 			player.track[row].uStep = 1;
-			switchStep(row);
+			switchRowStep(row);
 		}
 	}
 }
@@ -1585,7 +1833,7 @@ void Sequencer::divChangeQuantize(uint8_t row)
 	{
 		player.track[row].divChange = 0;
 		player.track[row].uStep = 1;
-		switchStep(row);
+		switchRowStep(row);
 	}
 }
 
@@ -1634,6 +1882,10 @@ uint8_t Sequencer::getTempoDiv(int8_t val)
 uint8_t Sequencer::isPlay(void)
 {
 	return player.isPlay;
+}
+uint8_t Sequencer::isPlayFromRec(void)
+{
+	return player.isPlayFromRec;
 }
 
 uint8_t Sequencer::isRec(void)

@@ -96,7 +96,12 @@ void cFileManager::storeSongUndoRevision(uint8_t index)
 
 	char patternToLoad[PATCH_SIZE] { 0 };
 	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", index);
-	readPatternFile(patternToLoad, (uint8_t*) &undoSongBuffer[undoSong.actualIndex]);
+	if (!readPatternFile(patternToLoad,
+						(uint8_t*) &undoSongBuffer[undoSong.actualIndex]))
+	{
+		sequencer.clearPattern(&undoSongBuffer[undoSong.actualIndex]);
+	}
+
 
 	undoSongBufferIndexes[undoSong.actualIndex] = index;
 

@@ -13,16 +13,18 @@
 
 const uint8_t FV_VER_1	=					1;		// device version
 const uint8_t FV_VER_2 =					1;		// official update
-const uint8_t FV_VER_3 =					4;		// fix version
+const uint8_t FV_VER_3 =					9;		// fix version
 const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
 const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 
-const uint8_t PROJECT_FILE_VERSION 	=		4;		// wersja struktury pliku projektu
+const uint8_t PROJECT_FILE_VERSION 	=		5;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
-const uint8_t EEPROM_STRUCT_VER =			4;		// od 4 wersji nowy eeprom/mtConfig
+
+const uint8_t EEPROM_STRUCT_VER =			6;
+
 
 
 const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
@@ -135,6 +137,14 @@ const uint8_t MAX_INSTRUMENT_FINETUNE  		=	100;
 const uint8_t MAX_INSTRUMENT_VOLUME 		=	100;
 const uint8_t MIN_INSTRUMENT_VOLUME			=	 0;
 
+constexpr uint8_t ENVELOPE_SPEED_AMP_COUNT = 24;
+constexpr uint8_t ENVELOPE_SPEED_OTHER_COUNT = 29;
+
+constexpr uint8_t CONSTRAIN_SPEED_AMP_ENVELOPE = ENVELOPE_SPEED_AMP_COUNT - 1;
+constexpr uint8_t CONSTRAIN_SPEED_OTHER_ENVELOPE = ENVELOPE_SPEED_OTHER_COUNT - 1;
+
+constexpr uint8_t ENVELOPE_SPEED_CONSTRAIN_OFFSET = CONSTRAIN_SPEED_OTHER_ENVELOPE - CONSTRAIN_SPEED_AMP_ENVELOPE;
+
 const uint8_t MAX_WAVETABLE_WINDOW =			255;
 const uint16_t STANDARD_WAVETABLE_WINDOW_LEN = 	1024;
 const uint16_t SERUM_WAVETABLE_WINDOW_LEN = 	2048;
@@ -204,6 +214,13 @@ const float REVERB_PREDELAY_MIN 		    = 	0.0f;
 const float REVERB_DIFFUSION_MAX 		    = 	0.85f;
 const float REVERB_DIFFUSION_MIN 		    = 	0.0f;
 
+const uint8_t TRACK_VOLUME_MAX 				= 	100;
+const uint8_t TRACK_VOLUME_MIN				=   0;
+const uint8_t REVERB_VOLUME_MAX 			= 	100;
+const uint8_t REVERB_VOLUME_MIN				=   0;
+const uint8_t DELAY_VOLUME_MAX 				= 	100;
+const uint8_t DELAY_VOLUME_MIN				=   0;
+
 const float DEFAULT_REVERB_SIZE 			=	 0.5f;
 const float DEFAULT_REVERB_DAMP 			=	 0.5f;
 const float DEFAULT_REVERB_PREDELAY 		=	 0.5f;
@@ -211,8 +228,8 @@ const float DEFAULT_REVERB_DIFFUSION 		=	 0.68f;
 
 const uint8_t LIMITER_ATTACK_MIN 			=	1;
 const uint16_t LIMITER_ATTACK_MAX  			=	1000;
-const float LIMITER_RELEASE_MIN  			=	0.02;
-const float LIMITER_RELEASE_MAX  			=	10;
+const float LIMITER_RELEASE_MIN  			=	1;
+const float LIMITER_RELEASE_MAX  			=	1000;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
 const uint16_t LIMITER_TRESHOLD_MAX 		=	32767;
 
@@ -542,7 +559,7 @@ struct strMtValues
 	uint8_t padBoardRootNote = 36;
 	uint8_t padBoardMaxVoices = 8;
 
-	uint8_t volume = 50;
+	uint8_t oldVolume = 50; // juz nie uzywana wartosc nowa jest w mtConfig
 
 //	uint8_t reverbRoomSize = 80;
 //	uint8_t reverbDamping = 25;
@@ -611,6 +628,9 @@ struct strMtValues
 
 	char TrackNames[8][21];
 
+	uint8_t trackVolume[8];
+	uint8_t reverbVolume;
+	uint8_t delayVolume;
 };
 
 struct strSong
@@ -655,6 +675,19 @@ struct strMtConfig
 
 	} header;
 
+	struct strVersion
+	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
+		uint8_t ver_1;
+		uint8_t ver_2;
+		uint8_t ver_3;
+		uint8_t beta;
+		uint8_t eepromStructVer;
+
+
+	} firmware;
+
 	struct strAudioCodecConfig
 	{
 		uint16_t size; // zawsze na poczatku wielkosc struktury
@@ -673,21 +706,10 @@ struct strMtConfig
 		uint8_t lineOutLeft; // 13-31
 		uint8_t lineOutRight; //13-31
 
+		uint8_t volume;
 
 	} audioCodecConfig;
 
-	struct strVersion
-	{
-		uint16_t size; // zawsze na poczatku wielkosc struktury
-
-		uint8_t ver_1;
-		uint8_t ver_2;
-		uint8_t ver_3;
-		uint8_t beta;
-		uint8_t eepromStructVer;
-
-
-	} firmware;
 
 	struct strMIDIValues
 	{
@@ -745,6 +767,7 @@ struct strMtConfig
 		uint8_t padBoardNoteOffset;
 		uint8_t padBoardRootNote;
 
+		uint8_t antialiasingEnable;
 
 	} general;
 
@@ -827,6 +850,7 @@ struct strMtConfig
 		uint8_t lineOutLeft; // 13-31
 		uint8_t lineOutRight; //13-31
 
+		uint8_t volume;
 		//uint8_t changeFlag;
 
 	} audioCodecConfig; // 13B
@@ -889,8 +913,14 @@ struct strMtConfig
 		uint8_t padBoardScale;
 		uint8_t padBoardNoteOffset;
 		uint8_t padBoardRootNote;
+<<<<<<< HEAD
 
 	} general; // 10B
+=======
+		uint8_t antialiasingEnable;
+
+	} general;
+>>>>>>> refs/heads/master
 
 	struct strInterfaceState
 	{

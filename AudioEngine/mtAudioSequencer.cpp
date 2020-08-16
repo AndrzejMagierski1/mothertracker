@@ -5,7 +5,7 @@
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 {
 	AudioNoInterrupts();
-	__disable_irq();
+//	__disable_irq();
 
 	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	endFx(lastSeqFx[fx_n],fx_n);
@@ -44,7 +44,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 	lastSeqVal[fx_n] = fx_val;
 
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 //*** Jeżeli kończy się mniej znaczący efekt mimo, że aktywny jest bardziej znaczący efekt to nie wykonujemy żadnej akcji poza wyzerowaniem flag ***/
 //*** Jeżeli kończy się bardziej znaczący efekt i aktywny jest mniej znaczący efekt to mniej znaczący efekt przejmuje kontrolę lub performanceMode wykonuje
@@ -295,7 +295,7 @@ void playerEngine::fxPositionStartPoint(uint8_t fx_val, uint8_t fx_n)
 		}
 	}
 
-	setFxStartPoint();
+	setFxStartPoint(fx_n);
 }
 void playerEngine::fxPositionWavetable(uint8_t fx_val, uint8_t fx_n)
 {
@@ -866,25 +866,42 @@ void playerEngine::endFxReversePlayback(uint8_t fx_n)
 //******** position
 void playerEngine::endFxPosition(uint8_t fx_n)
 {
-	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable) && (mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable))
+//	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable) && (mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable))
+//	{
+//		endFxPositionWavetable(fx_n);
+//	}
+//	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
+//	{
+//		endFxPositionGranular(fx_n);
+//	}
+//	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
+//			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
+//	{
+//		endFxPositionStartPoint(fx_n);
+//	}
+
+
+	if(trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition])
 	{
 		endFxPositionWavetable(fx_n);
 	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
+	else if(trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition])
 	{
 		endFxPositionGranular(fx_n);
 	}
-	else if((mtProject.instrument[currentInstrument_idx].playMode != playModeSlice) &&
-			(mtProject.instrument[currentInstrument_idx].playMode != playModeBeatSlice))
+	else if(trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint])
 	{
 		endFxPositionStartPoint(fx_n);
 	}
+
 }
 void playerEngine::endFxPositionStartPoint(uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 0;
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint1] = 0;
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::loopPoint2] = 0;
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
@@ -899,7 +916,7 @@ void playerEngine::endFxPositionStartPoint(uint8_t fx_n)
 
 	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
 	{
-		setFxStartPoint();
+		setFxStartPoint(otherFx_n);
 	}
 	else
 	{
@@ -1385,20 +1402,20 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 {
 	if(n == envAmp)
 	{
-		if(env->enable) envelopeAmpPtr->setPassFlag(0);
-		else envelopeAmpPtr->setPassFlag(1);
+		if(env->enable) playMemPtr->envelopeSetPassFlag(0);
+		else playMemPtr->envelopeSetPassFlag(1);
 
-		envelopeAmpPtr->delay(env->delay);
-		envelopeAmpPtr->attack(env->attack);
-		envelopeAmpPtr->hold(env->hold);
-		envelopeAmpPtr->decay(env->decay);
-		envelopeAmpPtr->sustain(env->sustain);
-		envelopeAmpPtr->release(env->release);
-		envelopeAmpPtr->setLoop(env->loop);
+		playMemPtr->envelopeDelay(env->delay);
+		playMemPtr->envelopeAttack(env->attack);
+		playMemPtr->envelopeHold(env->hold);
+		playMemPtr->envelopeDecay(env->decay);
+		playMemPtr->envelopeSustain(env->sustain);
+		playMemPtr->envelopeRelease(env->release);
+		playMemPtr->envelopeSetLoop(env->loop);
 
 		uint8_t localVol = getMostSignificantVolume();
 
-		ampPtr->gain( ampLogValues[localVol] * env->amount);
+		modVolume( ampLogValues[localVol] * env->amount);
 
 	}
 	else
@@ -1501,8 +1518,8 @@ void playerEngine::setSyncParamsAmpLFO()
 		}
 
 
-		envelopeAmpPtr->setSyncRate(tempoSyncRatesAmp[localRate]);
-		envelopeAmpPtr->setSyncStartStep(sequencer.getActualPos());
+		playMemPtr->envelopeSetSyncRate(tempoSyncRatesAmp[localRate]);
+		playMemPtr->envelopeSetSyncStartStep(sequencer.getActualPos());
 
 /*			Magiczne liczby:
 			2 - attack,
@@ -1512,11 +1529,11 @@ void playerEngine::setSyncParamsAmpLFO()
 */
 		switch(mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape)
 		{
-		case (int)lfoShapeType::lfoShapeSaw: envelopeAmpPtr->setPhaseNumbers(2, -1);	 			break;
-		case (int)lfoShapeType::lfoShapeReverseSaw: envelopeAmpPtr->setPhaseNumbers(4, -1);			break;
-		case (int)lfoShapeType::lfoShapeTriangle: envelopeAmpPtr->setPhaseNumbers(2, 4);			break;
-		case (int)lfoShapeType::lfoShapeSquare: envelopeAmpPtr->setPhaseNumbers(3, 6);				break;
-		case (int)lfoShapeType::lfoShapeRandom: envelopeAmpPtr->setPhaseNumbers(3, -1);				break;
+		case (int)lfoShapeType::lfoShapeSaw: playMemPtr->envelopeSetPhaseNumbers(2, -1);	 			break;
+		case (int)lfoShapeType::lfoShapeReverseSaw: playMemPtr->envelopeSetPhaseNumbers(4, -1);			break;
+		case (int)lfoShapeType::lfoShapeTriangle: playMemPtr->envelopeSetPhaseNumbers(2, 4);			break;
+		case (int)lfoShapeType::lfoShapeSquare: playMemPtr->envelopeSetPhaseNumbers(3, 6);				break;
+		case (int)lfoShapeType::lfoShapeRandom: playMemPtr->envelopeSetPhaseNumbers(3, -1);				break;
 		default:	break;
 		}
 	}
@@ -1535,7 +1552,7 @@ void playerEngine::setFxVolume()
 	{
 		float localAmount = getMostSignificantAmount();
 
-		ampPtr->gain( ampLogValues[getMostSignificantVolume()] * localAmount);
+		modVolume( ampLogValues[getMostSignificantVolume()] * localAmount);
 	}
 }
 void playerEngine::clearFxVolume()
@@ -1549,7 +1566,7 @@ void playerEngine::clearFxVolume()
 		float localAmount = getMostSignificantAmount();
 		uint8_t localVolume = getMostSignificantVolume();
 
-		ampPtr->gain( ampLogValues[localVolume] * localAmount);
+		modVolume( ampLogValues[localVolume] * localAmount);
 	}
 }
 //PANNING
@@ -1691,7 +1708,7 @@ void playerEngine::clearFxPositionWavetable()
 	}
 }
 //START POINT
-void playerEngine::setFxStartPoint()
+void playerEngine::setFxStartPoint(uint8_t fx_n)
 {
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 	{
@@ -1701,7 +1718,7 @@ void playerEngine::setFxStartPoint()
 	{
 //		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
 //		else modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
-		modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
+		modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS, fx_n);
 	}
 }
 void playerEngine::clearFxStartPoint()
@@ -1887,13 +1904,13 @@ void playerEngine::clearFxAmpRateLFO()
 			else
 			{
 				initEnvelopesParamiters(envAmp,&mtProject.instrument[currentInstrument_idx].envelope[envAmp]);
-				if(envelopeAmpPtr->getState() != 0 ) envelopeAmpPtr->setSustain();
+				if(playMemPtr->envelopeGetState() != 0 ) playMemPtr->envelopeSetSustain();
 			}
 		}
 		else
 		{
 			initEnvelopesParamiters(envAmp,(envelopeGenerator::strEnv *)&passEnvelope);
-			if(envelopeAmpPtr->getState() != 0 ) envelopeAmpPtr->setSustain();
+			if(playMemPtr->envelopeGetState() != 0 ) playMemPtr->envelopeSetSustain();
 		}
 	}
 
@@ -1901,9 +1918,9 @@ void playerEngine::clearFxAmpRateLFO()
 
 void playerEngine::syncFxAmpLFO()
 {
-	envelopeAmpPtr->noteOff();
-	envelopeAmpPtr->setIdle();
+	playMemPtr->envelopeNoteOff();
+	playMemPtr->envelopeSetIdle();
 	bool isAmpRandom = (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) && (mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape == lfoShapeRandom);
-	envelopeAmpPtr->setIsRandom(isAmpRandom);
-	envelopeAmpPtr->noteOn();
+	playMemPtr->envelopeSetIsRandom(isAmpRandom);
+	playMemPtr->envelopeNoteOn(currentInstrument_idx,currentNote);
 }

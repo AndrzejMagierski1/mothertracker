@@ -1,3 +1,34 @@
+	1.1.9
+			- [AM] Dodanie do Master 2/2 dodatkowych volumów per track
+			- [AM] Master volume nie jest juz zapisywane w projekcie
+			- [AM] Process w Sample Editor (zmiana na preview) - processuje i od razu odpala odsluch
+			- [AM] Dodanie lfo speed(dla innych niz amp): 48, 64, 96, 128
+	1.1.8
+			- [AM] fix: znikające nuty
+	1.1.7
+			- [AM] fix: zmiana nazw w limiterze
+			- [AM] fix: zwiecha systemy przy detuningu
+			- [KS] zmiana: ponowne zalaczenie nagrywania RECiem tylko jesli start byl z rec+play
+			- [KS] fix: kilka zmian wplywajacych na trzymanie tempa, do tej pory rozjezdzalo sie
+					co kilkadziesiat stepow
+	
+	1.1.6
+			- [AM] fix: parametry czasowe limitera wyliczane są w nowy sposób
+			- [AM] algorytm declickujący przy "note stealingu" 
+			- [AM] fix: glitche "reverbowe" usunięte z exportu
+			- [AM] fix: "track1 dziala co drugie przejscie songa"
+	
+	1.1.5
+			- [KS] zmiana tempa +- 0.1 z sziftem
+			- [KS] nowy 'Pattern play mode' w performance - CST/custom, 
+					na ten moment jeden, do rozbudowania
+			- [KS] skrócenie za dlugiej etykiety "Microtim + velo"
+			- [KS] wlaczanie 'REC' w trakcie dzialania sekwencji
+			- [KS] fix: undo rozwalal pattern (jesli tworzylo sie nowy wiersz)
+			- [KS] fix: instrument wprowadzany z popupu nie byl zapisywany 
+					przy zmianie patternu
+			- [AM] fix: delay juz sie odswieza po uruchomieniu
+	
 	1.1.4
 			- [AM] optymalizacja silnika audio
 			- [AM] fix: trzaski już nie pojawiają się w trybach loop backward i pingpong
@@ -28,7 +59,8 @@
 			poprawnie etykiety od-do
 			- tap-tempo - dwukrotne klikniecie i kazde kolejne ustala tempo
 			- config - rec options - only notes/velo/microtiming/velo+microtiming
-			 
+	
+	1.1 == 1.0.26		 
 	1.0.26
 			- modyfikacja creditsów: usuniety Restis, dodane licencje
 			- home w song

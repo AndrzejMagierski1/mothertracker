@@ -63,7 +63,7 @@ inline void playerEngine::handleUpdateEndPlayDetect()
 	currentPlayState = playMemPtr->isPlaying();
 	if(currentPlayState == 0 && lastPlayState == 1)
 	{
-		envelopeAmpPtr->noteOff();
+//		playMemPtr->envelopeNoteOff();
 		interfacePlayingEndFlag = 1;
 		if(isTrackDisplayed) onEndDisplay = true;
 	}
@@ -81,7 +81,7 @@ inline void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableConditio
 			  ( trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ) ||
 			  ( trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] ) )
 			{
-				if(envelopeAmpPtr->getState() != 0 )
+				if(playMemPtr->envelopeGetState() != 0 )
 				{
 					if(sequencer.getSeqState())
 					{
@@ -151,13 +151,12 @@ inline void playerEngine::handleUpdateEnvelope(uint8_t type, bool enableConditio
 
 inline void playerEngine::handleUpdateEndReleaseAction()
 {
-	if(envelopeAmpPtr->endRelease())
+	if(playMemPtr->envelopeEndRelease())
 	{
-		envelopeAmpPtr->clearEndReleaseFlag();
+		playMemPtr->envelopeClearEndReleaseFlag();
 		interfaceEndReleaseFlag = 1;
 		if(isTrackDisplayed) onEndDisplay = true;
-		playMemPtr->stop();
-
+//		playMemPtr->stop();
 		for ( uint8_t i = envPan; i < ACTIVE_ENVELOPES; i++ )
 		{
 			if((mtProject.instrument[currentInstrument_idx].envelope[i].enable && mtProject.instrument[currentInstrument_idx].envelope[i].loop)||
@@ -238,7 +237,7 @@ inline void playerEngine::handleUpdateRefreshVolume()
 		uint8_t volume = getMostSignificantVolume();
 		float localAmount = getMostSignificantAmount();
 
-		ampPtr->gain( ampLogValues[volume] * localAmount );
+		modVolume( ampLogValues[volume] * localAmount );
 
 	}
 }
@@ -498,11 +497,11 @@ inline void playerEngine::handleUpdateRefreshAmpLFO()
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp],mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed, 1);
 				initEnvelopesParamiters(envAmp, &lfoBasedEnvelope[envAmp]);
 				bool isRandom = (mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape == lfoShapeRandom);
-				envelopeAmpPtr->setIsRandom(isRandom);
+				playMemPtr->envelopeSetIsRandom(isRandom);
 			}
 			else
 			{
-				envelopeAmpPtr->setIsRandom(false);
+				playMemPtr->envelopeSetIsRandom(false);
 			}
 		}
 	}

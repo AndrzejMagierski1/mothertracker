@@ -49,9 +49,8 @@ public:
 		PLAYMODE_FORWARD = 0,
 		PLAYMODE_BACKWARD,
 		PLAYMODE_RANDOM,
-		PLAYMODE_PINGPONG,
-		PLAYMODE_POLY,
-		PLAYMODE_MAX = 3
+		PLAYMODE_CUSTOM_1,
+		PLAYMODE_PINGPONG
 	};
 	enum enTempoDiv
 	{
@@ -317,7 +316,10 @@ public:
 	void play(void);
 	void play(uint8_t fromPos);
 
-	void switchStep(uint8_t row);
+	void switchRowStep(uint8_t row);
+	void applyRowCustomFx(uint8_t x, uint8_t orderTemp);
+
+	uint8_t isCustomOrderMode(uint8_t row);
 
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
 	uint8_t getTempoDiv(int8_t val);
@@ -333,7 +335,7 @@ public:
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
 
-	inline uint16_t rollValToPeriod(int8_t rollType);
+	inline uint16_t rollValToMicroSteps(int8_t rollType);
 	inline uint16_t stutterValToPeriod(int8_t rollType);
 
 	void divChangeQuantize(uint8_t row);
@@ -394,6 +396,7 @@ public:
 
 		bool isPlay = 0;
 		bool isREC = 0;
+		bool isPlayFromRec = 0; // jesli wystartowalo z RECa
 		bool isStop = 1;
 
 		bool ramBank = 0;
@@ -462,6 +465,10 @@ public:
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
+			int16_t custom_actual_pos = 0;	// aktualna pozycja na potrzeby custom playMode
+			int16_t custom_fx = 0;
+			int16_t custom_fx_value = 0;
+
 			uint16_t stepTimer = 0;		// tu liczymy microstepy w górę
 			uint16_t stepLength = 0;	// z tym porównujemy timer
 			uint16_t noteTimer = 0;
@@ -539,7 +546,10 @@ public:
 	void printNotes(bool val);
 
 	uint8_t isPlay(void);
+
 	uint8_t isRec(void);
+	uint8_t isPlayFromRec(void);
+
 	uint8_t isStop(void);
 	uint8_t isPreview(void)
 	{
@@ -673,8 +683,9 @@ public:
 	void playSong(void);
 	void playSong(uint8_t);
 	void pause(void);
-	void rec(void);
+	void recStart(void);
 	void recOff(void);
+	void recOn(void);
 	void stop(void);
 	void stopManualNotes(void);
 	uint8_t isMetronomeActive();

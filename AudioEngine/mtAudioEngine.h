@@ -15,7 +15,7 @@
 
 typedef Sequencer::strFxConsts fx_t;
 
-const float tempoSyncRatesAmp[24] =
+const float tempoSyncRatesAmp[ENVELOPE_SPEED_AMP_COUNT] =
 {
 	24,
 	16,
@@ -43,8 +43,12 @@ const float tempoSyncRatesAmp[24] =
 	0.015625
 };
 
-const float tempoSyncRatesOthers[25] =
+const float tempoSyncRatesOthers[ENVELOPE_SPEED_OTHER_COUNT] =
 {
+	128,
+	96,
+	64,
+	48,
 	32,
 	24,
 	16,
@@ -193,6 +197,7 @@ public:
 	void update();
 	void prevSdConnect();
 	void prevSdDisconnect();
+	void refreshTrackVolume();
 	void setHeadphonesVolume(uint8_t value);
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
@@ -229,6 +234,7 @@ public:
 	void makeMetronomeTick(uint8_t);
 	void setCurrentLoadInstrument(int8_t idx);
 	void clearCurrentLoadInstrument(int8_t idx);
+	void setInterpolationEnable(bool value);
 	friend class playerEngine;
 private:
 	uint8_t forceDelaySend;
@@ -250,6 +256,8 @@ public:
 	void noteOff(int8_t option = -4);
 	void clean();
 
+	void setInterpolationEnable(bool value);
+
 	void seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n);
 	void endFx(uint8_t fx_id, uint8_t fx_n);
 	void slide(int8_t note, uint16_t time);
@@ -258,13 +266,14 @@ public:
 	void modFineTune(int8_t value);
 
 	void modPanning(int16_t value);
+	void modVolume(float value);
 	void modSP(uint16_t value);
 	void modLP1(uint16_t value);
 	void modLP2(uint16_t value);
 	void modCutoff(float value);
 	void modResonance(float value);
 
-	void modSeqPoints(uint32_t sp, uint32_t ep);
+	void modSeqPoints(uint32_t sp, uint32_t ep, uint8_t fx_n);
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
@@ -296,7 +305,6 @@ public:
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t type);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
-	AudioEffectEnvelope * envelopeAmpPtr;
 
 	uint8_t currentInstrument_idx;
 
@@ -712,7 +720,7 @@ private:
 	void setFxPositionWavetable();
 	void clearFxPositionWavetable();
 
-	void setFxStartPoint();
+	void setFxStartPoint(uint8_t fx_n);
 	void clearFxStartPoint();
 
 	void setFxSlice();
@@ -757,7 +765,6 @@ extern AudioPlaySdWav           playSdWav;
 extern AudioPlaySdWavFloat 		playSdWavFloat;
 extern AudioPlaySdWav24bit 	 	playSdWav24Bit;
 extern AudioPlayMemory          playMem[8];
-extern AudioEffectEnvelope      envelopeAmp[8];
 extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];

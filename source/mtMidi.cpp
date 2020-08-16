@@ -20,12 +20,10 @@ static cSamplePlayback *SP = &samplePlayback;
 static cSampleRecorder *SR = &sampleRecorder;
 static cSampleEditor *SE = &sampleEditor;
 
-
 extern uint8_t playSongFromSelectedPattern();
 extern uint8_t playSongFromSelectedPattern_stop();
 
 elapsedMillis timerMidiDelay = 0;
-
 
 void midiInit()
 {
@@ -36,6 +34,7 @@ void midiInit()
 	MIDI.setHandleClock(receiveJackClock);
 	MIDI.setHandleStart(receiveJackStart);
 	MIDI.setHandleStop(receiveJackStop);
+	MIDI.setHandleSongPosition(handleJackSongPosition);
 
 	// usb
 	usbMIDI.setHandleRealTimeSystem(receiveUsbRealtime);
@@ -444,9 +443,20 @@ void handleUsbSongPosition(uint16_t beats)
 //	Serial.printf("song pos: %d beats\n", beats);
 //	sequencer.forcePosition(beats);
 
-	lastSongPosition = beats;
+	if (mtConfig.midi.transportIn == clockIn_Usb)
+	{
+		lastSongPosition = beats;
+	}
 }
-
+void handleJackSongPosition(unsigned int beats)
+{
+//	Serial.printf("song pos: %d beats\n", beats);
+//	sequencer.forcePosition(beats);
+	if (mtConfig.midi.transportIn == clockIn_Jack)
+	{
+		lastSongPosition = beats;
+	}
+}
 
 void midiForceStep()
 {

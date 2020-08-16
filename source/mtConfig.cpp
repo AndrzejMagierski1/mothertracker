@@ -338,6 +338,7 @@ void checkConfig()
 	else if(mtConfig.audioCodecConfig.lineOutRight < 13)
 			mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
 
+	if(mtConfig.audioCodecConfig.volume > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.volume = MASTER_VOLUME_MAX;
 
 
 //	mtConfig.startup.lastProjectName[PROJECT_NAME_SIZE-1] = 0;
@@ -484,7 +485,7 @@ void checkConfig()
 	if(mtConfig.general.padBoardNoteOffset > 11) 	mtConfig.general.padBoardNoteOffset = 11;
 	if(mtConfig.general.padBoardRootNote > 25) 		mtConfig.general.padBoardRootNote = 12;
 	//if(mtConfig.general.padBoardMaxVoices > 8) 		mtConfig.general.padBoardMaxVoices = 8;
-
+	if(mtConfig.general.antialiasingEnable > 1) mtConfig.general.antialiasingEnable = 0;
 
 	// interface ----------------------------------------
 	if(mtConfig.interface.fxPopupDescription > 1)
@@ -535,6 +536,7 @@ void resetConfig()
 	mtConfig.audioCodecConfig.lineInRight = LINE_IN_SENS_LEVEL_DEFAULT;
 	mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
 	mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
+	mtConfig.audioCodecConfig.volume = MASTER_VOLUME_DEFAULT;
 
 	// midi ----------------------------------------
 	for(uint8_t i = 0; i < 10; i++)
@@ -589,7 +591,7 @@ void resetConfig()
 	mtConfig.general.padBoardNoteOffset = 11;
 	mtConfig.general.padBoardRootNote = 12;
 	//mtConfig.general.padBoardMaxVoices = 8;
-
+	mtConfig.general.antialiasingEnable = 1;
 
 	// interface ----------------------------------------
 	mtConfig.interface.fxPopupDescription = 0;
