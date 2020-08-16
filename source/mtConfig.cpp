@@ -581,6 +581,12 @@ void recoverConfigFromOldVerison()
 	mtConfig.header.id[6] = 0;
 	mtConfig.header.version = EEPROM_STRUCT_VER;
 	mtConfig.header.totalSize = sizeof(mtConfig);
+
+
+	// ustaw nowe parametry
+	mtConfig.audioCodecConfig.volume = MASTER_VOLUME_DEFAULT;
+	mtConfig.general.antialiasingEnable = 1;
+
 }
 
 
