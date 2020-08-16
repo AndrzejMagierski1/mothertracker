@@ -675,19 +675,6 @@ struct strMtConfig
 
 	} header;
 
-	struct strVersion
-	{
-		uint16_t size; // zawsze na poczatku wielkosc struktury
-
-		uint8_t ver_1;
-		uint8_t ver_2;
-		uint8_t ver_3;
-		uint8_t beta;
-		uint8_t eepromStructVer;
-
-
-	} firmware;
-
 	struct strAudioCodecConfig
 	{
 		uint16_t size; // zawsze na poczatku wielkosc struktury
@@ -710,6 +697,18 @@ struct strMtConfig
 
 	} audioCodecConfig;
 
+	struct strVersion
+	{
+		uint16_t size; // zawsze na poczatku wielkosc struktury
+
+		uint8_t ver_1;
+		uint8_t ver_2;
+		uint8_t ver_3;
+		uint8_t beta;
+		uint8_t eepromStructVer;
+
+
+	} firmware;
 
 	struct strMIDIValues
 	{
