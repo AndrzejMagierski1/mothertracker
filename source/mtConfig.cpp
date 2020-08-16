@@ -598,12 +598,6 @@ void firmwareVersionChange()
 
 }
 
-void memoryStructureChange()
-{
-
-	//Serial.println("Memory structure changed!");
-
-}
 
 
 void eepromStructureChange()

@@ -1,3 +1,6 @@
+
+	1.1.10
+			-[KZ] Nowa struktura eeprom (mtConfig), konwersja wersji z 1.1.0
 	1.1.9
 			- [AM] Dodanie do Master 2/2 dodatkowych volumów per track
 			- [AM] Master volume nie jest juz zapisywane w projekcie
