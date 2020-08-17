@@ -19,13 +19,13 @@ const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
 const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 
-const uint8_t PROJECT_FILE_VERSION 	=		5;		// wersja struktury pliku projektu
+const uint8_t PROJECT_FILE_VERSION 	=		7;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			5;
 
 
-const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				false;	// wlaczanie dopiero po wcisnieciu przycisku itp
 
 
 
@@ -213,10 +213,13 @@ const float REVERB_DIFFUSION_MIN 		    = 	0.0f;
 
 const uint8_t TRACK_VOLUME_MAX 				= 	100;
 const uint8_t TRACK_VOLUME_MIN				=   0;
+const uint8_t DEFAULT_TRACK_VOLUME			=   TRACK_VOLUME_MAX;
 const uint8_t REVERB_VOLUME_MAX 			= 	100;
 const uint8_t REVERB_VOLUME_MIN				=   0;
+const uint8_t DEFAULT_REVERB_VOLUME			=   REVERB_VOLUME_MAX;
 const uint8_t DELAY_VOLUME_MAX 				= 	100;
 const uint8_t DELAY_VOLUME_MIN				=   0;
+const uint8_t DEFAULT_DELAY_VOLUME			=   DELAY_VOLUME_MAX;
 
 const float DEFAULT_REVERB_SIZE 			=	 0.5f;
 const float DEFAULT_REVERB_DAMP 			=	 0.5f;
@@ -625,9 +628,12 @@ struct strMtValues
 
 	char TrackNames[8][21];
 
-	uint8_t trackVolume[8];
-	uint8_t reverbVolume;
-	uint8_t delayVolume;
+	uint8_t trackVolume[8] = {100,100,100,100,100,100,100,100};
+	uint8_t reverbVolume = 100;
+	uint8_t delayVolume = 100;
+	uint8_t reverbMute;
+	uint8_t delayMute;
+	uint8_t dryMixMute;
 };
 
 struct strSong

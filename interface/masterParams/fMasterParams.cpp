@@ -70,6 +70,11 @@ static  uint8_t functSwitchModeMaster(uint8_t state);
 //mixer
 static uint8_t functSoloMute(uint8_t state);
 static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state);
+//mixer delay reverb
+static uint8_t functSoloMuteDelay(uint8_t state);
+static uint8_t functSoloMuteReverb(uint8_t state);
+static uint8_t functSoloMuteDelayReverb(uint8_t state);
+
 
 // MASTER EDIT FUNCTIONS
 void changeVolume(int16_t value);
@@ -114,10 +119,27 @@ void cMasterParams::update()
 			calcTrackLevel(i);
 			if(trackLevel[i].value != trackLevel[i].lastValue)
 			{
-				showLevelBar(i);
+				showLevelBar(i, &trackLevel[i]);
 			}
 			trackLevel[i].lastValue = trackLevel[i].value;
 		}
+	}
+	else if(displayType == display_t::mixerDelayReverb && !keyboardManager.getState())
+	{
+		calcDelayLevel();
+		if(delayLevel.value != delayLevel.lastValue)
+		{
+			showLevelBar(0, &delayLevel);
+		}
+		delayLevel.lastValue = delayLevel.value;
+
+		calcReverbLevel();
+
+		if(reverbLevel.value != reverbLevel.lastValue)
+		{
+			showLevelBar(1, &reverbLevel);
+		}
+		reverbLevel.lastValue = reverbLevel.value;
 	}
 
 }
@@ -220,7 +242,6 @@ void cMasterParams::setKeyboardExportFunctions()
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0, interfaceButton7);
 	FM->clearButtonsRange(interfaceButtonPlay, interfaceButtonRight);
-	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftKeyboard);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightKeyboard);
@@ -259,6 +280,21 @@ static  uint8_t functEncoder(int16_t value)
 
 		}
 
+		return 1;
+	}
+
+	if(MP->displayType == cMasterParams::display_t::mixerDelayReverb)
+	{
+		if(MP->delayIsEdited)
+		{
+			MP->changeDelayVolume(value);
+			MP->ignoreMuteReleaseDelay = true;
+		}
+		if(MP->reverbIsEdited)
+		{
+			MP->changeReverbVolume(value);
+			MP->ignoreMuteReleaseReverb = true;
+		}
 		return 1;
 	}
 
@@ -390,6 +426,21 @@ static  uint8_t functUp()
 		return 1;
 	}
 
+	if(MP->displayType == cMasterParams::display_t::mixerDelayReverb)
+	{
+		if(MP->delayIsEdited)
+		{
+			MP->changeDelayVolume(1);
+			MP->ignoreMuteReleaseDelay = true;
+		}
+		if(MP->reverbIsEdited)
+		{
+			MP->changeReverbVolume(1);
+			MP->ignoreMuteReleaseReverb = true;
+		}
+		return 1;
+	}
+
 
 	if(MP->isDelayScreen)
 	{
@@ -450,6 +501,20 @@ static  uint8_t functDown()
 		return 1;
 	}
 
+	if(MP->displayType == cMasterParams::display_t::mixerDelayReverb)
+	{
+		if(MP->delayIsEdited)
+		{
+			MP->changeDelayVolume(-1);
+			MP->ignoreMuteReleaseDelay = true;
+		}
+		if(MP->reverbIsEdited)
+		{
+			MP->changeReverbVolume(-1);
+			MP->ignoreMuteReleaseReverb = true;
+		}
+		return 1;
+	}
 
 	if(MP->isDelayScreen)
 	{
@@ -493,7 +558,34 @@ static  uint8_t functDown()
 
 static 	uint8_t functDelete()
 {
-	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
+	if(MP->displayType == cMasterParams::display_t::mixer)
+	{
+		for(uint8_t track = 0 ; track < 8; track++)
+		{
+			if(MP->trackIsEdited[track])
+			{
+				MP->setDefaultTrackVolume(track);
+				MP->ignoreMuteRelease[track] = true;
+			}
+
+		}
+		return 1;
+	}
+
+	if(MP->displayType == cMasterParams::display_t::mixerDelayReverb)
+	{
+		if(MP->delayIsEdited)
+		{
+			MP->setDefaultDelayVolume();
+			MP->ignoreMuteReleaseDelay = true;
+		}
+		if(MP->reverbIsEdited)
+		{
+			MP->setDefaultReverbVolume();
+			MP->ignoreMuteReleaseReverb = true;
+		}
+		return 1;
+	}
 
 	if(MP->isDelayScreen)
 	{
@@ -712,6 +804,23 @@ void cMasterParams::switchToMixer()
 	showMixerScreen();
 }
 
+void cMasterParams::switchToMixerDelayReverb()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearButton(interfaceButtonRec);
+
+	FM->setButtonObj(interfaceButton0, functSoloMuteDelay);
+	FM->setButtonObj(interfaceButton1, functSoloMuteReverb);
+	FM->setButtonObj(interfaceButtonShift, functSoloMuteDelayReverb);
+
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+
+
+	editTrackNameMode = 0;
+	displayType = display_t::mixerDelayReverb;
+	showMixerDelayReverbScreen();
+}
+
 void cMasterParams::switchToDelayScreen()
 {
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -858,14 +967,34 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 	float localTrackLevel = instrumentPlayer[n].getRMSValue();
 	if(localTrackLevel == - 1.0f) return;
 
-	trackLevel[n].measureSum += localTrackLevel;
-	trackLevel[n].measureCounter++;
+	calcLevel(&trackLevel[n], localTrackLevel );
+}
 
-	if(trackLevel[n].measureCounter == 10)
+void cMasterParams::calcDelayLevel()
+{
+	float localDelayLevel = engine.getDelayRms();
+	if(localDelayLevel == - 1.0f) return;
+
+	calcLevel(&delayLevel, localDelayLevel);
+}
+void cMasterParams::calcReverbLevel()
+{
+	float localReverbLevel = engine.getReverbRms();
+	if(localReverbLevel == - 1.0f) return;
+
+	calcLevel(&reverbLevel, localReverbLevel);
+}
+
+void cMasterParams::calcLevel(strTrackLevel * level, float value)
+{
+	level->measureSum += value;
+	level->measureCounter++;
+
+	if(level->measureCounter == 10)
 	{
-		trackLevel[n].measureCounter = 0;
+		level->measureCounter = 0;
 
-		uint16_t localMeasureSum = trackLevel[n].measureSum * 100;
+		uint16_t localMeasureSum = level->measureSum * 100;
 
 		if(localMeasureSum < 1) localMeasureSum = 1;
 
@@ -877,21 +1006,21 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 //
 //		uint8_t localLevel = logarithmicLevelTab[ (uint8_t)(localMeasureSum * LOGHARITMIC_LEVEL_TAB_SIZE) - 1];
 */
-		//if(n == 0) Serial.printf("MeasureSum: %0.03f, localLevel: %d, trackLevel: %d\n",trackLevel[n].measureSum, localLevel, trackLevel[n].value);
+		//if(n == 0) Serial.printf("MeasureSum: %0.03f, localLevel: %d, trackLevel: %d\n",level->measureSum, localLevel, level->value);
 
-		if(((trackLevel[n].timer > 500 )) && (trackLevel[n].value != 0 ))
+		if(((level->timer > 500 )) && (level->value != 0 ))
 		{
-			trackLevel[n].timer = 0;
-			trackLevel[n].value--;
+			level->timer = 0;
+			level->value--;
 		}
-		if(localLevel > (trackLevel[n].value + 1 )) trackLevel[n].value = localLevel;
+		if(localLevel > (level->value + 1 )) level->value = localLevel;
 
-		trackLevel[n].measureSum = 0;
+		level->measureSum = 0;
 	}
-
 }
 
 //mixer
+//funkcja podpieta do shifta - zamienia mute na solo
 static uint8_t functSoloMute(uint8_t state)
 {
 	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
@@ -906,6 +1035,8 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 
 	if(state == buttonRelease)
 	{
+		if(MP->editTrackNameMode) return 1;
+
 		MP->trackIsEdited[n] = 0;
 		if(MP->ignoreMuteRelease[n])
 		{
@@ -942,7 +1073,7 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 		for(uint8_t i = 0; i < 8 ; i++)
 		{
 			engine.muteTrack(i, mtProject.values.trackMute[i]);
-			MP->showLevelBar(i);
+			MP->showLevelBar(i, &MP->trackLevel[i]);
 		}
 		MP->showMixerScreen();
 	}
@@ -958,6 +1089,120 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 	}
 	return 1;
 }
+
+//mixer delay reverb
+static uint8_t functSoloMuteDelay(uint8_t state)
+{
+	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
+
+	if(state == buttonRelease)
+	{
+		MP->delayIsEdited = 0;
+		if(MP->ignoreMuteReleaseDelay)
+		{
+			MP->ignoreMuteReleaseDelay = false;
+			return 1;
+		}
+
+		if(MP->isSolo)
+		{
+			if(MP->soloTrack == cMasterParams::delayIsSolo)
+			{
+				MP->soloTrack = -1;
+
+				mtProject.values.delayMute = 0;
+				mtProject.values.dryMixMute = 0;
+				mtProject.values.reverbMute = 0;
+
+			}
+			else
+			{
+				mtProject.values.delayMute = 0;
+				mtProject.values.dryMixMute = 1;
+				mtProject.values.reverbMute = 1;
+				MP->soloTrack = cMasterParams::delayIsSolo;
+			}
+		}
+		else
+		{
+			mtProject.values.delayMute = !mtProject.values.delayMute;
+			MP->soloTrack = -1;
+		}
+
+		MP->showLevelBar(cMasterParams::delayVolumeScreenPosition, &MP->delayLevel);
+		engine.refreshTrackVolume();
+		engine.refreshDelayVolume();
+		engine.refreshReverbVolume();
+		MP->showMixerDelayReverbScreen();
+	}
+
+	if(state == buttonPress)
+	{
+		MP->delayIsEdited = true;
+	}
+	return 1;
+}
+static uint8_t functSoloMuteReverb(uint8_t state)
+{
+	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
+
+	if(state == buttonRelease)
+	{
+		MP->reverbIsEdited = 0;
+		if(MP->ignoreMuteReleaseReverb)
+		{
+			MP->ignoreMuteReleaseReverb = false;
+			return 1;
+		}
+
+		if(MP->isSolo)
+		{
+			if(MP->soloTrack == cMasterParams::reverbIsSolo)
+			{
+				MP->soloTrack = -1;
+
+				mtProject.values.delayMute = 0;
+				mtProject.values.dryMixMute = 0;
+				mtProject.values.reverbMute = 0;
+
+			}
+			else
+			{
+				mtProject.values.delayMute = 1;
+				mtProject.values.dryMixMute = 1;
+				mtProject.values.reverbMute = 0;
+				MP->soloTrack = cMasterParams::reverbIsSolo;
+			}
+		}
+		else
+		{
+			mtProject.values.reverbMute = !mtProject.values.reverbMute;
+			MP->soloTrack = -1;
+		}
+
+		MP->showLevelBar(cMasterParams::reverbVolumeScreenPosition, &MP->reverbLevel);
+		engine.refreshTrackVolume();
+		engine.refreshDelayVolume();
+		engine.refreshReverbVolume();
+		MP->showMixerDelayReverbScreen();
+	}
+
+	if(state == buttonPress)
+	{
+		MP->reverbIsEdited = true;
+	}
+	return 1;
+}
+//funkcja podpieta do shifta - zamienia mute na solo
+static uint8_t functSoloMuteDelayReverb(uint8_t state)
+{
+	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
+
+	MP->isSolo = state;
+	MP->showMixerDelayReverbScreen();
+	return 1;
+}
+
 static  uint8_t functSwitchModeMaster(uint8_t state)
 {
 	if(state == buttonPress)
@@ -968,11 +1213,15 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 		{
 			MP->switchToMixer();
 		}
-		else if(MP->displayType == cMasterParams::display_t::mixer)
+		else if(MP->displayType == cMasterParams::display_t::mixerDelayReverb)
 		{
 			if(MP->isDelayScreen) MP->switchToDelayScreen();
 			else if(MP->isReverbScreen) MP->switchToReverbScreen();
 			else MP->switchToMaster();
+		}
+		else if(MP->displayType == cMasterParams::display_t::mixer)
+		{
+			MP->switchToMixerDelayReverb();
 		}
 /*		CE->clearAllNodes();
 		CE->cancelMultiFrame();*/
@@ -1282,6 +1531,14 @@ void cMasterParams::changeTrackVolume(int16_t val, uint8_t track)
 	newFileManager.setProjectStructChanged();
 	showTrackVolumeBar(track);
 }
+void cMasterParams::setDefaultTrackVolume(uint8_t track)
+{
+	mtProject.values.trackVolume[track] = DEFAULT_TRACK_VOLUME;
+	engine.refreshTrackVolume();
+	newFileManager.setProjectStructChanged();
+	showTrackVolumeBar(track);
+}
+
 void cMasterParams::changeReverbVolume(int16_t val)
 {
 	if(mtProject.values.reverbVolume + val > REVERB_VOLUME_MAX) mtProject.values.reverbVolume =  REVERB_VOLUME_MAX;
@@ -1289,8 +1546,8 @@ void cMasterParams::changeReverbVolume(int16_t val)
 	else mtProject.values.reverbVolume += val;
 
 	newFileManager.setProjectStructChanged();
-	//todo: zmiana w silniku
-	//todo: interface
+	showReverbVolumeBar();
+	engine.refreshReverbVolume();
 }
 void cMasterParams::changeDelayVolume(int16_t val)
 {
@@ -1299,8 +1556,23 @@ void cMasterParams::changeDelayVolume(int16_t val)
 	else mtProject.values.delayVolume += val;
 
 	newFileManager.setProjectStructChanged();
-	//todo: zmiana w silniku
-	//todo: interface
+	showDelayVolumeBar();
+	engine.refreshDelayVolume();
+}
+
+void cMasterParams::setDefaultReverbVolume()
+{
+	mtProject.values.reverbVolume = DEFAULT_REVERB_VOLUME;
+	newFileManager.setProjectStructChanged();
+	showReverbVolumeBar();
+	engine.refreshReverbVolume();
+}
+void cMasterParams::setDefaultDelayVolume()
+{
+	mtProject.values.delayVolume = DEFAULT_DELAY_VOLUME;
+	newFileManager.setProjectStructChanged();
+	showDelayVolumeBar();
+	engine.refreshDelayVolume();
 }
 
 

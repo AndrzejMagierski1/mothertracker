@@ -198,9 +198,9 @@ public:
 	void prevSdConnect();
 	void prevSdDisconnect();
 	void refreshTrackVolume();
+	void refreshReverbVolume();
+	void refreshDelayVolume();
 	void setHeadphonesVolume(uint8_t value);
-	void setReverbRoomsize(uint8_t value);
-	void setReverbDamping(uint8_t value);
 	void setDelayFeedback(uint8_t value);
 	void setDelayTime(uint16_t value);
 	void setDelayPanning(int8_t value);
@@ -222,7 +222,6 @@ public:
 	void clearDelay();
 	void clearReverb();
 	void performanceModeEndAll();
-	void printLog(SdFile * log);
 	void startTestSignal(float amp, float freq);
 	void stopTestSignal();
 	void endAllFx();
@@ -235,6 +234,9 @@ public:
 	void setCurrentLoadInstrument(int8_t idx);
 	void clearCurrentLoadInstrument(int8_t idx);
 	void setInterpolationEnable(bool value);
+	float getDelayRms();
+	float getReverbRms();
+
 	friend class playerEngine;
 private:
 	uint8_t forceDelaySend;
@@ -528,10 +530,7 @@ public:
 	void endFinetuneLfoRatePerformanceMode();
 
 
-//******testowe
-	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
-//*****************
 	float getRMSValue();
 
 private:
