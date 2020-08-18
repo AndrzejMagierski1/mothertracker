@@ -1,4 +1,7 @@
 
+	1.1.11	
+			- [AM] Dodanie ekranu Master 3/3 - volume reverb, delay, dry mix oraz mute - solo w tym zakresie
+			- [AM] fix: naprawienie edycji nazw trackow od 1.1.9 byla niepoprawna
 	1.1.10
 			-[KZ] Nowa struktura eeprom (mtConfig), konwersja wersji z 1.1.0
 	1.1.9
