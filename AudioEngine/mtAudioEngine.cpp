@@ -524,16 +524,16 @@ float audioEngine::getDryMixRMS(uint8_t channel)
 
 	if(channel)
 	{
-		if(dryMixRmsL.available())
+		if(dryMixRmsR.available())
 		{
-			localVal = dryMixRmsL.read();
+			localVal = dryMixRmsR.read();
 		}
 	}
 	else
 	{
-		if(dryMixRmsR.available())
+		if(dryMixRmsL.available())
 		{
-			localVal = dryMixRmsR.read();
+			localVal = dryMixRmsL.read();
 		}
 	}
 	return localVal;

@@ -736,12 +736,36 @@ void cMasterParams::resizeBarControl(display_t val)
 			display.refreshControl(barControl[i]);
 		 }
 	 }
-	 else if((val == display_t::mixer)  || (val == display_t::mixerDelayReverb))
+	 else if(val == display_t::mixer)
 	 {
 		 for(uint8_t i = 0; i < 8 ; i++)
 		 {
+			display.setControlPosition(trackVolumeBar[i],  (800/8)*i+1 ,  64);
+			display.setControlSize(trackVolumeBar[i], 800/16-3,  359);
+			display.refreshControl(trackVolumeBar[i]);
+
+
 			display.setControlPosition(barControl[i],  (800/8)*i+1 + 800/16 ,  64);
 			display.setControlSize(barControl[i],  800/16-3,  359);
+			display.refreshControl(barControl[i]);
+		 }
+	 }
+	 else if(val == display_t::mixerDelayReverb)
+	 {
+		 for(uint8_t i = 0; i < 3 ; i++)
+		 {
+			display.setControlPosition(trackVolumeBar[i],  (800/8)*i+1 ,  64);
+			display.setControlSize(trackVolumeBar[i], 32,  359);
+			display.refreshControl(trackVolumeBar[i]);
+
+			display.setControlPosition(barControl[i],  (800/8)*i+1 + 32 ,  64);
+			display.setControlSize(barControl[i], 33,  359);
+			display.refreshControl(barControl[i]);
+		 }
+		 for(uint8_t i = 3; i < 6 ; i++)
+		 {
+			display.setControlPosition(barControl[i],  (800/8)*(i-3)+1 + 65 ,  64);
+			display.setControlSize(barControl[i], 33,  359);
 			display.refreshControl(barControl[i]);
 		 }
 	 }
@@ -1071,9 +1095,12 @@ void cMasterParams::showMixerDelayReverbScreen()
 
 	if(displayType == display_t::mixerDelayReverb)
 	{
-		showLevelBar(delayVolumeScreenPosition, &delayLevel);
-		showLevelBar(reverbVolumeScreenPosition, &reverbLevel);
-		showLevelBar(dryMixVolumeScreenPosition, &dryMixLevel);
+		showLevelBar(delayVolumeScreenPosition, &delayLevel[0]);
+		showLevelBar(delayVolumeScreenPosition + 3, &delayLevel[1]);
+		showLevelBar(reverbVolumeScreenPosition, &reverbLevel[0]);
+		showLevelBar(reverbVolumeScreenPosition + 3, &reverbLevel[1]);
+		showLevelBar(dryMixVolumeScreenPosition, &dryMixLevel[0]);
+		showLevelBar(dryMixVolumeScreenPosition + 3, &dryMixLevel[1]);
 
 		showDelayVolumeBar();
 		showReverbVolumeBar();
@@ -1097,11 +1124,13 @@ void cMasterParams::showMixerDelayReverbScreen()
 			display.setControlHide(trackVolumeBar[i]);
 			display.refreshControl(trackVolumeBar[i]);
 
-			display.setControlHide(barControl[i]);
-			display.refreshControl(barControl[i]);
-
 			display.setControlText(label[i],"");
 		}
+
+		display.setControlHide(barControl[6]);
+		display.setControlHide(barControl[7]);
+		display.refreshControl(barControl[6]);
+		display.refreshControl(barControl[7]);
 	}
 
 	display.setControlColors(label[delayVolumeScreenPosition], mtProject.values.delayMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
@@ -1162,15 +1191,15 @@ void cMasterParams::showLevelBar(uint8_t n, strTrackLevel * level )
 
 	if(displayType == display_t::mixerDelayReverb)
 	{
-		if(n == delayVolumeScreenPosition)
+		if((n == delayVolumeScreenPosition) ||  (n == delayVolumeScreenPosition + 3))
 		{
 			if(mtProject.values.delayMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
 		}
-		else if( n == reverbVolumeScreenPosition)
+		else if((n == reverbVolumeScreenPosition) ||  (n == reverbVolumeScreenPosition + 3))
 		{
 			if(mtProject.values.reverbMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
 		}
-		else if(n == dryMixVolumeScreenPosition)
+		else if((n == dryMixVolumeScreenPosition) ||  (n == dryMixVolumeScreenPosition + 3))
 		{
 			if(mtProject.values.dryMixMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
 		}

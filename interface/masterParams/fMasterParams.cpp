@@ -128,26 +128,40 @@ void cMasterParams::update()
 	else if(displayType == display_t::mixerDelayReverb && !keyboardManager.getState())
 	{
 		calcDelayLevel();
-		if(delayLevel.value != delayLevel.lastValue)
+		for(uint8_t i = 0 ; i < 2 ; i++)
 		{
-			showLevelBar(delayVolumeScreenPosition, &delayLevel);
+			if(delayLevel[i].value != delayLevel[i].lastValue)
+			{
+				showLevelBar(delayVolumeScreenPosition + i*3, &delayLevel[i]);
+
+			}
+			delayLevel[i].lastValue = delayLevel[i].value;
 		}
-		delayLevel.lastValue = delayLevel.value;
+
 
 		calcReverbLevel();
-		if(reverbLevel.value != reverbLevel.lastValue)
+
+		for(uint8_t i = 0 ; i < 2 ; i++)
 		{
-			showLevelBar(reverbVolumeScreenPosition, &reverbLevel);
+			if(reverbLevel[i].value != reverbLevel[i].lastValue)
+			{
+				showLevelBar(reverbVolumeScreenPosition + i*3, &reverbLevel[i]);
+
+			}
+			reverbLevel[i].lastValue = reverbLevel[i].value;
 		}
-		reverbLevel.lastValue = reverbLevel.value;
 
 		calcDryMixLevel();
 
-		if(dryMixLevel.value != dryMixLevel.lastValue)
+		for(uint8_t i = 0 ; i < 2 ; i++)
 		{
-			showLevelBar(dryMixVolumeScreenPosition, &dryMixLevel);
+			if(dryMixLevel[i].value != dryMixLevel[i].lastValue)
+			{
+				showLevelBar(dryMixVolumeScreenPosition + i*3, &dryMixLevel[i]);
+
+			}
+			dryMixLevel[i].lastValue = dryMixLevel[i].value;
 		}
-		dryMixLevel.lastValue = dryMixLevel.value;
 	}
 
 }
@@ -1001,29 +1015,41 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 
 void cMasterParams::calcDelayLevel()
 {
-	localDelayLevel = engine.getDelayAverageRMS();
-	if(localDelayLevel == - 1.0f) return;
-
-	calcLevel(&delayLevel, localDelayLevel);
+	for(uint8_t i = 0 ; i < 2; i++ )
+	{
+		localDelayLevel[i] = engine.getDelayRMS(i);
+		if(localDelayLevel[i] != - 1.0f)
+		{
+			calcLevel(&delayLevel[i], localDelayLevel[i]);
+		}
+	}
 }
 void cMasterParams::calcReverbLevel()
 {
-	localReverbLevel = engine.getReverbAverageRMS();
-	if(localReverbLevel == - 1.0f) return;
-
-	calcLevel(&reverbLevel, localReverbLevel);
+	for(uint8_t i = 0 ; i < 2; i++ )
+	{
+		localReverbLevel[i] = engine.getReverbRMS(i);
+		if(localReverbLevel[i] != - 1.0f)
+		{
+			calcLevel(&reverbLevel[i], localReverbLevel[i]);
+		}
+	}
 }
 //musi byc wywolana po  calcDelayLevel i calcReverbLevel
 void cMasterParams::calcDryMixLevel()
 {
-	float delayLevelSub = (localDelayLevel < 0.0f) ? 0.0f : localDelayLevel;
-	float reverbLevelSub = (localReverbLevel < 0.0f) ? 0.0f : localReverbLevel;
 
-	localDryMixLevel = engine.getDryMixAverageRMS() - delayLevelSub - reverbLevelSub;
+	for(uint8_t i = 0 ; i < 2; i++ )
+	{
+		float delayLevelSub =  (localDelayLevel[i] < 0.0f) ? 0.0f : localDelayLevel[i];
+		float reverbLevelSub = (localReverbLevel[i] < 0.0f) ? 0.0f : localReverbLevel[i];
 
-	if(localDryMixLevel == -1.0f) return;
-
-	calcLevel(&dryMixLevel, localDryMixLevel);
+		localDryMixLevel[i] = engine.getDryMixRMS(i) - delayLevelSub - reverbLevelSub;
+		if(localDryMixLevel[i] != - 1.0f)
+		{
+			calcLevel(&dryMixLevel[i], localDryMixLevel[i]);
+		}
+	}
 }
 
 void cMasterParams::calcLevel(strTrackLevel * level, float value)
@@ -1170,7 +1196,8 @@ static uint8_t functSoloMuteDelay(uint8_t state)
 			MP->soloTrack = -1;
 		}
 
-		MP->showLevelBar(cMasterParams::delayVolumeScreenPosition, &MP->delayLevel);
+		MP->showLevelBar(cMasterParams::delayVolumeScreenPosition, &MP->delayLevel[0]);
+		MP->showLevelBar(cMasterParams::delayVolumeScreenPosition + 3, &MP->delayLevel[1]);
 		engine.refreshTrackVolume();
 		engine.refreshDelayVolume();
 		engine.refreshReverbVolume();
@@ -1221,7 +1248,8 @@ static uint8_t functSoloMuteReverb(uint8_t state)
 			MP->soloTrack = -1;
 		}
 
-		MP->showLevelBar(cMasterParams::reverbVolumeScreenPosition, &MP->reverbLevel);
+		MP->showLevelBar(cMasterParams::reverbVolumeScreenPosition, &MP->reverbLevel[0]);
+		MP->showLevelBar(cMasterParams::reverbVolumeScreenPosition + 3, &MP->reverbLevel[1]);
 		engine.refreshTrackVolume();
 		engine.refreshDelayVolume();
 		engine.refreshReverbVolume();
@@ -1272,7 +1300,8 @@ static uint8_t functSoloMuteDryMix(uint8_t state)
 			MP->soloTrack = -1;
 		}
 
-		MP->showLevelBar(cMasterParams::dryMixVolumeScreenPosition, &MP->dryMixLevel);
+		MP->showLevelBar(cMasterParams::dryMixVolumeScreenPosition, &MP->dryMixLevel[0]);
+		MP->showLevelBar(cMasterParams::dryMixVolumeScreenPosition + 3, &MP->dryMixLevel[1]);
 		engine.refreshTrackVolume();
 		engine.refreshDelayVolume();
 		engine.refreshReverbVolume();

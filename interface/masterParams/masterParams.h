@@ -124,7 +124,7 @@ public:
 		uint8_t value;
 		uint8_t lastValue;
 
-	} trackLevel[8], reverbLevel, delayLevel, dryMixLevel;
+	} trackLevel[8], reverbLevel[2], delayLevel[2], dryMixLevel[2];
 	uint8_t isSolo = 0;
 	int8_t soloTrack = -1;
 	char mixerLabel[8][7];
@@ -345,9 +345,9 @@ public:
 	void showKeyboardExport();
 	void showEditTracksNamesMode();
 
-	float localDelayLevel;
-	float localReverbLevel;
-	float localDryMixLevel;
+	float localDelayLevel[2];
+	float localReverbLevel[2];
+	float localDryMixLevel[2];
 };
 
 extern cMasterParams masterParams;
