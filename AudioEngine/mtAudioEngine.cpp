@@ -35,6 +35,7 @@ AudioAnalyzeRMS			 rmsPolyverb[2];
 AudioMixer10			 mixerL,mixerR,mixerDelay,mixerReverb;
 AudioMixer4              mixerRec;
 AudioMixer10             mixerSourceL,mixerSourceR;
+AudioAnalyzeRMS			 dryMixRmsL, dryMixRmsR;
 
 AudioAnalyzeRMS			 inputRMS;
 AudioRecordQueue		 exportL, exportR;
@@ -125,6 +126,9 @@ AudioConnection			 connectReverbToRMS2(&polyverb, 1, &rmsPolyverb[1], 0);
 
 AudioConnection          connectMirerLtoBitDepth(&mixerL, &bitDepthControl[0]);
 AudioConnection          connectMirerRtoBitDepth(&mixerR, &bitDepthControl[1]);
+
+AudioConnection          connectMirerLtoRMS(&mixerL, &dryMixRmsL);
+AudioConnection          connectMirerRtoRMS(&mixerR, &dryMixRmsR);
 
 AudioConnection          connectBitDepthToLimiter1(&bitDepthControl[0], 0, &limiter[0], 0);
 AudioConnection          connectBitDepthToLimiter2(&bitDepthControl[1], 0, &limiter[1], 0);
@@ -462,7 +466,7 @@ void audioEngine::clearCurrentLoadInstrument(int8_t idx)
 	isCurrentLoadInstrument[idx] = 0;
 }
 
-float audioEngine::getDelayRms()
+float audioEngine::getDelayAverageRMS()
 {
 	float localVal = - 1.0f;
 	if(rmsDelay[0].available() && rmsDelay[1].available())
@@ -471,7 +475,7 @@ float audioEngine::getDelayRms()
 	}
 	return localVal;
 }
-float audioEngine::getReverbRms()
+float audioEngine::getReverbAverageRMS()
 {
 	float localVal = - 1.0f;
 	if(rmsPolyverb[0].available() && rmsPolyverb[1].available())
@@ -480,7 +484,60 @@ float audioEngine::getReverbRms()
 	}
 	return localVal;
 }
+float audioEngine::getDryMixAverageRMS()
+{
+	float localVal = - 1.0f;
+	if(dryMixRmsL.available() && dryMixRmsR.available())
+	{
+		localVal = (dryMixRmsL.read() + dryMixRmsR.read())/2.0f;
+	}
+	return localVal;
+}
+// 0  - left channel, 1 - right channel
+float audioEngine::getDelayRMS(uint8_t channel)
+{
+	if(channel > 1) channel = 1;
+	float localVal = - 1.0f;
 
+	if(rmsDelay[channel].available())
+	{
+		localVal = rmsDelay[channel].read();
+	}
+	return localVal;
+}
+// 0  - left channel, 1 - right channel
+float audioEngine::getReverbRMS(uint8_t channel)
+{
+	if(channel > 1) channel = 1;
+	float localVal = - 1.0f;
+
+	if(rmsPolyverb[channel].available())
+	{
+		localVal = rmsPolyverb[channel].read();
+	}
+	return localVal;
+}
+// 0  - left channel, 1 - right channel
+float audioEngine::getDryMixRMS(uint8_t channel)
+{
+	float localVal = - 1.0f;
+
+	if(channel)
+	{
+		if(dryMixRmsL.available())
+		{
+			localVal = dryMixRmsL.read();
+		}
+	}
+	else
+	{
+		if(dryMixRmsR.available())
+		{
+			localVal = dryMixRmsR.read();
+		}
+	}
+	return localVal;
+}
 
 
 playerEngine::playerEngine()
@@ -543,7 +600,7 @@ void playerEngine :: modPanning(int16_t value)
 void playerEngine::modVolume(float value)
 {
 	if(mtProject.values.dryMixMute) ampPtr->gain(AMP_MUTED);
-	else ampPtr->gain(value * (ampLogValues[mtProject.values.trackVolume[nChannel]]));
+	else ampPtr->gain(value * ampLogValues[mtProject.values.trackVolume[nChannel]]  * ampLogValues[mtProject.values.dryMixVolume]);
 }
 
 

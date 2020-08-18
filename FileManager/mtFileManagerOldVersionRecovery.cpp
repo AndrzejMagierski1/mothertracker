@@ -6,7 +6,6 @@ static void recoveryProjectVersion2();
 static void recoveryProjectVersion3();
 static void recoveryProjectVersion4();
 static void recoveryProjectVersion5();
-static void recoveryProjectVersion6();
 static void recoveryInstrumentVersion1();
 static void recoveryInstrumentVersion2();
 static void recoveryInstrumentVersion3();
@@ -23,7 +22,6 @@ mtVersionRecovery::mtVersionRecovery()
 	recoveryProjectFunction[2] = recoveryProjectVersion3;
 	recoveryProjectFunction[3] = recoveryProjectVersion4;
 	recoveryProjectFunction[4] = recoveryProjectVersion5;
-	recoveryProjectFunction[5] = recoveryProjectVersion6;
 	//INSTRUMENT
 	recoveryInstrumentFunction[0] = recoveryInstrumentVersion1;
 	recoveryInstrumentFunction[1] = recoveryInstrumentVersion2;
@@ -129,22 +127,11 @@ static void recoveryProjectVersion5()
 
 	receivedProject->values.reverbMute = 0;
 	receivedProject->values.delayMute = 0;
-
-
-	strcpy(receivedProject->projectName, tmp.projectName - (2 * sizeof(uint8_t)));
-}
-static void recoveryProjectVersion6()
-{
-	strMtProjectRemote * receivedProject = versionRecovery.getReadedProject(); //wskaznik do projektu odczytanego z pliku
-	strMtProjectRemote tmp;
-
-	memcpy(&tmp,receivedProject, sizeof(tmp));
-
 	receivedProject->values.dryMixMute = 0;
-
-
-	strcpy(receivedProject->projectName, tmp.projectName - (sizeof(uint8_t)));
+	receivedProject->values.dryMixVolume = 100;
+	strcpy(receivedProject->projectName, tmp.projectName - (4 * sizeof(uint8_t)));
 }
+
 //*************************************************************************INSTRUMENT
 
 strInstrumentFile * mtVersionRecovery::getReadedInstrument()

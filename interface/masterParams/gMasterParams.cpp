@@ -1051,6 +1051,7 @@ void cMasterParams::showMixerDelayReverbScreen()
 		{
 			if(i == delayVolumeScreenPosition) sprintf(mixerLabel[i],"%s", soloTrack == delayIsSolo ? (char*)"Unsolo" : (char*)"Solo");
 			else if ( i == reverbVolumeScreenPosition) sprintf(mixerLabel[i],"%s", soloTrack == reverbIsSolo ? (char*)"Unsolo" : (char*)"Solo");
+			else if ( i == dryMixVolumeScreenPosition) sprintf(mixerLabel[i],"%s", soloTrack == dryMixIsSolo ? (char*)"Unsolo" : (char*)"Solo");
 		}
 	}
 	else
@@ -1059,6 +1060,7 @@ void cMasterParams::showMixerDelayReverbScreen()
 		{
 			if(i == delayVolumeScreenPosition) sprintf(mixerLabel[i],"%s", mtProject.values.delayMute ? (char*)"Unmute" :(char*)"Mute");
 			else if ( i == reverbVolumeScreenPosition) sprintf(mixerLabel[i],"%s", mtProject.values.reverbMute ? (char*)"Unmute" :(char*)"Mute");
+			else if ( i == dryMixVolumeScreenPosition) sprintf(mixerLabel[i],"%s", mtProject.values.dryMixMute ? (char*)"Unmute" :(char*)"Mute");
 		}
 	}
 
@@ -1071,16 +1073,21 @@ void cMasterParams::showMixerDelayReverbScreen()
 	{
 		showLevelBar(delayVolumeScreenPosition, &delayLevel);
 		showLevelBar(reverbVolumeScreenPosition, &reverbLevel);
+		showLevelBar(dryMixVolumeScreenPosition, &dryMixLevel);
 
 		showDelayVolumeBar();
 		showReverbVolumeBar();
+		showDryMixVolumeBar();
 
 		display.setControlText(trackNameLabel[delayVolumeScreenPosition],"Delay");
 		display.setControlText(trackNameLabel[reverbVolumeScreenPosition],"Reverb");
+		display.setControlText(trackNameLabel[dryMixVolumeScreenPosition],"Dry Mix");
 		display.setControlShow(trackNameLabel[delayVolumeScreenPosition]);
 		display.setControlShow(trackNameLabel[reverbVolumeScreenPosition]);
+		display.setControlShow(trackNameLabel[dryMixVolumeScreenPosition]);
 		display.refreshControl(trackNameLabel[delayVolumeScreenPosition]);
 		display.refreshControl(trackNameLabel[reverbVolumeScreenPosition]);
+		display.refreshControl(trackNameLabel[dryMixVolumeScreenPosition]);
 
 		for(uint8_t i = screenPositionCount ; i < 8 ; i++)
 		{
@@ -1099,6 +1106,7 @@ void cMasterParams::showMixerDelayReverbScreen()
 
 	display.setControlColors(label[delayVolumeScreenPosition], mtProject.values.delayMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
 	display.setControlColors(label[reverbVolumeScreenPosition], mtProject.values.reverbMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[dryMixVolumeScreenPosition], mtProject.values.dryMixMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -1161,6 +1169,10 @@ void cMasterParams::showLevelBar(uint8_t n, strTrackLevel * level )
 		else if( n == reverbVolumeScreenPosition)
 		{
 			if(mtProject.values.reverbMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+		}
+		else if(n == dryMixVolumeScreenPosition)
+		{
+			if(mtProject.values.dryMixMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
 		}
 	}
 	else
@@ -1231,6 +1243,26 @@ void cMasterParams::showReverbVolumeBar()
 
 	display.refreshControl(label[reverbVolumeScreenPosition]);
 	display.refreshControl(trackVolumeBar[reverbVolumeScreenPosition]);
+
+	display.synchronizeRefresh();
+}
+
+void cMasterParams::showDryMixVolumeBar()
+{
+	sprintf(dryMixVolumeLabel,"%d",mtProject.values.dryMixVolume);
+
+
+	display.setControlShow(trackVolumeBar[dryMixVolumeScreenPosition]);
+
+	if(mtProject.values.dryMixMute) display.setControlColors(trackVolumeBar[dryMixVolumeScreenPosition], interfaceGlobals.inactiveBarColors);
+	else display.setControlColors(trackVolumeBar[dryMixVolumeScreenPosition], interfaceGlobals.activeBarColors);
+
+	display.setControlValue(trackVolumeBar[dryMixVolumeScreenPosition], mtProject.values.dryMixVolume);
+
+	display.setControlText(label[dryMixVolumeScreenPosition],dryMixVolumeLabel);
+
+	display.refreshControl(label[dryMixVolumeScreenPosition]);
+	display.refreshControl(trackVolumeBar[dryMixVolumeScreenPosition]);
 
 	display.synchronizeRefresh();
 }

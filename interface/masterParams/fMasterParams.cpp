@@ -73,6 +73,7 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state);
 //mixer delay reverb
 static uint8_t functSoloMuteDelay(uint8_t state);
 static uint8_t functSoloMuteReverb(uint8_t state);
+static uint8_t functSoloMuteDryMix(uint8_t state);
 static uint8_t functSoloMuteDelayReverb(uint8_t state);
 
 
@@ -129,17 +130,24 @@ void cMasterParams::update()
 		calcDelayLevel();
 		if(delayLevel.value != delayLevel.lastValue)
 		{
-			showLevelBar(0, &delayLevel);
+			showLevelBar(delayVolumeScreenPosition, &delayLevel);
 		}
 		delayLevel.lastValue = delayLevel.value;
 
 		calcReverbLevel();
-
 		if(reverbLevel.value != reverbLevel.lastValue)
 		{
-			showLevelBar(1, &reverbLevel);
+			showLevelBar(reverbVolumeScreenPosition, &reverbLevel);
 		}
 		reverbLevel.lastValue = reverbLevel.value;
+
+		calcDryMixLevel();
+
+		if(dryMixLevel.value != dryMixLevel.lastValue)
+		{
+			showLevelBar(dryMixVolumeScreenPosition, &dryMixLevel);
+		}
+		dryMixLevel.lastValue = dryMixLevel.value;
 	}
 
 }
@@ -295,6 +303,11 @@ static  uint8_t functEncoder(int16_t value)
 			MP->changeReverbVolume(value);
 			MP->ignoreMuteReleaseReverb = true;
 		}
+		if(MP->dryMixIsEdited)
+		{
+			MP->changeDryMixVolume(value);
+			MP->ignoreMuteReleaseDryMix = true;
+		}
 		return 1;
 	}
 
@@ -438,6 +451,11 @@ static  uint8_t functUp()
 			MP->changeReverbVolume(1);
 			MP->ignoreMuteReleaseReverb = true;
 		}
+		if(MP->dryMixIsEdited)
+		{
+			MP->changeDryMixVolume(1);
+			MP->ignoreMuteReleaseDryMix = true;
+		}
 		return 1;
 	}
 
@@ -513,6 +531,11 @@ static  uint8_t functDown()
 			MP->changeReverbVolume(-1);
 			MP->ignoreMuteReleaseReverb = true;
 		}
+		if(MP->dryMixIsEdited)
+		{
+			MP->changeDryMixVolume(-1);
+			MP->ignoreMuteReleaseDryMix = true;
+		}
 		return 1;
 	}
 
@@ -583,6 +606,11 @@ static 	uint8_t functDelete()
 		{
 			MP->setDefaultReverbVolume();
 			MP->ignoreMuteReleaseReverb = true;
+		}
+		if(MP->dryMixIsEdited)
+		{
+			MP->setDefaultDryMixVolume();;
+			MP->ignoreMuteReleaseDryMix = true;
 		}
 		return 1;
 	}
@@ -811,6 +839,7 @@ void cMasterParams::switchToMixerDelayReverb()
 
 	FM->setButtonObj(interfaceButton0, functSoloMuteDelay);
 	FM->setButtonObj(interfaceButton1, functSoloMuteReverb);
+	FM->setButtonObj(interfaceButton2, functSoloMuteDryMix);
 	FM->setButtonObj(interfaceButtonShift, functSoloMuteDelayReverb);
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
@@ -972,17 +1001,29 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 
 void cMasterParams::calcDelayLevel()
 {
-	float localDelayLevel = engine.getDelayRms();
+	localDelayLevel = engine.getDelayAverageRMS();
 	if(localDelayLevel == - 1.0f) return;
 
 	calcLevel(&delayLevel, localDelayLevel);
 }
 void cMasterParams::calcReverbLevel()
 {
-	float localReverbLevel = engine.getReverbRms();
+	localReverbLevel = engine.getReverbAverageRMS();
 	if(localReverbLevel == - 1.0f) return;
 
 	calcLevel(&reverbLevel, localReverbLevel);
+}
+//musi byc wywolana po  calcDelayLevel i calcReverbLevel
+void cMasterParams::calcDryMixLevel()
+{
+	float delayLevelSub = (localDelayLevel < 0.0f) ? 0.0f : localDelayLevel;
+	float reverbLevelSub = (localReverbLevel < 0.0f) ? 0.0f : localReverbLevel;
+
+	localDryMixLevel = engine.getDryMixAverageRMS() - delayLevelSub - reverbLevelSub;
+
+	if(localDryMixLevel == -1.0f) return;
+
+	calcLevel(&dryMixLevel, localDryMixLevel);
 }
 
 void cMasterParams::calcLevel(strTrackLevel * level, float value)
@@ -1193,6 +1234,58 @@ static uint8_t functSoloMuteReverb(uint8_t state)
 	}
 	return 1;
 }
+static uint8_t functSoloMuteDryMix(uint8_t state)
+{
+	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
+
+	if(state == buttonRelease)
+	{
+		MP->dryMixIsEdited = false;
+		if(MP->ignoreMuteReleaseDryMix)
+		{
+			MP->ignoreMuteReleaseDryMix = false;
+			return 1;
+		}
+
+		if(MP->isSolo)
+		{
+			if(MP->soloTrack == cMasterParams::dryMixIsSolo)
+			{
+				MP->soloTrack = -1;
+
+				mtProject.values.delayMute = 0;
+				mtProject.values.dryMixMute = 0;
+				mtProject.values.reverbMute = 0;
+
+			}
+			else
+			{
+				mtProject.values.delayMute = 1;
+				mtProject.values.dryMixMute = 0;
+				mtProject.values.reverbMute = 1;
+				MP->soloTrack = cMasterParams::dryMixIsSolo;
+			}
+		}
+		else
+		{
+			mtProject.values.dryMixMute = !mtProject.values.dryMixMute;
+			MP->soloTrack = -1;
+		}
+
+		MP->showLevelBar(cMasterParams::dryMixVolumeScreenPosition, &MP->dryMixLevel);
+		engine.refreshTrackVolume();
+		engine.refreshDelayVolume();
+		engine.refreshReverbVolume();
+		MP->showMixerDelayReverbScreen();
+	}
+
+	if(state == buttonPress)
+	{
+		MP->dryMixIsEdited = true;
+	}
+	return 1;
+}
+
 //funkcja podpieta do shifta - zamienia mute na solo
 static uint8_t functSoloMuteDelayReverb(uint8_t state)
 {
@@ -1559,6 +1652,16 @@ void cMasterParams::changeDelayVolume(int16_t val)
 	showDelayVolumeBar();
 	engine.refreshDelayVolume();
 }
+void cMasterParams::changeDryMixVolume(int16_t val)
+{
+	if(mtProject.values.dryMixVolume + val > DRY_MIX_VOLUME_MAX) mtProject.values.dryMixVolume =  DRY_MIX_VOLUME_MAX;
+	else if(mtProject.values.dryMixVolume + val < DRY_MIX_VOLUME_MIN) mtProject.values.dryMixVolume =  DRY_MIX_VOLUME_MIN;
+	else mtProject.values.dryMixVolume += val;
+
+	newFileManager.setProjectStructChanged();
+	showDryMixVolumeBar();
+	engine.refreshTrackVolume();
+}
 
 void cMasterParams::setDefaultReverbVolume()
 {
@@ -1574,7 +1677,13 @@ void cMasterParams::setDefaultDelayVolume()
 	showDelayVolumeBar();
 	engine.refreshDelayVolume();
 }
-
+void cMasterParams::setDefaultDryMixVolume()
+{
+	mtProject.values.dryMixVolume = DEFAULT_DRY_MIX_VOLUME;
+	newFileManager.setProjectStructChanged();
+	showDryMixVolumeBar();
+	engine.refreshTrackVolume();
+}
 
 
 void cMasterParams::setDefaultReverbSize()

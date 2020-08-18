@@ -19,7 +19,7 @@ const uint8_t FV_BETA 	=					0;		// bety nie istnieja
 const char firmwareVersionLabelFormat[] 	=	"v%d.%d.%d";
 const char firmwareVersionLabelFormatBeta[] =	"v%d.%d.%d b%d";
 
-const uint8_t PROJECT_FILE_VERSION 	=		7;		// wersja struktury pliku projektu
+const uint8_t PROJECT_FILE_VERSION 	=		6;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	4;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			5;
@@ -220,6 +220,9 @@ const uint8_t DEFAULT_REVERB_VOLUME			=   REVERB_VOLUME_MAX;
 const uint8_t DELAY_VOLUME_MAX 				= 	100;
 const uint8_t DELAY_VOLUME_MIN				=   0;
 const uint8_t DEFAULT_DELAY_VOLUME			=   DELAY_VOLUME_MAX;
+const uint8_t DRY_MIX_VOLUME_MAX 			= 	100;
+const uint8_t DRY_MIX_VOLUME_MIN			=   0;
+const uint8_t DEFAULT_DRY_MIX_VOLUME		=   DRY_MIX_VOLUME_MAX;
 
 const float DEFAULT_REVERB_SIZE 			=	 0.5f;
 const float DEFAULT_REVERB_DAMP 			=	 0.5f;
@@ -634,6 +637,7 @@ struct strMtValues
 	uint8_t reverbMute;
 	uint8_t delayMute;
 	uint8_t dryMixMute;
+	uint8_t dryMixVolume = 100;
 };
 
 struct strSong

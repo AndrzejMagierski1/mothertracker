@@ -234,8 +234,13 @@ public:
 	void setCurrentLoadInstrument(int8_t idx);
 	void clearCurrentLoadInstrument(int8_t idx);
 	void setInterpolationEnable(bool value);
-	float getDelayRms();
-	float getReverbRms();
+	float getDelayAverageRMS();
+	float getReverbAverageRMS();
+	float getDryMixAverageRMS();
+	float getDelayRMS(uint8_t channel);
+	float getReverbRMS(uint8_t channel);
+	float getDryMixRMS(uint8_t channel);
+
 
 	friend class playerEngine;
 private:
