@@ -36,7 +36,7 @@ AudioMixer10			 mixerL,mixerR,mixerDelay,mixerReverb;
 AudioMixer4              mixerRec;
 AudioMixer10             mixerSourceL,mixerSourceR;
 
-AudioAnalyzeRMS			 rms;
+AudioAnalyzeRMS			 inputRMS;
 AudioRecordQueue		 exportL, exportR;
 AudioAnalyzeRMS			 exportRmsL, exportRmsR;
 AudioSynthWaveform		 testWaveform;
@@ -162,7 +162,7 @@ AudioConnection          connectI2StoREC2(&i2sIn, 1, &mixerRec, 1);
 
 
 AudioConnection          connectMixerRecToQueue(&mixerRec, &queue);
-AudioConnection          connectMixerRecToRMS(&mixerRec, &rms);
+AudioConnection          connectMixerRecToRMS(&mixerRec, &inputRMS);
 
 IntervalTimer updateTimer;
 

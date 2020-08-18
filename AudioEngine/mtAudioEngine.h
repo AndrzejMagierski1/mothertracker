@@ -777,7 +777,7 @@ extern AudioBitDepth			bitDepthControl[2];
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
-extern AudioAnalyzeRMS			rms;
+extern AudioAnalyzeRMS			inputRMS;
 
 extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
