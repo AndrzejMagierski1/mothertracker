@@ -353,7 +353,7 @@ void cMasterParams::showMasterScreen()
 
 	display.refreshControl(titleBar);
 
-	display.setControlText(titleLabel, "Master 1/2");
+	display.setControlText(titleLabel, "Master 1/3");
 	display.refreshControl(titleLabel);
 
 	display.setControlText(label[0], "Volume");
@@ -740,8 +740,32 @@ void cMasterParams::resizeBarControl(display_t val)
 	 {
 		 for(uint8_t i = 0; i < 8 ; i++)
 		 {
+			display.setControlPosition(trackVolumeBar[i],  (800/8)*i+1 ,  64);
+			display.setControlSize(trackVolumeBar[i], 800/16-3,  359);
+			display.refreshControl(trackVolumeBar[i]);
+
+
 			display.setControlPosition(barControl[i],  (800/8)*i+1 + 800/16 ,  64);
 			display.setControlSize(barControl[i],  800/16-3,  359);
+			display.refreshControl(barControl[i]);
+		 }
+	 }
+	 else if(val == display_t::mixerDelayReverb)
+	 {
+		 for(uint8_t i = 0; i < 3 ; i++)
+		 {
+			display.setControlPosition(trackVolumeBar[i],  (800/8)*i+1 ,  64);
+			display.setControlSize(trackVolumeBar[i], 32,  359);
+			display.refreshControl(trackVolumeBar[i]);
+
+			display.setControlPosition(barControl[i],  (800/8)*i+1 + 32 ,  64);
+			display.setControlSize(barControl[i], 33,  359);
+			display.refreshControl(barControl[i]);
+		 }
+		 for(uint8_t i = 3; i < 6 ; i++)
+		 {
+			display.setControlPosition(barControl[i],  (800/8)*(i-3)+1 + 65 ,  64);
+			display.setControlSize(barControl[i], 33,  359);
 			display.refreshControl(barControl[i]);
 		 }
 	 }
@@ -975,7 +999,7 @@ void cMasterParams::showMixerScreen()
 	display.refreshControl(delaySyncEnableList);
 	display.refreshControl(delaySyncRateList);
 
-	display.setControlText(titleLabel, "Master 2/2");
+	display.setControlText(titleLabel, "Master 2/3");
 	display.refreshControl(titleLabel);
 
 	if(isSolo)
@@ -999,7 +1023,7 @@ void cMasterParams::showMixerScreen()
 		{
 			mtProject.values.TrackNames[i][7] = 0;
 
-			showLevelBar(i);
+			showLevelBar(i, &trackLevel[i]);
 			showTrackVolumeBar(i);
 
 			display.setControlText(trackNameLabel[i],&mtProject.values.TrackNames[i][0]);
@@ -1032,28 +1056,123 @@ void cMasterParams::showMixerScreen()
 	display.synchronizeRefresh();
 }
 
-void cMasterParams::showLevelBar(uint8_t n)
+void cMasterParams::showMixerDelayReverbScreen()
+{
+	display.setControlHide(delayPingpongEnableList);
+	display.setControlHide(delaySyncEnableList);
+	display.setControlHide(delaySyncRateList);
+
+	display.refreshControl(delayPingpongEnableList);
+	display.refreshControl(delaySyncEnableList);
+	display.refreshControl(delaySyncRateList);
+
+	display.setControlText(titleLabel, "Master 3/3");
+	display.refreshControl(titleLabel);
+
+	if(isSolo)
+	{
+		for(uint8_t i = 0; i < screenPositionCount; i++)
+		{
+			if(i == delayVolumeScreenPosition) sprintf(mixerLabel[i],"%s", soloTrack == delayIsSolo ? (char*)"Unsolo" : (char*)"Solo");
+			else if ( i == reverbVolumeScreenPosition) sprintf(mixerLabel[i],"%s", soloTrack == reverbIsSolo ? (char*)"Unsolo" : (char*)"Solo");
+			else if ( i == dryMixVolumeScreenPosition) sprintf(mixerLabel[i],"%s", soloTrack == dryMixIsSolo ? (char*)"Unsolo" : (char*)"Solo");
+		}
+	}
+	else
+	{
+		for(uint8_t i = 0; i < screenPositionCount; i++)
+		{
+			if(i == delayVolumeScreenPosition) sprintf(mixerLabel[i],"%s", mtProject.values.delayMute ? (char*)"Unmute" :(char*)"Mute");
+			else if ( i == reverbVolumeScreenPosition) sprintf(mixerLabel[i],"%s", mtProject.values.reverbMute ? (char*)"Unmute" :(char*)"Mute");
+			else if ( i == dryMixVolumeScreenPosition) sprintf(mixerLabel[i],"%s", mtProject.values.dryMixMute ? (char*)"Unmute" :(char*)"Mute");
+		}
+	}
+
+	for(uint8_t i = screenPositionCount; i < 8; i++)
+	{
+		sprintf(mixerLabel[i]," ");
+	}
+
+	if(displayType == display_t::mixerDelayReverb)
+	{
+		showLevelBar(delayVolumeScreenPosition, &delayLevel[0]);
+		showLevelBar(delayVolumeScreenPosition + 3, &delayLevel[1]);
+		showLevelBar(reverbVolumeScreenPosition, &reverbLevel[0]);
+		showLevelBar(reverbVolumeScreenPosition + 3, &reverbLevel[1]);
+		showLevelBar(dryMixVolumeScreenPosition, &dryMixLevel[0]);
+		showLevelBar(dryMixVolumeScreenPosition + 3, &dryMixLevel[1]);
+
+		showDelayVolumeBar();
+		showReverbVolumeBar();
+		showDryMixVolumeBar();
+
+		display.setControlText(trackNameLabel[delayVolumeScreenPosition],"Delay");
+		display.setControlText(trackNameLabel[reverbVolumeScreenPosition],"Reverb");
+		display.setControlText(trackNameLabel[dryMixVolumeScreenPosition],"Dry Mix");
+		display.setControlShow(trackNameLabel[delayVolumeScreenPosition]);
+		display.setControlShow(trackNameLabel[reverbVolumeScreenPosition]);
+		display.setControlShow(trackNameLabel[dryMixVolumeScreenPosition]);
+		display.refreshControl(trackNameLabel[delayVolumeScreenPosition]);
+		display.refreshControl(trackNameLabel[reverbVolumeScreenPosition]);
+		display.refreshControl(trackNameLabel[dryMixVolumeScreenPosition]);
+
+		for(uint8_t i = screenPositionCount ; i < 8 ; i++)
+		{
+			display.setControlHide(trackNameLabel[i]);
+			display.refreshControl(trackNameLabel[i]);
+
+			display.setControlHide(trackVolumeBar[i]);
+			display.refreshControl(trackVolumeBar[i]);
+
+			display.setControlText(label[i],"");
+		}
+
+		display.setControlHide(barControl[6]);
+		display.setControlHide(barControl[7]);
+		display.refreshControl(barControl[6]);
+		display.refreshControl(barControl[7]);
+	}
+
+	display.setControlColors(label[delayVolumeScreenPosition], mtProject.values.delayMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[reverbVolumeScreenPosition], mtProject.values.reverbMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[dryMixVolumeScreenPosition], mtProject.values.dryMixMute ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlText2(label[i],mixerLabel[i]);
+		display.refreshControl(label[i]);
+	}
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	resizeBarControl(display_t::mixerDelayReverb);
+
+	display.synchronizeRefresh();
+}
+
+void cMasterParams::showLevelBar(uint8_t n, strTrackLevel * level )
 {
 	constexpr uint8_t RED_COLOR_LEVEL = 95;
 	constexpr uint8_t LEVEL_TRESHOLD_UP = 80;
 	constexpr uint8_t LEVEL_TRESHOLD_LOW = 60;
 
-	if(trackLevel[n].value < RED_COLOR_LEVEL)
+	if(level->value < RED_COLOR_LEVEL)
 	{
-		if(trackLevel[n].redColorTimer < 350)
+		if(level->redColorTimer < 350)
 		{
 			levelBarColors[n][0] = one_true_red;
 		}
 		else
 		{
-			if(trackLevel[n].value > LEVEL_TRESHOLD_UP)
+			if(level->value > LEVEL_TRESHOLD_UP)
 			{
-				uint8_t green = map(trackLevel[n].value,LEVEL_TRESHOLD_UP,RED_COLOR_LEVEL,((one_true_green&0xff00)>>8),0);
+				uint8_t green = map(level->value,LEVEL_TRESHOLD_UP,RED_COLOR_LEVEL,((one_true_green&0xff00)>>8),0);
 				levelBarColors[n][0] = (one_true_red&0xff0000) | (green << 8);
 			}
-			else if(trackLevel[n].value > LEVEL_TRESHOLD_LOW)
+			else if(level->value > LEVEL_TRESHOLD_LOW)
 			{
-				uint8_t red = map(trackLevel[n].value,LEVEL_TRESHOLD_LOW,LEVEL_TRESHOLD_UP,0,((one_true_red&0xff0000)>>16));
+				uint8_t red = map(level->value,LEVEL_TRESHOLD_LOW,LEVEL_TRESHOLD_UP,0,((one_true_red&0xff0000)>>16));
 				levelBarColors[n][0] = (red << 16) | (one_true_green&0xff00);
 			}
 			else
@@ -1062,23 +1181,42 @@ void cMasterParams::showLevelBar(uint8_t n)
 			}
 		}
 
-		if(trackLevel[n].redColorTimer > 3000000) trackLevel[n].redColorTimer = 201;
+		if(level->redColorTimer > 3000000) level->redColorTimer = 201;
 	}
 	else
 	{
-		trackLevel[n].redColorTimer = 0;
+		level->redColorTimer = 0;
 		levelBarColors[n][0] = one_true_red;
-
 	}
 
-	if(mtProject.values.trackMute[n]) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+	if(displayType == display_t::mixerDelayReverb)
+	{
+		if((n == delayVolumeScreenPosition) ||  (n == delayVolumeScreenPosition + 3))
+		{
+			if(mtProject.values.delayMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+		}
+		else if((n == reverbVolumeScreenPosition) ||  (n == reverbVolumeScreenPosition + 3))
+		{
+			if(mtProject.values.reverbMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+		}
+		else if((n == dryMixVolumeScreenPosition) ||  (n == dryMixVolumeScreenPosition + 3))
+		{
+			if(mtProject.values.dryMixMute) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+		}
+	}
+	else
+	{
+		if(mtProject.values.trackMute[n]) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+	}
+
 
 
 	display.setControlShow(barControl[n]);
 	display.setControlColors(barControl[n], levelBarColors[n]);
-	display.setControlValue(barControl[n], trackLevel[n].value);
+	display.setControlValue(barControl[n], level->value);
 	display.refreshControl(barControl[n]);
 }
+
 
 void cMasterParams::showTrackVolumeBar(uint8_t n)
 {
@@ -1100,6 +1238,63 @@ void cMasterParams::showTrackVolumeBar(uint8_t n)
 	display.synchronizeRefresh();
 }
 
+void cMasterParams::showDelayVolumeBar()
+{
+	sprintf(delayVolumeLabel,"%d",mtProject.values.delayVolume);
+
+	display.setControlShow(trackVolumeBar[delayVolumeScreenPosition]);
+
+	if(mtProject.values.delayMute) display.setControlColors(trackVolumeBar[delayVolumeScreenPosition], interfaceGlobals.inactiveBarColors);
+	else display.setControlColors(trackVolumeBar[delayVolumeScreenPosition], interfaceGlobals.activeBarColors);
+
+	display.setControlValue(trackVolumeBar[delayVolumeScreenPosition], mtProject.values.delayVolume);
+
+	display.setControlText(label[delayVolumeScreenPosition],delayVolumeLabel);
+
+	display.refreshControl(label[delayVolumeScreenPosition]);
+	display.refreshControl(trackVolumeBar[delayVolumeScreenPosition]);
+
+	display.synchronizeRefresh();
+}
+void cMasterParams::showReverbVolumeBar()
+{
+	sprintf(reverbVolumeLabel,"%d",mtProject.values.reverbVolume);
+
+
+	display.setControlShow(trackVolumeBar[reverbVolumeScreenPosition]);
+
+	if(mtProject.values.reverbMute) display.setControlColors(trackVolumeBar[reverbVolumeScreenPosition], interfaceGlobals.inactiveBarColors);
+	else display.setControlColors(trackVolumeBar[reverbVolumeScreenPosition], interfaceGlobals.activeBarColors);
+
+	display.setControlValue(trackVolumeBar[reverbVolumeScreenPosition], mtProject.values.reverbVolume);
+
+	display.setControlText(label[reverbVolumeScreenPosition],reverbVolumeLabel);
+
+	display.refreshControl(label[reverbVolumeScreenPosition]);
+	display.refreshControl(trackVolumeBar[reverbVolumeScreenPosition]);
+
+	display.synchronizeRefresh();
+}
+
+void cMasterParams::showDryMixVolumeBar()
+{
+	sprintf(dryMixVolumeLabel,"%d",mtProject.values.dryMixVolume);
+
+
+	display.setControlShow(trackVolumeBar[dryMixVolumeScreenPosition]);
+
+	if(mtProject.values.dryMixMute) display.setControlColors(trackVolumeBar[dryMixVolumeScreenPosition], interfaceGlobals.inactiveBarColors);
+	else display.setControlColors(trackVolumeBar[dryMixVolumeScreenPosition], interfaceGlobals.activeBarColors);
+
+	display.setControlValue(trackVolumeBar[dryMixVolumeScreenPosition], mtProject.values.dryMixVolume);
+
+	display.setControlText(label[dryMixVolumeScreenPosition],dryMixVolumeLabel);
+
+	display.refreshControl(label[dryMixVolumeScreenPosition]);
+	display.refreshControl(trackVolumeBar[dryMixVolumeScreenPosition]);
+
+	display.synchronizeRefresh();
+}
 
 void cMasterParams::showEditTracksNamesMode()
 {
@@ -1141,6 +1336,9 @@ void cMasterParams::showKeyboardExport()
 
 		display.setControlText(label[i],"");
 		display.setControlText2(label[i],"");
+
+		display.setControlHide(trackVolumeBar[i]);
+		display.refreshControl(trackVolumeBar[i]);
 	}
 
 	display.setControlValue(bgLabel, 255);

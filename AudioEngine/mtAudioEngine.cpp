@@ -25,143 +25,148 @@ AudioPlayMemory          playMem[8];
 AudioAmplifier           amp[8];
 AudioFilterStateVariable filter[8];
 AudioAnalyzeRMS			 trackRMS[8];
-//AudioEffectFreeverb		 reverb;
 AudioEffectShortDelay	 shortDelay;
+AudioAnalyzeRMS			 rmsDelay[2];
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
 AudioEffectPolyverb		 polyverb;
-//AudioFilterStateVariable filterReverbOut;
+AudioAnalyzeRMS			 rmsPolyverb[2];
 
 AudioMixer10			 mixerL,mixerR,mixerDelay,mixerReverb;
 AudioMixer4              mixerRec;
 AudioMixer10             mixerSourceL,mixerSourceR;
+AudioAnalyzeRMS			 dryMixRmsL, dryMixRmsR;
 
-AudioAnalyzeRMS			 rms;
+AudioAnalyzeRMS			 inputRMS;
 AudioRecordQueue		 exportL, exportR;
 AudioAnalyzeRMS			 exportRmsL, exportRmsR;
 AudioSynthWaveform		 testWaveform;
 AudioPlayMemory 		 metronomeTick;
 
-AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
-AudioConnection          connect2(&playMem[1], 0, &filter[1], 0);
-AudioConnection          connect3(&playMem[2], 0, &filter[2], 0);
-AudioConnection          connect4(&playMem[3], 0, &filter[3], 0);
-AudioConnection          connect5(&playMem[4], 0, &filter[4], 0);
-AudioConnection          connect6(&playMem[5], 0, &filter[5], 0);
-AudioConnection          connect7(&playMem[6], 0, &filter[6], 0);
-AudioConnection          connect8(&playMem[7], 0, &filter[7], 0);
+AudioConnection          connectPlayMemToFilter1(&playMem[0], 0, &filter[0], 0);
+AudioConnection          connectPlayMemToFilter2(&playMem[1], 0, &filter[1], 0);
+AudioConnection          connectPlayMemToFilter3(&playMem[2], 0, &filter[2], 0);
+AudioConnection          connectPlayMemToFilter4(&playMem[3], 0, &filter[3], 0);
+AudioConnection          connectPlayMemToFilter5(&playMem[4], 0, &filter[4], 0);
+AudioConnection          connectPlayMemToFilter6(&playMem[5], 0, &filter[5], 0);
+AudioConnection          connectPlayMemToFilter7(&playMem[6], 0, &filter[6], 0);
+AudioConnection          connectPlayMemToFilter8(&playMem[7], 0, &filter[7], 0);
 
-AudioConnection          connect9(&filter[0], 0, &amp[0], 0);
-AudioConnection          connect10(&filter[1], 0, &amp[1], 0);
-AudioConnection          connect11(&filter[2], 0, &amp[2], 0);
-AudioConnection          connect12(&filter[3], 0, &amp[3], 0);
-AudioConnection          connect13(&filter[4], 0, &amp[4], 0);
-AudioConnection          connect14(&filter[5], 0, &amp[5], 0);
-AudioConnection          connect15(&filter[6], 0, &amp[6], 0);
-AudioConnection          connect16(&filter[7], 0, &amp[7], 0);
+AudioConnection          connectFilterToAmp1(&filter[0], 0, &amp[0], 0);
+AudioConnection          connectFilterToAmp2(&filter[1], 0, &amp[1], 0);
+AudioConnection          connectFilterToAmp3(&filter[2], 0, &amp[2], 0);
+AudioConnection          connectFilterToAmp4(&filter[3], 0, &amp[3], 0);
+AudioConnection          connectFilterToAmp5(&filter[4], 0, &amp[4], 0);
+AudioConnection          connectFilterToAmp6(&filter[5], 0, &amp[5], 0);
+AudioConnection          connectFilterToAmp7(&filter[6], 0, &amp[6], 0);
+AudioConnection          connectFilterToAmp8(&filter[7], 0, &amp[7], 0);
 
-AudioConnection          connect25(&amp[0], 0, &mixerL, 0);
-AudioConnection          connect26(&amp[1], 0, &mixerL, 1);
-AudioConnection          connect27(&amp[2], 0, &mixerL, 2);
-AudioConnection          connect28(&amp[3], 0, &mixerL, 3);
-AudioConnection          connect29(&amp[4], 0, &mixerL, 4);
-AudioConnection          connect30(&amp[5], 0, &mixerL, 5);
-AudioConnection          connect31(&amp[6], 0, &mixerL, 6);
-AudioConnection          connect32(&amp[7], 0, &mixerL, 7);
+AudioConnection          connectAmpToMixerL1(&amp[0], 0, &mixerL, 0);
+AudioConnection          connectAmpToMixerL2(&amp[1], 0, &mixerL, 1);
+AudioConnection          connectAmpToMixerL3(&amp[2], 0, &mixerL, 2);
+AudioConnection          connectAmpToMixerL4(&amp[3], 0, &mixerL, 3);
+AudioConnection          connectAmpToMixerL5(&amp[4], 0, &mixerL, 4);
+AudioConnection          connectAmpToMixerL6(&amp[5], 0, &mixerL, 5);
+AudioConnection          connectAmpToMixerL7(&amp[6], 0, &mixerL, 6);
+AudioConnection          connectAmpToMixerL8(&amp[7], 0, &mixerL, 7);
 
-AudioConnection          connect33(&amp[0], 0, &mixerR, 0);
-AudioConnection          connect34(&amp[1], 0, &mixerR, 1);
-AudioConnection          connect35(&amp[2], 0, &mixerR, 2);
-AudioConnection          connect36(&amp[3], 0, &mixerR, 3);
-AudioConnection          connect37(&amp[4], 0, &mixerR, 4);
-AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
-AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
-AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
-
-
-AudioConnection          connect90(&amp[0], &trackRMS[0]);
-AudioConnection          connect91(&amp[1], &trackRMS[1]);
-AudioConnection          connect92(&amp[2], &trackRMS[2]);
-AudioConnection          connect93(&amp[3], &trackRMS[3]);
-AudioConnection          connect94(&amp[4], &trackRMS[4]);
-AudioConnection          connect95(&amp[5], &trackRMS[5]);
-AudioConnection          connect96(&amp[6], &trackRMS[6]);
-AudioConnection          connect97(&amp[7], &trackRMS[7]);
+AudioConnection          connectAmpToMixerR1(&amp[0], 0, &mixerR, 0);
+AudioConnection          connectAmpToMixerR2(&amp[1], 0, &mixerR, 1);
+AudioConnection          connectAmpToMixerR3(&amp[2], 0, &mixerR, 2);
+AudioConnection          connectAmpToMixerR4(&amp[3], 0, &mixerR, 3);
+AudioConnection          connectAmpToMixerR5(&amp[4], 0, &mixerR, 4);
+AudioConnection          connectAmpToMixerR6(&amp[5], 0, &mixerR, 5);
+AudioConnection          connectAmpToMixerR7(&amp[6], 0, &mixerR, 6);
+AudioConnection          connectAmpToMixerR8(&amp[7], 0, &mixerR, 7);
 
 
-AudioConnection          connect41(&filter[0], 0, &mixerDelay, 0);
-AudioConnection          connect42(&filter[1], 0, &mixerDelay, 1);
-AudioConnection          connect43(&filter[2], 0, &mixerDelay, 2);
-AudioConnection          connect44(&filter[3], 0, &mixerDelay, 3);
-AudioConnection          connect45(&filter[4], 0, &mixerDelay, 4);
-AudioConnection          connect46(&filter[5], 0, &mixerDelay, 5);
-AudioConnection          connect47(&filter[6], 0, &mixerDelay, 6);
-AudioConnection          connect48(&filter[7], 0, &mixerDelay, 7);
+AudioConnection          connectAmpToRMS1(&amp[0], &trackRMS[0]);
+AudioConnection          connectAmpToRMS2(&amp[1], &trackRMS[1]);
+AudioConnection          connectAmpToRMS3(&amp[2], &trackRMS[2]);
+AudioConnection          connectAmpToRMS4(&amp[3], &trackRMS[3]);
+AudioConnection          connectAmpToRMS5(&amp[4], &trackRMS[4]);
+AudioConnection          connectAmpToRMS6(&amp[5], &trackRMS[5]);
+AudioConnection          connectAmpToRMS7(&amp[6], &trackRMS[6]);
+AudioConnection          connectAmpToRMS8(&amp[7], &trackRMS[7]);
 
 
-AudioConnection          connectSendReverb1(&filter[0], 0, &mixerReverb, 0);
-AudioConnection          connectSendReverb2(&filter[1], 0, &mixerReverb, 1);
-AudioConnection          connectSendReverb3(&filter[2], 0, &mixerReverb, 2);
-AudioConnection          connectSendReverb4(&filter[3], 0, &mixerReverb, 3);
-AudioConnection          connectSendReverb5(&filter[4], 0, &mixerReverb, 4);
-AudioConnection          connectSendReverb6(&filter[5], 0, &mixerReverb, 5);
-AudioConnection          connectSendReverb7(&filter[6], 0, &mixerReverb, 6);
-AudioConnection          connectSendReverb8(&filter[7], 0, &mixerReverb, 7);
+AudioConnection          connectFilterToMixerDelay1(&filter[0], 0, &mixerDelay, 0);
+AudioConnection          connectFilterToMixerDelay2(&filter[1], 0, &mixerDelay, 1);
+AudioConnection          connectFilterToMixerDelay3(&filter[2], 0, &mixerDelay, 2);
+AudioConnection          connectFilterToMixerDelay4(&filter[3], 0, &mixerDelay, 3);
+AudioConnection          connectFilterToMixerDelay5(&filter[4], 0, &mixerDelay, 4);
+AudioConnection          connectFilterToMixerDelay6(&filter[5], 0, &mixerDelay, 5);
+AudioConnection          connectFilterToMixerDelay7(&filter[6], 0, &mixerDelay, 6);
+AudioConnection          connectFilterToMixerDelay8(&filter[7], 0, &mixerDelay, 7);
 
-AudioConnection          connect49(&mixerDelay,&shortDelay);
+
+AudioConnection          connectFilterToMixerReverb1(&filter[0], 0, &mixerReverb, 0);
+AudioConnection          connectFilterToMixerReverb2(&filter[1], 0, &mixerReverb, 1);
+AudioConnection          connectFilterToMixerReverb3(&filter[2], 0, &mixerReverb, 2);
+AudioConnection          connectFilterToMixerReverb4(&filter[3], 0, &mixerReverb, 3);
+AudioConnection          connectFilterToMixerReverb5(&filter[4], 0, &mixerReverb, 4);
+AudioConnection          connectFilterToMixerReverb6(&filter[5], 0, &mixerReverb, 5);
+AudioConnection          connectFilterToMixerReverb7(&filter[6], 0, &mixerReverb, 6);
+AudioConnection          connectFilterToMixerReverb8(&filter[7], 0, &mixerReverb, 7);
+
+AudioConnection          connectMixerToDelay(&mixerDelay,&shortDelay);
 
 AudioConnection          connectMixSendReverbL(&mixerReverb,0,&polyverb,0);
 AudioConnection          connectMixSendReverbR(&mixerReverb,0,&polyverb,1);
 
-//AudioConnection          connect82(&reverb, &filterReverbOut);
-//AudioConnection          connect83(&reverb, &filterReverbOut);
+AudioConnection          connectDelayToMixerL(&shortDelay, 0, &mixerL, 8);
+AudioConnection          connectDelayToMixerR(&shortDelay, 1, &mixerR, 8);
+AudioConnection			 connectDelayToRMS1(&shortDelay, 0, &rmsDelay[0], 0);
+AudioConnection			 connectDelayToRMS2(&shortDelay, 1, &rmsDelay[1], 0);
 
-AudioConnection          connect50(&shortDelay, 0, &mixerL, 8);
-AudioConnection          connect51(&shortDelay, 1, &mixerR, 8);
+AudioConnection          connectReverbToMixerL(&polyverb,0,&mixerL,9);
+AudioConnection          connectReverbToMixerR(&polyverb,1,&mixerR,9);
+AudioConnection			 connectReverbToRMS1(&polyverb, 0, &rmsPolyverb[0], 0);
+AudioConnection			 connectReverbToRMS2(&polyverb, 1, &rmsPolyverb[1], 0);
 
-AudioConnection          connectWetReverbL(&polyverb,0,&mixerL,9);
-AudioConnection          connectWetReverbR(&polyverb,1,&mixerR,9);
+AudioConnection          connectMirerLtoBitDepth(&mixerL, &bitDepthControl[0]);
+AudioConnection          connectMirerRtoBitDepth(&mixerR, &bitDepthControl[1]);
 
-AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
-AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
+AudioConnection          connectMirerLtoRMS(&mixerL, &dryMixRmsL);
+AudioConnection          connectMirerRtoRMS(&mixerR, &dryMixRmsR);
 
-AudioConnection          connect52(&bitDepthControl[0], 0, &limiter[0], 0);
-AudioConnection          connect53(&bitDepthControl[1], 0, &limiter[1], 0);
+AudioConnection          connectBitDepthToLimiter1(&bitDepthControl[0], 0, &limiter[0], 0);
+AudioConnection          connectBitDepthToLimiter2(&bitDepthControl[1], 0, &limiter[1], 0);
 
-AudioConnection          connect68(&limiter[0], 0, &mixerSourceL, 0);
-AudioConnection          connect69(&limiter[1], 0, &mixerSourceR, 0);
+AudioConnection          connectLimiterToMixerSourceL(&limiter[0], 0, &mixerSourceL, 0);
+AudioConnection          connectLimiterToMixerSourceR(&limiter[1], 0, &mixerSourceR, 0);
 
-AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
-AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
+AudioConnection          connectPlaySdWavToMixerSourceL(&playSdWav, 0, &mixerSourceL, 1);
+AudioConnection          connectPlaySdWavToMixerSourceR(&playSdWav, 0, &mixerSourceR, 1);
 
-AudioConnection 		 connect63(&playSdWavFloat,0,&mixerSourceL,2);
-AudioConnection 		 connect64(&playSdWavFloat,0,&mixerSourceR,2);
+AudioConnection 		 connectPlaySdWavFloatToMixerSourceL(&playSdWavFloat,0,&mixerSourceL,2);
+AudioConnection 		 connectPlaySdWavFloatToMixerSourceR(&playSdWavFloat,0,&mixerSourceR,2);
 
-AudioConnection 		 connect65(&playSdWav24Bit,0,&mixerSourceL,3);
-AudioConnection 		 connect66(&playSdWav24Bit,0,&mixerSourceR,3);
+AudioConnection 		 connectPlaySdWav24bitToMixerSourceL(&playSdWav24Bit,0,&mixerSourceL,3);
+AudioConnection 		 connectPlaySdWav24bitToMixerSourceR(&playSdWav24Bit,0,&mixerSourceR,3);
 
-AudioConnection          connect80(&testWaveform, 0, &mixerSourceR, 4);
-AudioConnection          connect81(&testWaveform, 0, &mixerSourceL, 4);
+AudioConnection          connectTestWaveformToMixerSourceR(&testWaveform, 0, &mixerSourceR, 4);
+AudioConnection          connectTestWaveformToMixerSourceL(&testWaveform, 0, &mixerSourceL, 4);
 
-AudioConnection          connect82(&metronomeTick, 0, &mixerSourceR, 5);
-AudioConnection          connect83(&metronomeTick, 0, &mixerSourceL, 5);
+AudioConnection          connectMetronomeTickToMixerSourceR(&metronomeTick, 0, &mixerSourceR, 5);
+AudioConnection          connectMetronomeTickToMixerSourceL(&metronomeTick, 0, &mixerSourceL, 5);
 
-AudioConnection          connect59(&mixerSourceR, 0, &i2sOut, 0);
-AudioConnection          connect60(&mixerSourceL, 0, &i2sOut, 1);
+AudioConnection          connectMixerSourceRtoI2S(&mixerSourceR, 0, &i2sOut, 0);
+AudioConnection          connectMixerSourceLtoI2S(&mixerSourceL, 0, &i2sOut, 1);
 //**************** export
-AudioConnection          connect70(&mixerSourceL, &exportL);
-AudioConnection          connect71(&mixerSourceR, &exportR);
+AudioConnection          connectMixerSourceLtoExport(&mixerSourceL, &exportL);
+AudioConnection          connectMixerSourceRtoExport(&mixerSourceR, &exportR);
 
-AudioConnection          connect72(&mixerSourceL, &exportRmsL);
-AudioConnection          connect73(&mixerSourceR, &exportRmsR);
+AudioConnection          connectMixerSourceLtoRMS(&mixerSourceL, &exportRmsL);
+AudioConnection          connectMixerSourceRtoRMS(&mixerSourceR, &exportRmsR);
 
 //**************** recording
-AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
-AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
+AudioConnection          connectI2StoREC1(&i2sIn, 0, &mixerRec, 0);
+AudioConnection          connectI2StoREC2(&i2sIn, 1, &mixerRec, 1);
 
 
-AudioConnection          connect56(&mixerRec, &queue);
-AudioConnection          connect67(&mixerRec, &rms);
+AudioConnection          connectMixerRecToQueue(&mixerRec, &queue);
+AudioConnection          connectMixerRecToRMS(&mixerRec, &inputRMS);
 
 IntervalTimer updateTimer;
 
@@ -175,16 +180,6 @@ uint8_t isCurrentLoadInstrument[48];
 constexpr uint16_t RELEASE_NOTE_ON_VAL = 1;
 
 void updateAudioEngine();
-
-void audioEngine::printLog(SdFile * log)
-{
-
-	log->println("***********************AudioEngine***************************");
-	for(int i=0;i<8; i++)
-	{
-		instrumentPlayer[i].printLog(log);
-	}
-}
 
 void audioEngine::startTestSignal(float amp, float freq)
 {
@@ -325,20 +320,24 @@ void audioEngine::refreshTrackVolume()
 		instrumentPlayer[track].setStatusBytes(VOLUME_MASK);
 	}
 }
+void audioEngine::refreshReverbVolume()
+{
+	for(uint8_t track = 0 ; track < 8; track++)
+	{
+		instrumentPlayer[track].setStatusBytes(REVERB_SEND_MASK);
+	}
+}
+void audioEngine::refreshDelayVolume()
+{
+	for(uint8_t track = 0 ; track < 8; track++)
+	{
+		instrumentPlayer[track].setStatusBytes(DELAY_SEND_MASK);
+	}
+}
 
 void audioEngine::setHeadphonesVolume(uint8_t value)
 {
 	audioShield.volume(value/100.0);
-}
-
-void audioEngine::setReverbRoomsize(uint8_t value)
-{
-//	reverb.roomsize(value/100.0);
-}
-
-void audioEngine::setReverbDamping(uint8_t value)
-{
-//	reverb.damping(value/100.0);
 }
 
 void audioEngine::setInterpolationEnable(bool value)
@@ -467,6 +466,80 @@ void audioEngine::clearCurrentLoadInstrument(int8_t idx)
 	isCurrentLoadInstrument[idx] = 0;
 }
 
+float audioEngine::getDelayAverageRMS()
+{
+	float localVal = - 1.0f;
+	if(rmsDelay[0].available() && rmsDelay[1].available())
+	{
+		localVal = (rmsDelay[0].read() + rmsDelay[1].read())/2.0f;
+	}
+	return localVal;
+}
+float audioEngine::getReverbAverageRMS()
+{
+	float localVal = - 1.0f;
+	if(rmsPolyverb[0].available() && rmsPolyverb[1].available())
+	{
+		localVal = (rmsPolyverb[0].read() + rmsPolyverb[1].read())/2.0f;
+	}
+	return localVal;
+}
+float audioEngine::getDryMixAverageRMS()
+{
+	float localVal = - 1.0f;
+	if(dryMixRmsL.available() && dryMixRmsR.available())
+	{
+		localVal = (dryMixRmsL.read() + dryMixRmsR.read())/2.0f;
+	}
+	return localVal;
+}
+// 0  - left channel, 1 - right channel
+float audioEngine::getDelayRMS(uint8_t channel)
+{
+	if(channel > 1) channel = 1;
+	float localVal = - 1.0f;
+
+	if(rmsDelay[channel].available())
+	{
+		localVal = rmsDelay[channel].read();
+	}
+	return localVal;
+}
+// 0  - left channel, 1 - right channel
+float audioEngine::getReverbRMS(uint8_t channel)
+{
+	if(channel > 1) channel = 1;
+	float localVal = - 1.0f;
+
+	if(rmsPolyverb[channel].available())
+	{
+		localVal = rmsPolyverb[channel].read();
+	}
+	return localVal;
+}
+// 0  - left channel, 1 - right channel
+float audioEngine::getDryMixRMS(uint8_t channel)
+{
+	float localVal = - 1.0f;
+
+	if(channel)
+	{
+		if(dryMixRmsR.available())
+		{
+			localVal = dryMixRmsR.read();
+		}
+	}
+	else
+	{
+		if(dryMixRmsL.available())
+		{
+			localVal = dryMixRmsL.read();
+		}
+	}
+	return localVal;
+}
+
+
 playerEngine::playerEngine()
 {
 	// bazuje na zadeklarowanych wyzej obiektach silnika i na tym ze obiekty playerEngine beda umieszczone w tablicy(instrumentPlayer)
@@ -526,7 +599,8 @@ void playerEngine :: modPanning(int16_t value)
 
 void playerEngine::modVolume(float value)
 {
-	ampPtr->gain(value * (mtProject.values.trackVolume[nChannel]/100.0));
+	if(mtProject.values.dryMixMute) ampPtr->gain(AMP_MUTED);
+	else ampPtr->gain(value * ampLogValues[mtProject.values.trackVolume[nChannel]]  * ampLogValues[mtProject.values.dryMixVolume]);
 }
 
 
@@ -573,11 +647,13 @@ void playerEngine :: modTune(int8_t value)
 
 void playerEngine :: modDelaySend(uint8_t value)
 {
-	mixerDelay.gain(nChannel,ampLogValues[value]);
+	if(mtProject.values.delayMute) mixerDelay.gain(nChannel,AMP_MUTED);
+	else mixerDelay.gain(nChannel,ampLogValues[value] * ampLogValues[mtProject.values.delayVolume] );
 }
 void playerEngine :: modReverbSend(uint8_t value)
 {
-	mixerReverb.gain(nChannel,ampLogValues[value]);
+	if(mtProject.values.reverbMute) mixerReverb.gain(nChannel, AMP_MUTED);
+	else mixerReverb.gain(nChannel,ampLogValues[value] * ampLogValues[mtProject.values.reverbVolume]);
 }
 
 
@@ -1299,46 +1375,5 @@ void playerEngine::setPassEnvelope(uint8_t state)
 	envelopePassFlag = state;
 }
 
-void playerEngine::printLog(SdFile * log)
-{
-	uint8_t nr_voice = ((uint32_t)this - (uint32_t)instrumentPlayer)/sizeof(playerEngine);
-	log->printf("******************voice nr %d******************\n",nr_voice);
-	log->println("kluczowe parametry aktualnego instrumentu");
-	log->printf("index: %d\n", currentInstrument_idx);
-	log->printf("length: %d\n", mtProject.instrument[currentInstrument_idx].sample.length);
-	log->printf("addr: %x\n", (uint32_t)mtProject.instrument[currentInstrument_idx].sample.address);
-	log->printf("flaga active: %d\n", mtProject.instrument[currentInstrument_idx].isActive);
-	log->printf("currentNote %d\n", currentNote);
-	log->printf("play mode: %d\n",  mtProject.instrument[currentInstrument_idx].playMode);
-	if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
-	{
-		log->printf("gran pos: %d\n",  mtProject.instrument[currentInstrument_idx].granular.currentPosition);
-		log->printf("gran len: %d\n",  mtProject.instrument[currentInstrument_idx].granular.grainLength);
-	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable)
-	{
-		log->printf("wt pos: %d\n",  mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow);
-		log->printf("wt window size: %d\n",  mtProject.instrument[currentInstrument_idx].sample.wavetable_window_size);
-		log->printf("wt window number: %d\n",  mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
-	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeSlice)
-	{
-		log->printf("slice n: %d\n", mtProject.instrument[currentInstrument_idx].selectedSlice);
-		log->printf("slice val: %d\n",  mtProject.instrument[currentInstrument_idx].slices[mtProject.instrument[currentInstrument_idx].selectedSlice]);
-	}
-	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeSingleShot)
-	{
-		log->printf("SP: %d\n", mtProject.instrument[currentInstrument_idx].startPoint);
-		log->printf("EP: %d\n",  mtProject.instrument[currentInstrument_idx].endPoint);
-	}
-	else
-	{
-		log->printf("SP: %d\n", mtProject.instrument[currentInstrument_idx].startPoint);
-		log->printf("EP: %d\n",  mtProject.instrument[currentInstrument_idx].endPoint);
-		log->printf("LP1: %d\n", mtProject.instrument[currentInstrument_idx].loopPoint1);
-		log->printf("LP2: %d\n",  mtProject.instrument[currentInstrument_idx].loopPoint2);
-	}
-
-}
 
 

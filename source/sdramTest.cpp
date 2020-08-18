@@ -150,8 +150,5 @@ void SdramTester::test()
 
 	}
 
-
-
-	engine.printLog(&log);
 	log.close();
 }

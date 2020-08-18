@@ -198,9 +198,9 @@ public:
 	void prevSdConnect();
 	void prevSdDisconnect();
 	void refreshTrackVolume();
+	void refreshReverbVolume();
+	void refreshDelayVolume();
 	void setHeadphonesVolume(uint8_t value);
-	void setReverbRoomsize(uint8_t value);
-	void setReverbDamping(uint8_t value);
 	void setDelayFeedback(uint8_t value);
 	void setDelayTime(uint16_t value);
 	void setDelayPanning(int8_t value);
@@ -222,7 +222,6 @@ public:
 	void clearDelay();
 	void clearReverb();
 	void performanceModeEndAll();
-	void printLog(SdFile * log);
 	void startTestSignal(float amp, float freq);
 	void stopTestSignal();
 	void endAllFx();
@@ -235,6 +234,14 @@ public:
 	void setCurrentLoadInstrument(int8_t idx);
 	void clearCurrentLoadInstrument(int8_t idx);
 	void setInterpolationEnable(bool value);
+	float getDelayAverageRMS();
+	float getReverbAverageRMS();
+	float getDryMixAverageRMS();
+	float getDelayRMS(uint8_t channel);
+	float getReverbRMS(uint8_t channel);
+	float getDryMixRMS(uint8_t channel);
+
+
 	friend class playerEngine;
 private:
 	uint8_t forceDelaySend;
@@ -528,10 +535,7 @@ public:
 	void endFinetuneLfoRatePerformanceMode();
 
 
-//******testowe
-	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
-//*****************
 	float getRMSValue();
 
 private:
@@ -778,7 +782,7 @@ extern AudioBitDepth			bitDepthControl[2];
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
-extern AudioAnalyzeRMS			rms;
+extern AudioAnalyzeRMS			inputRMS;
 
 extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;

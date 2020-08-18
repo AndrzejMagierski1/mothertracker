@@ -40,7 +40,7 @@ public:
 
 
 	//-----------------------------------------
-
+	struct strTrackLevel;
 	void showDefaultConfigScreen();
 	void showMasterScreen();
 
@@ -74,8 +74,24 @@ public:
 	enum struct display_t
 	{
 		masterValues,
-		mixer
+		mixer,
+		mixerDelayReverb
 	} displayType;
+
+	enum
+	{
+		delayVolumeScreenPosition,
+		reverbVolumeScreenPosition,
+		dryMixVolumeScreenPosition,
+		screenPositionCount
+	};
+
+	enum
+	{
+		delayIsSolo = 10,
+		reverbIsSolo,
+		dryMixIsSolo
+	};
 
 	uint8_t selectedPlaceDelay;
 	uint8_t selectedPlaceReverb;
@@ -83,14 +99,22 @@ public:
 	bool isReverbScreen;
 	//mixer
 	void showMixerScreen();
-	void showLevelBar(uint8_t n);
+	void showMixerDelayReverbScreen();
+	void showLevelBar(uint8_t n, strTrackLevel * level );
 	void showTrackVolumeBar(uint8_t n);
+	void showDelayVolumeBar();
+	void showReverbVolumeBar();
+	void showDryMixVolumeBar();
 	void switchToMaster();
 	void switchToMixer();
+	void switchToMixerDelayReverb();
 	void switchToDelayScreen();
 	void switchToReverbScreen();
+	void calcLevel(strTrackLevel * level, float value);
 	void calcTrackLevel(uint8_t n);
-
+	void calcDelayLevel();
+	void calcReverbLevel();
+	void calcDryMixLevel();
 	struct strTrackLevel
 	{
 		float measureSum = 0;
@@ -100,14 +124,24 @@ public:
 		uint8_t value;
 		uint8_t lastValue;
 
-	} trackLevel[8];
+	} trackLevel[8], reverbLevel[2], delayLevel[2], dryMixLevel[2];
 	uint8_t isSolo = 0;
 	int8_t soloTrack = -1;
 	char mixerLabel[8][7];
 	char mixerVolumeLabel[8][5];
+	char delayVolumeLabel[5];
+	char reverbVolumeLabel[5];
+	char dryMixVolumeLabel[5];
 
 	bool trackIsEdited[8];
 	bool ignoreMuteRelease[8];
+
+	bool reverbIsEdited;
+	bool ignoreMuteReleaseReverb;
+	bool delayIsEdited;
+	bool ignoreMuteReleaseDelay;
+	bool dryMixIsEdited;
+	bool ignoreMuteReleaseDryMix;
 
 	//menu
 
@@ -149,8 +183,16 @@ public:
 	void changeReverbDiffusion(int16_t val);
 // Mixer
 	void changeTrackVolume(int16_t val, uint8_t track);
+	void setDefaultTrackVolume(uint8_t track);
+// Mixer Delay Reverb
 	void changeReverbVolume(int16_t val);
 	void changeDelayVolume(int16_t val);
+	void changeDryMixVolume(int16_t val);
+	void setDefaultReverbVolume();
+	void setDefaultDelayVolume();
+	void setDefaultDryMixVolume();
+
+
 
 	void setDefaultReverbSize();
 	void setDefaultReverbDamp();
@@ -302,6 +344,10 @@ public:
 	void setKeyboardExportFunctions();
 	void showKeyboardExport();
 	void showEditTracksNamesMode();
+
+	float localDelayLevel[2];
+	float localReverbLevel[2];
+	float localDryMixLevel[2];
 };
 
 extern cMasterParams masterParams;
