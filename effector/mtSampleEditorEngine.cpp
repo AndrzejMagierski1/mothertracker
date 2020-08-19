@@ -12,6 +12,7 @@
 #include "mtWavetableSmoother.h"
 #include "mtEffectNormalizer.h"
 #include "mtEffectFadeIn.h"
+#include "mtEffectFadeOut.h"
 
 mtEffect * sampleEditorEffect[editorEffectMax] =
 {
@@ -26,7 +27,8 @@ mtEffect * sampleEditorEffect[editorEffectMax] =
 		&sampleEditorLimiter,
 		&sampleEditorCompresor,
 		&sampleEditorWavetableSmoother,
-		&sampleEditorFadeIn
+		&sampleEditorFadeIn,
+		&sampleEditorFadeOut
 };
 
 //******************************DELAY

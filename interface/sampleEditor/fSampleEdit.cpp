@@ -418,9 +418,10 @@ void cSampleEditor::setTooLongProcessedSampleFunctions()
 }
 bool cSampleEditor::isParametersScreen()
 {
-	return (currentEffectIdx == editorEffectCut) ||
+	return (currentEffectIdx == editorEffectCut) 	 ||
 		   (currentEffectIdx == editorEffectReverse) ||
-		   (currentEffectIdx == editorEffectFadeIn);
+		   (currentEffectIdx == editorEffectFadeIn)  ||
+		   (currentEffectIdx == editorEffectFadeOut);
 }
 
 void cSampleEditor::switchScreen(enScreenType s)

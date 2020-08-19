@@ -19,7 +19,8 @@ char * const effectNamesLabels[editorEffectMax] =
 		(char*)"Limiter",
 		(char*)"Compressor",
 		(char*)"WT Smoother",
-		(char*)"Fade In"
+		(char*)"Fade In",
+		(char*)"Fade Out"
 };
 
 class cSampleEditor: public cModuleBase
@@ -320,7 +321,8 @@ public:
 		{{(32767+1)/2,0,0,0,0,0},{0,100.0,1.0,0,0,0}}, //limiter
 		{{(32767+1)/2,1,100,100,0,0},{0,0,0,0,0,0}}, //compressor
 		{{256,2048,0,0,0,0},{0,0,0,0,0,0}}, //wt smoother
-		{}// fade in - brak drugiego ekranu
+		{}, // fade in - brak drugiego ekranu
+		{}  // fade out - brak drugiego ekranu
 	};
 	struct strEffectDisplayParams
 	{
@@ -417,7 +419,8 @@ public:
 				wavetableSmootherParams::changeStep,wavetableSmootherParams::displayMult,
 				wavetableSmootherParams::afterValueText,wavetableSmootherParams::displayType
 			},
-			{} //fade in - brak drugiego ekranu
+			{}, //fade in  -  brak drugiego ekranu
+			{}  //fade out - brak drugiego ekranu
 	};
 
 //*********************
