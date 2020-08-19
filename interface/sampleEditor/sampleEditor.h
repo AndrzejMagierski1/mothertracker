@@ -18,7 +18,8 @@ char * const effectNamesLabels[editorEffectMax] =
 		(char*)"Flanger",
 		(char*)"Limiter",
 		(char*)"Compressor",
-		(char*)"WT Smoother"
+		(char*)"WT Smoother",
+		(char*)"Fade In"
 };
 
 class cSampleEditor: public cModuleBase
@@ -60,6 +61,7 @@ public:
 	void setSaveChangesFunctions();
 	void setTooLongSampleFunctions();
 	void setTooLongProcessedSampleFunctions();
+	bool isParametersScreen();
 
 	void noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
 	void noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source);
@@ -317,7 +319,8 @@ public:
 		{{128,50,1,0,0,0},{0,0,0,1.0,0,0}}, //flanger
 		{{(32767+1)/2,0,0,0,0,0},{0,100.0,1.0,0,0,0}}, //limiter
 		{{(32767+1)/2,1,100,100,0,0},{0,0,0,0,0,0}}, //compressor
-		{{256,2048,0,0,0,0},{0,0,0,0,0,0}} //wt smoother
+		{{256,2048,0,0,0,0},{0,0,0,0,0,0}}, //wt smoother
+		{}// fade in - brak drugiego ekranu
 	};
 	struct strEffectDisplayParams
 	{
@@ -413,7 +416,8 @@ public:
 				wavetableSmootherParams::iDownConstrain,wavetableSmootherParams::fDownConstrain,
 				wavetableSmootherParams::changeStep,wavetableSmootherParams::displayMult,
 				wavetableSmootherParams::afterValueText,wavetableSmootherParams::displayType
-			}
+			},
+			{} //fade in - brak drugiego ekranu
 	};
 
 //*********************
