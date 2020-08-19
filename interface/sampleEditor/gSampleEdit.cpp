@@ -188,7 +188,7 @@ void cSampleEditor::showMainScreen()
 	display.setControlText2(label[3],"");
 	display.setControlText(label[4], "");
 	display.setControlText2(label[4],"");
-	if((currentEffectIdx == editorEffectCut) || (currentEffectIdx == editorEffectReverse))
+	if(isParametersScreen())
 	{
 		display.setControlText(label[5], "Apply");
 		display.setControlText2(label[5], "");
@@ -260,7 +260,7 @@ void cSampleEditor::showMainScreen()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	if((currentEffectIdx == editorEffectCut) || (currentEffectIdx == editorEffectReverse)) display.setControlText(titleLabel, "Sample Editor");
+	if(isParametersScreen()) display.setControlText(titleLabel, "Sample Editor");
 	else display.setControlText(titleLabel, "Sample Editor 1/2");
 
 	display.refreshControl(titleLabel);

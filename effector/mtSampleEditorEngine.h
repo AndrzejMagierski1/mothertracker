@@ -15,6 +15,8 @@ enum enSampleEditorEffect
 	editorEffectLimiter,
 	editorEffectCompresor,
 	editorEffectWavetableSmoother,
+	editorEffectFadeIn,
+	editorEffectFadeOut,
 
 
 //**********************//

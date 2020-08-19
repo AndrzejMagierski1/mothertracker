@@ -1,3 +1,6 @@
+	next release:
+			- [AM] dodanie do sample editora fade in i fade out
+			- [AM] poprawienie wyliczania parametrow limitera
 
 	1.1.11	
 			- [AM] Dodanie ekranu Master 3/3 - volume reverb, delay, dry mix oraz mute - solo w tym zakresie

@@ -416,6 +416,14 @@ void cSampleEditor::setTooLongProcessedSampleFunctions()
 	clearAllFunctions();
 	FM->setButtonObj(interfaceButton7, buttonPress, functTooLongProcessedSampleOk);
 }
+bool cSampleEditor::isParametersScreen()
+{
+	return (currentEffectIdx == editorEffectCut) 	 ||
+		   (currentEffectIdx == editorEffectReverse) ||
+		   (currentEffectIdx == editorEffectFadeIn)  ||
+		   (currentEffectIdx == editorEffectFadeOut);
+}
+
 void cSampleEditor::switchScreen(enScreenType s)
 {
 	if(s == mainScreen)
@@ -789,7 +797,7 @@ void cSampleEditor::refreshEffectList()
 	display.setControlValue(effectList, currentEffectIdx);
 	showEffectList();
 
-	if((SE->currentEffectIdx == editorEffectCut) || (SE->currentEffectIdx == editorEffectReverse))
+	if(SE->isParametersScreen())
 	{
 		display.setControlText(label[5], "Apply");
 		display.setControlText2(label[5], "");
@@ -801,7 +809,7 @@ void cSampleEditor::refreshEffectList()
 	}
 	display.refreshControl(label[5]);
 
-	if((SE->currentEffectIdx == editorEffectCut) || (SE->currentEffectIdx == editorEffectReverse)) display.setControlText(titleLabel, "Sample Editor");
+	if(SE->isParametersScreen()) display.setControlText(titleLabel, "Sample Editor");
 	else display.setControlText(titleLabel, "Sample Editor 1/2");
 
 	display.refreshControl(titleLabel);
@@ -1367,7 +1375,7 @@ static  uint8_t functUndo()
 }
 static  uint8_t functApply()
 {
-	if((SE->currentEffectIdx == editorEffectCut) || (SE->currentEffectIdx == editorEffectReverse))
+	if(SE->isParametersScreen())
 	{
 		functSave();
 		return 1;

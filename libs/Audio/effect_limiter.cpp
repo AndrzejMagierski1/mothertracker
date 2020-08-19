@@ -20,7 +20,7 @@ void AudioEffectLimiter::setAttack(uint16_t a)
 }
 void AudioEffectLimiter::setRelease(float r)
 {
-	releaseTime = expf(-2.2f *  (1000.0f/(44100.0f * r))); ;
+	releaseTime = 1 - expf(-2.2f *  (1000.0f/(44100.0f * r))); ;
 }
 
 void AudioEffectLimiter::update(void)
