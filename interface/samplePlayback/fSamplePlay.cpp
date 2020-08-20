@@ -1679,7 +1679,7 @@ static void modWavetableWindowSize(int16_t value)
 	else if(localDif < 0)		SP->editorInstrument->wavetableCurrentWindow >>= (-localDif);
 
 	if(localDif != 0) SP->showWavetablePosition();
-
+	AudioNoInterrupts();
 	SP->editorInstrument->sample.wavetable_window_size = SP->convertWavetableWindowsCounterToSize(SP->wavetableWindowsCounter);
 	SP->editorInstrument->sample.wavetableWindowNumber = SP->editorInstrument->sample.wavetable_window_size ? SP->editorInstrument->sample.length/SP->editorInstrument->sample.wavetable_window_size : 0;
 
@@ -1688,7 +1688,7 @@ static void modWavetableWindowSize(int16_t value)
 		SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
 		SP->showWavetablePosition();
 	}
-
+	AudioInterrupts();
 	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 	SP->showWavetableWindowSize();
 	SP->refreshSpectrum = 1;
