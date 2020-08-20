@@ -1,6 +1,9 @@
-	next release:
+	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
-			- [AM] poprawienie wyliczania parametrow limitera
+			- [AM] fix: poprawienie wyliczania parametrow limitera
+			- [AM] fix: zmiana parametrów WT nie zawiesza urządzenia
+			- [AM] fix: usuniecie klikania przy gwaltownej zmianie pozycji granulara
+			- [AM] antyaliasing niezalezny od pitcha ( przywrocenie zmian z 1.1.3) 
 
 	1.1.11	
 			- [AM] Dodanie ekranu Master 3/3 - volume reverb, delay, dry mix oraz mute - solo w tym zakresie
