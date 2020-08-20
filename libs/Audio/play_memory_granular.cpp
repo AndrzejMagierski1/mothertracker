@@ -72,6 +72,7 @@ void AudioPlayMemory::playGranular(uint8_t instrIdx, int8_t note)
 	length = currentSampleLength - pointsInSamples.start;
 	iPitchCounter = reverseDirectionFlag ? constrainsInSamples.endPoint - 1 : 0;
 
+	granularPositionRefreshFlag = 0;
 	playing = 1;
 	__enable_irq();
 	AudioInterrupts();
@@ -185,7 +186,19 @@ audio_block_t * AudioPlayMemory::updateGranularLoopForwardNormal()
 			//*************************************************************************************** warunki pętli
 			if (iPitchCounter >= loopEndPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+					//aktualizacja po zmianie pozycji
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = ((iPitchCounter + 128 * pitchControl) < length)  ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = in+1;
+				}
+
 				iPitchCounter = constrainsInSamples.loopPoint1;
 				currentFractionPitchCounter = 0;
 			}
@@ -277,7 +290,19 @@ audio_block_t * AudioPlayMemory::updateGranularLoopForwardReverse()
 			//*************************************************************************************** warunki pętli
 			if (iPitchCounter <= loopStartPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+
+					if(enableInterpolation) interpolationCondition = ((int)(iPitchCounter - 128 * pitchControl) > 0) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = in-1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint2;
 				currentFractionPitchCounter = 0;
 			}
@@ -383,12 +408,38 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardNormal()
 			//*************************************************************************************** warunki pętli
 			if (iPitchCounter <= loopStartPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (( (iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = loopBackwardFlag ? in-1 : in+1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint2;
 				currentFractionPitchCounter = 0;
 			} else if (iPitchCounter >= loopEndPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (( (iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = loopBackwardFlag ? in-1 : in+1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 1;
 				in_interpolation = in+1;
@@ -494,12 +545,38 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardReverse()
 //*************************************************************************************** koniec przetwarzania pitchCountera
 			if (iPitchCounter >= loopEndPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (((int)(iPitchCounter - 128 * pitchControl) > 0)) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = loopBackwardFlag ? in+1: in-1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
 				currentFractionPitchCounter = 0;
 			} else if (iPitchCounter <= loopStartPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (((int)(iPitchCounter - 128 * pitchControl) > 0)) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = loopBackwardFlag ? in+1: in-1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 1;
 				in_interpolation = in+1;
@@ -603,7 +680,20 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongNormal()
 //*************************************************************************************** koniec przetwarzania pitchCountera
 			if (iPitchCounter <= loopStartPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (( (iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation =  loopBackwardFlag ? in-1 : in+1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 0;
 				in_interpolation = in+1;
@@ -611,7 +701,20 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongNormal()
 			}
 			else if (iPitchCounter >= loopEndPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length, constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (( (iPitchCounter + 128 * pitchControl) < length)) ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation =  loopBackwardFlag ? in-1 : in+1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 1;
 				in_interpolation = in-1;
@@ -719,7 +822,20 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongReverse()
 
 			if (iPitchCounter >= loopEndPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length,constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (((int)(iPitchCounter - 128 * pitchControl) > 0))  ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = loopBackwardFlag ? in+1 : in-1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
 				loopBackwardFlag = 0;
 				in_interpolation = in-1;
@@ -727,7 +843,20 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongReverse()
 			}
 			if (iPitchCounter <= loopStartPoint)
 			{
-				if(granularPositionRefreshFlag) refreshGranularPosition();
+				if(granularPositionRefreshFlag)
+				{
+					refreshGranularPosition();
+
+					//aktualizacja po zmianie pozycji
+					loopStartPoint = max((int32_t)constrainsInSamples.loopPoint1, 0);
+					loopEndPoint = min((int32_t)constrainsInSamples.loopPoint2, (int32_t)min(length,constrainsInSamples.endPoint));
+
+					if(enableInterpolation) interpolationCondition = (((int)(iPitchCounter - 128 * pitchControl) > 0))  ? 0: 1;
+					else interpolationCondition = 1;
+
+					in = (int16_t * )currentStartAddress + pointsInSamples.start;
+					in_interpolation = loopBackwardFlag ? in+1 : in-1;
+				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
 				loopBackwardFlag = 1;
 				in_interpolation = in+1;
