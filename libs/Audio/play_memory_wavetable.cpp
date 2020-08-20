@@ -82,6 +82,10 @@ audio_block_t * AudioPlayMemory::updateWavetable()
 
 		waveTablePosition = wavetableWindowSize * currentWindow;
 
+		uint32_t maxlength = length - wavetableWindowSize;
+
+		if(waveTablePosition > maxlength ) waveTablePosition = maxlength;
+
 		castPitchControl = (int32_t)pitchControl;
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
