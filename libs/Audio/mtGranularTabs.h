@@ -1004,7 +1004,7 @@ const uint16_t gaussTab[GRANULAR_TAB_SIZE] = //tak naprawde half - sine
 		824,
 		618,
 		412,
-		206
+		0
 };
 
 const uint16_t squareTab[GRANULAR_TAB_SIZE] =
@@ -3012,7 +3012,7 @@ const uint16_t triangleTab[GRANULAR_TAB_SIZE] =
 		524,
 		393,
 		262,
-		131
+		0
 };
 
 #endif /* LIBS_AUDIO_MTGRANULARTABS_H_ */
