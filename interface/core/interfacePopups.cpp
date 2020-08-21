@@ -858,9 +858,14 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 				//if(note > 48) note = 48;
 				//editorInstrument->tune = note;
 
-				padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
 				mtPopups.setStepPopupValue(pad);
-				mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+				padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
+				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+				sequencer.handleNoteOn(
+									Sequencer::GRID_OUTSIDE_PATTERN,
+									noteFromPad,
+									-1,
+									pad);
 				break;
 			}
 			case stepPopupInstr:
@@ -890,7 +895,8 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 	else if(state == buttonRelease)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		mtPadBoard.stopInstrument(pad);
+		uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+		sequencer.handleNoteOff(Sequencer::GRID_OUTSIDE_PATTERN, noteFromPad, 0, pad);
 	}
 
 	return 1;
