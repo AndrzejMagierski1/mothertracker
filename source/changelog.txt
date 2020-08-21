@@ -1,3 +1,6 @@
+	next release:
+			- [AM] fix: usuniecie klikania podczas trzymania przycisku note
+			- [AM] fix: save pattern - "no" juz nie czysci reverba i delaya ( nie wplywa na dźwięk)
 	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
 			- [AM] fix: poprawienie wyliczania parametrow limitera
