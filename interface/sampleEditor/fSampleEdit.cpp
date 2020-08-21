@@ -298,9 +298,16 @@ void cSampleEditor::update()
 void cSampleEditor::stop()
 {
 	moduleRefresh = 0;
-	engine.unblockDelayRefresh();
-	engine.clearDelay();
-	engine.clearReverb();
+	if(!avoidStop)
+	{
+		engine.unblockDelayRefresh();
+		engine.clearDelay();
+		engine.clearReverb();
+	}
+	else
+	{
+		avoidStop = false;
+	}
 	songTimer.show();
 	sequencer.setMidiInVoiceMode(Sequencer::midiInVoiceMode_default);
 }
@@ -1572,6 +1579,7 @@ static  uint8_t functStopPatternYes()
 }
 static  uint8_t functStopPatternNo()
 {
+	SE->avoidStop = true;
 	SE->hideStaticPopup();
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
@@ -1579,6 +1587,7 @@ static  uint8_t functStopPatternNo()
 // Too long instrument
 static uint8_t functTooLongSampleOk()
 {
+	SE->avoidStop = true;
 	SE->hideStaticPopup();
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;

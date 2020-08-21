@@ -257,6 +257,7 @@ public:
 
 	uint8_t moduleToChange;
 
+	bool avoidStop;
 //labelsTxt
 	char currentInstrumentName[SAMPLE_NAME_SIZE+6];
 	char startPointText[11];
