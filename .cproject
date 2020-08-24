@@ -43,7 +43,6 @@
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
-									<listOptionValue builtIn="false" value="../libs/SD"/>
 									<listOptionValue builtIn="false" value="../libs/SerialFlash"/>
 									<listOptionValue builtIn="false" value="../libs/Wire"/>
 									<listOptionValue builtIn="false" value="../libs/SPI"/>
@@ -58,8 +57,6 @@
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
-									<listOptionValue builtIn="false" value="../interface/gui"/>
-									<listOptionValue builtIn="false" value="../interface/funct"/>
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
@@ -107,7 +104,6 @@
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
-									<listOptionValue builtIn="false" value="../libs/SD"/>
 									<listOptionValue builtIn="false" value="../libs/SerialFlash"/>
 									<listOptionValue builtIn="false" value="../libs/Wire"/>
 									<listOptionValue builtIn="false" value="../libs/SPI"/>
@@ -151,7 +147,6 @@
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
-									<listOptionValue builtIn="false" value="../libs/SD"/>
 									<listOptionValue builtIn="false" value="../libs/SerialFlash"/>
 									<listOptionValue builtIn="false" value="../libs/Wire"/>
 									<listOptionValue builtIn="false" value="../libs/SPI"/>
