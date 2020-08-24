@@ -1925,9 +1925,9 @@ void cSampleRecorder::calcRadioFreqBarVal()
 
 void cSampleRecorder::calcLevelBarVal()
 {
-	if(inputRMS.available())
+	if(analogInputSignalRMS.available())
 	{
-		measureSum += inputRMS.read();
+		measureSum += analogInputSignalRMS.read();
 		levelBarMeasureCounter++;
 	}
 	if(levelBarMeasureCounter == 10)

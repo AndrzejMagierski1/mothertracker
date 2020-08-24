@@ -32,8 +32,8 @@ void mtSongExporter::start(char * path)
 		status = exportStatus::exportDuring;
 
 		headerIsNotSaved = true;
-		exportL.begin();
-		exportR.begin();
+		queueOfLeftChannelExportedData.begin();
+		queueOfRightChannelExportedData.begin();
 		sequencer.playSong(0);
 	}
 

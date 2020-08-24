@@ -3,6 +3,7 @@
 #define SOURCE_MTAUDIOENGINE_H_
 
 #include "Audio.h"
+#include "mtAudioEngineConnectionsAndGlobalObjects.h"
 
 namespace mtAudioEngineConstans
 {
@@ -67,7 +68,6 @@ public:
 	float getDelayRMS(uint8_t channel);
 	float getReverbRMS(uint8_t channel);
 	float getDryMixRMS(uint8_t channel);
-
 
 	friend class playerEngine;
 private:
@@ -588,33 +588,8 @@ private:
 
 
 
-
-extern playerEngine instrumentPlayer[8];
 extern audioEngine engine;
-extern AudioEffectLimiter		limiter[2];
-extern AudioPlaySdWav           playSdWav;
-extern AudioPlaySdWavFloat 		playSdWavFloat;
-extern AudioPlaySdWav24bit 	 	playSdWav24Bit;
-extern AudioPlayMemory          playMem[8];
-extern envelopeGenerator		envelopeFilter[8];
-extern AudioFilterStateVariable filter[8];
-extern AudioAmplifier           amp[8];
-extern AudioAnalyzeRMS			trackRMS[8];
-extern AudioMixer10				mixerL,mixerR,mixerDelay;
-extern AudioOutputI2S           i2s1;
-extern AudioBitDepth			bitDepthControl[2];
-
-extern AudioInputI2S            i2sIn;
-extern AudioRecordQueue         queue;
-extern AudioMixer4              mixerRec;
-extern AudioAnalyzeRMS			inputRMS;
-
-extern AudioRecordQueue		 	exportL, exportR;
-extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
-extern AudioSynthWaveform		testWaveform;
-extern AudioEffectPolyverb		polyverb;
-extern AudioEffectShortDelay	shortDelay;
-
+extern playerEngine instrumentPlayer[8];
 extern uint8_t isCurrentLoadInstrument[48];
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

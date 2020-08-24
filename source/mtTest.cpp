@@ -956,19 +956,19 @@ void cTest::playSdFile(const char* filePath)
 	readHeader(&header,&wavHeader);
 	wavHeader.close();
 
-	if(header.AudioFormat == 3) playSdWavFloat.play(filePath);
+	if(header.AudioFormat == 3) playerFloatWavFromSD.play(filePath);
 	else
 	{
-		if(header.bitsPerSample == 16) playSdWav.play(filePath);
-		else if (header.bitsPerSample == 24) playSdWav24Bit.play(filePath);
+		if(header.bitsPerSample == 16) player16BitWavFromSD.play(filePath);
+		else if (header.bitsPerSample == 24) player24BitWavFromSD.play(filePath);
 	}
 }
 
 void cTest::stopPlayingSdFile()
 {
-	playSdWav.stop();
-	playSdWavFloat.stop();
-	playSdWav24Bit.stop();
+	player16BitWavFromSD.stop();
+	playerFloatWavFromSD.stop();
+	player24BitWavFromSD.stop();
 }
 
 //==========================================================================================

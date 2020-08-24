@@ -22,12 +22,12 @@ void mtPatternExporter::finishReceiving()
 {
 	if(status != exportStatus::exportFinished)
 	{
-		while ((exportL.available() >= 1) && (exportR.available() >= 1 ))
+		while ((queueOfLeftChannelExportedData.available() >= 1) && (queueOfRightChannelExportedData.available() >= 1 ))
 		{
 			refreshReceiving();
 		}
-		exportL.end();
-		exportR.end();
+		queueOfLeftChannelExportedData.end();
+		queueOfRightChannelExportedData.end();
 
 		status = exportStatus::exportFinishedReceiving;
 	}
@@ -94,8 +94,8 @@ void mtPatternExporter::start(char * path)
 		status = exportStatus::exportDuring;
 		headerIsNotSaved = true;
 
-		exportL.begin();
-		exportR.begin();
+		queueOfLeftChannelExportedData.begin();
+		queueOfRightChannelExportedData.begin();
 		sequencer.playPattern();
 
 	}
@@ -118,10 +118,10 @@ void mtPatternExporter::refreshReceiving()
 		{
 			return;
 		}
-		if ((exportL.available() >= 1) || (exportR.available() >= 1 ))
+		if ((queueOfLeftChannelExportedData.available() >= 1) || (queueOfRightChannelExportedData.available() >= 1 ))
 		{
-			int16_t * srcL = exportL.readBuffer();
-			int16_t * srcR = exportR.readBuffer();
+			int16_t * srcL = queueOfLeftChannelExportedData.readBuffer();
+			int16_t * srcR = queueOfRightChannelExportedData.readBuffer();
 			uint32_t * dest = (uint32_t*)(recBuf + position);
 
 			for(uint8_t i = 0 ; i< 128 ; i++)
@@ -135,8 +135,8 @@ void mtPatternExporter::refreshReceiving()
 			}
 			position += 256;
 
-			exportL.freeBuffer();
-			exportR.freeBuffer();
+			queueOfLeftChannelExportedData.freeBuffer();
+			queueOfRightChannelExportedData.freeBuffer();
 
 			if(position == SEND_BUF_SIZE)
 			{
@@ -174,10 +174,10 @@ void mtPatternExporter::updateReceiving()
 	{
 		float rmsL = 0 , rmsR = 0;
 
-		if(exportRmsL.available()  && exportRmsR.available() )
+		if(exportLeftChannelRMS.available()  && exportRightChannelRMS.available() )
 		{
-			rmsL = exportRmsL.read();
-			rmsR = exportRmsR.read();
+			rmsL = exportLeftChannelRMS.read();
+			rmsR = exportRightChannelRMS.read();
 
 			if(((rmsL < 0.0001f) && (rmsR < 0.0001f)) && (shortDelay.getIsFaded() || isIgnoredDelay))
 			{

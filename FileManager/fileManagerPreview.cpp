@@ -48,19 +48,19 @@ bool cFileManager::previevSamplefromSD(uint8_t index)
 
 	if(header.AudioFormat == 3)
 	{
-		playSdWavFloat.play(filePath);
+		playerFloatWavFromSD.play(filePath);
 		//debugLog.addLine("preview float wav");
 	}
 	else
 	{
 		if(header.bitsPerSample == 16)
 		{
-			playSdWav.play(filePath);
+			player16BitWavFromSD.play(filePath);
 			//debugLog.addLine("preview 16bit wav");
 		}
 		else if (header.bitsPerSample == 24)
 		{
-			playSdWav24Bit.play(filePath);
+			player24BitWavFromSD.play(filePath);
 			//debugLog.addLine("preview 24bit wav");
 		}
 	}
@@ -78,9 +78,9 @@ bool cFileManager::stopPrevievSamplefromSD()
 {
 	if(status != fmPreviewSampleFromSd && currentOperation != fmPreviewSamplesFromSD) return false;
 
-	playSdWav.stop();
-	playSdWavFloat.stop();
-	playSdWav24Bit.stop();
+	player16BitWavFromSD.stop();
+	playerFloatWavFromSD.stop();
+	player24BitWavFromSD.stop();
 
 
 	status = fmIdle;

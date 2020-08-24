@@ -7,19 +7,19 @@ void Recorder:: startRecording(int16_t * addr)
 
 	updateTimer.update(1000);
 
-	queue.begin();
+	queueOfRecordedData.begin();
 	if(mtConfig.audioCodecConfig.inSelect == inputSelectMic )
 	{
-		mixerRec.gain(0,1.0);
-		mixerRec.gain(1,0.0);
+		inputChannelsToMonoMixer.gain(0,1.0);
+		inputChannelsToMonoMixer.gain(1,0.0);
 	}
 	else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
 	{
-		mixerRec.gain(0,0.5);
-		mixerRec.gain(1,0.5);
+		inputChannelsToMonoMixer.gain(0,0.5);
+		inputChannelsToMonoMixer.gain(1,0.5);
 	}
 
-	queue.begin();
+	queueOfRecordedData.begin();
 	mode = recorderModeRec;
 	recByteSaved = 0;
 }
@@ -28,16 +28,16 @@ uint8_t Recorder::update()
 {
 	if(mode == recorderModeRec )
 	{
-		if ((queue.available() >= 1))
+		if ((queueOfRecordedData.available() >= 1))
 		{
-			memcpy(currentAddress,queue.readBuffer(),256);
-			queue.freeBuffer();
+			memcpy(currentAddress,queueOfRecordedData.readBuffer(),256);
+			queueOfRecordedData.freeBuffer();
 			currentAddress += 128;
 			recByteSaved += 256;
 		}
 		if(recByteSaved >= ((SOUND_MEMORY_TOTAL - REC_EDIT_MEM_OFFEST) / 2) -256)
 		{
-			queue.end();
+			queueOfRecordedData.end();
 			mode = recorderModeStop;
 			return 0;
 		}
@@ -48,10 +48,10 @@ uint8_t Recorder::update()
 
 void Recorder::stopRecording()
 {
-	queue.end();
+	queueOfRecordedData.end();
 	if (mode == recorderModeRec)
 	{
-		while ((queue.available() > 0) )
+		while ((queueOfRecordedData.available() > 0) )
 		{
 			update();
 		}

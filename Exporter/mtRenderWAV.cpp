@@ -30,8 +30,8 @@ void mtRenderWAV::start(char * path)
 		status = exportStatus::exportDuring;
 		headerIsNotSaved = true;
 
-		exportL.begin();
-		exportR.begin();
+		queueOfLeftChannelExportedData.begin();
+		queueOfRightChannelExportedData.begin();
 
 		sendSelection();
 		sequencer.playSelection();

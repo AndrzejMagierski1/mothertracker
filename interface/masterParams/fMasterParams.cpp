@@ -25,7 +25,7 @@ static cMasterParams* MP = &masterParams;
 
 extern strMtProject mtProject;
 extern AudioControlSGTL5000 audioShield;
-extern AudioMixer10	mixerReverb;
+extern AudioMixer10	preReverbMixer;
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
