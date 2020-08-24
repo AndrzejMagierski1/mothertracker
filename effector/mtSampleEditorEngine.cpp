@@ -1,3 +1,4 @@
+#include "mtEffectWavetableSmoother.h"
 #include "mtSampleEditorEngine.h"
 #include "mtEffect.h"
 #include "mtEffectDelay.h"
@@ -9,7 +10,6 @@
 #include "mtEffectFlanger.h"
 #include "mtEffectLimiter.h"
 #include "mtEffectCompresor.h"
-#include "mtWavetableSmoother.h"
 #include "mtEffectNormalizer.h"
 #include "mtEffectFadeIn.h"
 #include "mtEffectFadeOut.h"

@@ -1,4 +1,4 @@
-#include "mtWavetableSmoother.h"
+#include "mtEffectWavetableSmoother.h"
 
 mtEffectWavetableSmoother sampleEditorWavetableSmoother;
 

@@ -1,5 +1,5 @@
-#ifndef EFFECTOR_MTWAVETABLESMOOTHER_H_
-#define EFFECTOR_MTWAVETABLESMOOTHER_H_
+#ifndef EFFECTOR_MTEFFECTWAVETABLESMOOTHER_H_
+#define EFFECTOR_MTEFFECTWAVETABLESMOOTHER_H_
 #include "mtEffect.h"
 
 struct strEffectWavetableSmootherParams
@@ -53,4 +53,4 @@ extern mtEffectWavetableSmoother sampleEditorWavetableSmoother;
 
 
 
-#endif /* EFFECTOR_MTWAVETABLESMOOTHER_H_ */
+#endif /* EFFECTOR_MTEFFECTWAVETABLESMOOTHER_H_ */
