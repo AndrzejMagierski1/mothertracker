@@ -871,7 +871,7 @@ const float wt2048Note [MAX_NOTE] =
 		733.948662837219
 };
 //************************************                         LOW QUALITY PROJECTS NOTE TABS
-const float lowQualitywt32Note [MAX_NOTE] =
+const float lowQualityWt32Note [MAX_NOTE] =
 {
 		0.005932552501,
 		0.006285320430,
@@ -995,7 +995,7 @@ const float lowQualitywt32Note [MAX_NOTE] =
 		5.733973928416
 };
 
-const float LowQualitywt64Note [MAX_NOTE] =
+const float LowQualityWt64Note [MAX_NOTE] =
 {
 		0.011865105003,
 		0.012570640861,
@@ -1367,7 +1367,7 @@ const float lowQalityWt256Note [MAX_NOTE] =
 		45.871791427326
 };
 
-const float lowQualitywt512Note [MAX_NOTE] =
+const float lowQualityWt512Note [MAX_NOTE] =
 {
 		0.094920840019,
 		0.100565126885,
