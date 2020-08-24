@@ -18,6 +18,7 @@
 #include "mtMidi.h"
 
 #include "mtConfig.h"
+#include "mtRecorder.h"
 
 
 

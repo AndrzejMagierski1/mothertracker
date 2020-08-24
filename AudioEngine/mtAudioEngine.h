@@ -2,201 +2,28 @@
 #ifndef SOURCE_MTAUDIOENGINE_H_
 #define SOURCE_MTAUDIOENGINE_H_
 
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "mtEnvelopeGenerator.h"
-#include "mtHardware.h"
-#include "mtRecorder.h"
-#include "mtExporterWAV.h"
-#include "mtSequencer.h"
+#include "Audio.h"
 
-typedef Sequencer::strFxConsts fx_t;
-
-const float tempoSyncRatesAmp[ENVELOPE_SPEED_AMP_COUNT] =
+namespace mtAudioEngineConstans
 {
-	24,
-	16,
-	12,
-	8,
-	6,
-	4,
-	3,
-	2,
-	1.5,
-	1,
-	0.75,
-	0.5,
-	0.375,
-	0.333333,
-	0.25,
-	0.1875,
-	0.166667,
-	0.125,
-	0.083333,
-	0.0625,
-	0.041667,
-	0.03125,
-	0.020833,
-	0.015625
-};
+	constexpr uint32_t 	SKIP_MODIFICATION_THIS_VALUE = 1000000;
+	constexpr uint8_t 	MUTE_DISABLE = 0;
+	constexpr uint8_t 	MUTE_ENABLE = 1;
+	constexpr float 	AMP_MUTED = 0.0f;
+	constexpr uint8_t 	MOST_SIGNIFICANT_FX = 0;
+	constexpr uint8_t 	LEAST_SIGNIFICANT_FX = 1;
+	constexpr uint8_t 	ACTIVE_ENVELOPES = envMax;
+	constexpr uint16_t  RELEASE_NOTE_ON_VAL = 1;
+}
 
-const float tempoSyncRatesOthers[ENVELOPE_SPEED_OTHER_COUNT] =
-{
-	128,
-	96,
-	64,
-	48,
-	32,
-	24,
-	16,
-	12,
-	8,
-	6,
-	4,
-	3,
-	2,
-	1.5,
-	1,
-	0.75,
-	0.5,
-	0.375,
-	0.333333,
-	0.25,
-	0.1875,
-	0.166667,
-	0.125,
-	0.083333,
-	0.0625,
-	0.041667,
-	0.03125,
-	0.020833,
-	0.015625
-};
 
-constexpr uint8_t AMP_LOG_VALUES = 101;
-const float ampLogValues[AMP_LOG_VALUES] =
-{
-		0,
-		0.01047128548,
-		0.01096478196,
-		0.01148153621,
-		0.01202264435,
-		0.01258925412,
-		0.01318256739,
-		0.01380384265,
-		0.01445439771,
-		0.01513561248,
-		0.01584893192,
-		0.01659586907,
-		0.01737800829,
-		0.01819700859,
-		0.01905460718,
-		0.01995262315,
-		0.02089296131,
-		0.02187761624,
-		0.02290867653,
-		0.02398832919,
-		0.02511886432,
-		0.02630267992,
-		0.02754228703,
-		0.02884031503,
-		0.0301995172,
-		0.0316227766,
-		0.03311311215,
-		0.03467368505,
-		0.03630780548,
-		0.03801893963,
-		0.03981071706,
-		0.04168693835,
-		0.04365158322,
-		0.04570881896,
-		0.04786300923,
-		0.05011872336,
-		0.05248074602,
-		0.05495408739,
-		0.05754399373,
-		0.06025595861,
-		0.06309573445,
-		0.0660693448,
-		0.06918309709,
-		0.07244359601,
-		0.0758577575,
-		0.07943282347,
-		0.08317637711,
-		0.087096359,
-		0.09120108394,
-		0.0954992586,
-		0.1,
-		0.1047128548,
-		0.1096478196,
-		0.1148153621,
-		0.1202264435,
-		0.1258925412,
-		0.1318256739,
-		0.1380384265,
-		0.1445439771,
-		0.1513561248,
-		0.1584893192,
-		0.1659586907,
-		0.1737800829,
-		0.1819700859,
-		0.1905460718,
-		0.1995262315,
-		0.2089296131,
-		0.2187761624,
-		0.2290867653,
-		0.2398832919,
-		0.2511886432,
-		0.2630267992,
-		0.2754228703,
-		0.2884031503,
-		0.301995172,
-		0.316227766,
-		0.3311311215,
-		0.3467368505,
-		0.3630780548,
-		0.3801893963,
-		0.3981071706,
-		0.4168693835,
-		0.4365158322,
-		0.4570881896,
-		0.4786300923,
-		0.5011872336,
-		0.5248074602,
-		0.5495408739,
-		0.5754399373,
-		0.6025595861,
-		0.6309573445,
-		0.660693448,
-		0.6918309709,
-		0.7244359601,
-		0.758577575,
-		0.7943282347,
-		0.8317637711,
-		0.87096359,
-		0.9120108394,
-		0.954992586,
-		1
-};
-constexpr uint32_t NOT_MOD_POINTS = 1000000;
-constexpr uint8_t MUTE_DISABLE = 0;
-constexpr uint8_t MUTE_ENABLE = 1;
-constexpr float AMP_MUTED = 0.0f;
-constexpr uint8_t MOST_SIGNIFICANT_FX = 0;
-constexpr uint8_t LEAST_SIGNIFICANT_FX = 1;
 extern IntervalTimer updateTimer;
-constexpr uint8_t ACTIVE_ENVELOPES = envMax;
 
 class audioEngine
 {
 public:
 	void init();
 	void update();
-	void prevSdConnect();
-	void prevSdDisconnect();
 	void refreshTrackVolume();
 	void refreshReverbVolume();
 	void refreshDelayVolume();
@@ -776,8 +603,6 @@ extern AudioAnalyzeRMS			trackRMS[8];
 extern AudioMixer10				mixerL,mixerR,mixerDelay;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
-
-//extern AudioFilterStateVariable filterReverbOut;
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;

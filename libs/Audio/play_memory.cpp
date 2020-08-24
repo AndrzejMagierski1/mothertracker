@@ -1,8 +1,7 @@
 #include "play_memory.h"
 #include "Audio.h"
-#include "utility/dspinst.h"
 #include "mtAudioEngine.h"
-
+#include "ampLogarythmicValues.h"
 //**************************************************************************************UPDATE START
 
 void AudioPlayMemory::update(void)

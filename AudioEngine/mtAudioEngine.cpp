@@ -2,6 +2,9 @@
 #include "sampleRecorder/sampleRecorder.h"
 #include "mtStructs.h"
 #include "metronomeBeep.h"
+#include "ampLogarythmicValues.h"
+#include "tempoSyncRateValues.h"
+#include "mtRecorder.h"
 extern AudioControlSGTL5000 audioShield;
 static cSampleRecorder* SR = &sampleRecorder;
 
@@ -176,8 +179,7 @@ audioEngine engine;
 uint8_t isCurrentLoadInstrument[48];
 
 
-
-constexpr uint16_t RELEASE_NOTE_ON_VAL = 1;
+using namespace mtAudioEngineConstans;
 
 void updateAudioEngine();
 
@@ -659,15 +661,15 @@ void playerEngine :: modReverbSend(uint8_t value)
 
 void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep, uint8_t fx_n)
 {
-	if(ep != NOT_MOD_POINTS) currentSeqModValues.endPoint = ep;
-	if(sp != NOT_MOD_POINTS) currentSeqModValues.startPoint = sp;
+	if(ep != SKIP_MODIFICATION_THIS_VALUE) currentSeqModValues.endPoint = ep;
+	if(sp != SKIP_MODIFICATION_THIS_VALUE) currentSeqModValues.startPoint = sp;
 
 	int32_t startPoint,loopPoint1,loopPoint2,endPoint;
 
-	startPoint = sp != NOT_MOD_POINTS ? currentSeqModValues.startPoint : mtProject.instrument[currentInstrument_idx].startPoint;
+	startPoint = sp != SKIP_MODIFICATION_THIS_VALUE ? currentSeqModValues.startPoint : mtProject.instrument[currentInstrument_idx].startPoint;
 	loopPoint1 = mtProject.instrument[currentInstrument_idx].loopPoint1;
 	loopPoint2 = mtProject.instrument[currentInstrument_idx].loopPoint2;
-	endPoint =  ep != NOT_MOD_POINTS ? currentSeqModValues.endPoint : mtProject.instrument[currentInstrument_idx].endPoint;
+	endPoint =  ep != SKIP_MODIFICATION_THIS_VALUE ? currentSeqModValues.endPoint : mtProject.instrument[currentInstrument_idx].endPoint;
 
 
 //	if(ep != NOT_MOD_POINTS ) trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::endPoint] = 1;

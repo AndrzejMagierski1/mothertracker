@@ -16,6 +16,7 @@
 #include "core/songTimer.h"
 
 #include "debugLog.h"
+#include "mtHardware.h"
 
 
 constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic

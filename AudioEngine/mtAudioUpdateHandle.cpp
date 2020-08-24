@@ -1,4 +1,8 @@
 #include "mtAudioEngine.h"
+#include "ampLogarythmicValues.h"
+#include "mtSequencer.h"
+
+using namespace mtAudioEngineConstans;
 
 void playerEngine:: update()
 {

@@ -1,5 +1,5 @@
 #include "mtAudioEngine.h"
-
+#include "ampLogarythmicValues.h"
 //*******************************************change
 void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {

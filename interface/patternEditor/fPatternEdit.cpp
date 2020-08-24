@@ -14,6 +14,7 @@
 #include "sdramTest.h"
 
 #include "debugLog.h"
+#include "mtExporterWAV.h"
 
 
 cPatternEditor patternEditor;

@@ -4,6 +4,7 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 #include "debugLog.h"
+#include "mtExporterWAV.h"
 void setOnLastExportStep();
 
 void mtPatternExporter::setOnLastStep()

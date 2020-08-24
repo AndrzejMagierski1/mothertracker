@@ -24,6 +24,7 @@
 #include "configEditor.h"
 #include "mtGridEditor.h"
 #include "mtPadsBacklight.h"
+#include "mtHardware.h"
 
 cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;

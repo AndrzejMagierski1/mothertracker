@@ -1,6 +1,8 @@
 #include "mtAudioEngine.h"
 #include "mtSequencer.h"
+#include "ampLogarythmicValues.h"
 
+using namespace mtAudioEngineConstans;
 
 //********************************** NOTE_ON
 uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
@@ -101,13 +103,13 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	{
 		if (isFxVelocity(fx1_id))
 		{
-			fx1_id = fx_t::FX_TYPE_VELOCITY;
+			fx1_id = Sequencer::strFxConsts::FX_TYPE_VELOCITY;
 			fx1_val = velocity;
 		}
 
 		if (isFxVelocity(fx2_id))
 		{
-			fx2_id = fx_t::FX_TYPE_VELOCITY;
+			fx2_id = Sequencer::strFxConsts::FX_TYPE_VELOCITY;
 			fx2_val = velocity;
 		}
 	}
