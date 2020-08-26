@@ -5,7 +5,7 @@
 
 void AudioPlayMemory::playWavetable(uint8_t instrIdx, int8_t note)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 
 	if( instrIdx > INSTRUMENTS_MAX ) instrIdx = INSTRUMENTS_MAX;
@@ -55,7 +55,7 @@ void AudioPlayMemory::playWavetable(uint8_t instrIdx, int8_t note)
 
 
 	playing = 1;
-	__enable_irq();
+//	__enable_irq();
 	AudioInterrupts();
 }
 

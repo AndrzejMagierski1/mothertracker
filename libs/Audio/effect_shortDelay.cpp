@@ -1,6 +1,8 @@
 #include "effect_shortDelay.h"
 #include "sdram.h"
 #include "mtSequencer.h"
+#include "Audio.h"
+
 static int16_t zeroblock[AUDIO_BLOCK_SAMPLES] = {};
 
 constexpr uint32_t MAX_DELAYLINE_LENGTH = (MAX_SHORT_DELAY_VOICES - 1) * MAX_SHORT_DELAY_TIME * 44.1f;
@@ -56,7 +58,8 @@ void AudioEffectShortDelay::setFeedback(float f)
 		maxVoiceNumber++;
 		if(maxVoiceNumber == MAX_SHORT_DELAY_VOICES) break;
 	}
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 	delayVoicesNumber = maxVoiceNumber - 1;
 
 	for(uint8_t i = 1 ; i<= delayVoicesNumber; i++)
@@ -68,7 +71,8 @@ void AudioEffectShortDelay::setFeedback(float f)
 	}
 	delaylineLength = delayVoicesNumber * timeInSamples;
 	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
-	__enable_irq();
+	AudioInterrupts();
+//	__enable_irq();
 }
 void AudioEffectShortDelay::setTime(uint16_t t)
 {
@@ -76,14 +80,16 @@ void AudioEffectShortDelay::setTime(uint16_t t)
 
 	if(t > MAX_SHORT_DELAY_TIME) t = MAX_SHORT_DELAY_TIME;
 	timeInSamples = (uint32_t)(t * 44.1f) ;
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 	for(uint8_t i = 1 ; i <= delayVoicesNumber; i++)
 	{
 		feedbackVoiceShift[i-1] = i * timeInSamples;
 	}
 	delaylineLength = delayVoicesNumber * timeInSamples;
 	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
 }
 
 void AudioEffectShortDelay::setRate(uint8_t r)
@@ -97,14 +103,16 @@ void AudioEffectShortDelay::setRate(uint8_t r)
 
 
 	timeInSamples = (uint32_t)(time * 44.1f) ;
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 	for(uint8_t i = 1 ; i <= delayVoicesNumber; i++)
 	{
 		feedbackVoiceShift[i-1] = i * timeInSamples;
 	}
 	delaylineLength = delayVoicesNumber * timeInSamples;
 	if(bufferedDataLength > delaylineLength) bufferedDataLength = delaylineLength;
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
 }
 void AudioEffectShortDelay::setPingpongEnable(bool pp)
 {
