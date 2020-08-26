@@ -260,6 +260,7 @@ const uint8_t PADS_LIGHT_FRONT_DEFAULT 		=	31;
 const uint16_t MIN_GRANULAR_LENGTH			= 44;
 const uint16_t MAX_GRANULAR_LENGTH			= 44100;
 
+const float NOTE_CORRECTION_COEFFICIENT = 44100.0f/44117.64706f;
 //=====================================================================
 //=====================================================================
 //=====================================================================
