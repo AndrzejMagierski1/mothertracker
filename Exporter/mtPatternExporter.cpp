@@ -114,7 +114,7 @@ void mtPatternExporter::refreshReceiving()
 		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
 
 
-		if((requiredSave) && (position == SEND_BUF_SIZE - 256  ))
+		if((requiredSave) && (position >= SEND_BUF_SIZE - 256  ))
 		{
 			return;
 		}
@@ -126,26 +126,42 @@ void mtPatternExporter::refreshReceiving()
 
 			for(uint8_t i = 0 ; i< 128 ; i++)
 			{
-				if(srcL == nullptr) *packageL = 0;
-				else *packageL = *srcL++;
+				sampleRateCorrectionSum += sampleRateCorrectionCoefficientFraction;
+				if(sampleRateCorrectionSum < 1.0f)
+				{
+					if(srcL == nullptr) *packageL = 0;
+					else *packageL = *srcL++;
 
-				if(srcR == nullptr) *packageR = 0;
-				else *packageR = *srcR++;
-				*dest++ = packageLR;
+					if(srcR == nullptr) *packageR = 0;
+					else *packageR = *srcR++;
+					*dest++ = packageLR;
+
+					position += 2;
+
+					if(position == SEND_BUF_SIZE)
+					{
+		//				__disable_irq();
+						position = 0;
+						switchBuffer();
+						requiredSave = true;
+						dest = (uint32_t *)recBuf;
+		//				__enable_irq();
+					}
+
+				}
+				else
+				{
+					if(srcL != nullptr) srcL++;
+					if(srcR != nullptr) srcR++;
+					sampleRateCorrectionSum -= 1.0f;
+				}
+
 			}
-			position += 256;
 
 			queueOfLeftChannelExportedData.freeBuffer();
 			queueOfRightChannelExportedData.freeBuffer();
 
-			if(position == SEND_BUF_SIZE)
-			{
-//				__disable_irq();
-				position = 0;
-				switchBuffer();
-				requiredSave = true;
-//				__enable_irq();
-			}
+
 		}
 	}
 }
