@@ -5,7 +5,7 @@
 //Play dla wszystkich trybow loop jest wspolny stad tylko tu pelna implementacja a w innych wywolanie
 void AudioPlayMemory::playLoopForward(uint8_t instrIdx, int8_t note)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 
 	if( instrIdx > INSTRUMENTS_MAX ) instrIdx = INSTRUMENTS_MAX;
@@ -48,7 +48,7 @@ void AudioPlayMemory::playLoopForward(uint8_t instrIdx, int8_t note)
 	if ( (startPoint >= endPoint)  || (startPoint > loopPoint1) ||  (startPoint > loopPoint2) ||
 		 (loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)   ||  (loopPoint2 > endPoint))
 	{
-		__enable_irq();
+//		__enable_irq();
 		AudioInterrupts();
 		return;
 	}
@@ -63,7 +63,7 @@ void AudioPlayMemory::playLoopForward(uint8_t instrIdx, int8_t note)
 	if((pointsInSamples.start >= currentSampleLength) || (pointsInSamples.loop1 > currentSampleLength) ||
 	   (pointsInSamples.loop2 > currentSampleLength)  || (pointsInSamples.end > currentSampleLength))
 	{
-		__enable_irq();
+//		__enable_irq();
 		AudioInterrupts();
 		return;
 	}
@@ -80,7 +80,7 @@ void AudioPlayMemory::playLoopForward(uint8_t instrIdx, int8_t note)
 
 
 	playing = 1;
-	__enable_irq();
+//	__enable_irq();
 	AudioInterrupts();
 }
 

@@ -1802,6 +1802,7 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	timer_var = ((3125.0 / getActualTempo()) * (player.swing_offset + 50.0)) / 12.0;
 
 	playTimer.begin(timerExternalVector, timer_var);
+	playTimer.priority(0); //max priority
 
 }
 

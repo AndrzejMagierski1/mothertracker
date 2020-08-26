@@ -512,9 +512,11 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 
 void AudioPlayMemory::stop(void)
 {
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 	playing = 0;
-	__enable_irq();
+	AudioInterrupts();
+//	__enable_irq();
 }
 
 

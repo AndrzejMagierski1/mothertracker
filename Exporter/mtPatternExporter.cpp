@@ -144,7 +144,7 @@ void mtPatternExporter::refreshReceiving()
 				position = 0;
 				switchBuffer();
 				requiredSave = true;
-				__enable_irq();
+//				__enable_irq();
 			}
 		}
 	}
