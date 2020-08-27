@@ -64,6 +64,8 @@ private:
 	int16_t * const packageR = (int16_t *) ((int16_t *)&packageLR + 1);
 	bool duringUpdateReceive;
 	bool isIgnoredDelay;
+	const float sampleRateCorrectionCoefficientFraction = 44117.0f/44100.0f - 1.0f;
+	float sampleRateCorrectionSum;
 };
 
 
