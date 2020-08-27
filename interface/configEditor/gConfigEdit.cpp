@@ -7,7 +7,7 @@
 static uint16_t framesPlacesConfig[4][4]=
 {
 	{(800/8)*0+1, 29, 800/4-3, 391},
-	{(800/8)*2+1, 29, 600/2-3, 391},
+	{(800/8)*2+1, 29, 800/2-3, 391},
 	{(800/8)*5+1, 29, 800/4-3, 391},
 	{(800/8)*5+1, 29, 600/2-3, 391},
 };
@@ -135,18 +135,18 @@ void cConfigEditor::initDisplayControls()
 	labelArrow[0].bitmaps[1].yValue = 447;
 
 	labelArrow[1].bitmaps[0].bitmapIndex = displayArrowU;
-	labelArrow[1].bitmaps[0].xValue =  (800/8)*2+(800/16);
+	labelArrow[1].bitmaps[0].xValue =  (800/8)*3+(800/16);
 	labelArrow[1].bitmaps[0].yValue = 447;
 	labelArrow[1].bitmaps[1].bitmapIndex = displayArrowD;
-	labelArrow[1].bitmaps[1].xValue =  (800/8)*3+(800/16);
+	labelArrow[1].bitmaps[1].xValue =  (800/8)*4+(800/16);
 	labelArrow[1].bitmaps[1].yValue = 447;
 
-	labelArrow[2].bitmaps[0].bitmapIndex = displayArrowU;
-	labelArrow[2].bitmaps[0].xValue =  (800/8)*5+(800/16);
-	labelArrow[2].bitmaps[0].yValue = 447;
-	labelArrow[2].bitmaps[1].bitmapIndex = displayArrowD;
-	labelArrow[2].bitmaps[1].xValue =  (800/8)*6+(800/16);
-	labelArrow[2].bitmaps[1].yValue = 447;
+//	labelArrow[2].bitmaps[0].bitmapIndex = displayArrowU;
+//	labelArrow[2].bitmaps[0].xValue =  (800/8)*5+(800/16);
+//	labelArrow[2].bitmaps[0].yValue = 447;
+//	labelArrow[2].bitmaps[1].bitmapIndex = displayArrowD;
+//	labelArrow[2].bitmaps[1].xValue =  (800/8)*6+(800/16);
+//	labelArrow[2].bitmaps[1].yValue = 447;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -159,8 +159,8 @@ void cConfigEditor::initDisplayControls()
 		prop2.y = 424;
 		prop2.h =  55;
 		if(i == 0) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[0];}
-		if(i == 2) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[1];}
-		if(i == 5) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[2];}
+		if(i == 3) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[1];}
+		//if(i == 5) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[2];}
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
 	}
@@ -187,7 +187,7 @@ void cConfigEditor::initDisplayControls()
 
 	prop.x = (800/8)*2+1;
 	prop.y = 29;
-	prop.w = 600/2-3;
+	prop.w = 800/2-3;
 	prop.h = 394;
 	prop.data = &submenuList;
 	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
@@ -360,8 +360,8 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.refreshControl(titleLabel);
 
 
-	display.setControlText(label[4], "Change");
-	display.setControlText(label[7], "Change");
+	display.setControlText(label[5], "Change");
+	//display.setControlText(label[7], "Change");
 
 
 	frameData.placesCount = 4;
@@ -371,7 +371,7 @@ void cConfigEditor::showDefaultConfigScreen()
 	frameData.places[2] = &framesPlacesConfig[2][0];
 	frameData.places[3] = &framesPlacesConfig[3][0];
 
-	display.setControlValue(bgLabel, 36);
+	display.setControlValue(bgLabel, 68);
 	display.refreshControl(bgLabel);
 
 	display.setControlShow(frameControl);

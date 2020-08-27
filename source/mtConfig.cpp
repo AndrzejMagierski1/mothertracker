@@ -412,11 +412,11 @@ void checkConfig()
 	if(mtConfig.general.recOptions > recOptions_max) 		mtConfig.general.recOptions = 0;
 	if(mtConfig.general.performanceSource > 1) 				mtConfig.general.performanceSource = 0;
 
-	if(mtConfig.general.padBoardScale > 39) 		mtConfig.general.padBoardScale = 0;
-	if(mtConfig.general.padBoardNoteOffset > 11) 	mtConfig.general.padBoardNoteOffset = 11;
-	if(mtConfig.general.padBoardRootNote > 25) 		mtConfig.general.padBoardRootNote = 12;
+	if(mtConfig.general.padBoardScale > 39) 			mtConfig.general.padBoardScale = 0;
+	if(mtConfig.general.padBoardNoteOffset > 11) 		mtConfig.general.padBoardNoteOffset = 11;
+	if(mtConfig.general.padBoardRootNote > 25) 			mtConfig.general.padBoardRootNote = 12;
 	//if(mtConfig.general.padBoardMaxVoices > 8) 		mtConfig.general.padBoardMaxVoices = 8;
-	if(mtConfig.general.antialiasingEnable > 1) mtConfig.general.antialiasingEnable = 0;
+	if(mtConfig.general.antialiasingEnable > 1) 		mtConfig.general.antialiasingEnable = 0;
 
 	// interface ----------------------------------------
 	if(mtConfig.interface.fxPopupDescription > 1)

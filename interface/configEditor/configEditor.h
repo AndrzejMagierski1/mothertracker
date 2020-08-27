@@ -69,7 +69,8 @@ public:
 	void loadConfigValuesList(strItemTypeListValues* itemSetup);
 
 
-
+	void goMenuOut();
+	void goMenuIn();
 	void changeMenuListPosition(uint8_t list, int16_t value, uint8_t source = 0);
 	void executeSelectedListItem(uint8_t list);
 	void chanegeItemValue(void* selectedMenuItem, int16_t value);

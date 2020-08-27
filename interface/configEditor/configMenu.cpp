@@ -255,6 +255,19 @@ void cConfigEditor::loadConfigValuesList(strItemTypeListValues* itemSetup)
 //	display.setControlShow(configListControl);
 }
 
+void cConfigEditor::goMenuOut()
+{
+
+
+}
+
+void cConfigEditor::goMenuIn()
+{
+	executeSelectedListItem(1);
+
+}
+
+
 //source = 0 - encoder, = 1 - klawisze pod ekranem
 void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value, uint8_t source)
 {
@@ -374,22 +387,22 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 	{// 2 lista (submenu)
 		if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
 		{
-			hideConfigList();
+//			hideConfigList();
 			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild();
-			setLabelByMenuItemType(4, temp_child->getItemType(), temp_child->getValueEditState());
-			hideSecondSubmenu();
+			setLabelByMenuItemType(5, temp_child->getItemType(), temp_child->getValueEditState());
+//			hideSecondSubmenu();
 			return;
 		}
 		else if(menuBase.getSelChild()->getSelChild()->type == menuTypeGroup)
 		{
-			hideConfigList();
-			reloadSecondSubmenu();
-			showSecondSubmenu();
-			changeLabelText(4, "");
-			//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
-			cMenuItem* item_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
-			setLabelByMenuItemType(7, item_child->getItemType(), item_child->getValueEditState());
-			//setLabelByMenuItemType(7, menuItemTypeValueU8, 0);
+//			hideConfigList();
+//			reloadSecondSubmenu();
+//			showSecondSubmenu();
+//			changeLabelText(5, "");
+//			//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
+//			cMenuItem* item_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
+//			setLabelByMenuItemType(7, item_child->getItemType(), item_child->getValueEditState());
+//			//setLabelByMenuItemType(7, menuItemTypeValueU8, 0);
 		}
 	}
 	if(listChanged <= 2)

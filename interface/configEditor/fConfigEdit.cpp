@@ -331,7 +331,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->changeMenuListPosition(1, -1, 1);
+				CE->goMenuOut();
 			}
 			else
 			{
@@ -343,7 +343,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->changeMenuListPosition(1, 1, 1);
+				CE->changeMenuListPosition(1, -1, 1);
 			}
 			else
 			{
@@ -355,7 +355,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->executeSelectedListItem(1);
+				CE->changeMenuListPosition(1, 1, 1);
 			}
 			else
 			{
@@ -365,55 +365,78 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 5:
 		{
-			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
+
+			//CE->executeSelectedListItem(1);
+
+			if(CE->selectedPlace == 1)
 			{
-				if(CE->configListShown) CE->changeConfigListPosition(-1);
-				else CE->changeMenuListPosition(2, -1, 1);
+				CE->goMenuIn();
 			}
 			else
 			{
-				if(CE->configListShown) CE->selectedPlace = 2;
-				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
+				CE->selectedPlace = 1;
 			}
+			break;
+
+//			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
+//			{
+//				if(CE->configListShown) CE->changeConfigListPosition(-1);
+//				else CE->changeMenuListPosition(2, -1, 1);
+//			}
+//			else
+//			{
+//				if(CE->configListShown) CE->selectedPlace = 2;
+//				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
+//			}
 			break;
 		}
 		case 6:
 		{
-			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
-			{
-				if(CE->configListShown) CE->changeConfigListPosition(1);
-				else CE->changeMenuListPosition(2, 1, 1);
-			}
-			else
-			{
-				if(CE->configListShown) CE->selectedPlace = 2;
-				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
-			}
+
+
+
+
+
+//			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
+//			{
+//				if(CE->configListShown) CE->changeConfigListPosition(1);
+//				else CE->changeMenuListPosition(2, 1, 1);
+//			}
+//			else
+//			{
+//				if(CE->configListShown) CE->selectedPlace = 2;
+//				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
+//			}
 			break;
 		}
 		case 7:
 		{
-			if(CE->configListShown)
-			{
-				if(CE->selectedPlace == 2)
-				{
-					if(CE->flashingState) CE->showFirmwareUpdatePopout();
-					else CE->configListConfirm(CE->selectedConfigListPosition);
-				}
-				else
-				{
-					CE->selectedPlace = 2;
-				}
-			}
-			else if(CE->selectedPlace == 3)
-			{
-				CE->executeSelectedListItem(2);
-			}
-			else
-			{
-				if(CE->secondSubmenuShown) CE->selectedPlace = 3;
-			}
 
+
+
+
+
+//			if(CE->configListShown)
+//			{
+//				if(CE->selectedPlace == 2)
+//				{
+//					if(CE->flashingState) CE->showFirmwareUpdatePopout();
+//					else CE->configListConfirm(CE->selectedConfigListPosition);
+//				}
+//				else
+//				{
+//					CE->selectedPlace = 2;
+//				}
+//			}
+//			else if(CE->selectedPlace == 3)
+//			{
+//				CE->executeSelectedListItem(2);
+//			}
+//			else
+//			{
+//				if(CE->secondSubmenuShown) CE->selectedPlace = 3;
+//			}
+//
 			break;
 		}
 
