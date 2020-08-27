@@ -4,6 +4,7 @@
 			- [AM] fix: nie trzymanie tempa w exporcie
 			- [AM] fix: Anti-aliasing zamiast Antialiasing
 			- [AM] fix: nowy projekt juz nadpisuje wartosci mixera
+			- [AM] fix: glosnosc w recorderze identyczna jak w defaulcie instrumentu
 	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
 			- [AM] fix: poprawienie wyliczania parametrow limitera
