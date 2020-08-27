@@ -289,6 +289,10 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setReverbDamp(mtProject.values.reverb.damp);
 	engine.setReverbPredelay(mtProject.values.reverb.predelay);
 	engine.setReverbDiffusion(mtProject.values.reverb.diffusion);
+	engine.refreshDelayVolume();
+	engine.refreshReverbVolume();
+	engine.refreshTrackVolume();
+
 	//----------------------------------------------------------------------------------------------------
 //	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 //			mtProject.values.padBoardNoteOffset,

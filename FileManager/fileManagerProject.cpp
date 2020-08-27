@@ -15,6 +15,7 @@
 #include "fileTransfer.h"
 #include "fileManager.h"
 #include "mtFileManagerOldVersionRecovery.h"
+#include "mtAudioEngine.h"
 
 __NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer {0};
 
@@ -342,6 +343,14 @@ void cFileManager::getDefaultValues(struct strMtValues *source)
 	for(uint8_t track = 0; track < 8; track++)
 	{
 		sprintf(&source->TrackNames[track][0],"Track %d",track+1);
+		source->trackVolume[track] = DEFAULT_TRACK_VOLUME;
 	}
 
+	source->reverbMute = mtAudioEngineConstans::MUTE_DISABLE;
+	source->delayMute = mtAudioEngineConstans::MUTE_DISABLE;
+	source->dryMixMute = mtAudioEngineConstans::MUTE_DISABLE;
+
+	source->reverbVolume = DEFAULT_REVERB_VOLUME;
+	source->delayVolume = DEFAULT_DELAY_VOLUME;
+	source->dryMixVolume = DEFAULT_DELAY_VOLUME;
 }
