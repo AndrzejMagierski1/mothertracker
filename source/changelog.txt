@@ -3,6 +3,7 @@
 			- [AM] fix: save pattern - "no" juz nie czysci reverba i delaya ( nie wplywa na dźwięk)
 			- [AM] fix: nie trzymanie tempa w exporcie
 			- [AM] fix: Anti-aliasing zamiast Antialiasing
+			- [AM] fix: nowy projekt juz nadpisuje wartosci mixera
 	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
 			- [AM] fix: poprawienie wyliczania parametrow limitera
