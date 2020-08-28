@@ -527,7 +527,7 @@ void cSampleRecorder::noteOnHandle(uint8_t channel, uint8_t note, uint8_t veloci
 
 		int16_t padboardSource = (channel == Sequencer::GRID_OUTSIDE_PATTERN) ? source : 100 + channel;
 
-		mtPadBoard.startInstrument(note, recorder.getStartAddress()+ addressShift,length - addressShift, padboardSource);
+		mtPadBoard.startInstrument(note, recorder.getStartAddress()+ addressShift,length - addressShift, DEFAULT_INSTRUMENT_VOLUME , padboardSource);
 	}
 }
 void cSampleRecorder::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)

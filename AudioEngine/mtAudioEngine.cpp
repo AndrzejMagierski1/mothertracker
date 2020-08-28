@@ -840,7 +840,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 
 }
 
-uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note, uint8_t type)
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note, int8_t velocity, uint8_t type)
 {
 	uint8_t status=0;
 
@@ -852,7 +852,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	}
 
 	filterDisconnect();
-	modVolume(ampLogValues[50]); //wracam z 50 do 100, a teraz ze 100 do 50
+	modVolume(ampLogValues[velocity]); //wracam z 50 do 100, a teraz ze 100 do 50
 //	engine.clearDelay();
 	modPanning(50);
 	modDelaySend(AMP_MUTED);
