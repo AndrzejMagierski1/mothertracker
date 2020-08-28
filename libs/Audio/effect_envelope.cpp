@@ -63,7 +63,7 @@ void AudioPlayMemory::envelopeSetIsRandom(bool value)
 
 void AudioPlayMemory::envelopeDelay(float milliseconds)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	uint16_t lastDelayCount = envelope.delay_count;
 	envelope.delay_count = envelopeMilliseconds2count(milliseconds);
@@ -72,7 +72,7 @@ void AudioPlayMemory::envelopeDelay(float milliseconds)
 	if(envelope.delay_count == lastDelayCount)
 	{
 		AudioInterrupts();
-		__enable_irq();
+//		__enable_irq();
 		return;
 	}
 
@@ -86,11 +86,11 @@ void AudioPlayMemory::envelopeDelay(float milliseconds)
 		else envelope.count += dif;
 	}
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void  AudioPlayMemory::envelopeAttack(float milliseconds)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 
 	uint16_t lastAttackCount = envelope.attack_count;
@@ -101,7 +101,7 @@ void  AudioPlayMemory::envelopeAttack(float milliseconds)
 	if(envelope.attack_count == lastAttackCount)
 	{
 		AudioInterrupts();
-		__enable_irq();
+//		__enable_irq();
 		return;
 	}
 
@@ -123,11 +123,11 @@ void  AudioPlayMemory::envelopeAttack(float milliseconds)
 
 	}
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void  AudioPlayMemory::envelopeHold(float milliseconds)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	uint16_t lastHoldCount = envelope.hold_count;
 	envelope.hold_count = envelopeMilliseconds2count(milliseconds);
@@ -135,7 +135,7 @@ void  AudioPlayMemory::envelopeHold(float milliseconds)
 	if(envelope.hold_count == lastHoldCount)
 	{
 		AudioInterrupts();
-		__enable_irq();
+//		__enable_irq();
 		return;
 	}
 
@@ -149,11 +149,11 @@ void  AudioPlayMemory::envelopeHold(float milliseconds)
 
 	}
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void  AudioPlayMemory::envelopeDecay(float milliseconds)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	uint16_t lastDecayCount = envelope.decay_count;
 	envelope.decay_count = envelopeMilliseconds2count(milliseconds);
@@ -162,7 +162,7 @@ void  AudioPlayMemory::envelopeDecay(float milliseconds)
 	if(envelope.decay_count == lastDecayCount)
 	{
 		AudioInterrupts();
-		__enable_irq();
+//		__enable_irq();
 		return;
 	}
 
@@ -179,22 +179,22 @@ void  AudioPlayMemory::envelopeDecay(float milliseconds)
 
 	}
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void  AudioPlayMemory::envelopeSustain(float level)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	if (level < 0.0) level = 0;
 	else if (level > 1.0) level = 1.0;
 	envelope.sustain_mult = level * 1073741823.0;
 	if(envelope.state == envelopePhaseSustain) envelope.mult_hires = envelope.sustain_mult;
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 void  AudioPlayMemory::envelopeRelease(float milliseconds)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 	uint16_t lastReleaseCount = envelope.release_count;
 	envelope.release_count = envelopeMilliseconds2count(milliseconds);
@@ -203,7 +203,7 @@ void  AudioPlayMemory::envelopeRelease(float milliseconds)
 	if(envelope.release_count == lastReleaseCount)
 	{
 		AudioInterrupts();
-		__enable_irq();
+//		__enable_irq();
 		return;
 	}
 
@@ -220,13 +220,14 @@ void  AudioPlayMemory::envelopeRelease(float milliseconds)
 
 	}
 	AudioInterrupts();
-	__enable_irq();
+//	__enable_irq();
 }
 
 
 void AudioPlayMemory::envelopeNoteOn(uint8_t instr_idx,int8_t note)
 {
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 	envelope.pressedFlag = 1;
 
 	if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
@@ -250,13 +251,14 @@ void AudioPlayMemory::envelopeNoteOn(uint8_t instr_idx,int8_t note)
 		play(instr_idx,note);
 	}
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
-	__enable_irq();
+	AudioInterrupts();
+//	__enable_irq();
 }
 
 void AudioPlayMemory::envelopeNoteOnForPrev(uint8_t instr_idx,int8_t note)
 {
-	__disable_irq();
-
+//	__disable_irq();
+	AudioNoInterrupts();
 	envelope.pressedFlag = 1;
 
 	if (envelope.state == envelopePhaseIdle || envelope.state == envelopePhaseDelay)
@@ -279,12 +281,14 @@ void AudioPlayMemory::envelopeNoteOnForPrev(uint8_t instr_idx,int8_t note)
 		envelope.endKillReleaseFlag = 1;
 	}
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
 }
 
 void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len,uint8_t type)
 {
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 
 	envelope.pressedFlag = 1;
 
@@ -294,11 +298,13 @@ void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len,uint8_t 
 	}
 	playForPrev(addr,len,type);
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
 }
 void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len, uint8_t n,uint8_t type)
 {
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 
 	envelope.pressedFlag = 1;
 
@@ -307,11 +313,14 @@ void AudioPlayMemory::envelopeNoteOnForPrev(int16_t * addr,uint32_t len, uint8_t
 		envelopeSwitchPhase(envelopePhaseSustain);
 	}
 	playForPrev(addr,len,n,type);
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
 }
 
 void AudioPlayMemory::envelopeNoteOff(void)
 {
+	AudioNoInterrupts();
+
 	envelope.pressedFlag = 0;
 	if(stackedPlay.enable) stackedPlay.enable = false;
 
@@ -347,21 +356,24 @@ void AudioPlayMemory::envelopeNoteOff(void)
 	{
 		stop();
 	}
-	__enable_irq();
+//	__enable_irq();
+	AudioInterrupts();
 }
 
 void AudioPlayMemory::envelopeSetIdle(void)
 {
-	__disable_irq();
+//	__disable_irq();
+	AudioNoInterrupts();
 	envelope.pressedFlag = 0;
 	envelopeSwitchPhase(envelopePhaseIdle);
-	__enable_irq();
+	AudioInterrupts();
+//	__enable_irq();
 }
 
 void AudioPlayMemory::envelopeUpdate(audio_block_t *block)
 {
-	__disable_irq();
-	;
+//	__disable_irq();
+//	AudioNoInterrupts();
 	uint32_t *p, *end;
 
 	if (!block)

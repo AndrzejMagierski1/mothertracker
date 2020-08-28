@@ -50,7 +50,7 @@ cMenuItem melPerformanceSource	(menuGeneral, 	5, "Performance presets", 	menuTyp
 cMenuItem melPadsScale			(menuGeneral, 	6, "Pads Scale", 			menuTypeItemListTextWithAction, &setupPadsScale);
 cMenuItem melPadsRootNote		(menuGeneral, 	7, "Pads Root Note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
 cMenuItem melPadsLayout			(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
-cMenuItem melAntialiasingEnable		(menuGeneral, 	9, "Antialiasing", 		menuTypeItemListTextWithAction, &setupAntialiasing);
+cMenuItem melAntialiasingEnable		(menuGeneral, 	9, "Anti-aliasing", 		menuTypeItemListTextWithAction, &setupAntialiasing);
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
 ///////////////////

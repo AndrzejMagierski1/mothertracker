@@ -4,7 +4,7 @@
 
 void AudioPlayMemory::playSlice(uint8_t instrIdx, int8_t note)
 {
-	__disable_irq();
+//	__disable_irq();
 	AudioNoInterrupts();
 
 
@@ -58,7 +58,7 @@ void AudioPlayMemory::playSlice(uint8_t instrIdx, int8_t note)
 	iPitchCounter = reverseDirectionFlag ? constrainsInSamples.endPoint - 1 : 0;
 
 	playing = 1;
-	__enable_irq();
+//	__enable_irq();
 	AudioInterrupts();
 }
 
