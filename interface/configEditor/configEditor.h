@@ -69,20 +69,22 @@ public:
 	void loadConfigValuesList(strItemTypeListValues* itemSetup);
 
 
-	void goMenuOut();
-	void goMenuIn();
+	bool menuGoOut();
+	void menuGoIn();
 	void changeMenuListPosition(uint8_t list, int16_t value, uint8_t source = 0);
-	void executeSelectedListItem(uint8_t list);
 	void chanegeItemValue(void* selectedMenuItem, int16_t value);
 
 	void configListConfirm(uint8_t list_pos);
 
+	void itemEditorOpen(menu_item_t type, const char* title, const void* setup);
+	void itemEditorClose();
+	void itemEditorApply();
+	void itemEditorChangeValue(int16_t value);
 
-	void refreshConfigMenu(uint8_t listChanged);
+	void refreshConfigMenu();
 	void setLabelByMenuItemType(uint8_t label, menu_item_t type, uint8_t variant = 0);
 	void getSelectedItemInfo(void (**actionFunct)(void), void** menu_item, uint8_t* item_level);
 
-	void reloadSecondSubmenu();
 
 	void setGridScreenFunction();
 	void setPadScreenFunction();
@@ -123,10 +125,13 @@ public:
 
 
 
-	void showConfigList5(uint8_t list_width, uint8_t start, uint8_t length, char** listText);
+	void showConfigList4(uint8_t list_width, uint8_t start, uint8_t length, char** listText);
 	void hideConfigList();
 
 	void changeConfigListPosition(int16_t value);
+
+	void showConfigItemLabel(const char* text);
+	void hideConfigItemLabel();
 
 	void showSubmenu();
 	void hideSubmenu();
@@ -162,8 +167,8 @@ public:
 
 	hControl configBasemenuListControl;
 	hControl configSubmenuListControl;
-	hControl configSecondSubmenuListControl;
 	hControl configListControl;
+	hControl configLabel;
 	hControl textBox;
 
 	hControl titleBar = nullptr;
@@ -207,15 +212,17 @@ public:
 //----------------------------------
 // listy
 
+
+
 	strList basemenuList;
 	strParamValueList submenuList;
-	strParamValueList secondSubmenuList;
+
 	strList configList;
 
 
 
 	uint8_t submenuShown = 0;
-	uint8_t secondSubmenuShown = 0;
+	uint8_t itemEditorShown = 0;
 
 
 	uint8_t configListShown = 0;

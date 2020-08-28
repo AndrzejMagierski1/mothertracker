@@ -97,7 +97,7 @@ void cConfigEditor::update()
 		CE->listAllFirmwares();
 		CE->flashingState = 1;
 		CE->changeLabelText(7, "Update");
-		CE->showConfigList5(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
+		CE->showConfigList4(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
 		CE->selectConfigList(3);
 		newFileManager.clearStatus();
 	}
@@ -331,7 +331,8 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->goMenuOut();
+				if(CE->itemEditorShown) CE->itemEditorClose();
+				else CE->menuGoOut();
 			}
 			else
 			{
@@ -343,7 +344,8 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->changeMenuListPosition(1, -1, 1);
+				if(CE->itemEditorShown) CE->itemEditorChangeValue(-1);
+				else CE->changeMenuListPosition(1, -1, 1);
 			}
 			else
 			{
@@ -355,7 +357,8 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->changeMenuListPosition(1, 1, 1);
+				if(CE->itemEditorShown) CE->itemEditorChangeValue(1);
+				else CE->changeMenuListPosition(1, 1, 1);
 			}
 			else
 			{
@@ -365,12 +368,10 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 5:
 		{
-
-			//CE->executeSelectedListItem(1);
-
 			if(CE->selectedPlace == 1)
 			{
-				CE->goMenuIn();
+				if(CE->itemEditorShown) CE->itemEditorApply();
+				else CE->menuGoIn();
 			}
 			else
 			{
@@ -378,35 +379,10 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			}
 			break;
 
-//			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
-//			{
-//				if(CE->configListShown) CE->changeConfigListPosition(-1);
-//				else CE->changeMenuListPosition(2, -1, 1);
-//			}
-//			else
-//			{
-//				if(CE->configListShown) CE->selectedPlace = 2;
-//				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
-//			}
-			break;
 		}
 		case 6:
 		{
 
-
-
-
-
-//			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
-//			{
-//				if(CE->configListShown) CE->changeConfigListPosition(1);
-//				else CE->changeMenuListPosition(2, 1, 1);
-//			}
-//			else
-//			{
-//				if(CE->configListShown) CE->selectedPlace = 2;
-//				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
-//			}
 			break;
 		}
 		case 7:
@@ -553,8 +529,14 @@ static  uint8_t functLeft()
 	if(CE->updatePopupShown) return 1;
 
 
-	if(CE->selectedPlace == 3) 		CE->selectedPlace = 1;
-	else if(CE->selectedPlace > 0) 	CE->selectedPlace--;
+
+	if(CE->menuGoOut())
+	{
+		CE->selectedPlace = 1;
+		return 1;
+	}
+
+	if(CE->selectedPlace > 0) 	CE->selectedPlace--;
 
 
 	CE->activateLabelsBorder();
@@ -572,23 +554,24 @@ static  uint8_t functRight()
 	{
 		CE->selectedPlace = 1;
 	}
-	else if(CE->selectedPlace == 1 && CE->secondSubmenuShown)
-	{
-		CE->selectedPlace = 3;
-	}
 	else if(CE->selectedPlace == 1 && CE->configListShown)
 	{
 		CE->selectedPlace = 2;
 	}
 	else if(CE->selectedPlace == 1)
 	{
-		CE->executeSelectedListItem(1);
+		CE->menuGoIn();
 	}
+	else if(CE->selectedPlace == 1 && CE->itemEditorShown)
+	{
+
+	}
+/*
 	else if(CE->selectedPlace == 2)
 	{
 		if(CE->configListShown)
 		{
-			//CE->configListConfirm(CE->selectedConfigListPosition);
+			CE->configListConfirm(CE->selectedConfigListPosition);
 		}
 	}
 	else if(CE->selectedPlace == 3)
@@ -598,6 +581,7 @@ static  uint8_t functRight()
 			CE->executeSelectedListItem(2);
 		}
 	}
+*/
 
 	CE->activateLabelsBorder();
 
@@ -699,7 +683,6 @@ static 	uint8_t	functCancelGridScreen()
 	display.setControlShow(CE->configSubmenuListControl);
 	display.refreshControl(CE->configSubmenuListControl);
 	CE->showDefaultConfigScreen();
-	CE->hideSecondSubmenu();
 	padsBacklight.clearAllPads(0, 1, 0);
 	return 1;
 }

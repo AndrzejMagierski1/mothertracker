@@ -166,10 +166,14 @@ cMenuItem melOpenCredits	(menuCredits, 	0, "Show Credits", 			menuTypeItemAction
 //=====================================================================================================================================
 //=====================================================================================================================================
 
+hMenuItem activeSubmenu;
+
 void cConfigEditor::createConfigMenu()
 {
+	activeSubmenu = menuBase.getSelChild();
+
 	createMenuBaseList();
-	refreshConfigMenu(0);
+	refreshConfigMenu();
 }
 
 void cConfigEditor::hideConfigMenu()
@@ -177,12 +181,9 @@ void cConfigEditor::hideConfigMenu()
 	display.setControlHide(configListControl);
 	display.setControlHide(configBasemenuListControl);
 	display.setControlHide(configSubmenuListControl);
-	display.setControlHide(configSecondSubmenuListControl);
 	display.setControlHide(frameControl);
 
-
 	display.refreshControl(frameControl);
-
 }
 
 void cConfigEditor::createMenuBaseList()
@@ -195,51 +196,37 @@ void cConfigEditor::createMenuBaseList()
 	display.setControlData(configBasemenuListControl, &basemenuList);
 	display.refreshControl(configBasemenuListControl);
 	display.setControlShow(configBasemenuListControl);
-
 }
 
 void cConfigEditor::reloadSubmenu()
 {
+	cMenuGroup* submenu = (cMenuGroup*)activeSubmenu;
+
 	submenuList.linesCount = 14;
- 	submenuList.start = menuBase.getSelChild()->getSelectedItem();
-	submenuList.length = menuBase.getSelChild()->getCount();
-	submenuList.params = menuBase.getSelChild()->getNames();
-	submenuList.values = menuBase.getSelChild()->getValues();
+ 	submenuList.start = submenu->getSelectedItem();
+	submenuList.length = submenu->getCount();
+	submenuList.params = submenu->getNames();
+	submenuList.values = submenu->getValues();
 	submenuList.valueEditActive = 0;
 
-	if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
-		submenuList.valueEditActive = ((cMenuItem*)menuBase.getSelChild()->getSelChild())->getValueEditState();
+	if(submenu->parentMenu != &menuBase) 	changeLabelText(2, "Back");
+	else 									changeLabelText(2, "");
 
 	display.setControlData(configSubmenuListControl, &submenuList);
 	display.refreshControl(configSubmenuListControl);
 	display.setControlShow(configSubmenuListControl);
 }
 
-void cConfigEditor::reloadSecondSubmenu()
-{
-	if(menuBase.getSelChild()->getSelChild()->type == menuTypeGroup)
-	{
-		secondSubmenuList.linesCount = 14;
-		secondSubmenuList.start = menuBase.getSelChild()->getSelChild()->getSelectedItem();
-		secondSubmenuList.length = menuBase.getSelChild()->getSelChild()->getCount();
-		secondSubmenuList.params = menuBase.getSelChild()->getSelChild()->getNames();
-		secondSubmenuList.values = menuBase.getSelChild()->getSelChild()->getValues();
-		secondSubmenuList.valueEditActive = 0;
-
-		if(menuBase.getSelChild()->getSelChild()->getSelChild()->type == menuTypeItem)
-			secondSubmenuList.valueEditActive = ((cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild())->getValueEditState();
-
-		display.setControlData(configSecondSubmenuListControl, &secondSubmenuList);
-		display.refreshControl(configSecondSubmenuListControl);
-		display.setControlShow(configSecondSubmenuListControl);
-	}
-}
 
 void cConfigEditor::loadConfigTextList(strItemTypeListText* itemSetup)
 {
-	showConfigList5(2, *itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
-	changeLabelText(7, "Select");
-	selectConfigList(2);
+	showConfigList4(2, *itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
+	changeLabelText(5, "Apply");
+	changeLabelText(2, "Cancel");
+	display.setControlShow(label[3]); // to sa strzalki
+	//display.setControlShow(label[4]);
+
+	//selectConfigList(2);
 }
 
 void cConfigEditor::loadConfigValuesList(strItemTypeListValues* itemSetup)
@@ -255,16 +242,41 @@ void cConfigEditor::loadConfigValuesList(strItemTypeListValues* itemSetup)
 //	display.setControlShow(configListControl);
 }
 
-void cConfigEditor::goMenuOut()
+// wyjdz do menu wyzszego poziomu
+bool cConfigEditor::menuGoOut()
 {
+	// tylko jesli nadrzede menu jest inne niz bazowe
+	if(((cMenuGroup*)activeSubmenu)->parentMenu != &menuBase)
+	{
+		activeSubmenu = ((cMenuGroup*)activeSubmenu)->parentMenu;
 
+		refreshConfigMenu();
 
+		return true;
+	}
+
+	return false;
 }
 
-void cConfigEditor::goMenuIn()
+// wejdz do nizszego podmenu
+void cConfigEditor::menuGoIn()
 {
-	executeSelectedListItem(1);
+	// wykonaj akcje na zaznaczonej pozycji wybranej listy
+	if(((cMenuGroup*)activeSubmenu)->type == menuTypeGroup)
+	{
+		// jesli to kolejna grupa to ustaw ja jako aktywna i odswiez
+		if(((cMenuGroup*)activeSubmenu)->getSelChild()->type == menuTypeGroup)
+		{
+			activeSubmenu = ((cMenuGroup*)activeSubmenu)->getSelChild();
 
+			refreshConfigMenu();
+		}
+		// jesli to element ostateczny przejdz do jego edycji/akcji
+		else if(((cMenuGroup*)activeSubmenu)->getSelChild()->type == menuTypeItem)
+		{
+			((cMenuGroup*)activeSubmenu)->executeItem();
+		}
+	}
 }
 
 
@@ -272,7 +284,6 @@ void cConfigEditor::goMenuIn()
 void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value, uint8_t source)
 {
 	//sprawdzanie czy taka lista wogole dostepna
-	if(list == 2 && menuBase.getSelChild()->getSelChild()->type != menuTypeGroup) return;
 	if(list == 1 && menuBase.getSelChild()->type != menuTypeGroup) return;
 
 	// wykownywanie akcji na zjechanie/ukrycie itemu listy ActionButton
@@ -280,14 +291,11 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value, uint8_t 
 	void (*action_funct)(void) = nullptr;
 	cMenuItem* selectedMenuItem = nullptr;
 	uint8_t itemLevel = 0;
-	getSelectedItemInfo(&action_funct, (void**)(&selectedMenuItem), &itemLevel);
 
-	if(selectedMenuItem != nullptr && itemLevel == list && selectedMenuItem->getValueEditState())
+	if(itemEditorShown && list == 0)
 	{
-		if(source == 1) value = -value;
-		chanegeItemValue((void*)(selectedMenuItem), value);
-		refreshConfigMenu(0);
-		return;
+		itemEditorClose();
+
 	}
 
 	if(list == 0)
@@ -300,48 +308,37 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value, uint8_t 
 
 		if(start_position != menuBase.selectedItem) itemPositionChanged++;
 
+		activeSubmenu = menuBase.getSelChild();
+
 		display.setControlValue(configBasemenuListControl, menuBase.selectedItem);
 		display.refreshControl(configBasemenuListControl);
 	}
 	else if(list == 1)
 	{
-		uint8_t start_position = menuBase.getSelChild()->selectedItem;
+		cMenuGroup* submenu = (cMenuGroup*)activeSubmenu;
 
-		uint8_t* item_selected = &menuBase.getSelChild()->selectedItem;
-		uint8_t item_max = menuBase.getSelChild()->childsCount - 1;
+		uint8_t start_position = submenu->selectedItem;
+
+		uint8_t* item_selected = &submenu->selectedItem;
+		uint8_t item_max = submenu->childsCount - 1;
 
 		if(*item_selected + value < 0) *item_selected  = 0;
 		else if(*item_selected + value > item_max) *item_selected = item_max;
 		else *item_selected += value;
 
-		display.setControlValue(configSubmenuListControl, menuBase.getSelChild()->selectedItem);
+		display.setControlValue(configSubmenuListControl, submenu->selectedItem);
 		display.refreshControl(configSubmenuListControl);
 
-		if(start_position !=  menuBase.getSelChild()->selectedItem) itemPositionChanged++;
+		if(start_position !=  submenu->selectedItem) itemPositionChanged++;
 	}
-	else if(list == 2)
-	{
-		uint8_t start_position = menuBase.getSelChild()->getSelChild()->selectedItem;
 
-		uint8_t* item_selected = &menuBase.getSelChild()->getSelChild()->selectedItem;
-		uint8_t item_max = menuBase.getSelChild()->getSelChild()->childsCount - 1;
-
-		if(*item_selected + value < 0) *item_selected  = 0;
-		else if(*item_selected + value > item_max) *item_selected = item_max;
-		else *item_selected += value;
-
-		display.setControlValue(configSecondSubmenuListControl, *item_selected);
-		display.refreshControl(configSecondSubmenuListControl);
-
-		if(start_position !=  menuBase.getSelChild()->getSelChild()->selectedItem) itemPositionChanged++;
-	}
 
 	if(itemPositionChanged)
 	{
 		// odswiezenie menu
 		if(selectedMenuItem != nullptr) selectedMenuItem->resetValueEditState();
 		//refreshConfigMenu(list);// to do obadać temat
-		refreshConfigMenu(0);
+		refreshConfigMenu();
 
 		//schowanie listy wyboru wartosci
 // 		hideConfigList();
@@ -366,60 +363,19 @@ void cConfigEditor::chanegeItemValue(void* selectedMenuItem, int16_t value)
 	else *itemSetup->value += value;
 }
 
-void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
+void cConfigEditor::refreshConfigMenu()
 {
-	if(listChanged <= 0)
-	{// 1 lista (base)
-		if(menuBase.getSelChild()->type == menuTypeItem)
-		{
-			//if(((cMenuItem*)menuBase.getSelChild())->valueEditState)
-			hideSecondSubmenu();
-			hideSubmenu();
-			return;
-		}
-		else if(menuBase.getSelChild()->type == menuTypeGroup)
-		{
-			reloadSubmenu();
-			showSubmenu();
-		}
-	}
-	if(listChanged <= 1)
-	{// 2 lista (submenu)
-		if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
-		{
-//			hideConfigList();
-			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild();
-			setLabelByMenuItemType(5, temp_child->getItemType(), temp_child->getValueEditState());
-//			hideSecondSubmenu();
-			return;
-		}
-		else if(menuBase.getSelChild()->getSelChild()->type == menuTypeGroup)
-		{
-//			hideConfigList();
-//			reloadSecondSubmenu();
-//			showSecondSubmenu();
-//			changeLabelText(5, "");
-//			//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
-//			cMenuItem* item_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
-//			setLabelByMenuItemType(7, item_child->getItemType(), item_child->getValueEditState());
-//			//setLabelByMenuItemType(7, menuItemTypeValueU8, 0);
-		}
-	}
-	if(listChanged <= 2)
+	if(menuBase.type == menuTypeItem)
 	{
-
-		// 3 lista (second submenu)
-		//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
-/*		if(item_child->type == menuTypeItem)
-		{
-			//cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
-			setLabelByMenuItemType(7, ((cMenuItem*)item_child)->getItemType(), ((cMenuItem*)item_child)->getValueEditState());
-		}
-		else if(item_child->type == menuTypeGroup)
-		{
-			changeLabelText(7,"");
-		}
-*/
+		//if(((cMenuItem*)menuBase.getSelChild())->valueEditState)
+		//hideSecondSubmenu();
+		hideSubmenu();
+		return;
+	}
+	else if(menuBase.type == menuTypeGroup)
+	{
+		reloadSubmenu();
+		showSubmenu();
 	}
 }
 
@@ -493,20 +449,63 @@ void cConfigEditor::getSelectedItemInfo(void (**actionFunct)(void), void** menu_
 }
 
 
-void cConfigEditor::executeSelectedListItem(uint8_t list)
+
+// edytowanie wartosci elementu menu
+void cConfigEditor::itemEditorOpen(menu_item_t type, const char* title, const void* setup)
 {
-	if(list == 0)
+
+	hideSubmenu();
+
+	itemEditorShown = 1;
+
+
+	showConfigItemLabel(title);
+
+	switch(type)
 	{
-		menuBase.execute();
+		case menuItemTypeValueU8:
+			//selected_child->valueEditState = !selected_child->valueEditState;
+			//if(!selected_child->valueEditState) configEditor.saveConfigToEeprom();
+			//configEditor.refreshConfigMenu(0);
+			break;
+		case menuTypeItemListValues:
+			configEditor.loadConfigValuesList((strItemTypeListValues*)setup);
+			break;
+		case menuTypeItemListText:
+			configEditor.loadConfigTextList((strItemTypeListText*)setup);
+			break;
+		case menuTypeItemListTextWithAction:
+			configEditor.loadConfigTextList((strItemTypeListText*)setup);
+			break;
+
+		default:
+			break;
 	}
-	else if(list == 1)
-	{
-		menuBase.getSelChild()->execute();
-	}
-	else if(list == 2)
-	{
-		menuBase.getSelChild()->getSelChild()->execute();
-	}
+
+}
+
+void cConfigEditor::itemEditorClose()
+{
+
+	itemEditorShown = 0;
+	hideConfigList();
+	hideConfigItemLabel();
+	refreshConfigMenu();
+
+
+
+}
+
+void cConfigEditor::itemEditorApply()
+{
+	configListConfirm(configEditor.selectedConfigListPosition);
+
+	itemEditorClose();
+}
+
+void cConfigEditor::itemEditorChangeValue(int16_t value)
+{
+	changeConfigListPosition(value);
 }
 
 
@@ -569,10 +568,11 @@ void cConfigEditor::configListConfirm(uint8_t list_pos)
 	//schowanie listy wyboru wartosci
 	hideConfigList();
 	//odswiezenie calego menu
-	refreshConfigMenu(0);
+	refreshConfigMenu();
 }
 
-void cMenuGroup::execute()
+// wykonywanie akcji/edycji na elemencie menu
+void cMenuGroup::executeItem()
 {
 	if(childs[selectedItem]->type != menuTypeItem) return;
 
@@ -581,18 +581,10 @@ void cMenuGroup::execute()
 	switch(selected_child->itemType)
 	{
 		case menuItemTypeValueU8:
-			selected_child->valueEditState = !selected_child->valueEditState;
-			if(!selected_child->valueEditState) configEditor.saveConfigToEeprom();
-			configEditor.refreshConfigMenu(0);
-			break;
 		case menuTypeItemListValues:
-			configEditor.loadConfigValuesList((strItemTypeListValues*)selected_child->itemSetup);
-			break;
 		case menuTypeItemListText:
-			configEditor.loadConfigTextList((strItemTypeListText*)selected_child->itemSetup);
-			break;
 		case menuTypeItemListTextWithAction:
-			configEditor.loadConfigTextList((strItemTypeListText*)selected_child->itemSetup);
+			configEditor.itemEditorOpen(selected_child->itemType, selected_child->itemName, selected_child->itemSetup);
 			break;
 		case menuTypeItemLabel:
 
@@ -608,6 +600,8 @@ void cMenuGroup::execute()
 			}
 			break;
 		}
+
+		default: break;
 	}
 }
 

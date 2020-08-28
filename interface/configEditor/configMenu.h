@@ -28,6 +28,7 @@ class cMenuGroup : public cMenuBase
 public:
 	cMenuGroup(cMenuGroup& parent, uint8_t slot, const char* name, uint8_t childs_count) :
 		cMenuBase(menuTypeGroup),
+		parentMenu(&parent),
 		childsCount(childs_count),
 		childs(new hMenuItem[childs_count]),
 		childsNames(new char*[childs_count]),
@@ -72,10 +73,11 @@ public:
 
 	void reloadValues();
 
-	void execute();
+	void executeItem();
 
 
 private:
+	cMenuGroup* parentMenu;
 	const uint8_t childsCount;
 	hMenuItem* childs;
 	char** childsNames;

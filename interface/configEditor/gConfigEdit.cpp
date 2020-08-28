@@ -177,7 +177,7 @@ void cConfigEditor::initDisplayControls()
 
 	strControlProperties prop;
 
-	prop.style = controlStyleBackground;
+	prop.style = controlStyleBackground | controlStyleFont2;
 	prop.x = (800/8)*0+1;
 	prop.y = 29;
 	prop.w = 800/4-3;
@@ -185,6 +185,7 @@ void cConfigEditor::initDisplayControls()
 	prop.data = &basemenuList;
 	if(configBasemenuListControl == nullptr)  configBasemenuListControl = display.createControl<cList>(&prop);
 
+	prop.style = controlStyleBackground;
 	prop.x = (800/8)*2+1;
 	prop.y = 29;
 	prop.w = 800/2-3;
@@ -192,19 +193,23 @@ void cConfigEditor::initDisplayControls()
 	prop.data = &submenuList;
 	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
-	prop.x = (800/8)*5+1;
-	prop.y = 29;
-	prop.w = 600/2-3;
-	prop.h = 394;
-	prop.data = &secondSubmenuList;
-	if(configSecondSubmenuListControl == nullptr) configSecondSubmenuListControl = display.createControl<cParamValueList>(&prop);
-
 	prop.style = controlStyleBackground;
 	prop.x = (800/8)*5+1;
 	prop.y = 29;
 	prop.w = 800/4-3;
 	prop.h = 394;
 	if(configListControl == nullptr)  configListControl = display.createControl<cList>(&prop);
+
+	prop.value = 0;
+	prop.data = nullptr;
+	prop.colors = popUpLabelColors;
+	prop.style = 	( controlStyleFont3 );
+	prop.x = (800/8)*2+15;
+	prop.w = 800/4-6;
+	prop.y = 27;
+	prop.h =  55;
+	if(configLabel == nullptr) configLabel = display.createControl<cLabel>(&prop);
+
 
 	prop3.style = controlStyleFont5;
 	prop3.value = 3;
@@ -291,11 +296,11 @@ void cConfigEditor::destroyDisplayControls()
 	display.destroyControl(configSubmenuListControl);
 	configSubmenuListControl = nullptr;
 
-	display.destroyControl(configSecondSubmenuListControl);
-	configSecondSubmenuListControl = nullptr;
-
 	display.destroyControl(configListControl);
 	configListControl = nullptr;
+
+	display.destroyControl(configLabel);
+	configLabel = nullptr;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -438,12 +443,12 @@ void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 
 
 
-void cConfigEditor::showConfigList5(uint8_t list_width, uint8_t start, uint8_t length, char** listText)
+void cConfigEditor::showConfigList4(uint8_t list_width, uint8_t start, uint8_t length, char** listText)
 {
 	configListShown = 1;
 	selectedConfigListPosition = start;
 
-	display.setControlPosition(configListControl, (800/8)*5+1,  -1);
+	display.setControlPosition(configListControl, (800/8)*4+1,  -1);
 
 	if(list_width == 3)
 	{
@@ -466,11 +471,11 @@ void cConfigEditor::showConfigList5(uint8_t list_width, uint8_t start, uint8_t l
 	display.refreshControl(configListControl);
 
 	//display.setControlText(label[7], "");
-	display.setControlShow(label[5]);
-	display.setControlShow(label[6]);
-	display.setControlShow(label[7]);
-
-	display.refreshControl(label[7]);
+//	display.setControlShow(label[5]);
+//	display.setControlShow(label[6]);
+//	display.setControlShow(label[7]);
+//
+//	display.refreshControl(label[7]);
 }
 
 
@@ -482,13 +487,32 @@ void cConfigEditor::hideConfigList()
 	display.setControlHide(configListControl);
 
 	//display.setControlText(label[7], "");
+
+
+	display.setControlHide(configLabel);
+
 	display.setControlHide(label[5]);
 	display.setControlHide(label[6]);
 	display.setControlHide(label[7]);
 
-	display.refreshControl(label[7]);
+	display.refreshControl(configLabel);
 
 	configListShown = 0;
+}
+
+
+
+void cConfigEditor::showConfigItemLabel(const char* text)
+{
+	display.setControlShow(configLabel);
+	display.setControlText(configLabel, text);
+	display.refreshControl(configLabel);
+}
+
+void cConfigEditor::hideConfigItemLabel()
+{
+	display.setControlHide(configLabel);
+	display.refreshControl(configLabel);
 }
 
 
@@ -500,6 +524,7 @@ void cConfigEditor::showSubmenu()
 	display.setControlShow(label[2]);
 	display.setControlShow(label[3]);
 	display.setControlShow(label[4]);
+	display.setControlShow(label[5]);
 
 	display.refreshControl(label[4]);
 
@@ -511,38 +536,13 @@ void cConfigEditor::hideSubmenu()
 	display.setControlHide(label[2]);
 	display.setControlHide(label[3]);
 	display.setControlHide(label[4]);
+	display.setControlHide(label[5]);
 
 	display.refreshControl(label[4]);
 
 	submenuShown = 0;
 }
 
-void cConfigEditor::showSecondSubmenu()
-{
-	secondSubmenuShown = 1;
-
-	display.setControlShow(configSecondSubmenuListControl);
-
-	display.setControlShow(label[5]);
-	display.setControlShow(label[6]);
-	display.setControlShow(label[7]);
-
-	display.refreshControl(label[5]);
-	display.refreshControl(label[6]);
-	display.refreshControl(label[7]);
-}
-
-void cConfigEditor::hideSecondSubmenu()
-{
-	display.setControlHide(configSecondSubmenuListControl);
-	display.setControlHide(label[5]);
-	display.setControlHide(label[6]);
-	display.setControlHide(label[7]);
-
-	display.refreshControl(label[7]);
-
-	secondSubmenuShown = 0;
-}
 
 //==============================================================================================================
 //==============================================================================================================
@@ -642,7 +642,6 @@ void cConfigEditor::showGridScreen()
 	display.setControlHide(configSubmenuListControl);
 	display.refreshControl(configSubmenuListControl);
 
-	hideSecondSubmenu();
 
 	display.setControlText(titleLabel, "Grid Editor");
 	display.refreshControl(titleLabel);
