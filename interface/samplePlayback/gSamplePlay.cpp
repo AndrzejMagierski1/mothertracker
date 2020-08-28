@@ -372,6 +372,7 @@ void cSamplePlayback::showDefaultScreen()
 
 		showWavetablePosition();
 		showWavetableWindowSize();
+		refreshSpectrum = 1;
 
 		processWavetableCursor(editorInstrument->wavetableCurrentWindow);
 		showWavetablePositionCursor();
