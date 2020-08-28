@@ -5,6 +5,10 @@
 			- [AM] fix: Anti-aliasing zamiast Antialiasing
 			- [AM] fix: nowy projekt juz nadpisuje wartosci mixera
 			- [AM] fix: glosnosc w recorderze identyczna jak w defaulcie instrumentu
+			- [AM] fix: sample editor gra z volume instrumentu
+			- [AM] fix: dziwne zachowanie WT na końcowych pozycjach 
+			- [AM] fix: po wejsciu do sample playback pokazywane jest poprawne okno WT (wczesniej bylo zawsze zerowe)
+			- [AM] fix: Reverb/Delay wyswietlaja sie poprawnie po przejsciu z Master 3/3
 	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
 			- [AM] fix: poprawienie wyliczania parametrow limitera
