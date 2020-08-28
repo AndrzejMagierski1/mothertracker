@@ -1,7 +1,7 @@
 	next release:
 			- [AM] fix: usuniecie klikania podczas trzymania przycisku note
 			- [AM] fix: save pattern - "no" juz nie czysci reverba i delaya ( nie wplywa na dźwięk)
-			- [AM] fix: nie trzymanie tempa w exporcie
+			- [AM] fix: export trzyma poprawnie tempo
 			- [AM] fix: Anti-aliasing zamiast Antialiasing
 			- [AM] fix: nowy projekt juz nadpisuje wartosci mixera
 			- [AM] fix: glosnosc w recorderze identyczna jak w defaulcie instrumentu
