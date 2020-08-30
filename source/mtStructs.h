@@ -27,7 +27,7 @@ const uint8_t EEPROM_STRUCT_VER =			6;
 
 
 
-const bool START_STATE_SAVE	=				false;	// wlaczanie dopiero po wcisnieciu przycisku itp
+const bool START_STATE_SAVE	=				true;	// wlaczanie dopiero po wcisnieciu przycisku itp
 
 
 
