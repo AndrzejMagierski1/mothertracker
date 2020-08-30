@@ -101,7 +101,7 @@ public:
 		itemName(name),
 		itemType(type),
 		itemSetup(setupPtr),
-		ptrValueText(type==menuItemTypeValueU8 ? new char[5] : nullptr)
+		ptrValueText(type==menuItemTypeValueU8 ? new char[5] : new char[5]) // alokacja stringa na tymczasowo pokazywana wartosc
 		{
 			if(slot < parent.childsCount)
 			{
@@ -122,7 +122,10 @@ public:
 			return ptrValueText;
 		}
 		case menuTypeItemListValues:
-			return (char*)ptrEmptyName;	break;
+		{
+			sprintf(ptrValueText, "%d", *((strItemTypeValue8*)itemSetup)->value+((strItemTypeValue8*)itemSetup)->dev);
+			return ptrValueText;
+		}
 		case menuTypeItemListText:
 			return (char*)((strItemTypeListText*)itemSetup)->ptrText[*((strItemTypeListText*)itemSetup)->value];
 		case menuTypeItemListTextWithAction:

@@ -96,9 +96,10 @@ void cConfigEditor::update()
 		firmwareFoundNum = newFileManager.getFirmwaresList(&ptrfirmwareNamesList);
 		CE->listAllFirmwares();
 		CE->flashingState = 1;
-		CE->changeLabelText(7, "Update");
+		CE->changeLabelText(2, "Cancel");
+		CE->changeLabelText(5, "Update");
 		CE->showConfigList4(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
-		CE->selectConfigList(3);
+		//CE->selectConfigList(3);
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus >=  fmError)
@@ -286,11 +287,11 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	{
 		if(state != buttonPress) return 1;
 
-		if(button == 6)
+		if(button == 5)
 		{
 			CE->updateFirmware();
 		}
-		else if(button == 7)
+		else if(button == 2)
 		{
 			CE->cancelUpdateFirmware();
 		}
@@ -370,7 +371,12 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				if(CE->itemEditorShown) CE->itemEditorApply();
+
+				if(CE->flashingState == 1)
+				{
+					CE->showFirmwareUpdatePopout();
+				}
+				else if(CE->itemEditorShown) CE->itemEditorApply();
 				else CE->menuGoIn();
 			}
 			else
@@ -388,31 +394,6 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		case 7:
 		{
 
-
-
-
-
-//			if(CE->configListShown)
-//			{
-//				if(CE->selectedPlace == 2)
-//				{
-//					if(CE->flashingState) CE->showFirmwareUpdatePopout();
-//					else CE->configListConfirm(CE->selectedConfigListPosition);
-//				}
-//				else
-//				{
-//					CE->selectedPlace = 2;
-//				}
-//			}
-//			else if(CE->selectedPlace == 3)
-//			{
-//				CE->executeSelectedListItem(2);
-//			}
-//			else
-//			{
-//				if(CE->secondSubmenuShown) CE->selectedPlace = 3;
-//			}
-//
 			break;
 		}
 
@@ -489,7 +470,8 @@ static  uint8_t functEncoder(int16_t value)
 	}
 	case 1:
 	{
-		CE->changeMenuListPosition(1, value);
+		if(CE->configListShown) CE->changeConfigListPosition(value);
+		else					CE->changeMenuListPosition(1, value);
 		break;
 	}
 	case 2:
@@ -497,7 +479,7 @@ static  uint8_t functEncoder(int16_t value)
 		//if(CE->configListShown) CE->changeConfigListPosition(value);
 		//else CE->changeMenuListPosition(2, value);
 
-		if(CE->configListShown) CE->changeConfigListPosition(value);
+
 		break;
 	}
 	case 3:
@@ -529,8 +511,12 @@ static  uint8_t functLeft()
 	if(CE->updatePopupShown) return 1;
 
 
-
-	if(CE->menuGoOut())
+	if(CE->itemEditorShown)
+	{
+		CE->itemEditorClose();
+		return 1;
+	}
+	else if(CE->menuGoOut())
 	{
 		CE->selectedPlace = 1;
 		return 1;
@@ -550,38 +536,19 @@ static  uint8_t functRight()
 	if(CE->updatePopupShown) return 1;
 
 
-	if(CE->selectedPlace == 0 && CE->submenuShown)
+	if(CE->itemEditorShown)
+	{
+
+	}
+	else if(CE->selectedPlace == 0 && CE->submenuShown)
 	{
 		CE->selectedPlace = 1;
-	}
-	else if(CE->selectedPlace == 1 && CE->configListShown)
-	{
-		CE->selectedPlace = 2;
 	}
 	else if(CE->selectedPlace == 1)
 	{
 		CE->menuGoIn();
 	}
-	else if(CE->selectedPlace == 1 && CE->itemEditorShown)
-	{
 
-	}
-/*
-	else if(CE->selectedPlace == 2)
-	{
-		if(CE->configListShown)
-		{
-			CE->configListConfirm(CE->selectedConfigListPosition);
-		}
-	}
-	else if(CE->selectedPlace == 3)
-	{
-		if(CE->secondSubmenuShown)
-		{
-			CE->executeSelectedListItem(2);
-		}
-	}
-*/
 
 	CE->activateLabelsBorder();
 
@@ -603,23 +570,11 @@ static  uint8_t functUp()
 	}
 	case 1:
 	{
-		CE->changeMenuListPosition(1, -1);
-		break;
-	}
-	case 2:
-	{
-		//if(CE->configListShown) CE->changeConfigListPosition(value);
-		//else CE->changeMenuListPosition(2, value);
 		if(CE->configListShown) CE->changeConfigListPosition(-1);
+		else CE->changeMenuListPosition(1, -1);
 		break;
 	}
-	case 3:
-	{
-		//if(CE->configListShown) CE->changeConfigListPosition(value);
-		//else CE->changeMenuListPosition(2, value);
-		CE->changeMenuListPosition(2, -1);
-		break;
-	}
+
 	default:
 		break;
 	}
@@ -642,23 +597,11 @@ static  uint8_t functDown()
 	}
 	case 1:
 	{
-		CE->changeMenuListPosition(1, 1);
-		break;
-	}
-	case 2:
-	{
-		//if(CE->configListShown) CE->changeConfigListPosition(value);
-		//else CE->changeMenuListPosition(2, value);
 		if(CE->configListShown) CE->changeConfigListPosition(1);
+		else CE->changeMenuListPosition(1, 1);
 		break;
 	}
-	case 3:
-	{
-		//if(CE->configListShown) CE->changeConfigListPosition(value);
-		//else CE->changeMenuListPosition(2, value);
-		CE->changeMenuListPosition(2, 1);
-		break;
-	}
+
 	default:
 		break;
 	}
@@ -929,8 +872,7 @@ void firmwareUpgradeDeactivate()
 {
 	CE->hideConfigList();
 
-	CE->changeLabelText(7, "");
-
+	CE->itemEditorShown = 0;
 
 }
 

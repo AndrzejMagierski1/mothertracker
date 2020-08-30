@@ -42,6 +42,7 @@ struct strItemTypeListValues
 	uint8_t min;
 	uint8_t max;
 	uint8_t interval; // narazie nie uzywane
+	uint8_t dev;
 };
 
 struct strItemTypeListText

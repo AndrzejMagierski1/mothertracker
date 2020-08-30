@@ -331,6 +331,19 @@ void cConfigEditor::destroyDisplayControls()
 		display.destroyControl(padBar[i]);
 		padBar[i] = nullptr;
 	}
+
+
+	//czyszczenie dynamicznie zaalokowanej pamieci na liste
+	if(ptrTempValuesList != nullptr)
+	{
+		for(uint16_t i = 0; i < lastTempListLength; i++)
+		{
+			delete[] ptrTempValuesList[i];
+		}
+
+		delete[] ptrTempValuesList;
+		ptrTempValuesList = nullptr;
+	}
 }
 
 void cConfigEditor::showDefaultConfigScreen()
@@ -400,37 +413,6 @@ void cConfigEditor::activateLabelsBorder()
 	display.refreshControl(frameControl);
 }
 
-void cConfigEditor::selectSubmenu()
-{
-	selectedPlace = 1;
-	activateLabelsBorder();
-}
-
-void cConfigEditor::selectSecondSubmenu()
-{
-	selectedPlace = 3;
-	activateLabelsBorder();
-}
-
-void cConfigEditor::selectConfigList(uint8_t width)
-{
-
-	if(width == 3)
-	{
-		frameData.places[2] = &framesPlacesConfig[3][0];
-	}
-	else
-	{
-		frameData.places[2] = &framesPlacesConfig[2][0];
-	}
-
-	selectedPlace = 2;
-	activateLabelsBorder();
-}
-
-
-
-
 
 void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 {
@@ -440,28 +422,29 @@ void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 }
 
 
-
-
-
 void cConfigEditor::showConfigList4(uint8_t list_width, uint8_t start, uint8_t length, char** listText)
 {
 	configListShown = 1;
 	selectedConfigListPosition = start;
 
-	display.setControlPosition(configListControl, (800/8)*4+1,  -1);
 
 	if(list_width == 3)
 	{
-		display.setControlSize(configListControl, ((800/8)*3)-3,  -1);
+		display.setControlPosition(configListControl, (800/16)*7+1,  -1);
+
+
+		display.setControlSize(configListControl, ((800/16)*5)-3,  -1);
 		frameData.places[2] =&framesPlacesConfig[3][0];
 	}
 	else //2
 	{
+		display.setControlPosition(configListControl, (800/8)*4+1,  -1);
+
 		display.setControlSize(configListControl, ((800/8)*2)-3,  -1);
 		frameData.places[2] = &framesPlacesConfig[2][0];
 	}
 
-	configList.linesCount = 13;
+	configList.linesCount = 14;
 	configList.start = start;
 	configList.length = length;
 	configList.data = listText;
@@ -470,14 +453,55 @@ void cConfigEditor::showConfigList4(uint8_t list_width, uint8_t start, uint8_t l
 	display.setControlShow(configListControl);
 	display.refreshControl(configListControl);
 
-	//display.setControlText(label[7], "");
-//	display.setControlShow(label[5]);
-//	display.setControlShow(label[6]);
-//	display.setControlShow(label[7]);
-//
-//	display.refreshControl(label[7]);
+	display.setControlShow(label[3]); // to sa strzalki
+
+	display.synchronizeRefresh();
 }
 
+
+void cConfigEditor::showConfigList4Val(uint8_t* value, uint8_t min, uint8_t max, uint8_t interval, uint8_t dev)
+{
+	configListShown = 1;
+	selectedConfigListPosition = *value;
+
+	display.setControlPosition(configListControl, (800/8)*4+1,  -1);
+	display.setControlSize(configListControl, ((800/8)*2)-3,  -1);
+
+	configList.linesCount = 14;
+	configList.start = *value;
+	configList.length = max - min;
+
+	if(ptrTempValuesList != nullptr)
+	{
+		for(uint16_t i = 0; i < lastTempListLength; i++)
+		{
+			delete[] ptrTempValuesList[i];
+		}
+
+		delete[] ptrTempValuesList;
+		ptrTempValuesList = nullptr;
+	}
+
+	lastTempListLength = configList.length;
+	ptrTempValuesList = new char*[lastTempListLength];
+
+	for(uint16_t i = 0; i < lastTempListLength; i++)
+	{
+		ptrTempValuesList[i] = new char[5];
+
+		sprintf(ptrTempValuesList[i], "%d", min + i + dev);
+	}
+
+	configList.data = ptrTempValuesList;
+
+	display.setControlData(configListControl, &configList);
+	display.refreshControl(configListControl);
+	display.setControlShow(configListControl);
+
+	display.setControlShow(label[3]); // to sa strzalki
+
+	display.synchronizeRefresh();
+}
 
 
 void cConfigEditor::hideConfigList()
@@ -485,16 +509,7 @@ void cConfigEditor::hideConfigList()
 	flashingState = 0;
 
 	display.setControlHide(configListControl);
-
-	//display.setControlText(label[7], "");
-
-
 	display.setControlHide(configLabel);
-
-	display.setControlHide(label[5]);
-	display.setControlHide(label[6]);
-	display.setControlHide(label[7]);
-
 	display.refreshControl(configLabel);
 
 	configListShown = 0;
@@ -555,14 +570,13 @@ void cConfigEditor::showFirmwareUpdatePopout()
 
 	for(uint8_t i = 0 ; i < 8; i++)
 	{
-		//display.setControlText(label[i], "");
-		if(i<6) display.setControlHide(label[i]);
-		else display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
+		display.setControlHide(label[i]);
 	}
 
-	display.setControlText(label[6], "Update");
-	display.setControlText(label[7], "Cancel");
+	display.setControlShow(label[5]);
+	display.setControlShow(label[2]);
+	display.setControlText(label[5], "Update");
+	display.setControlText(label[2], "Cancel");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);

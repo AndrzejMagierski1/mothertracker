@@ -110,9 +110,7 @@ public:
 
 
 	void activateLabelsBorder();
-	void selectSubmenu();
-	void selectSecondSubmenu();
-	void selectConfigList(uint8_t width);
+
 
 	//
 	uint8_t flashingState = 0;
@@ -126,6 +124,7 @@ public:
 
 
 	void showConfigList4(uint8_t list_width, uint8_t start, uint8_t length, char** listText);
+	void showConfigList4Val(uint8_t* value, uint8_t min, uint8_t max, uint8_t interval, uint8_t dev);
 	void hideConfigList();
 
 	void changeConfigListPosition(int16_t value);
@@ -135,8 +134,6 @@ public:
 
 	void showSubmenu();
 	void hideSubmenu();
-	void showSecondSubmenu();
-	void hideSecondSubmenu();
 
 
 	char** ptrfirmwareNamesList;
@@ -220,10 +217,11 @@ public:
 	strList configList;
 
 
-
 	uint8_t submenuShown = 0;
 	uint8_t itemEditorShown = 0;
 
+	char** ptrTempValuesList = nullptr;
+	uint16_t lastTempListLength;
 
 	uint8_t configListShown = 0;
 	uint8_t selectedConfigListPosition = 0;
@@ -232,10 +230,6 @@ public:
 
 
 	uint8_t exitOnButtonRelease = 0;
-
-	// MULTISEL
-	select_node_t selectNodes[MAX_SELECT_NODES];
-
 
 
 
@@ -248,7 +242,6 @@ public:
 	void closeCredits();
 	void showCreditsControls();
 	void hideCreditsControls();
-
 
 
 	///-------------------------------
