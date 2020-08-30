@@ -474,7 +474,11 @@ void cSampleEditor::noteOnHandle(uint8_t channel, uint8_t note, uint8_t velocity
 	uint32_t length = (uint32_t)((uint32_t)SE->selection.endPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
 	uint32_t addressShift = (uint32_t)( (uint32_t)SE->selection.startPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
 
-	mtPadBoard.startInstrument(note,SE->editorInstrument->sample.address + addressShift,length - addressShift, padboardSource);
+	mtPadBoard.startInstrument(note,
+			SE->editorInstrument->sample.address + addressShift,
+			length - addressShift,
+			mtProject.instrument[mtProject.values.lastUsedInstrument].volume,
+			padboardSource);
 
 }
 void cSampleEditor::noteOffHandle(uint8_t channel, uint8_t note, uint8_t velocity, int16_t source)
@@ -1480,7 +1484,11 @@ static  uint8_t functPreview()
 static  uint8_t functPlay()
 {
 	mtPadBoard.cutAllInstrument();
-	mtPadBoard.startInstrument(60, SE->currentEffect->getAddresToPreview(), SE->currentEffect->getLengthToPreview(),INTERFACE_BUTTON_PREVIEW); //tego nie moze robic midi
+	mtPadBoard.startInstrument(60,
+			SE->currentEffect->getAddresToPreview(),
+			SE->currentEffect->getLengthToPreview(),
+			mtProject.instrument[mtProject.values.lastUsedInstrument].volume,
+			INTERFACE_BUTTON_PREVIEW); //tego nie moze robic midi
 	SE->playingInProgress = 1;
 	SE->playingProgress = 0;
 	SE->showPopupPlaying();

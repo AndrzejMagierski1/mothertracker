@@ -14,7 +14,7 @@ public:
 	void setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNote);
 	void configureInstrumentPlayer(uint8_t maxVoices);
 	void startInstrument(uint8_t pad, uint8_t index, int8_t velocity);
-	void startInstrument(uint8_t note,int16_t * addres, uint32_t length, int16_t source);
+	void startInstrument(uint8_t note,int16_t * addres, uint32_t length, int8_t velocity, int16_t source);
 	void stopInstrument(int16_t pad);
 	void cutInstrument(uint8_t pad);
 	int8_t getVoiceTakenByPad(int16_t pad);

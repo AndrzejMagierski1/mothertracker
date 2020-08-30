@@ -78,14 +78,18 @@ audio_block_t * AudioPlayMemory::updateWavetable()
 	else if (playing == 1)
 	{
 		out = block->data;
-		in = (int16_t*)next;
+
 
 		waveTablePosition = wavetableWindowSize * currentWindow;
 
-		uint32_t maxlength = length - wavetableWindowSize;
+		uint32_t maxlength = length - length%wavetableWindowSize  - wavetableWindowSize;
 
-		if(waveTablePosition > maxlength ) waveTablePosition = maxlength;
+		if(waveTablePosition > maxlength )
+		{
+			waveTablePosition = maxlength;
+		}
 
+		in = (int16_t*)next + waveTablePosition;
 		castPitchControl = (int32_t)pitchControl;
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
@@ -99,7 +103,6 @@ audio_block_t * AudioPlayMemory::updateWavetable()
 
 		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-
 			//*********************************** GLIDE HANDLE
 			if (constrainsInSamples.glide)
 			{
@@ -115,7 +118,7 @@ audio_block_t * AudioPlayMemory::updateWavetable()
 				}
 			}
 //*************************************************************************************** poczatek przetwarzania pitchCountera
-			currentSampelValue = *(in + iPitchCounter + waveTablePosition);
+			currentSampelValue = *(in + iPitchCounter);
 
 			if(interpolationCondition) interpolationDif = 0;
 			else interpolationDif = (*(in_interpolation + iPitchCounter) - currentSampelValue);
@@ -132,7 +135,7 @@ audio_block_t * AudioPlayMemory::updateWavetable()
 
 			if (iPitchCounter >= wavetableWindowSize)
 			{
-				iPitchCounter = 0;
+				iPitchCounter -= wavetableWindowSize;
 			}
 
 		}

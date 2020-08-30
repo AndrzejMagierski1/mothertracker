@@ -136,6 +136,7 @@ const int8_t  MIN_INSTRUMENT_FINETUNE  		=	-100;
 const uint8_t MAX_INSTRUMENT_FINETUNE  		=	100;
 const uint8_t MAX_INSTRUMENT_VOLUME 		=	100;
 const uint8_t MIN_INSTRUMENT_VOLUME			=	 0;
+const uint8_t DEFAULT_INSTRUMENT_VOLUME 	=	50;
 
 constexpr uint8_t ENVELOPE_SPEED_AMP_COUNT = 24;
 constexpr uint8_t ENVELOPE_SPEED_OTHER_COUNT = 29;

@@ -51,14 +51,14 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 	else instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(12), velocity);
 }
 
-void cMtPadBoard::startInstrument(uint8_t note, int16_t * addres, uint32_t length, int16_t source)
+void cMtPadBoard::startInstrument(uint8_t note, int16_t * addres, uint32_t length, int8_t velocity, int16_t source)
 {
 	int8_t voiceToTake = getEmptyVoice();
 	if(voiceToTake < 0) return;
 
 	voices[voiceToTake] = source;
 
-	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, note, mtSampleTypeWaveFile);
+	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, note, velocity, mtSampleTypeWaveFile);
 }
 
 int8_t cMtPadBoard::getEmptyVoice()
