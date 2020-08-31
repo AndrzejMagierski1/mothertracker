@@ -1,4 +1,4 @@
-	next release:
+	1.1.13
 			- [AM] fix: usuniecie klikania podczas trzymania przycisku note
 			- [AM] fix: save pattern - "no" juz nie czysci reverba i delaya ( nie wplywa na dźwięk)
 			- [AM] fix: export trzyma poprawnie tempo
