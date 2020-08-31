@@ -9,6 +9,7 @@
 			- [AM] fix: dziwne zachowanie WT na końcowych pozycjach 
 			- [AM] fix: po wejsciu do sample playback pokazywane jest poprawne okno WT (wczesniej bylo zawsze zerowe)
 			- [AM] fix: Reverb/Delay wyswietlaja sie poprawnie po przejsciu z Master 3/3
+			- [AM] fix: naprawiony finetune wysokich nut przy krotkich pętlach(zawijanie pętli)
 	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
 			- [AM] fix: poprawienie wyliczania parametrow limitera
