@@ -24,7 +24,10 @@ elapsedMillis save_delay;
 static uint8_t saveFlag = 0;
 static uint8_t saveAsapFlag = 0;
 
-static uint8_t* eepromStructsPtr[]
+
+
+static const uint8_t eepromStructsCount = 9;
+static uint8_t* eepromStructsPtr[eepromStructsCount]
 {
 		(uint8_t*)&mtConfig.audioCodecConfig,
         (uint8_t*)&mtConfig.firmware,
@@ -179,7 +182,7 @@ void readConfig()
 		// pierwsza pozycja do odczytu podstruktury
 		offsetToRead = CONFIG_EEPROM_ADRESS + ((uint32_t)eepromStructsPtr[0] - (uint32_t)&mtConfig); // start+header
 
-		for(uint8_t i = 0; offsetToRead < configMinSize-1; i++)
+		for(uint8_t i = 0; i < eepromStructsCount; i++)
 		{
 			// odczyt zapisanej wielksoci podstruktury
 			EEPROM.readData(offsetToRead, &sizeFromEeprom, 2);
@@ -198,11 +201,15 @@ void readConfig()
 			// kolejna pozycja do odczytu podstruktury
 			offsetToRead += sizeFromEeprom;
 
+
+			if(offsetToRead >= configMinSize-1)
+			{
+				break;
+			}
 		}
 
 		// napraw zawartosc
 		checkConfig();
-
 	}
 
 
