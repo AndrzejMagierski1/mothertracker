@@ -104,15 +104,14 @@ audio_block_t * AudioPlayMemory::updateLoopBackwardNormal()
 //*************************************************************************************** warunki pointow
 				if ((iPitchCounter <= loopStartPoint) && loopBackwardFlag)
 				{
-					iPitchCounter = constrainsInSamples.loopPoint2;
-					currentFractionPitchCounter = 0;
+					iPitchCounter = constrainsInSamples.loopPoint2 - (loopStartPoint - iPitchCounter);
 				}
 				else if (iPitchCounter >= loopEndPoint)
 				{
-					iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+					iPitchCounter = constrainsInSamples.loopPoint2 - 1 - (iPitchCounter - loopEndPoint);
 					loopBackwardFlag = 1;
 					in_interpolation = in - 1;
-					currentFractionPitchCounter = 0;
+					currentFractionPitchCounter = -currentFractionPitchCounter;
 				}
 			//*************************************************************************************** warunki pętli
 			}
@@ -218,15 +217,17 @@ audio_block_t * AudioPlayMemory::updateLoopBackwardReverse()
 //*************************************************************************************** warunki pointow
 				if ((iPitchCounter >= loopEndPoint) && loopBackwardFlag)
 				{
+					uint32_t exceedConstrainValue = iPitchCounter - loopEndPoint;
 					iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-					currentFractionPitchCounter = 0;
+					iPitchCounter += exceedConstrainValue;
 				}
 				else if (iPitchCounter <= loopStartPoint)
 				{
 					iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+					iPitchCounter += (loopStartPoint - iPitchCounter);
 					loopBackwardFlag = 1;
 					in_interpolation = in+1;
-					currentFractionPitchCounter = 0;
+					currentFractionPitchCounter = -currentFractionPitchCounter;
 				}
 			}
 			else

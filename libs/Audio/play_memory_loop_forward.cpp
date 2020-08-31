@@ -160,8 +160,7 @@ audio_block_t * AudioPlayMemory::updateLoopForwardNormal()
 //*************************************************************************************** warunki pointow
 				if (iPitchCounter >= loopEndPoint)
 				{
-					iPitchCounter = constrainsInSamples.loopPoint1;
-					currentFractionPitchCounter = 0;
+					iPitchCounter = constrainsInSamples.loopPoint1 + (iPitchCounter - loopEndPoint);
 				}
 			//*************************************************************************************** warunki pętli
 			}
@@ -247,8 +246,7 @@ audio_block_t * AudioPlayMemory::updateLoopForwardReverse()
 //*************************************************************************************** koniec przetwarzania pitchCountera
 				if (iPitchCounter <= loopStartPoint)
 				{
-					iPitchCounter = constrainsInSamples.loopPoint2;
-					currentFractionPitchCounter = 0;
+					iPitchCounter = constrainsInSamples.loopPoint2 - (loopStartPoint - iPitchCounter);
 				}
 			//*************************************************************************************** warunki pętli
 			}

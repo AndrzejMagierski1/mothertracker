@@ -186,6 +186,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopForwardNormal()
 			//*************************************************************************************** warunki pętli
 			if (iPitchCounter >= loopEndPoint)
 			{
+				uint32_t exceedConstrainValue = iPitchCounter - loopEndPoint;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -199,8 +200,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopForwardNormal()
 					in_interpolation = in+1;
 				}
 
-				iPitchCounter = constrainsInSamples.loopPoint1;
-				currentFractionPitchCounter = 0;
+				iPitchCounter = constrainsInSamples.loopPoint1 + exceedConstrainValue;
 			}
 			//*************************************************************************************** warunki pętli
 
@@ -290,6 +290,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopForwardReverse()
 			//*************************************************************************************** warunki pętli
 			if (iPitchCounter <= loopStartPoint)
 			{
+				uint32_t exceedConstrainValue = loopStartPoint - iPitchCounter;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -303,8 +304,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopForwardReverse()
 					in = (int16_t * )currentStartAddress + pointsInSamples.start;
 					in_interpolation = in-1;
 				}
-				iPitchCounter = constrainsInSamples.loopPoint2;
-				currentFractionPitchCounter = 0;
+				iPitchCounter = constrainsInSamples.loopPoint2 - exceedConstrainValue;
 			}
 			//*************************************************************************************** warunki pętli
 		}
@@ -408,6 +408,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardNormal()
 			//*************************************************************************************** warunki pętli
 			if (iPitchCounter <= loopStartPoint)
 			{
+				uint32_t exceedConstrainValue = loopStartPoint - iPitchCounter;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -422,10 +423,10 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardNormal()
 					in = (int16_t * )currentStartAddress + pointsInSamples.start;
 					in_interpolation = loopBackwardFlag ? in-1 : in+1;
 				}
-				iPitchCounter = constrainsInSamples.loopPoint2;
-				currentFractionPitchCounter = 0;
+				iPitchCounter = constrainsInSamples.loopPoint2 - exceedConstrainValue;
 			} else if (iPitchCounter >= loopEndPoint)
 			{
+				uint32_t exceedConstrainValue = iPitchCounter - loopEndPoint;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -440,10 +441,10 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardNormal()
 					in = (int16_t * )currentStartAddress + pointsInSamples.start;
 					in_interpolation = loopBackwardFlag ? in-1 : in+1;
 				}
-				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1 - exceedConstrainValue;
 				loopBackwardFlag = 1;
 				in_interpolation = in+1;
-				currentFractionPitchCounter = 0;
+				currentFractionPitchCounter = - currentFractionPitchCounter;
 			}
 			//*************************************************************************************** warunki pętli
 
@@ -545,6 +546,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardReverse()
 //*************************************************************************************** koniec przetwarzania pitchCountera
 			if (iPitchCounter >= loopEndPoint)
 			{
+				uint32_t exceedConstrainValue = iPitchCounter - loopEndPoint;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -560,9 +562,10 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardReverse()
 					in_interpolation = loopBackwardFlag ? in+1: in-1;
 				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 : 1;
-				currentFractionPitchCounter = 0;
+				iPitchCounter += exceedConstrainValue;
 			} else if (iPitchCounter <= loopStartPoint)
 			{
+				uint32_t exceedConstrainValue = loopStartPoint - iPitchCounter;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -578,9 +581,10 @@ audio_block_t * AudioPlayMemory::updateGranularLoopBackwardReverse()
 					in_interpolation = loopBackwardFlag ? in+1: in-1;
 				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+				iPitchCounter += exceedConstrainValue;
 				loopBackwardFlag = 1;
 				in_interpolation = in+1;
-				currentFractionPitchCounter = 0;
+				currentFractionPitchCounter = -currentFractionPitchCounter;
 			}
 		}
 
@@ -680,6 +684,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongNormal()
 //*************************************************************************************** koniec przetwarzania pitchCountera
 			if (iPitchCounter <= loopStartPoint)
 			{
+				uint32_t exceedConstrainValue = loopStartPoint - iPitchCounter;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -695,12 +700,14 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongNormal()
 					in_interpolation =  loopBackwardFlag ? in-1 : in+1;
 				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+				iPitchCounter += exceedConstrainValue;
 				loopBackwardFlag = 0;
 				in_interpolation = in+1;
-				currentFractionPitchCounter = 0;
+				currentFractionPitchCounter = -currentFractionPitchCounter;
 			}
 			else if (iPitchCounter >= loopEndPoint)
 			{
+				uint32_t exceedConstrainValue = iPitchCounter - loopEndPoint;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -715,10 +722,10 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongNormal()
 					in = (int16_t * )currentStartAddress + pointsInSamples.start;
 					in_interpolation =  loopBackwardFlag ? in-1 : in+1;
 				}
-				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1 - exceedConstrainValue;
 				loopBackwardFlag = 1;
 				in_interpolation = in-1;
-				currentFractionPitchCounter = 0;
+				currentFractionPitchCounter = -currentFractionPitchCounter;
 			}
 
 		}
@@ -822,6 +829,7 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongReverse()
 
 			if (iPitchCounter >= loopEndPoint)
 			{
+				uint32_t exceedConstrainValue = iPitchCounter - loopEndPoint;
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -836,13 +844,15 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongReverse()
 					in = (int16_t * )currentStartAddress + pointsInSamples.start;
 					in_interpolation = loopBackwardFlag ? in+1 : in-1;
 				}
-				iPitchCounter = constrainsInSamples.loopPoint2 - 1;
+				iPitchCounter = constrainsInSamples.loopPoint2 - 1 - exceedConstrainValue;
 				loopBackwardFlag = 0;
 				in_interpolation = in-1;
-				currentFractionPitchCounter = 0;
+				currentFractionPitchCounter = -currentFractionPitchCounter;
 			}
 			if (iPitchCounter <= loopStartPoint)
 			{
+				uint32_t exceedConstrainValue = loopStartPoint - iPitchCounter;
+
 				if(granularPositionRefreshFlag)
 				{
 					refreshGranularPosition();
@@ -858,9 +868,10 @@ audio_block_t * AudioPlayMemory::updateGranularLoopPingPongReverse()
 					in_interpolation = loopBackwardFlag ? in+1 : in-1;
 				}
 				iPitchCounter = constrainsInSamples.loopPoint1 ? constrainsInSamples.loopPoint1 + 1 : 1;
+				iPitchCounter += exceedConstrainValue;
 				loopBackwardFlag = 1;
 				in_interpolation = in+1;
-				currentFractionPitchCounter = 0;
+				currentFractionPitchCounter = -currentFractionPitchCounter;
 			}
 
 		}

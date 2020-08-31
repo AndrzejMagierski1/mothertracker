@@ -1,10 +1,15 @@
 	next release:
 			- [AM] fix: usuniecie klikania podczas trzymania przycisku note
 			- [AM] fix: save pattern - "no" juz nie czysci reverba i delaya ( nie wplywa na dźwięk)
-			- [AM] fix: nie trzymanie tempa w exporcie
+			- [AM] fix: export trzyma poprawnie tempo
 			- [AM] fix: Anti-aliasing zamiast Antialiasing
 			- [AM] fix: nowy projekt juz nadpisuje wartosci mixera
 			- [AM] fix: glosnosc w recorderze identyczna jak w defaulcie instrumentu
+			- [AM] fix: sample editor gra z volume instrumentu
+			- [AM] fix: dziwne zachowanie WT na końcowych pozycjach 
+			- [AM] fix: po wejsciu do sample playback pokazywane jest poprawne okno WT (wczesniej bylo zawsze zerowe)
+			- [AM] fix: Reverb/Delay wyswietlaja sie poprawnie po przejsciu z Master 3/3
+			- [AM] fix: naprawiony finetune wysokich nut przy krotkich pętlach(zawijanie pętli)
 	1.1.12
 			- [AM] dodanie do sample editora fade in i fade out
 			- [AM] fix: poprawienie wyliczania parametrow limitera
