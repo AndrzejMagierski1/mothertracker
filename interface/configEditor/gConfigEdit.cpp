@@ -77,9 +77,6 @@ const char creditsText[] =
 	"\n"
 	"\nReverb algorithm is created by Emilie Gillet of Mutable Instruments and is used under MIT license."
 	"\nAll provided demo projects and samples are under a CC BY-NC 4.0 license."
-
-
-
 };
 
 
@@ -99,7 +96,7 @@ void cConfigEditor::initDisplayControls()
 	strControlProperties prop9;
 	prop9.x = 400;
 	prop9.colors = popUpLabelColors;
-	prop9.y = 300;
+	prop9.y = 320;
 	prop9.h = 100;
 	prop9.w = 800-10;
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
@@ -575,8 +572,11 @@ void cConfigEditor::showFirmwareUpdatePopout()
 
 	display.setControlShow(label[5]);
 	display.setControlShow(label[2]);
-	display.setControlText(label[5], "Update");
+	display.setControlText(label[5], "Yes");
 	display.setControlText(label[2], "Cancel");
+
+	display.refreshControl(label[2]);
+	display.refreshControl(label[5]);
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -636,6 +636,7 @@ void cConfigEditor::showCreditsControls()
 
 
 
+	display.synchronizeRefresh();
 }
 
 

@@ -35,10 +35,13 @@ private:
 
 	char timerText[50];
 
-	int minutes;
-	uint8_t seconds;
-	uint8_t pattern;
-	uint8_t step;
+	struct data
+	{
+		int minutes;
+		uint8_t seconds;
+		uint8_t pattern;
+		uint8_t step;
+	} actualData, lastData;
 
 
 };

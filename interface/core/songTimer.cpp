@@ -63,8 +63,8 @@ void cSongTimer::start()
 
 void cSongTimer::stop()
 {
-	minutes = 0;
-	seconds = 0;
+	actualData.minutes = 0;
+	actualData.seconds = 0;
 	counting = false;
 }
 
@@ -75,14 +75,25 @@ void cSongTimer::refresh()
 
 	if(counting)
 	{
-		minutes = songTimeCounter/60000;
-		seconds = (songTimeCounter - (minutes*60000))/1000;
+		actualData.minutes = songTimeCounter/60000;
+		actualData.seconds = (songTimeCounter - (actualData.minutes*60000))/1000;
 	}
 
-	if(sequencer.isPlay()) 	step = sequencer.ptrPlayer->track[0].actual_pos+1;
-	else 					step = patternEditor.trackerPattern.actualStep+1;
+	if(sequencer.isPlay()) 	actualData.step = sequencer.ptrPlayer->track[0].actual_pos+1;
+	else 					actualData.step = patternEditor.trackerPattern.actualStep+1;
 
-	sprintf(timerText, "%3im :%2is |%3iP %3iS", minutes, seconds, mtProject.values.actualPattern, step);
+	// przerwanie operacji jesli dane do wyswietlenia nie ulegly zmianie
+	if(lastData.step == actualData.step
+	&& lastData.seconds == actualData.seconds
+	&& lastData.minutes == actualData.minutes
+	&& lastData.pattern == mtProject.values.actualPattern) return;
+
+	lastData.step = actualData.step;
+	lastData.seconds = actualData.seconds;
+	lastData.minutes = actualData.minutes;
+	lastData.pattern = 	mtProject.values.actualPattern;
+
+	sprintf(timerText, "%3im :%2is |%3iP %3iS", actualData.minutes, actualData.seconds, mtProject.values.actualPattern, actualData.step);
 
 	display.setControlText(timerLabel, timerText);
 	display.refreshControl(timerLabel);

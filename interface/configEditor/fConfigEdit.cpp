@@ -16,6 +16,8 @@
 
 #include "mtAudioEngine.h"
 
+#include "core/songTimer.h"
+
 
 #include "Si4703.h"
 
@@ -97,7 +99,7 @@ void cConfigEditor::update()
 		CE->listAllFirmwares();
 		CE->flashingState = 1;
 		CE->changeLabelText(2, "Cancel");
-		CE->changeLabelText(5, "Update");
+		CE->changeLabelText(5, "Select");
 		CE->showConfigList4(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
 		//CE->selectConfigList(3);
 		newFileManager.clearStatus();
@@ -167,6 +169,8 @@ void cConfigEditor::start(uint32_t options)
 void cConfigEditor::stop()
 {
 	eepromUpdate(true);
+
+	songTimer.show();
 
 	exitOnButtonRelease = 0;
 	moduleRefresh = 0;
@@ -860,12 +864,11 @@ static uint8_t functSwitchModule(uint8_t button)
 
 //======================================================================================================================
 
-
 void firmwareUpgradeActivate()
 {
+	CE->itemEditorOpen(menuTypeItemActionButton, "Fimware update", nullptr);
+
 	newFileManager.browseFirmwares();
-
-
 }
 
 void firmwareUpgradeDeactivate()
@@ -873,7 +876,6 @@ void firmwareUpgradeDeactivate()
 	CE->hideConfigList();
 
 	CE->itemEditorShown = 0;
-
 }
 
 void cConfigEditor::changeConfigListPosition(int16_t value)
@@ -882,13 +884,9 @@ void cConfigEditor::changeConfigListPosition(int16_t value)
 	else if(selectedConfigListPosition + value > configList.length-1) selectedConfigListPosition = configList.length-1;
 	else selectedConfigListPosition += value;
 
-
 	display.setControlValue(configListControl, selectedConfigListPosition);
 	display.refreshControl(configListControl);
-
-
 }
-
 
 void cConfigEditor::cancelUpdateFirmware()
 {
@@ -1073,12 +1071,17 @@ void cConfigEditor::openCredits()
 
 	FM->setPadsGlobal(functPads);
 
+	songTimer.hide();
+
 	hideConfigMenu();
 	showCreditsControls();
 }
 
 void cConfigEditor::closeCredits()
 {
+
+	songTimer.show();
+
 	hideCreditsControls();
 	start(0);
 }

@@ -41,15 +41,15 @@ const strItemTypeListTextWithAction setupPadsLayout		{ &mtConfig.general.padBoar
 const strItemTypeListTextWithAction setupAntialiasing 	{ &mtConfig.general.antialiasingEnable,	2,  ptrAntyaliasingEnable,	setAntyaliasingEnable };
 
 
-cMenuItem melPatternDiv				(menuGeneral, 	0, "Pattern Divider", 		menuTypeItemListValues,  &setupPatternDiv);
+cMenuItem melPatternDiv				(menuGeneral, 	0, "Pattern divider", 		menuTypeItemListValues,  &setupPatternDiv);
 cMenuItem melRadioReg				(menuGeneral, 	1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
-cMenuItem melDispBright				(menuGeneral, 	2, "Display Brightness", 	menuTypeItemListTextWithAction, &setupDispBrightness);
-cMenuItem melPadsBright				(menuGeneral, 	3, "Pads Brightness", 		menuTypeItemListTextWithAction, &setupPadsBrightness);
+cMenuItem melDispBright				(menuGeneral, 	2, "Display brightness", 	menuTypeItemListTextWithAction, &setupDispBrightness);
+cMenuItem melPadsBright				(menuGeneral, 	3, "Pads brightness", 		menuTypeItemListTextWithAction, &setupPadsBrightness);
 cMenuItem melRecQuantization		(menuGeneral, 	4, "Recording options", 	menuTypeItemListText, &setupRecQuantization);
 cMenuItem melPerformanceSource		(menuGeneral, 	5, "Performance presets", 	menuTypeItemListText, &setupPerfSource);
-cMenuItem melPadsScale				(menuGeneral, 	6, "Pads Scale", 			menuTypeItemListTextWithAction, &setupPadsScale);
-cMenuItem melPadsRootNote			(menuGeneral, 	7, "Pads Root Note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
-cMenuItem melPadsLayout				(menuGeneral, 	8, "Pads Layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
+cMenuItem melPadsScale				(menuGeneral, 	6, "Pads scale", 			menuTypeItemListTextWithAction, &setupPadsScale);
+cMenuItem melPadsRootNote			(menuGeneral, 	7, "Pads root note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
+cMenuItem melPadsLayout				(menuGeneral, 	8, "Pads layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
 cMenuItem melAntialiasingEnable		(menuGeneral, 	9, "Anti-aliasing", 		menuTypeItemListTextWithAction, &setupAntialiasing);
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
@@ -62,7 +62,7 @@ const strItemTypeListTextWithAction setupMetroTimeSigDenum	{ &mtConfig.metronome
 const strItemTypeListValues setupMetroVolume				{ &mtConfig.metronome.volume,			0, 100, 1, 0	};
 
 cMenuItem melMetroState			(menuMetro, 	0, "State", 				menuTypeItemListTextWithAction, &setupMetroState);
-cMenuItem melMetroPreRoll		(menuMetro, 	1, "Pre Roll", 				menuTypeItemListTextWithAction, &setupMetroPreRoll);
+cMenuItem melMetroPreRoll		(menuMetro, 	1, "Pre roll", 				menuTypeItemListTextWithAction, &setupMetroPreRoll);
 cMenuItem melMetroTimeSigNum	(menuMetro, 	2, "Time signature num", 	menuTypeItemListTextWithAction, &setupMetroTimeSigNum);
 cMenuItem melMetroTimeSigDenum	(menuMetro, 	3, "Time signature denum", 	menuTypeItemListTextWithAction, &setupMetroTimeSigDenum);
 cMenuItem melMetroVolume		(menuMetro, 	4, "Volume", 				menuTypeItemListValues,			&setupMetroVolume);
@@ -117,8 +117,8 @@ cMenuItem melCC5(menuCCOut, 		4, "CC E", 	menuTypeItemListValues, &setupCC5);
 const strItemTypeActionButton updateFirmwareSetup 	{ firmwareUpgradeActivate, firmwareUpgradeDeactivate };
 const strItemTypeLabel currentVerisonSetup 			{ interfaceGlobals.currentFirmwareVersion };
 
-cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Firmware Update", 	menuTypeItemActionButton, &updateFirmwareSetup);
-cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 	menuTypeItemLabel, &currentVerisonSetup);
+cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Firmware update", 	menuTypeItemActionButton, &updateFirmwareSetup);
+cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current version", 	menuTypeItemLabel, &currentVerisonSetup);
 
 /////////
 const strItemTypeActionButton manual1Setup 			{ openManual1Action, nullptr};
@@ -462,9 +462,10 @@ void cConfigEditor::itemEditorClose()
 	itemEditorShown = 0;
 	hideConfigList();
 	hideConfigItemLabel();
+
+
 	refreshConfigMenu();
 
-	changeLabelText(5,"Change");
 
 	cMenuItem* selected_child = (cMenuItem*)((cMenuGroup*)activeSubmenu)->getSelChild();
 	switch(selected_child->getItemType())
@@ -566,8 +567,6 @@ void cMenuGroup::executeItem()
 			break;
 		case menuTypeItemActionButton:
 		{
-			configEditor.itemEditorOpen(selected_child->itemType, selected_child->itemName, selected_child->itemSetup);
-
 			if(((strItemTypeActionButton*)selected_child->itemSetup)->funct1 != nullptr)
 			{
 				((strItemTypeActionButton*)selected_child->itemSetup)->funct1();

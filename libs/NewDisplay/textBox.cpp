@@ -111,7 +111,7 @@ uint8_t cTextBox::update()
     int16_t border_x = posX;//, border_y = posY-2;
     int16_t border_y = posY;
     int16_t lines_step =  font->height+value;
-    uint8_t lines_max = height/lines_step;
+    uint8_t lines_max = (height/lines_step)-1;
     int16_t lines_space = font->height;
 
     int16_t text_y; //= posY + data->yOffset;
