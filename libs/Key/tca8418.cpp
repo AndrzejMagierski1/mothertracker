@@ -97,8 +97,6 @@ void KEYS::writeByte(uint8_t data, uint8_t reg)
 
 	if(error)
 	{
-		debugLog.addLine("i2c Write error:  ");
-		debugLog.addValue(error);
 		refreshConfig();
 	}
 	return;
@@ -112,8 +110,6 @@ bool KEYS::readByte(uint8_t *data, uint8_t reg)
 
 	if(error)
 	{
-		debugLog.addLine("i2c write in read error");
-		debugLog.addValue(error);
 		refreshConfig();
 	}
 
@@ -122,7 +118,6 @@ bool KEYS::readByte(uint8_t *data, uint8_t reg)
 	uint8_t error_req = I2C_REQUESTFROM(_address, (uint8_t) 0x01);
 	if(!error_req)
 	{
-		debugLog.addLine("i2c error request");
 		refreshConfig();
 	}
 	while (I2C_AVALIBLE() < 1)
