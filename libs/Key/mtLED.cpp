@@ -134,7 +134,11 @@ uint8_t mtLED::update_all_leds()
 		Wire2.beginTransmission(_i2caddr);
 		Wire2.write((byte)ISSI_COMMANDREGISTER);
 		Wire2.write(_frame);
-		Wire2.endTransmission();
+		uint8_t error = Wire2.endTransmission();
+		if(error)
+		{
+			isDeadResetCheck();
+		}
 
 		Wire2.beginTransmission(_i2caddr);
 		Wire2.write((byte)0x00);
@@ -547,7 +551,17 @@ bool mtLED::isDeadResetCheck(void)
 	else
 	{
 		x = 1;
+		pinMode(3,OUTPUT);
+
+		for(uint8_t i = 0; i < 16; i++)
+		{
+			digitalWrite(3, i&1);
+		}
+
+
 		begin(_i2caddr);
+
+
 	}
 
 
