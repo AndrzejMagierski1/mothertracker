@@ -189,6 +189,18 @@ const char* const ptrAntyaliasingEnable[2] =
 	&onOffStateTexts[1][0]
 };
 
+
+const char limiterModeTexts[2][12] =
+{
+		"Subtle",
+		"Extreme",
+};
+
+const char* const ptrLimiterMode[2] =
+{
+	&limiterModeTexts[0][0],
+	&limiterModeTexts[1][0]
+};
 /*
 const char Texts[2][7] =
 {

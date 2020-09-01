@@ -11,6 +11,7 @@ void setPadsBrightness();
 
 void setPadBoardValues();
 void setAntyaliasingEnable();
+void setlimiterMode();
 
 void setMetronomValues();
 

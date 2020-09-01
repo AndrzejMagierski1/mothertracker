@@ -780,6 +780,8 @@ struct strMtConfig
 
 		uint8_t antialiasingEnable;
 
+		uint8_t limiterMode;
+
 	} general;
 
 	struct strInterfaceState

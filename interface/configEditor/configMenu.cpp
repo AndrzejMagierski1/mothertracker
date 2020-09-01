@@ -16,7 +16,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 6);
 //=====================================================================================================================================
 
 // grupy glowne
-cMenuGroup menuGeneral	(menuBase, 0, "General", 	10);
+cMenuGroup menuGeneral	(menuBase, 0, "General", 	11);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	5);
 cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	3);
@@ -39,7 +39,7 @@ const strItemTypeListTextWithAction setupPadsScale		{ &mtConfig.general.padBoard
 const strItemTypeListTextWithAction setupPadsRootNote	{ &mtConfig.general.padBoardRootNote,  	25,	&ptrAllNotes[24],	setPadBoardValues };
 const strItemTypeListTextWithAction setupPadsLayout		{ &mtConfig.general.padBoardNoteOffset,	12, ptrPadsLayout,		setPadBoardValues };
 const strItemTypeListTextWithAction setupAntialiasing 	{ &mtConfig.general.antialiasingEnable,	2,  ptrAntyaliasingEnable,	setAntyaliasingEnable };
-
+const strItemTypeListTextWithAction setupLimiterMode 	{ &mtConfig.general.limiterMode,		2,  ptrLimiterMode,		setlimiterMode };
 
 cMenuItem melPatternDiv				(menuGeneral, 	0, "Pattern divider", 		menuTypeItemListValues,  &setupPatternDiv);
 cMenuItem melRadioReg				(menuGeneral, 	1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
@@ -51,6 +51,7 @@ cMenuItem melPadsScale				(menuGeneral, 	6, "Pads scale", 			menuTypeItemListTex
 cMenuItem melPadsRootNote			(menuGeneral, 	7, "Pads root note", 		menuTypeItemListTextWithAction, &setupPadsRootNote);
 cMenuItem melPadsLayout				(menuGeneral, 	8, "Pads layout", 			menuTypeItemListTextWithAction, &setupPadsLayout);
 cMenuItem melAntialiasingEnable		(menuGeneral, 	9, "Anti-aliasing", 		menuTypeItemListTextWithAction, &setupAntialiasing);
+cMenuItem melLimiterMode			(menuGeneral, 	10, "Limiter mode", 		menuTypeItemListTextWithAction, &setupLimiterMode);
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
 //==================================================================================================================================================================

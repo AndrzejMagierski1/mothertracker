@@ -54,7 +54,10 @@ void setAntyaliasingEnable()
 	engine.setInterpolationEnable(mtConfig.general.antialiasingEnable);
 }
 
+void setlimiterMode()
+{
 
+}
 
 void setMetronomValues()
 {
