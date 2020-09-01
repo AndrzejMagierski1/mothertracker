@@ -1,3 +1,9 @@
+	1.1.14
+			- [KZ] przebudowany config
+			- [KZ] dodana opcja Reset config w kategori Firmware
+			- [KZ] fix: blad w creditsach 
+			- [KZ] fix: zawiesanie przy stracie po żonglowaniu wersjami firmware
+			
 	1.1.13
 			- [AM] fix: usuniecie klikania podczas trzymania przycisku note
 			- [AM] fix: save pattern - "no" juz nie czysci reverba i delaya ( nie wplywa na dźwięk)
