@@ -1,3 +1,5 @@
+	next release:
+			- [AM] fix: wieszanie sie padow w performance
 	1.1.14
 			- [KZ] przebudowany config
 			- [KZ] dodana opcja Reset config w kategori Firmware
