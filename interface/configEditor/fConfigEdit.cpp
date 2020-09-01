@@ -6,6 +6,7 @@
 //#include "mtFileManager.h"
 #include "fileManager.h"
 #include "configEditor/configEditor.h"
+#include "configEditor/configMenuActions.h"
 #include "mtSequencer.h"
 #include "mtConfig.h"
 #include "keyScanner.h"
@@ -81,13 +82,15 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 uint8_t checkIfFirmwareValid(char *name);
-//static uint8_t selectFirmware();
+
 
 static uint8_t prepareAndFlash();
-static uint8_t hideFlashingWarning();
 
 static uint8_t closeCreditsButton();
 
+
+
+//##########################################################################################
 void cConfigEditor::update()
 {
 	uint8_t managerStatus = newFileManager.getStatus();
@@ -287,23 +290,6 @@ void cConfigEditor::reloadPadScreenDisplayedValue(uint8_t value)
 //##############################################################################################
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-	if(CE->updatePopupShown)
-	{
-		if(state != buttonPress) return 1;
-
-		if(button == 5)
-		{
-			CE->updateFirmware();
-		}
-		else if(button == 2)
-		{
-			CE->cancelUpdateFirmware();
-		}
-
-		return 1;
-	}
-
-
 	if(state == buttonPress)
 	{
 		switch(button)
@@ -334,7 +320,15 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 2:
 		{
-			if(CE->selectedPlace == 1)
+			if(CE->updatePopupShown)
+			{
+				CE->updateFirmware(false);
+			}
+			else if(CE->resetConfigPopupShown)
+			{
+				CE->resetTrackerConfig(false);
+			}
+			else if(CE->selectedPlace == 1)
 			{
 				if(CE->itemEditorShown) CE->itemEditorClose();
 				else CE->menuGoOut();
@@ -373,11 +367,20 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 5:
 		{
-			if(CE->selectedPlace == 1)
+			if(CE->updatePopupShown)
 			{
-
+				CE->updateFirmware(true);
+			}
+			else if(CE->resetConfigPopupShown)
+			{
+				CE->resetTrackerConfig(true);
+			}
+			else if(CE->selectedPlace == 1)
+			{
 				if(CE->flashingState == 1)
 				{
+					if(CE->firmwareFoundNum == 0) return 1;
+					CE->FM->blockAllInputsExcept(interfaceButton2, interfaceButton5);
 					CE->showFirmwareUpdatePopout();
 				}
 				else if(CE->itemEditorShown) CE->itemEditorApply();
@@ -871,13 +874,6 @@ void firmwareUpgradeActivate()
 	newFileManager.browseFirmwares();
 }
 
-void firmwareUpgradeDeactivate()
-{
-	CE->hideConfigList();
-
-	CE->itemEditorShown = 0;
-}
-
 void cConfigEditor::changeConfigListPosition(int16_t value)
 {
 	if(selectedConfigListPosition + value < 0) selectedConfigListPosition  = 0;
@@ -888,23 +884,31 @@ void cConfigEditor::changeConfigListPosition(int16_t value)
 	display.refreshControl(configListControl);
 }
 
-void cConfigEditor::cancelUpdateFirmware()
+
+
+void cConfigEditor::updateFirmware(bool yes)
 {
-	firmwareUpgradeDeactivate();
+	if(yes)
+	{
+		if(firmwareFoundNum == 0) return;
+		if(selectedConfigListPosition > firmwareFoundNum) return;
+
+		processUpdate = 1;
+	}
+
+	CE->hideConfigList();
+
+	CE->itemEditorShown = 0;
 
 	CE->updatePopupShown = 0;
 
-	hideFlashingWarning();
+
+	CE->FM->unblockAllInputs();
+
+	CE->start(0);
+
 }
 
-
-void cConfigEditor::updateFirmware()
-{
-	if(firmwareFoundNum == 0) return;
-	if(selectedConfigListPosition > firmwareFoundNum) return;
-
-	processUpdate = 1;
-}
 
 
 //======================================================================================================================
@@ -1032,24 +1036,27 @@ static uint8_t prepareAndFlash()
 	}
 }
 
-void cConfigEditor::showFlashingWarning()
+//==============================================================================================================
+// reset config
+
+void  cConfigEditor::resetTrackerConfig(bool yes)
 {
-	if(firmwareFoundNum)
+
+	if(yes)
 	{
-		//FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-		//FM->setButtonObj(interfaceButton7, buttonPress, prepareAndFlash);
-		//FM->setButtonObj(interfaceButton6, buttonPress, hideFlashingWarning);
-		updatePopupShown=1;
-		showFirmwareUpdatePopout();
+		resetConfig();
+		saveConfigAsap();
+		restartConfigAllActions();
 	}
-}
 
-static uint8_t hideFlashingWarning()
-{
-	CE->updatePopupShown = 0;
-	CE->start(0);
 
-	return 1;
+	CE->hidePopout();
+
+	refreshConfigMenu();
+
+	CE->FM->unblockAllInputs();
+
+	resetConfigPopupShown = 0;
 }
 
 

@@ -132,19 +132,22 @@ public:
 	void showConfigItemLabel(const char* text);
 	void hideConfigItemLabel();
 
+	void reloadConfigLabels();
+
 	void showSubmenu();
 	void hideSubmenu();
 
 
 	char** ptrfirmwareNamesList;
-	//char firmwareNamesList[firmware_list_max][firmware_name_length];
 	void listAllFirmwares();
-	void showFlashingWarning();
-	void updateFirmware();
-	void cancelUpdateFirmware();
 
 	void showFirmwareUpdatePopout();
-	void hideFirmwareUpdatePopout();
+	void updateFirmware(bool yes);
+
+	void hidePopout();
+
+	void showResetConfigPopout();
+	void resetTrackerConfig(bool yes);
 
 	void resizeLabelConfigDefault();
 	void resizeLabelConfigMaster();
@@ -227,7 +230,7 @@ public:
 	uint8_t selectedConfigListPosition = 0;
 
 	uint8_t updatePopupShown = 0;
-
+	uint8_t	resetConfigPopupShown = 0;
 
 	uint8_t exitOnButtonRelease = 0;
 

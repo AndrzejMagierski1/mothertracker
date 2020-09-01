@@ -352,17 +352,7 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlStyle(label[2],( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY | controlStyleShowBitmap));
 	display.setControlStyle(label[5],( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY | controlStyleShowBitmap));
 
-	for(uint8_t i = 0; i<8; i++)
-	{
-		//display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
-		display.setControlShow(label[i]);
-		display.setControlText(label[i], "");
-		display.setControlText2(label[i], "");
-		display.refreshControl(label[i]);
-		//display.setControlText2(label[i], "");
-	}
-
-
+	reloadConfigLabels();
 
 //	if(i == 0) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[0];}
 //	if(i == 2) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[1];}
@@ -527,6 +517,17 @@ void cConfigEditor::hideConfigItemLabel()
 	display.refreshControl(configLabel);
 }
 
+void cConfigEditor::reloadConfigLabels()
+{
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+}
+
 
 void cConfigEditor::showSubmenu()
 {
@@ -560,7 +561,7 @@ void cConfigEditor::hideSubmenu()
 //==============================================================================================================
 //==============================================================================================================
 
-
+// firmware update confirm popup
 void cConfigEditor::showFirmwareUpdatePopout()
 {
 	updatePopupShown = 1;
@@ -589,7 +590,7 @@ void cConfigEditor::showFirmwareUpdatePopout()
 }
 
 
-void cConfigEditor::hideFirmwareUpdatePopout()
+void cConfigEditor::hidePopout()
 {
 	for(uint8_t i = 0 ; i < 8; i++)
 	{
@@ -606,7 +607,39 @@ void cConfigEditor::hideFirmwareUpdatePopout()
 	display.synchronizeRefresh();
 }
 
+//===============================================================
+// reset config confirm popup
+void cConfigEditor::showResetConfigPopout()
+{
+	resetConfigPopupShown = 1;
 
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlHide(label[i]);
+	}
+
+	display.setControlShow(label[5]);
+	display.setControlShow(label[2]);
+	display.setControlText(label[5], "Yes");
+	display.setControlText(label[2], "Cancel");
+
+	display.refreshControl(label[2]);
+	display.refreshControl(label[5]);
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(popoutWindowLabel,"Are you sure you want to clear the config?");
+	display.setControlShow(popoutWindowLabel);
+	display.refreshControl(popoutWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+
+
+//==============================================================================
+//credits
 void cConfigEditor::showCreditsControls()
 {
 	display.setControlText(titleLabel, "Credits");

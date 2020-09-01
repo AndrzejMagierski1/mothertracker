@@ -19,7 +19,7 @@ cMenuGroup menuBase(menuBase, 0, 0, 6);
 cMenuGroup menuGeneral	(menuBase, 0, "General", 	10);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuMetro	(menuBase, 2, "Metronome", 	5);
-cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	2);
+cMenuGroup menuFirmware	(menuBase, 3, "Firmware", 	3);
 cMenuGroup menuManual	(menuBase, 4, "Manual", 	1);
 cMenuGroup menuCredits	(menuBase, 5, "Credits", 	1);
 
@@ -53,7 +53,7 @@ cMenuItem melPadsLayout				(menuGeneral, 	8, "Pads layout", 			menuTypeItemListT
 cMenuItem melAntialiasingEnable		(menuGeneral, 	9, "Anti-aliasing", 		menuTypeItemListTextWithAction, &setupAntialiasing);
 //cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
-///////////////////
+//==================================================================================================================================================================
 // metronome
 const strItemTypeListTextWithAction setupMetroState			{ &mtConfig.metronome.state,  			2,  ptrMetroState,		setMetronomValues };
 const strItemTypeListTextWithAction setupMetroPreRoll		{ &mtConfig.metronome.preRoll,  		2,  ptrPreRollState,		setMetronomValues };
@@ -114,11 +114,13 @@ cMenuItem melCC5(menuCCOut, 		4, "CC E", 	menuTypeItemListValues, &setupCC5);
 //cMenuItem melCC10(menuCCOut, 		9, "CC 10", menuTypeItemListValues, &setupCC10);
 
 ///////////
-const strItemTypeActionButton updateFirmwareSetup 	{ firmwareUpgradeActivate, firmwareUpgradeDeactivate };
+const strItemTypeActionButton updateFirmwareSetup 	{ firmwareUpgradeActivate, nullptr };
 const strItemTypeLabel currentVerisonSetup 			{ interfaceGlobals.currentFirmwareVersion };
+const strItemTypeActionButton resetConfigSetup 		{ resetConfigShowPopup, nullptr };
 
 cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Firmware update", 	menuTypeItemActionButton, &updateFirmwareSetup);
 cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current version", 	menuTypeItemLabel, &currentVerisonSetup);
+cMenuItem melResetConfig	(menuFirmware, 	2, "Reset config", 		menuTypeItemActionButton, &resetConfigSetup);
 
 /////////
 const strItemTypeActionButton manual1Setup 			{ openManual1Action, nullptr};
@@ -357,6 +359,8 @@ void cConfigEditor::chanegeItemValue(void* selectedMenuItem, int16_t value)
 
 void cConfigEditor::refreshConfigMenu()
 {
+	reloadConfigLabels();
+
 	if(menuBase.type == menuTypeItem)
 	{
 		hideSubmenu();
@@ -379,6 +383,8 @@ void cConfigEditor::refreshConfigMenu()
 			changeLabelText(5, "Change"); //xxx wejscie do podmenu
 		}
 	}
+
+	display.synchronizeRefresh();
 }
 
 

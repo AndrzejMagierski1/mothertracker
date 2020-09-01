@@ -20,6 +20,7 @@ uint8_t readStartState();
 //void saveStartState();
 void saveStartState(uint8_t state);
 
+void resetConfig();
 void checkConfig();
 void recoverConfigFromOldVerison();
 

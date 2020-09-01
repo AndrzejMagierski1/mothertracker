@@ -70,5 +70,23 @@ void setMetronomValues()
 
 
 
+void resetConfigShowPopup()
+{
+	configEditor.showResetConfigPopout();
+	configEditor.FM->blockAllInputsExcept(interfaceButton2, interfaceButton5);
+}
+
+// akcje do wykonania przy resecie configu
+void restartConfigAllActions()
+{
+	setDisplayBrightness();
+	setPadsBrightness();
+
+	setPadBoardValues();
+
+	setAntyaliasingEnable();
+
+	setMetronomValues();
 
 
+}

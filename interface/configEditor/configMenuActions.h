@@ -4,6 +4,8 @@
 
 
 
+void restartConfigAllActions();
+
 void setDisplayBrightness();
 void setPadsBrightness();
 
@@ -29,6 +31,10 @@ void openManual12Action();
 void openManual13Action();
 void openManual14Action();
 void openManual15Action();
+
+
+
+void resetConfigShowPopup();
 
 
 #endif /* INTERFACE_CONFIGEDITOR_CONFIGMENUACTIONS_H_ */
