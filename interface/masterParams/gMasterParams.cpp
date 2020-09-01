@@ -454,7 +454,7 @@ void cMasterParams::showReverbScreen()
 	display.setControlText2(label[7], " ");
 
 	resizeToDefaultMaster();
-
+	resizeBarControl(display_t::masterValues);
 
 
 	for(uint8_t i = 0; i < 8; i++)
@@ -542,6 +542,7 @@ void cMasterParams::showDelayScreen()
 		display.setControlText2(label[7], " ");
 
 		resizeToDefaultMaster();
+		resizeBarControl(display_t::masterValues);
 
 		if(mtProject.values.delayParams & 0b01000000)
 		{

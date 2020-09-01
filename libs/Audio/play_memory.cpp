@@ -384,7 +384,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	startPoint=0;
 	endPoint=MAX_16BIT;
 	currentFineTune=0;
-	fineTuneControl=0;
+	finetunePitchControl=0;
 
 
 	pointsInSamples.start= (uint32_t)((float)startPoint*((float)currentSampleLength/MAX_16BIT));
@@ -474,7 +474,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	startPoint=0;
 	endPoint=MAX_16BIT;
 	currentFineTune=0;
-	fineTuneControl=0;
+	finetunePitchControl=0;
 	if(currentPlayMode == playModeWavetable)
 	{
 		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
@@ -590,38 +590,47 @@ void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr
 void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 {
 	float localPitchControl = pitchControl;
-	float localFineTuneControl = fineTuneControl;
-	localPitchControl-=localFineTuneControl;
-	uint8_t localPlayMode = mtProject.instrument[currentInstrIdx].playMode;
+	float localFinetunePitchControl = finetunePitchControl;
+	const float * localNoteTable = (mtProject.instrument[currentInstrIdx].playMode == playModeWavetable) ? wt_notes : notes;
+	int8_t tunedNoteIdx = currentNote + currentTune;
+
+
+	localPitchControl -= localFinetunePitchControl;
+
 
 	if(value >= 0)
 	{
-		if((currentNote + currentTune + 1) <= (MAX_NOTE-1))
-		{
-			float localPitch1 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune + 1] : (float)wt_notes[currentNote + currentTune + 1];
-			float localPitch2 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
+		bool isNotExceedUpperNoteRange = ( (tunedNoteIdx + 1) < MAX_NOTE );
 
-			localFineTuneControl= value * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+		if(isNotExceedUpperNoteRange)
+		{
+			float maxFinetuneShiftPitch = localNoteTable[tunedNoteIdx + 1];
+			float currentNotePitch = localNoteTable[tunedNoteIdx] ;
+
+			localFinetunePitchControl = value * ( (maxFinetuneShiftPitch - currentNotePitch)/MAX_INSTRUMENT_FINETUNE );
 		}
-		else localFineTuneControl=0;
+		else localFinetunePitchControl = 0;
 	}
 	else
 	{
-		if((currentNote + currentTune - 1) >= MIN_NOTE)
-		{
-			float localPitch1 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune - 1] : (float)wt_notes[currentNote + currentTune - 1];
-			float localPitch2 = (localPlayMode != playModeWavetable) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
+		bool isNotExceedLowerNoteRange = ((tunedNoteIdx - 1) >= MIN_NOTE);
 
-			localFineTuneControl= (0-value) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+		if(isNotExceedLowerNoteRange)
+		{
+			float maxFinetuneShiftPitch = localNoteTable[tunedNoteIdx - 1] ;
+			float currentNotePitch = localNoteTable[tunedNoteIdx] ;
+
+			localFinetunePitchControl= (-value) * ( (maxFinetuneShiftPitch - currentNotePitch)/MAX_INSTRUMENT_FINETUNE );
 		}
-		else localFineTuneControl=0;
+		else localFinetunePitchControl = 0;
 	}
 
-	localPitchControl+=localFineTuneControl;
+	localPitchControl += localFinetunePitchControl;
+
 	AudioNoInterrupts();
-	pitchControl=localPitchControl; // przypisanie nowej wartosci pitchControl w jednej instrukcji asm, żeby nie moglo w miedzyczasie wbic sie przerwanie
-	fineTuneControl = localFineTuneControl;
-	currentFineTune=value;
+	pitchControl = localPitchControl;
+	finetunePitchControl = localFinetunePitchControl;
+	currentFineTune = value;
 	AudioInterrupts();
 
 }
@@ -859,7 +868,7 @@ void AudioPlayMemory::clean(void)
 		currentGlide=0;
 		glideCounter=0;
 		glideControl=0;
-		fineTuneControl=0;
+		finetunePitchControl=0;
 		currentTune=0;
 		wavetableWindowSize=0;
 		currentWindow=0;
@@ -950,9 +959,9 @@ void AudioPlayMemory::applyFinetuneOnPitch(uint8_t note)
 				float localPitch1 = (float)wt_notes[note + currentTune + 1];
 				float localPitch2 = (float)wt_notes[note + currentTune];
 
-				fineTuneControl = currentFineTune * ((localPitch1 - localPitch2) / MAX_INSTRUMENT_FINETUNE );
+				finetunePitchControl = currentFineTune * ((localPitch1 - localPitch2) / MAX_INSTRUMENT_FINETUNE );
 			}
-			else fineTuneControl = 0;
+			else finetunePitchControl = 0;
 		}
 		else
 		{
@@ -961,12 +970,12 @@ void AudioPlayMemory::applyFinetuneOnPitch(uint8_t note)
 				float localPitch1 = (float)wt_notes[note + currentTune - 1];
 				float localPitch2 = (float)wt_notes[note + currentTune];
 
-				fineTuneControl = (-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+				finetunePitchControl = (-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 			}
-			else fineTuneControl = 0;
+			else finetunePitchControl = 0;
 		}
 
-		pitchControl += fineTuneControl;
+		pitchControl += finetunePitchControl;
 	}
 	else
 	{
@@ -977,9 +986,9 @@ void AudioPlayMemory::applyFinetuneOnPitch(uint8_t note)
 				float localPitch1 = (float)notes[note + currentTune + 1];
 				float localPitch2 = (float)notes[note + currentTune];
 
-				fineTuneControl = currentFineTune * ((localPitch1 - localPitch2) / MAX_INSTRUMENT_FINETUNE );
+				finetunePitchControl = currentFineTune * ((localPitch1 - localPitch2) / MAX_INSTRUMENT_FINETUNE );
 			}
-			else fineTuneControl = 0;
+			else finetunePitchControl = 0;
 		}
 		else
 		{
@@ -988,12 +997,12 @@ void AudioPlayMemory::applyFinetuneOnPitch(uint8_t note)
 				float localPitch1 = (float)notes[note + currentTune - 1];
 				float localPitch2 = (float)notes[note + currentTune];
 
-				fineTuneControl = (-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
+				finetunePitchControl = (-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 			}
-			else fineTuneControl = 0;
+			else finetunePitchControl = 0;
 		}
 
-		pitchControl += fineTuneControl;
+		pitchControl += finetunePitchControl;
 	}
 }
 void AudioPlayMemory::calculateGlidePitch(uint8_t note)

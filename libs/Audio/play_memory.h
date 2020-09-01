@@ -283,7 +283,7 @@ private:
 	uint16_t currentGlide;
 	uint32_t glideCounter;									// licznik glide'a w czasie
 	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
-	float fineTuneControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)
+	float finetunePitchControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)
 	int8_t currentTune;
 	int8_t currentFineTune;
 	//********
