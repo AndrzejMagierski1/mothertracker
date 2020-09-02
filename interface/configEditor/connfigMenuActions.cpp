@@ -56,7 +56,8 @@ void setAntyaliasingEnable()
 
 void setlimiterMode()
 {
-
+	engine.setLimiterAttack(mtProject.values.limiterAttack);
+	engine.setLimiterRelease(mtProject.values.limiterRelease);
 }
 
 void setMetronomValues()
