@@ -822,12 +822,9 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	modDelaySend(AMP_MUTED);
 	modReverbSend(AMP_MUTED);
 	/*======================================================================================================*/
-	limiter[0].setAttack(300);
-	limiter[0].setRelease(10);
-	limiter[0].setThreshold(32000);
-	limiter[1].setAttack(300);
-	limiter[1].setRelease(10);
-	limiter[1].setThreshold(32000);
+	engine.setLimiterAttack(300);
+	engine.setLimiterRelease(10);
+	engine.setLimiterTreshold(LIMITER_TRESHOLD_MAX);
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 
@@ -858,12 +855,10 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	modDelaySend(AMP_MUTED);
 	modReverbSend(AMP_MUTED);
 	/*======================================================================================================*/
-	limiter[0].setAttack(300);
-	limiter[0].setRelease(10);
-	limiter[0].setThreshold(LIMITER_TRESHOLD_MAX);
-	limiter[1].setAttack(300);
-	limiter[1].setRelease(10);
-	limiter[1].setThreshold(LIMITER_TRESHOLD_MAX);
+
+	engine.setLimiterAttack(300);
+	engine.setLimiterRelease(10);
+	engine.setLimiterTreshold(LIMITER_TRESHOLD_MAX);
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 

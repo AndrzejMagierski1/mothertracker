@@ -26,7 +26,7 @@ private:
   uint16_t threshold;
   float g=1.0;
   uint16_t xpeak;
-  float attack;
+  float attackTime;
   float releaseTime;
   uint16_t a;
   float coeff;
