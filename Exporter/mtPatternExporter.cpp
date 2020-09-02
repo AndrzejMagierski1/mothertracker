@@ -184,6 +184,8 @@ void mtPatternExporter::refreshSave()
 void mtPatternExporter::updateReceiving()
 {
 	if(duringUpdateReceive) return;
+	constexpr float RMS_EXPORT_END_THRESHOLD = 0.0005f;
+
 	duringUpdateReceive = true;
 	refreshReceiving();
 	if(lastStep)
@@ -195,7 +197,7 @@ void mtPatternExporter::updateReceiving()
 			rmsL = exportLeftChannelRMS.read();
 			rmsR = exportRightChannelRMS.read();
 
-			if(((rmsL < 0.0001f) && (rmsR < 0.0001f)) && (shortDelay.getIsFaded() || isIgnoredDelay))
+			if(((rmsL < RMS_EXPORT_END_THRESHOLD) && (rmsR < RMS_EXPORT_END_THRESHOLD)) && (shortDelay.getIsFaded() || isIgnoredDelay))
 			{
 				lastStep = 0;
 				finishReceiving();
